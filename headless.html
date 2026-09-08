@@ -1291,11 +1291,23 @@
   .pp-donut-wrap:hover .pp-donut-num { transform: scale(1.08); }
   .pp-summary-text { font-size: 13px; color: #374151; line-height: 1.6; max-width: 420px; }
   .pp-summary-text strong { font-weight: 500; color: #111827; display: block; margin-bottom: 4px; }
-  .pp-trend-wrap { flex-shrink: 0; width: 320px; }
+  .pp-trend-wrap { flex-shrink: 0; width: 320px; position: relative; }
+  #trendSvg { width: 100%; height: 80px; display: block; overflow: visible; cursor: crosshair; }
   .pp-trend-months {
     display: flex; justify-content: space-between; font-size: 10px; color: #9ca3af; margin-top: 4px;
   }
-  .pp-trend-month-active { color: #2563eb; font-weight: 600; }
+  .pp-trend-months span {
+    cursor: pointer; padding: 1px 3px; border-radius: 3px; transition: color 0.15s;
+  }
+  .pp-trend-months span:hover { color: #374151; }
+  .pp-trend-month-active { color: #2563eb !important; font-weight: 600; }
+  #trendTooltip {
+    position: fixed; background: #1e293b; color: #f8fafc;
+    font-size: 11px; padding: 5px 9px; border-radius: 5px;
+    pointer-events: none; white-space: nowrap; z-index: 9999;
+    opacity: 0; transition: opacity 0.1s;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  }
 
   .pp-body { flex: 1; display: flex; overflow: hidden; }
   .pp-left { flex: 1; overflow-y: auto; padding: 0; margin-left: 15px; }
@@ -1866,21 +1878,17 @@
                 </div>
               </div>
             </div>
-            <div class="pp-trend-wrap">
-              <svg viewBox="0 0 320 80" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:80px;">
-                <defs>
-                  <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#2563eb" stop-opacity="0.3"/>
-                    <stop offset="100%" stop-color="#2563eb" stop-opacity="0.02"/>
-                  </linearGradient>
-                </defs>
-                <path d="M0,60 C40,55 60,35 100,30 C140,25 160,40 200,35 C240,30 270,20 290,18 L320,20 L320,80 L0,80Z" fill="url(#trendGrad)"/>
-                <path d="M0,60 C40,55 60,35 100,30 C140,25 160,40 200,35 C240,30 270,20 290,18 L320,20" stroke="#2563eb" stroke-width="2" fill="none" stroke-linejoin="round"/>
-                <circle cx="290" cy="18" r="4" fill="#2563eb" stroke="white" stroke-width="1.5"/>
-              </svg>
-              <div class="pp-trend-months">
-                <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span>
-                <span class="pp-trend-month-active">Jun</span><span>Jul</span>
+            <div class="pp-trend-wrap" id="trendWrap">
+              <svg id="trendSvg" viewBox="0 0 320 80" xmlns="http://www.w3.org/2000/svg"></svg>
+              <div id="trendTooltip"></div>
+              <div class="pp-trend-months" id="trendMonths">
+                <span data-idx="0">Jan</span>
+                <span data-idx="1">Feb</span>
+                <span data-idx="2">Mar</span>
+                <span data-idx="3">Apr</span>
+                <span data-idx="4">May</span>
+                <span data-idx="5" class="pp-trend-month-active">Jun</span>
+                <span data-idx="6">Jul</span>
               </div>
             </div>
           </div>
@@ -2212,8 +2220,8 @@
     const rightPanel = document.getElementById('rightPanel');
     if (rightPanel) rightPanel.style.display = (tabId === 'agentic' || tabId === 'policy') ? 'none' : '';
 
-    // trigger donut animation when policy tab opens
-    if (tabId === 'policy') animateDonut();
+    // trigger donut + trend animations when policy tab opens
+    if (tabId === 'policy') { animateDonut(); initTrend(); }
   }
 
   function animateDonut() {
@@ -2241,6 +2249,180 @@
     }
     requestAnimationFrame(tick);
   }
+
+  /* ────────────────────────────────────────────
+     TREND CHART
+  ──────────────────────────────────────────── */
+  (function() {
+    // Monthly score data — 7 months Jan–Jul
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul'];
+    const DATA = [
+      { score: 68, pts: [[0,58],[45,52],[90,48],[135,46],[180,40],[225,44],[270,42]] },  // Jan
+      { score: 71, pts: [[0,56],[45,50],[90,44],[135,42],[180,38],[225,40],[270,38]] },  // Feb
+      { score: 74, pts: [[0,54],[45,46],[90,40],[135,36],[180,34],[225,36],[270,34]] },  // Mar
+      { score: 78, pts: [[0,50],[45,42],[90,36],[135,30],[180,32],[225,34],[270,30]] },  // Apr
+      { score: 80, pts: [[0,48],[45,38],[90,32],[135,28],[180,30],[225,28],[270,26]] },  // May
+      { score: 85, pts: [[0,44],[45,32],[90,26],[135,22],[180,28],[225,22],[270,20]] },  // Jun ← active
+      { score: 82, pts: [[0,46],[45,34],[90,28],[135,24],[180,30],[225,26],[270,24]] },  // Jul
+    ];
+
+    let activeIdx = 5;
+    let animFrame = null;
+
+    // build smooth cubic bezier path string from point array
+    function buildPath(pts, W) {
+      const n = pts.length;
+      const xs = pts.map((_, i) => (i / (n - 1)) * W);
+      const ys = pts.map(p => p[1]);
+      let d = `M${xs[0]},${ys[0]}`;
+      for (let i = 0; i < n - 1; i++) {
+        const cpx = (xs[i] + xs[i+1]) / 2;
+        d += ` C${cpx},${ys[i]} ${cpx},${ys[i+1]} ${xs[i+1]},${ys[i+1]}`;
+      }
+      return { d, xs, ys };
+    }
+
+    function drawTrend(idx, animate) {
+      const svg = document.getElementById('trendSvg');
+      if (!svg) return;
+      const NS = 'http://www.w3.org/2000/svg';
+      const W = 320, H = 80;
+      svg.innerHTML = '';
+
+      const { d, xs, ys } = buildPath(DATA[idx].pts, W);
+
+      // defs: gradient
+      const defs = document.createElementNS(NS, 'defs');
+      const grad = document.createElementNS(NS, 'linearGradient');
+      grad.setAttribute('id', 'trendFill'); grad.setAttribute('x1','0'); grad.setAttribute('y1','0');
+      grad.setAttribute('x2','0'); grad.setAttribute('y2','1');
+      const s1 = document.createElementNS(NS, 'stop');
+      s1.setAttribute('offset','0%'); s1.setAttribute('stop-color','#2563eb'); s1.setAttribute('stop-opacity','0.28');
+      const s2 = document.createElementNS(NS, 'stop');
+      s2.setAttribute('offset','100%'); s2.setAttribute('stop-color','#2563eb'); s2.setAttribute('stop-opacity','0.02');
+      grad.appendChild(s1); grad.appendChild(s2); defs.appendChild(grad); svg.appendChild(defs);
+
+      // clip path for draw-in animation
+      const clipId = 'trendClip';
+      const clipPath = document.createElementNS(NS, 'clipPath');
+      clipPath.setAttribute('id', clipId);
+      const clipRect = document.createElementNS(NS, 'rect');
+      clipRect.setAttribute('x', '0'); clipRect.setAttribute('y', '0');
+      clipRect.setAttribute('width', animate ? '0' : String(W));
+      clipRect.setAttribute('height', String(H));
+      clipPath.appendChild(clipRect); defs.appendChild(clipPath);
+
+      // area fill
+      const area = document.createElementNS(NS, 'path');
+      area.setAttribute('d', d + ` L${W},${H} L0,${H} Z`);
+      area.setAttribute('fill', 'url(#trendFill)');
+      area.setAttribute('clip-path', `url(#${clipId})`);
+      svg.appendChild(area);
+
+      // line
+      const line = document.createElementNS(NS, 'path');
+      line.setAttribute('d', d);
+      line.setAttribute('stroke', '#2563eb');
+      line.setAttribute('stroke-width', '2');
+      line.setAttribute('fill', 'none');
+      line.setAttribute('stroke-linecap', 'round');
+      line.setAttribute('stroke-linejoin', 'round');
+      line.setAttribute('clip-path', `url(#${clipId})`);
+      svg.appendChild(line);
+
+      // end dot (last visible point = active month)
+      const dot = document.createElementNS(NS, 'circle');
+      dot.setAttribute('id', 'trendDot');
+      dot.setAttribute('cx', xs[idx]); dot.setAttribute('cy', ys[idx]);
+      dot.setAttribute('r', '4'); dot.setAttribute('fill', '#2563eb');
+      dot.setAttribute('stroke', 'white'); dot.setAttribute('stroke-width', '1.5');
+      dot.setAttribute('clip-path', `url(#${clipId})`);
+      svg.appendChild(dot);
+
+      // crosshair (hidden initially)
+      const vline = document.createElementNS(NS, 'line');
+      vline.setAttribute('id', 'trendVline');
+      vline.setAttribute('y1', '0'); vline.setAttribute('y2', String(H));
+      vline.setAttribute('stroke', '#94a3b8'); vline.setAttribute('stroke-width', '1');
+      vline.setAttribute('stroke-dasharray', '3 2'); vline.style.opacity = '0';
+      svg.appendChild(vline);
+
+      const hDot = document.createElementNS(NS, 'circle');
+      hDot.setAttribute('id', 'trendHDot');
+      hDot.setAttribute('r', '3.5'); hDot.setAttribute('fill', '#2563eb');
+      hDot.setAttribute('stroke', 'white'); hDot.setAttribute('stroke-width', '1.5');
+      hDot.style.opacity = '0';
+      svg.appendChild(hDot);
+
+      // animate clip rect width 0→W over 900ms
+      if (animate) {
+        if (animFrame) cancelAnimationFrame(animFrame);
+        const start = performance.now();
+        const dur = 900;
+        function tick(now) {
+          const p = Math.min((now - start) / dur, 1);
+          const eased = 1 - Math.pow(1 - p, 3);
+          clipRect.setAttribute('width', String(eased * W));
+          if (p < 1) animFrame = requestAnimationFrame(tick);
+        }
+        animFrame = requestAnimationFrame(tick);
+      }
+
+      // store for hover
+      svg._xs = xs; svg._ys = ys; svg._idx = idx;
+    }
+
+    function setupHover() {
+      const svg = document.getElementById('trendSvg');
+      const tip = document.getElementById('trendTooltip');
+      if (!svg || !tip) return;
+
+      svg.addEventListener('mousemove', e => {
+        const rect = svg.getBoundingClientRect();
+        const mx = (e.clientX - rect.left) / rect.width * 320;
+        const xs = svg._xs, ys = svg._ys;
+        if (!xs) return;
+
+        // find nearest data point
+        let ni = 0, nd = Infinity;
+        xs.forEach((x, i) => { const d = Math.abs(mx - x); if (d < nd) { nd = d; ni = i; } });
+
+        const vline = document.getElementById('trendVline');
+        const hDot  = document.getElementById('trendHDot');
+        if (vline) { vline.setAttribute('x1', xs[ni]); vline.setAttribute('x2', xs[ni]); vline.style.opacity = '1'; }
+        if (hDot)  { hDot.setAttribute('cx', xs[ni]); hDot.setAttribute('cy', ys[ni]); hDot.style.opacity = '1'; }
+
+        tip.innerHTML = `<strong>${MONTHS[ni]}</strong> · Score <strong style="color:#60a5fa">${DATA[svg._idx].score + (ni - svg._idx) * 2}</strong>`;
+        tip.style.opacity = '1';
+        tip.style.left = (e.clientX + 12) + 'px';
+        tip.style.top  = (e.clientY - 28) + 'px';
+      });
+
+      svg.addEventListener('mouseleave', () => {
+        const vline = document.getElementById('trendVline');
+        const hDot  = document.getElementById('trendHDot');
+        if (vline) vline.style.opacity = '0';
+        if (hDot)  hDot.style.opacity  = '0';
+        tip.style.opacity = '0';
+      });
+    }
+
+    function setActiveMonth(idx) {
+      activeIdx = idx;
+      document.querySelectorAll('#trendMonths span').forEach(s => {
+        s.classList.toggle('pp-trend-month-active', parseInt(s.dataset.idx) === idx);
+      });
+      drawTrend(idx, true);
+    }
+
+    window.initTrend = function() {
+      drawTrend(activeIdx, true);
+      setupHover();
+      document.querySelectorAll('#trendMonths span').forEach(s => {
+        s.onclick = () => setActiveMonth(parseInt(s.dataset.idx));
+      });
+    };
+  })();
 
   /* ────────────────────────────────────────────
      REGION DROPDOWN
