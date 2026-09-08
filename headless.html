@@ -2843,6 +2843,8 @@
     btn.classList.add('active');
     document.getElementById('pp-studio-tab').style.display = tab === 'studio' ? '' : 'none';
     document.getElementById('pp-config-tab').style.display = tab === 'config' ? '' : 'none';
+    const ppRight = document.querySelector('.pp-right');
+    if (ppRight) ppRight.style.display = tab === 'config' ? 'none' : '';
   }
 
   const badgeCycle = ['Auto','Ask','Approval'];
