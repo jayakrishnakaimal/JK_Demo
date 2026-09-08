@@ -291,7 +291,7 @@
   /* greeting overlay */
   .greeting {
     position: absolute;
-    bottom: 90px;
+    bottom: 40px;
     left: 28px;
     right: 28px;
   }
@@ -552,13 +552,46 @@
     line-height: 1.1;
     margin-bottom: 3px;
     letter-spacing: -0.5px;
+    display: inline-block;
+    transition: transform 0.18s, opacity 0.18s;
   }
+  .at-stat-val:hover { transform: scale(1.1); cursor: default; }
+
   .at-stat-green  { color: #166534; }
   .at-stat-sub    { font-size: 14px; font-weight: 400; color: #9ca3af; }
   .at-stat-amber  { color: #d97706; font-size: 26px; font-weight: 300; }
   .at-stat-green-lg { color: #166534; font-size: 26px; font-weight: 300; display: block; }
   .at-stat-red    { color: #dc2626; font-size: 26px; font-weight: 300; display: block; }
   .at-stat-note   { font-size: 11px; color: #9ca3af; }
+
+  /* count-up pop-in */
+  @keyframes atStatPop {
+    0%   { opacity: 0; transform: translateY(8px) scale(0.75); }
+    65%  { opacity: 1; transform: translateY(-2px) scale(1.06); }
+    100% { opacity: 1; transform: translateY(0)   scale(1);    }
+  }
+  .at-stat-val.at-popping {
+    animation: atStatPop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  /* stagger delays for cards 1–4 */
+  .at-stat-card:nth-child(1) .at-stat-val.at-popping { animation-delay: 0ms;   }
+  .at-stat-card:nth-child(2) .at-stat-val.at-popping { animation-delay: 100ms; }
+  .at-stat-card:nth-child(3) .at-stat-val.at-popping { animation-delay: 200ms; }
+  .at-stat-card:nth-child(4) .at-stat-val.at-popping { animation-delay: 300ms; }
+
+  /* ambient pulse on red stat (recurring issues — draws attention) */
+  @keyframes atRedPulse {
+    0%, 100% { text-shadow: none; }
+    50%       { text-shadow: 0 0 10px rgba(220,38,38,0.45); }
+  }
+  .at-stat-red { animation: atRedPulse 2.6s ease-in-out infinite; }
+
+  /* amber subtle shimmer */
+  @keyframes atAmberShimmer {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.72; }
+  }
+  .at-stat-amber { animation: atAmberShimmer 3s ease-in-out infinite; }
 
   /* table */
   .at-table-wrap {
@@ -1809,7 +1842,7 @@
               </div>
               <div>
                 <div class="at-stat-label">Cases completed <span class="at-badge-good">Good</span></div>
-                <div class="at-stat-val"><span class="at-stat-green">100</span><span class="at-stat-sub">/120</span></div>
+                <div class="at-stat-val" id="atStat1"><span class="at-stat-green" id="atStat1Num">100</span><span class="at-stat-sub">/120</span></div>
                 <div class="at-stat-note">Avg resolve time | 4.2 mins</div>
               </div>
             </div>
@@ -1819,7 +1852,7 @@
               </div>
               <div>
                 <div class="at-stat-label">Cases that require user attention</div>
-                <div class="at-stat-val at-stat-amber">10</div>
+                <div class="at-stat-val at-stat-amber" id="atStat2">10</div>
                 <div class="at-stat-note">since 5 days</div>
               </div>
             </div>
@@ -1829,7 +1862,7 @@
               </div>
               <div>
                 <div class="at-stat-label">Auto resolution rate</div>
-                <div class="at-stat-val at-stat-green-lg">82%</div>
+                <div class="at-stat-val at-stat-green-lg" id="atStat3">82%</div>
                 <div class="at-stat-note">resolved without human input</div>
               </div>
             </div>
@@ -1839,7 +1872,7 @@
               </div>
               <div>
                 <div class="at-stat-label">Recurring issue</div>
-                <div class="at-stat-val at-stat-red">6</div>
+                <div class="at-stat-val at-stat-red" id="atStat4">6</div>
                 <div class="at-stat-note">flagged 2nd+ time this week</div>
               </div>
             </div>
@@ -2285,6 +2318,8 @@
 
     // trigger donut + trend animations when policy tab opens
     if (tabId === 'policy') { animateDonut(); initTrend(); }
+    // trigger agentic stat animations
+    if (tabId === 'agentic') initAtStats();
   }
 
   function animateDonut() {
@@ -2944,6 +2979,46 @@
     // ── hide tooltip when mouse leaves SVG ──
     svg.addEventListener('mouseleave', () => { tip.style.opacity = '0'; });
   }
+  /* ────────────────────────────────────────────
+     AGENTIC TRACE STAT ANIMATIONS
+  ──────────────────────────────────────────── */
+  function initAtStats() {
+    // config: [id, target, suffix, isInnerSpan]
+    const stats = [
+      { id: 'atStat1Num', target: 100, suffix: '',  dur: 900  },
+      { id: 'atStat2',    target: 10,  suffix: '',  dur: 700  },
+      { id: 'atStat3',    target: 82,  suffix: '%', dur: 1000 },
+      { id: 'atStat4',    target: 6,   suffix: '',  dur: 600  },
+    ];
+    // wrapper els for pop animation
+    const wrappers = ['atStat1','atStat2','atStat3','atStat4'];
+    wrappers.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('at-popping');
+      void el.offsetWidth;
+      el.classList.add('at-popping');
+    });
+
+    stats.forEach(({ id, target, suffix, dur }, i) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      // store original trailing content (e.g. /120 sub-span for atStat1)
+      const delay = i * 100;
+      setTimeout(() => {
+        const start = performance.now();
+        function tick(now) {
+          const p = Math.min((now - start) / dur, 1);
+          const eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = Math.round(eased * target) + suffix;
+          if (p < 1) requestAnimationFrame(tick);
+          else el.textContent = target + suffix; // ensure exact final value
+        }
+        requestAnimationFrame(tick);
+      }, delay);
+    });
+  }
+
   /* ────────────────────────────────────────────
      STAT VALUE ANIMATIONS
   ──────────────────────────────────────────── */
