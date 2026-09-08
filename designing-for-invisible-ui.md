@@ -559,6 +559,209 @@ A companion **concept testing plan** for validating the three novel UI surfaces 
 
 ---
 
+## `headless.html` — Headless AI Dashboard
+
+> A fully interactive, pixel-perfect prototype of a **Headless AI Operations Dashboard** built from design screenshots. Full-screen layout with a frosted-glass body gradient and three main tab views.
+
+### Overview
+
+| Property | Value |
+|---|---|
+| **File** | `headless.html` |
+| **Theme** | Frosted glass over blue-grey gradient body; white panels with `backdrop-filter: blur(12px)` |
+| **Body gradient** | `linear-gradient(160deg, #f8fafd → #f3f6fb → #ddeaf5 → #b8d4e8 → #9ec8e0)` fixed |
+| **Font** | `-apple-system, "Segoe UI", system-ui, sans-serif`; `-webkit-font-smoothing: antialiased` |
+| **Tabs** | Canvas · Agentic Trace · Policy & Permissions |
+| **Right panel** | Visible on Canvas tab only; hidden on Agentic Trace + Policy tabs |
+| **Live URL** | https://jayakrishnakaimal.github.io/JK_Demo/headless.html |
+
+---
+
+### Top Navigation
+
+| Element | Detail |
+|---|---|
+| Logo | Hub-and-spoke SVG on white circle with blue border |
+| Dropdown | Japan region selector |
+| Tab bar | Canvas · Agentic Trace · Policy & Permissions — `switchTab()` driven |
+| Right icons | Person icon · Globe icon |
+
+---
+
+### Stats Bar
+
+| Stat | Icon | Value | Style |
+|---|---|---|---|
+| Confidence score | Stick-figure SVG | **95%** | `font-weight:300`, dark green `#1a6334` |
+| Agent fleet health | ECG sparkline SVG | **94%** | same |
+| Badges | Auto-resolved · Escalation · Fix failed | — | coloured pill badges |
+
+---
+
+### Canvas Tab
+
+- Full-viewport gradient canvas area with floating ambient orbs + mouse-tracking glow
+- Greeting text: *"Good morning, Jayakrishna"* with agent status line
+- 3 quick-action buttons: Inspect agent · Review escalations · Run policy check
+- **Right panel** (always visible on Canvas): two floating action cards + Activity Timeline
+  - Card 1: Restart line card — restart prompt with Approve/Dismiss
+  - Card 2: CHRONIC TVM-EDGE-04 — severity badge, confidence bar, agent chain
+  - Timeline: 4 timestamped events with colour-coded icons
+
+---
+
+### Agentic Trace Tab (`02.png`)
+
+| Element | Detail |
+|---|---|
+| Stats row | 100/120 cases · 10 escalations · 82% auto-resolve · 6 pending |
+| Search | Live filter by case name/ID |
+| Filters | 4 dropdowns: Status · Agent · Priority · Time range |
+| Cases table | 10 rows — name, case ID, tag, agent, priority badge, outcome badge, timestamp |
+| Row interaction | Click → slide-in detail drawer from right |
+| Drawer | Agent trace steps (Observe → Correlate → Plan → Act → Verify), meta, close button |
+| Keyboard | `Esc` closes drawer |
+
+**Cases data** (10 rows):
+
+| ID | Name | Agent | Priority | Outcome |
+|---|---|---|---|---|
+| C-2840 | BGP-flap dampened | Route Guard Agent | P1 | Auto resolved |
+| C-2839 | Memory leak contained | Memory Sentinel | P2 | Auto resolved |
+| C-2838 | Cert expiry pre-empted | Cert Watcher | P2 | Auto resolved |
+| C-2837 | Disk saturation halted | Storage Agent | P1 | Escalation |
+| C-2836 | Latency spike rerouted | Traffic Agent | P2 | Auto resolved |
+| C-2835 | Node cordon applied | Infra Agent | P1 | Auto resolved |
+| C-2834 | Pod OOMKill recovered | Memory Sentinel | P2 | Fix failed |
+| C-2833 | DNS resolution fixed | Net Agent | P3 | Auto resolved |
+| C-2832 | TLS handshake retried | Cert Watcher | P3 | Auto resolved |
+| C-2831 | CPU throttle adjusted | Perf Agent | P2 | Escalation |
+
+---
+
+### Policy & Permissions Tab (`04.png` · `06.png`)
+
+#### Header
+- **Operating mode · Balance** — description text
+- Buttons: Edit operating mode · Change operating mode
+
+#### Composite Score row
+- Donut chart: **85/100** in `#2563eb`
+- Summary text explaining composite score
+- Trend sparkline (Jan–Jul, Jun highlighted blue)
+
+#### Left panel — Studio / Configuration Testing tabs
+
+**Active tab style:** Blue border box (`border-color: #2563eb`), `border-bottom-color: transparent`
+
+**Studio tab** — flat permission list (no card wrapper):
+
+| Section | Permission | Badge |
+|---|---|---|
+| Observability | Read telemetry | Auto (green) |
+| Observability | Read CMDB / topology | Auto (green) |
+| Remediation | Restart pods | Ask (blue) |
+| Remediation | Cordon nodes | Ask (blue) |
+| Network | Modify BGP policies | Approval (grey) |
+| Network | QoS shaping | Approval (grey) |
+| Data | Cross-tenant correlation | Approval (grey) |
+
+Badge cycle on click: `Auto → Ask → Approval → Auto`
+
+**Configuration Testing tab** — placeholder panel
+
+#### Right panel — `.pp-right`
+
+| Element | Style |
+|---|---|
+| Panel width | `340px` |
+| Background | `#ffffff` solid white |
+| Padding | `32px` |
+| Title "Model & remediation knobs" | `18px`, `font-weight:500`, `color:#111827` |
+| Knob rows | `padding: 5px 0`, `border-bottom: 1px solid #f3f4f6` |
+| Knob label | `14px`, `#374151`, `font-weight:400` |
+| Knob number (80, 12, 2) | `28px`, `font-weight:300`, `color:#166534` dark green |
+| `%` unit | Same `28px` green (`.pp-knob-unit`) |
+| `acts/min` / `level` unit | `13px` grey `#6b7280` (`.pp-knob-unit-word`) |
+| Divider `<hr>` | `1px solid #f0f1f3`, `margin:0` |
+| "Posture Projection" | `16px`, `font-weight:400`, `padding-top:10px` |
+| "Under balanced" | `13px`, `#6b7280`, `margin-bottom:0` |
+
+**Knob values:**
+```
+Model confidence gate    80%
+Action rate limit        12  acts/min
+Blast radius cap          2  level
+```
+
+#### Radar chart — `initRadar()` (JS-drawn SVG)
+
+| Property | Value |
+|---|---|
+| Element | `<svg id="radarSvg">` drawn by `initRadar()` on `DOMContentLoaded` |
+| Centre | `cx=160, cy=195` |
+| Max radius | `R=115` |
+| Axes | 8 axes at 45° steps; `pt(v, angleDeg)` formula |
+| Grid rings | 4 concentric octagons at 25/50/75/100% |
+| Axis labels | `10.5px`, `#9ca3af` |
+
+**8 axes (clockwise from top):**
+Risk Exposure · Time to remediate · Tool calls / task · Autonomy · Human review load · Reversibility · Blast radius · Compliance
+
+**3 series:**
+
+| Key | Name | Colour | Fill | Dots |
+|---|---|---|---|---|
+| `blue` | Balanced | `#60a5fa` | `rgba(147,197,253,0.28)` | ✓ |
+| `yellow` | Baseline | `#f59e0b` | `rgba(253,211,77,0.38)` | — |
+| `red` | Reversibility | `#f87171` | `rgba(252,165,165,0.33)` | ✓ |
+
+**Interactions:**
+- **Polygon hover** → hovered series brightens (`stroke-width` 1.6→2.4, full fill opacity), others dim to `opacity:0.25`
+- **Mousemove** → floating dark tooltip: series name + nearest axis label + `%` value (`position:fixed`)
+- **Legend click** → toggles series visibility (polygon + dots fade; legend item → `opacity:0.35`)
+- **Mouse leave SVG** → tooltip hides
+
+#### Note text
+> "More autonomy and tool usage means less compliance and blast-radius containment. The compliance-heavy profile gains safety but sacrifices speed and independence."
+
+---
+
+### JavaScript functions (`headless.html`)
+
+| Function | Purpose |
+|---|---|
+| `switchTab(id, btn)` | Shows active tab panel; hides right panel on `agentic`/`policy` tabs |
+| `switchPPTab(tab, btn)` | Switches Studio ↔ Configuration Testing sub-tabs |
+| `cycleBadge(btn)` | Cycles permission badge: Auto → Ask → Approval → Auto |
+| `openDrawer(i)` / `closeDrawer()` | Opens/closes agentic trace detail drawer |
+| `renderCases(data)` | Renders cases table rows from data array |
+| `filterCases()` | Filters cases by search + 4 dropdowns |
+| `showToast(msg, type)` | Shows temporary toast notification |
+| `initRadar()` | Draws full interactive SVG radar chart on `DOMContentLoaded` |
+| `closeDropdown()` | Closes any open filter dropdown |
+
+---
+
+### Design tokens used in `headless.html`
+
+| Token | Value | Used for |
+|---|---|---|
+| Body gradient | `#f8fafd → #9ec8e0` | Full-page background |
+| Accent blue | `#2563eb` | Tab active border, donut, buttons |
+| Dark green | `#166534` | Knob values, stat percentages |
+| Text primary | `#111827` | Headings, labels |
+| Text muted | `#6b7280` | Descriptions, subtitles |
+| Text faint | `#9ca3af` | Radar axis labels, meta |
+| Border | `#e5e7eb` | Panel dividers |
+| Surface | `rgba(255,255,255,0.72)` + `backdrop-filter:blur(12px)` | Frosted panels (header, score row, tabs, studio) |
+| White solid | `#ffffff` | `.pp-right` panel |
+| Auto badge | `#dcfce7` / `#166534` | Green Auto permission |
+| Ask badge | `#dbeafe` / `#1d4ed8` | Blue Ask permission |
+| Approval badge | `#f3f4f6` / `#374151` | Grey Approval permission |
+
+---
+
 ## File Structure
 
 ```
@@ -597,6 +800,43 @@ A companion **concept testing plan** for validating the three novel UI surfaces 
 │       ├── Pillar architecture JS      ~3137–3214
 │       └── Direction micro-interactions ~3215–3410
 │
+├── headless.html                       ← HEADLESS AI DASHBOARD (~2600 lines)
+│   ├── CSS (lines 8–1460)
+│   │   ├── Body gradient + base          ~8–42
+│   │   ├── Top nav                       ~44–165
+│   │   ├── Stats bar + badges            ~166–265
+│   │   ├── Canvas viewport + orbs        ~266–400
+│   │   ├── Agentic trace (.at-*)         ~400–740
+│   │   ├── Right panel + action cards    ~740–900
+│   │   ├── Policy & Permissions (.pp-*)  ~1215–1460
+│   │   │   ├── pp-header / pp-score-row  ~1216–1264
+│   │   │   ├── pp-tabs / pp-studio       ~1270–1310
+│   │   │   ├── pp-perm-row / badges      ~1310–1355
+│   │   │   └── pp-right / radar          ~1356–1415
+│   │   └── Config testing tab            ~1416–1422
+│   ├── Top nav HTML                      ~1462–1510
+│   ├── Canvas tab HTML                   ~1512–1660
+│   ├── Agentic trace tab HTML            ~1662–1740
+│   │   ├── Stats row                     ~1665–1685
+│   │   ├── Search + filters              ~1686–1715
+│   │   ├── Cases table                   ~1716–1724
+│   │   └── Detail drawer                 ~1728–1739
+│   ├── Policy & Permissions tab HTML     ~1742–2116
+│   │   ├── pp-header                     ~1746–1763
+│   │   ├── pp-score-row (donut + trend)  ~1766–1802
+│   │   ├── pp-left (Studio tab)          ~1808–1932
+│   │   └── pp-right (knobs + radar)      ~1940–2115
+│   ├── Right panel (action cards)        ~2120–2210
+│   └── <script> block                    ~2263–end
+│       ├── switchTab                     ~2267
+│       ├── switchPPTab                   ~2395
+│       ├── cycleBadge                    ~2436
+│       ├── openDrawer / closeDrawer      ~2440–2470
+│       ├── renderCases / filterCases     ~2400–2435
+│       ├── showToast                     ~2450
+│       ├── initRadar (interactive SVG)   ~2487–2644
+│       └── keyboard shortcuts            ~2476–2484
+│
 ├── uxr_plan.html                       ← UXR CONCEPT TESTING PLAN (~1460 lines)
 │   ├── Carbon CSS tokens + component styles  lines 10–625
 │   ├── UI Shell header (Research · Headless) lines 628–641
@@ -615,7 +855,7 @@ A companion **concept testing plan** for validating the three novel UI surfaces 
 │   ├── Section 11 — Deliverables             lines 1369–1430
 │   └── Page footer                           lines 1432–1454
 │
-├── designing-for-invisible-ui.md       ← This file
+├── designing-for-invisible-ui.md       ← This file (project documentation)
 │
 ├── ibm-content-design-review-designing-for-invisible-ui.html
 │                                       ← IBM content design heuristic review
@@ -627,11 +867,14 @@ A companion **concept testing plan** for validating the three novel UI surfaces 
 ├── ini3.png    ← Gallery: Policy & Permissions — Studio
 ├── ini4.png    ← Gallery: Policy & Permissions — Full Scroll
 │
-├── 01.png      ← UXR stimulus: Canvas dashboard
-├── 02.png      ← UXR stimulus: Agentic trace list
-├── 03.png      ← UXR stimulus: Agentic trace detail
-├── 04.png      ← UXR stimulus: Policy Studio
-├── 05.png      ← UXR stimulus: Digital twin
+├── 01.png      ← headless.html reference: Canvas dashboard
+├── 02.png      ← headless.html reference: Agentic trace list
+├── 03.png      ← headless.html reference: Agentic trace detail
+├── 04.png      ← headless.html reference: Policy & Permissions
+├── 05.png      ← headless.html reference: Digital twin
+├── 06.png      ← headless.html reference: Policy Studio flat layout
+├── 07.png      ← headless.html reference: pp-right radar full view
+├── 08.png      ← headless.html reference: pp-right knobs section
 │
 └── desgin-for-invisible-ui (1).pptx   ← Source presentation (25 slides)
 ```
@@ -647,3 +890,4 @@ A companion **concept testing plan** for validating the three novel UI surfaces 
 | Pages | https://jayakrishnakaimal.github.io/JK_Demo/ |
 | Main site | https://jayakrishnakaimal.github.io/JK_Demo/index.html |
 | UXR Plan | https://jayakrishnakaimal.github.io/JK_Demo/uxr_plan.html |
+| Headless Dashboard | https://jayakrishnakaimal.github.io/JK_Demo/headless.html |
