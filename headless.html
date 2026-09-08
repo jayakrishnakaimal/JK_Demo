@@ -1541,11 +1541,153 @@
     margin-top: 20px;
   }
 
-  /* config testing tab content */
-  .pp-config { padding: 20px 28px; }
-  .pp-config-placeholder {
-    background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px;
-    padding: 32px; text-align: center; color: #9ca3af; font-size: 13px;
+  /* ── configuration testing tab ── */
+  .pp-config {
+    padding: 0; display: flex; flex-direction: column; height: 100%;
+    background: rgba(255,255,255,0.72); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+  .ct-wrap {
+    display: flex; flex: 1; overflow: hidden; gap: 0;
+  }
+  .ct-left {
+    flex: 1; overflow-y: auto; padding: 28px 24px 28px 28px;
+    min-width: 0;
+  }
+  .ct-left::-webkit-scrollbar { width: 4px; }
+  .ct-left::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+  .ct-right {
+    width: 360px; flex-shrink: 0; overflow: hidden;
+    border-left: 1px solid #e5e7eb;
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+    background: rgba(255,255,255,0.5);
+  }
+
+  /* heading */
+  .ct-title { font-size: 22px; font-weight: 500; color: #111827; margin-bottom: 6px; }
+  .ct-desc  { font-size: 13px; color: #6b7280; line-height: 1.6; margin-bottom: 20px; }
+
+  /* scenario selector */
+  .ct-selector {
+    display: flex; align-items: center; gap: 0;
+    border: 1px solid #e5e7eb; border-radius: 7px;
+    background: #fff; margin-bottom: 24px; overflow: hidden;
+    transition: box-shadow 0.15s;
+  }
+  .ct-selector:focus-within { box-shadow: 0 0 0 3px rgba(37,99,235,0.12); border-color: #2563eb; }
+  .ct-select {
+    flex: 1; padding: 11px 14px; font-size: 13px; color: #111827;
+    background: transparent; border: none; outline: none;
+    cursor: pointer; appearance: none; -webkit-appearance: none;
+  }
+  .ct-select-chevron {
+    padding: 0 12px; color: #9ca3af; pointer-events: none; font-size: 11px;
+  }
+  .ct-divider-v { width: 1px; background: #e5e7eb; height: 40px; }
+  .ct-test-btn {
+    padding: 11px 18px; font-size: 13px; font-weight: 500; color: #2563eb;
+    background: transparent; border: none; cursor: pointer;
+    white-space: nowrap; transition: background 0.12s;
+  }
+  .ct-test-btn:hover { background: #eff6ff; }
+  .ct-test-btn:disabled { color: #9ca3af; cursor: default; }
+
+  /* result card */
+  .ct-result {
+    border: 1px solid #e5e7eb; border-radius: 10px;
+    background: #fff; overflow: hidden;
+    animation: ctResultIn 0.35s cubic-bezier(0.4,0,0.2,1) both;
+  }
+  @keyframes ctResultIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .ct-result-head { padding: 16px 18px 12px; border-bottom: 1px solid #f3f4f6; }
+  .ct-result-name { font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 3px; }
+  .ct-result-sub  { font-size: 12px; color: #9ca3af; }
+
+  /* outcome box */
+  .ct-outcome {
+    margin: 14px 18px 0;
+    background: #f0fdf4; border-left: 4px solid #22c55e;
+    border-radius: 0 6px 6px 0; padding: 12px 16px;
+  }
+  .ct-outcome.red   { background: #fef2f2; border-color: #ef4444; }
+  .ct-outcome.amber { background: #fffbeb; border-color: #f59e0b; }
+  .ct-outcome-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+    color: #166534; margin-bottom: 4px; text-transform: uppercase;
+  }
+  .ct-outcome.red   .ct-outcome-label { color: #b91c1c; }
+  .ct-outcome.amber .ct-outcome-label { color: #b45309; }
+  .ct-outcome-val {
+    font-size: 22px; font-weight: 600; color: #111827; letter-spacing: -0.3px;
+  }
+
+  /* metrics grid */
+  .ct-metrics {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0; margin: 14px 18px 0;
+    border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden;
+  }
+  .ct-metric {
+    padding: 11px 14px; border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .ct-metric:nth-child(even) { border-right: none; }
+  .ct-metric:nth-last-child(-n+2) { border-bottom: none; }
+  .ct-metric-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
+    color: #9ca3af; text-transform: uppercase; margin-bottom: 4px;
+  }
+  .ct-metric-val { font-size: 16px; font-weight: 600; color: #111827; }
+
+  /* quote */
+  .ct-quote {
+    margin: 14px 18px 0;
+    border-left: 3px solid #2563eb; padding: 2px 12px;
+    font-size: 12px; color: #6b7280; font-style: italic; line-height: 1.6;
+  }
+
+  /* simulated timeline */
+  .ct-timeline { margin: 16px 18px 18px; }
+  .ct-timeline-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+    color: #9ca3af; text-transform: uppercase; margin-bottom: 10px;
+  }
+  .ct-tl-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 5px 0; font-size: 12px; color: #374151;
+    border-bottom: 1px solid #f9fafb;
+  }
+  .ct-tl-row:last-child { border-bottom: none; }
+  .ct-tl-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .ct-tl-text { flex: 1; }
+  .ct-tl-text strong { font-weight: 600; }
+  .ct-tl-time { font-size: 11px; color: #9ca3af; white-space: nowrap; }
+
+  /* topology SVG wrapper */
+  .ct-topo-wrap { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+  .ct-topo-wrap svg { width: 100%; height: 100%; max-height: 420px; overflow: visible; }
+
+  /* running spinner state */
+  .ct-spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid #e5e7eb; border-top-color: #2563eb;
+    border-radius: 50%; animation: ctSpin 0.7s linear infinite;
+    vertical-align: middle; margin-right: 6px;
+  }
+  @keyframes ctSpin { to { transform: rotate(360deg); } }
+  .ct-running-msg {
+    display: flex; align-items: center; padding: 14px 18px;
+    font-size: 13px; color: #6b7280; gap: 8px;
+  }
+
+  /* node pulse for active topology nodes */
+  @keyframes ctNodePulse {
+    0%,100% { r: 22; }
+    50%      { r: 25; }
   }
 
   /* permissions panel (legacy — keep for fallback) */
@@ -2047,7 +2189,39 @@
 
               <!-- Config Testing tab (hidden) -->
               <div id="pp-config-tab" class="pp-config" style="display:none;">
-                <div class="pp-config-placeholder">Configuration Testing panel — run simulated scenarios to validate policy changes before applying.</div>
+                <div class="ct-wrap">
+
+                  <!-- LEFT: form + result -->
+                  <div class="ct-left">
+                    <div class="ct-title">Test with digital twin</div>
+                    <div class="ct-desc">A live virtual copy of a real system, used to track, test, and improve it without touching the real thing. Select a scenario from the dropdown and test it out.</div>
+
+                    <!-- scenario selector -->
+                    <div class="ct-selector">
+                      <select class="ct-select" id="ctScenarioSelect">
+                        <option value="sla">SLA compliance verification</option>
+                        <option value="bgp">BGP flap remediation</option>
+                        <option value="mem">Memory leak containment</option>
+                        <option value="cert">Certificate expiry pre-emption</option>
+                        <option value="disk">Disk saturation halt</option>
+                      </select>
+                      <span class="ct-select-chevron">▼</span>
+                      <div class="ct-divider-v"></div>
+                      <button class="ct-test-btn" id="ctTestBtn" onclick="runConfigTest()">Test</button>
+                    </div>
+
+                    <!-- result area (populated by JS) -->
+                    <div id="ctResultArea"></div>
+                  </div>
+
+                  <!-- RIGHT: network topology -->
+                  <div class="ct-right">
+                    <div class="ct-topo-wrap" id="ctTopoWrap">
+                      <!-- drawn by renderTopo() -->
+                    </div>
+                  </div>
+
+                </div>
               </div>
             </div>
 
@@ -3170,6 +3344,370 @@
       drawIn();
       pop && pop.classList.remove('visible');
     };
+  }
+  /* ────────────────────────────────────────────
+     CONFIGURATION TESTING
+  ──────────────────────────────────────────── */
+  const CT_SCENARIOS = {
+    sla: {
+      name: 'SLA compliance verification',
+      desc: '6 H100 nodes exceed thermal budget during a distributed training job.',
+      outcomeClass: '',
+      outcomeLabel: 'OUTCOME UNDER BALANCED',
+      outcomeVal: 'Contained',
+      metrics: [
+        { label: 'Time to resolve', val: '8 min' },
+        { label: 'Autonomous acts', val: '5' },
+        { label: 'Human interventions', val: '' },
+        { label: 'Devices affected', val: '6' },
+      ],
+      quote: 'Manager approved P1 remediation in 2m. Digital twin pre-flight caught a race condition.',
+      timeline: [
+        { color: '#22c55e', actor: 'Analyzer', event: 'Thermal anomaly on 6 nodes',        time: '09:42:11' },
+        { color: '#f59e0b', actor: 'Twin',     event: 'Pre-flight caught race; refined plan', time: '09:42:15' },
+        { color: '#22c55e', actor: 'Human',    event: 'SRE Lead approved cordon + reroute', time: '09:42:44' },
+      ],
+      topo: 'sla',
+    },
+    bgp: {
+      name: 'BGP flap remediation',
+      desc: '3 core routers showing BGP session instability across AS boundaries.',
+      outcomeClass: 'amber',
+      outcomeLabel: 'OUTCOME UNDER BALANCED',
+      outcomeVal: 'Dampened',
+      metrics: [
+        { label: 'Time to resolve', val: '12 min' },
+        { label: 'Autonomous acts', val: '8' },
+        { label: 'Human interventions', val: '1' },
+        { label: 'Devices affected', val: '3' },
+      ],
+      quote: 'Route Guard Agent dampened flap with policy revert. One manual BGP reset required.',
+      timeline: [
+        { color: '#3b82f6', actor: 'Route Guard',  event: 'BGP instability detected on 3 peers', time: '11:14:02' },
+        { color: '#f59e0b', actor: 'Twin',          event: 'Simulated route withdrawal — safe',   time: '11:14:08' },
+        { color: '#22c55e', actor: 'Agent',          event: 'Damping applied, routes stabilised',  time: '11:15:44' },
+      ],
+      topo: 'bgp',
+    },
+    mem: {
+      name: 'Memory leak containment',
+      desc: 'Node-14 pod group consuming 98% heap; leak spreading to co-located pods.',
+      outcomeClass: '',
+      outcomeLabel: 'OUTCOME UNDER BALANCED',
+      outcomeVal: 'Isolated',
+      metrics: [
+        { label: 'Time to resolve', val: '5 min' },
+        { label: 'Autonomous acts', val: '11' },
+        { label: 'Human interventions', val: '0' },
+        { label: 'Devices affected', val: '2' },
+      ],
+      quote: 'Memory Sentinel isolated pod group and bounced with updated limits. No escalation needed.',
+      timeline: [
+        { color: '#22c55e', actor: 'Sentinel', event: 'Heap spike detected — 98% on node-14', time: '14:03:55' },
+        { color: '#3b82f6', actor: 'Twin',     event: 'Pod restart simulated — clean result',  time: '14:03:58' },
+        { color: '#22c55e', actor: 'Agent',    event: 'Restart applied, memory normalised',    time: '14:05:01' },
+      ],
+      topo: 'mem',
+    },
+    cert: {
+      name: 'Certificate expiry pre-emption',
+      desc: 'TLS cert on api-gateway-prod expires in 36 hours; auto-renew blocked.',
+      outcomeClass: '',
+      outcomeLabel: 'OUTCOME UNDER BALANCED',
+      outcomeVal: 'Renewed',
+      metrics: [
+        { label: 'Time to resolve', val: '3 min' },
+        { label: 'Autonomous acts', val: '4' },
+        { label: 'Human interventions', val: '0' },
+        { label: 'Devices affected', val: '1' },
+      ],
+      quote: 'Cert Watcher pre-empted expiry 34h early. ACME challenge completed autonomously.',
+      timeline: [
+        { color: '#3b82f6', actor: 'Cert Watcher', event: 'Expiry risk flagged — 36h window',    time: '08:10:00' },
+        { color: '#f59e0b', actor: 'Twin',          event: 'ACME challenge dry-run — passed',     time: '08:10:04' },
+        { color: '#22c55e', actor: 'Agent',          event: 'Certificate renewed and deployed',   time: '08:12:45' },
+      ],
+      topo: 'cert',
+    },
+    disk: {
+      name: 'Disk saturation halt',
+      desc: 'Storage-node-7 at 97% capacity; write failures imminent on 4 services.',
+      outcomeClass: 'red',
+      outcomeLabel: 'OUTCOME — ESCALATED',
+      outcomeVal: 'Escalated',
+      metrics: [
+        { label: 'Time to resolve', val: '—' },
+        { label: 'Autonomous acts', val: '3' },
+        { label: 'Human interventions', val: 'Pending' },
+        { label: 'Devices affected', val: '4' },
+      ],
+      quote: 'Storage Agent hit blast-radius cap. P1 escalated to on-call SRE — cordon blocked by policy.',
+      timeline: [
+        { color: '#ef4444', actor: 'Storage',  event: 'node-7 at 97% — write failures starting', time: '22:01:11' },
+        { color: '#f59e0b', actor: 'Twin',      event: 'Cordon blocked by blast-radius cap',       time: '22:01:14' },
+        { color: '#ef4444', actor: 'Human',     event: 'P1 escalation sent to on-call SRE',        time: '22:01:20' },
+      ],
+      topo: 'disk',
+    },
+  };
+
+  // topology node configs per scenario
+  const CT_TOPO = {
+    sla:  { activeNodes: ['spine1','gpu_a'], activeLine: ['spine1','gpu_a'] },
+    bgp:  { activeNodes: ['r1','r2'],        activeLine: ['r1','r2']        },
+    mem:  { activeNodes: ['node14'],         activeLine: []                 },
+    cert: { activeNodes: ['gw'],             activeLine: []                 },
+    disk: { activeNodes: ['storage'],        activeLine: []                 },
+  };
+
+  function runConfigTest() {
+    const sel   = document.getElementById('ctScenarioSelect');
+    const btn   = document.getElementById('ctTestBtn');
+    const area  = document.getElementById('ctResultArea');
+    const topo  = document.getElementById('ctTopoWrap');
+    const key   = sel ? sel.value : 'sla';
+
+    if (!area) return;
+
+    // show spinner
+    btn.disabled = true;
+    area.innerHTML = `<div class="ct-running-msg"><span class="ct-spinner"></span>Running simulation against digital twin…</div>`;
+    if (topo) topo.innerHTML = '';
+
+    setTimeout(() => {
+      btn.disabled = false;
+      const sc = CT_SCENARIOS[key];
+      if (!sc) return;
+      area.innerHTML = renderCTResult(sc);
+      renderTopo(key, topo);
+      // animate metric values counting up
+      animateCTMetrics(sc.metrics);
+    }, 1400);
+  }
+
+  function renderCTResult(sc) {
+    const iconSvg = sc.outcomeClass === 'red'
+      ? `<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#b91c1c" stroke-width="1.4"/><path d="M8 4v4" stroke="#b91c1c" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11.5" r="0.8" fill="#b91c1c"/></svg>`
+      : sc.outcomeClass === 'amber'
+      ? `<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l6 12H2L8 2z" stroke="#b45309" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 7v3" stroke="#b45309" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="12" r="0.7" fill="#b45309"/></svg>`
+      : `<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#166534" stroke-width="1.4"/><path d="M5 8l2 2 4-4" stroke="#166534" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+    const metricsHtml = sc.metrics.map(m => `
+      <div class="ct-metric">
+        <div class="ct-metric-label">${m.label}</div>
+        <div class="ct-metric-val" data-target="${m.val}">${m.val || '—'}</div>
+      </div>`).join('');
+
+    const tlHtml = sc.timeline.map(t => `
+      <div class="ct-tl-row">
+        <div class="ct-tl-dot" style="background:${t.color};"></div>
+        <div class="ct-tl-text"><strong>${t.actor}</strong> · ${t.event}</div>
+        <div class="ct-tl-time">${t.time}</div>
+      </div>`).join('');
+
+    return `
+      <div class="ct-result">
+        <div class="ct-result-head">
+          <div class="ct-result-name">${sc.name}</div>
+          <div class="ct-result-sub">${sc.desc}</div>
+        </div>
+        <div class="ct-outcome ${sc.outcomeClass}">
+          <div class="ct-outcome-label">${iconSvg} ${sc.outcomeLabel}</div>
+          <div class="ct-outcome-val">${sc.outcomeVal}</div>
+        </div>
+        <div class="ct-metrics">${metricsHtml}</div>
+        <div class="ct-quote">${sc.quote}</div>
+        <div class="ct-timeline">
+          <div class="ct-timeline-label">Simulated Timeline</div>
+          ${tlHtml}
+        </div>
+      </div>`;
+  }
+
+  function animateCTMetrics(metrics) {
+    document.querySelectorAll('.ct-metric-val').forEach((el, i) => {
+      const raw = metrics[i] ? metrics[i].val : '';
+      const num = parseInt(raw);
+      if (isNaN(num) || raw.includes('—') || raw === '' || raw === 'Pending') return;
+      const suffix = raw.replace(String(num), '');
+      el.textContent = '0' + suffix;
+      const start = performance.now(), dur = 600 + i * 100;
+      (function tick(now) {
+        const p = Math.min((now - start) / dur, 1);
+        el.textContent = Math.round((1 - Math.pow(1 - p, 3)) * num) + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      })(performance.now());
+    });
+  }
+
+  function renderTopo(key, wrap) {
+    if (!wrap) return;
+    const NS = 'http://www.w3.org/2000/svg';
+
+    // node definitions: id, x, y, label, letter, filled
+    const NODES = {
+      sla: [
+        { id:'edge1',   x:80,  y:100, label:'Edge-1',    letter:'E', filled:false },
+        { id:'spine1',  x:240, y:160, label:'Spine-1',   letter:'S', filled:true  },
+        { id:'gpu_a',   x:390, y:80,  label:'GPU rack A',letter:'GPU',filled:true  },
+        { id:'edge2',   x:80,  y:280, label:'Edge-2',    letter:'E', filled:false },
+        { id:'spine2',  x:240, y:310, label:'Spine-2',   letter:'S', filled:false },
+        { id:'gpu_b',   x:390, y:270, label:'GPU rack B',letter:'GPU',filled:false },
+        { id:'storage', x:390, y:380, label:'Storage',   letter:'',  filled:false },
+      ],
+      bgp: [
+        { id:'r1',  x:80,  y:120, label:'Router-1', letter:'R', filled:true  },
+        { id:'r2',  x:280, y:80,  label:'Router-2', letter:'R', filled:true  },
+        { id:'r3',  x:280, y:240, label:'Router-3', letter:'R', filled:false },
+        { id:'as1', x:440, y:120, label:'AS-7018',  letter:'A', filled:false },
+        { id:'as2', x:440, y:280, label:'AS-3356',  letter:'A', filled:false },
+      ],
+      mem: [
+        { id:'node14', x:200, y:120, label:'Node-14',  letter:'N', filled:true  },
+        { id:'pod1',   x:100, y:260, label:'Pod-group', letter:'P', filled:false },
+        { id:'pod2',   x:300, y:260, label:'Co-tenant', letter:'P', filled:false },
+        { id:'ctrl',   x:200, y:340, label:'Controller',letter:'K', filled:false },
+      ],
+      cert: [
+        { id:'gw',   x:200, y:100, label:'api-gateway', letter:'G', filled:true  },
+        { id:'acme', x:360, y:200, label:'ACME CA',      letter:'A', filled:false },
+        { id:'svc1', x:80,  y:240, label:'Service-1',    letter:'S', filled:false },
+        { id:'svc2', x:200, y:300, label:'Service-2',    letter:'S', filled:false },
+      ],
+      disk: [
+        { id:'storage', x:200, y:120, label:'storage-7', letter:'S', filled:true  },
+        { id:'w1',      x:80,  y:240, label:'Writer-1',  letter:'W', filled:false },
+        { id:'w2',      x:160, y:280, label:'Writer-2',  letter:'W', filled:false },
+        { id:'w3',      x:240, y:280, label:'Writer-3',  letter:'W', filled:false },
+        { id:'w4',      x:320, y:240, label:'Writer-4',  letter:'W', filled:false },
+      ],
+    };
+
+    // edge definitions: [fromId, toId, solid]
+    const EDGES = {
+      sla:  [['edge1','spine1',false],['edge1','spine2',false],['spine1','gpu_a',true],['spine1','spine2',false],['spine2','gpu_b',false],['spine1','gpu_b',false],['spine2','storage',false]],
+      bgp:  [['r1','r2',true],['r1','r3',false],['r2','as1',false],['r3','as2',false],['r2','r3',false]],
+      mem:  [['node14','pod1',false],['node14','pod2',true],['pod1','ctrl',false],['pod2','ctrl',false]],
+      cert: [['gw','acme',true],['gw','svc1',false],['gw','svc2',false]],
+      disk: [['storage','w1',false],['storage','w2',true],['storage','w3',false],['storage','w4',false]],
+    };
+
+    const nodes = NODES[key] || NODES.sla;
+    const edges = EDGES[key] || EDGES.sla;
+    const activeNodeIds = CT_TOPO[key] ? CT_TOPO[key].activeNodes : [];
+
+    // compute bounds for viewBox
+    const xs = nodes.map(n => n.x), ys = nodes.map(n => n.y);
+    const minX = Math.min(...xs) - 60, minY = Math.min(...ys) - 60;
+    const maxX = Math.max(...xs) + 100, maxY = Math.max(...ys) + 80;
+    const vw = maxX - minX, vh = maxY - minY;
+
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', `${minX} ${minY} ${vw} ${vh}`);
+    svg.style.cssText = 'width:100%;height:100%;max-height:400px;overflow:visible;font-family:-apple-system,"Segoe UI",system-ui,sans-serif;';
+
+    // build node lookup
+    const nodeMap = {};
+    nodes.forEach(n => { nodeMap[n.id] = n; });
+
+    // draw edges first
+    edges.forEach(([fromId, toId, solid]) => {
+      const a = nodeMap[fromId], b = nodeMap[toId];
+      if (!a || !b) return;
+      const line = document.createElementNS(NS, 'line');
+      line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+      line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+      if (solid) {
+        line.setAttribute('stroke', '#22c55e');
+        line.setAttribute('stroke-width', '2.5');
+      } else {
+        line.setAttribute('stroke', '#d1d5db');
+        line.setAttribute('stroke-width', '1.2');
+        line.setAttribute('stroke-dasharray', '5 4');
+      }
+      svg.appendChild(line);
+    });
+
+    // draw nodes
+    nodes.forEach(n => {
+      const isActive = activeNodeIds.includes(n.id);
+      const r = n.letter === 'GPU' ? 28 : 22;
+      const g = document.createElementNS(NS, 'g');
+      g.style.cursor = 'pointer';
+
+      // outer glow for active nodes
+      if (isActive) {
+        const glow = document.createElementNS(NS, 'circle');
+        glow.setAttribute('cx', n.x); glow.setAttribute('cy', n.y); glow.setAttribute('r', r + 8);
+        glow.setAttribute('fill', 'rgba(34,197,94,0.12)');
+        g.appendChild(glow);
+      }
+
+      // main circle
+      const circle = document.createElementNS(NS, 'circle');
+      circle.setAttribute('cx', n.x); circle.setAttribute('cy', n.y); circle.setAttribute('r', r);
+      circle.setAttribute('fill', isActive ? '#22c55e' : '#ffffff');
+      circle.setAttribute('stroke', isActive ? '#16a34a' : '#d1d5db');
+      circle.setAttribute('stroke-width', isActive ? '2' : '1.5');
+      circle.style.transition = 'r 0.2s, fill 0.2s';
+      g.appendChild(circle);
+
+      // letter inside
+      if (n.letter) {
+        const t = document.createElementNS(NS, 'text');
+        t.setAttribute('x', n.x); t.setAttribute('y', n.y + 5);
+        t.setAttribute('text-anchor', 'middle');
+        t.setAttribute('font-size', n.letter === 'GPU' ? '11' : '13');
+        t.setAttribute('font-weight', '600');
+        t.setAttribute('fill', isActive ? '#ffffff' : '#6b7280');
+        t.textContent = n.letter;
+        g.appendChild(t);
+      }
+
+      // label below
+      const lbl = document.createElementNS(NS, 'text');
+      lbl.setAttribute('x', n.x); lbl.setAttribute('y', n.y + r + 16);
+      lbl.setAttribute('text-anchor', 'middle');
+      lbl.setAttribute('font-size', '11');
+      lbl.setAttribute('fill', '#6b7280');
+      lbl.textContent = n.label;
+      g.appendChild(lbl);
+
+      // hover interactions
+      g.addEventListener('mouseenter', () => {
+        circle.setAttribute('stroke', '#2563eb');
+        circle.setAttribute('stroke-width', '2.5');
+      });
+      g.addEventListener('mouseleave', () => {
+        circle.setAttribute('stroke', isActive ? '#16a34a' : '#d1d5db');
+        circle.setAttribute('stroke-width', isActive ? '2' : '1.5');
+      });
+
+      svg.appendChild(g);
+    });
+
+    // legend
+    const lg = document.createElementNS(NS, 'g');
+    const ldot = document.createElementNS(NS, 'circle');
+    ldot.setAttribute('cx', minX + 12); ldot.setAttribute('cy', maxY - 16);
+    ldot.setAttribute('r', '5'); ldot.setAttribute('fill', '#22c55e');
+    lg.appendChild(ldot);
+    const ltxt = document.createElementNS(NS, 'text');
+    ltxt.setAttribute('x', minX + 22); ltxt.setAttribute('y', maxY - 12);
+    ltxt.setAttribute('font-size', '11'); ltxt.setAttribute('fill', '#6b7280');
+    ltxt.textContent = 'Affected · ok';
+    lg.appendChild(ltxt);
+    svg.appendChild(lg);
+
+    wrap.innerHTML = '';
+    wrap.appendChild(svg);
+
+    // animate active nodes with a subtle scale pulse via stroke-width
+    document.querySelectorAll('.ct-topo-wrap circle').forEach(c => {
+      if (c.getAttribute('fill') === '#22c55e') {
+        c.style.animation = 'none'; // SVG attr animation not reliable in all browsers
+      }
+    });
   }
 </script>
 </body>
