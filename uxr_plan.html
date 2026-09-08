@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>UXR Plan — Headless AI Concept Testing</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue:   #0f62fe;
+    --green:  #24a148;
+    --amber:  #c87400;
+    --red:    #da1e28;
+    --purple: #8a3ffc;
+    --text:   #161616;
+    --sub:    #525252;
+    --muted:  #8d8d8d;
+    --border: #e0e0e0;
+    --bg:     #ffffff;
+    --surf:   #f4f4f4;
+    --rail:   #f0f4f8;
+    --font:   -apple-system, "IBM Plex Sans", "Segoe UI", sans-serif;
+  }
+  body { font-family: var(--font); font-size: 14px; line-height: 1.7; background: var(--bg); color: var(--text); }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: #161616; color: #fff;
+    padding: 1rem 2.5rem; display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar-brand { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: rgba(255,255,255,.5); }
+  .topbar-title { font-size: 1rem; font-weight: 600; }
+  .topbar-meta  { font-size: .72rem; color: rgba(255,255,255,.45); }
+
+  /* ── LAYOUT ── */
+  .wrap { max-width: 960px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+
+  /* ── SECTION HEADERS ── */
+  h2 {
+    font-size: 1.05rem; font-weight: 700; color: var(--text);
+    margin: 2.75rem 0 .75rem; padding-bottom: .5rem;
+    border-bottom: 2px solid var(--blue);
+    display: flex; align-items: center; gap: .6rem;
+  }
+  h2 .h2-num {
+    background: var(--blue); color: #fff;
+    font-size: .68rem; font-weight: 700;
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  h3 { font-size: .875rem; font-weight: 700; margin: 1.5rem 0 .5rem; color: var(--text); }
+  h4 { font-size: .8rem; font-weight: 700; margin: 1rem 0 .3rem; color: var(--sub); text-transform: uppercase; letter-spacing: .06em; }
+
+  p { font-size: .875rem; color: var(--sub); margin-bottom: .75rem; }
+  ul, ol { padding-left: 1.3rem; margin-bottom: .75rem; }
+  li { font-size: .875rem; color: var(--sub); margin-bottom: .3rem; line-height: 1.65; }
+  strong { color: var(--text); }
+
+  /* ── HERO CARD ── */
+  .hero {
+    background: linear-gradient(135deg, #0f62fe 0%, #0043ce 100%);
+    border-radius: 8px; padding: 2rem 2.5rem; margin-bottom: 2.5rem; color: #fff;
+  }
+  .hero-label { font-size: .65rem; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; opacity: .7; margin-bottom: .5rem; }
+  .hero-title { font-size: 1.65rem; font-weight: 300; line-height: 1.2; margin-bottom: .75rem; }
+  .hero-sub   { font-size: .875rem; opacity: .8; max-width: 580px; line-height: 1.6; margin-bottom: 1.5rem; }
+  .hero-pills { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .hero-pill  { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25); border-radius: 99px; font-size: .72rem; font-weight: 600; padding: .2rem .75rem; }
+
+  /* ── META GRID ── */
+  .meta-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; margin-bottom: 2rem; }
+  .meta-cell { background: var(--bg); padding: 1rem 1.25rem; }
+  .meta-key  { font-size: .62rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; margin-bottom: .3rem; }
+  .meta-val  { font-size: 1rem; font-weight: 600; color: var(--text); }
+  .meta-sub  { font-size: .7rem; color: var(--muted); margin-top: .1rem; }
+
+  /* ── SCREEN CARDS ── */
+  .screen-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: .85rem; margin-bottom: 1.5rem; }
+  .screen-card {
+    border: 1px solid var(--border); border-radius: 5px; overflow: hidden;
+    background: var(--surf);
+  }
+  .screen-card-header {
+    background: var(--blue); color: #fff;
+    font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    padding: .35rem .7rem; display: flex; align-items: center; justify-content: space-between;
+  }
+  .screen-card-body { padding: .75rem; }
+  .screen-card-title { font-size: .8rem; font-weight: 700; color: var(--text); margin-bottom: .3rem; }
+  .screen-card-desc  { font-size: .72rem; color: var(--sub); line-height: 1.55; margin-bottom: .5rem; }
+  .screen-card-tags  { display: flex; flex-wrap: wrap; gap: .3rem; }
+  .stag { font-size: .6rem; font-weight: 700; padding: .1rem .38rem; border-radius: 2px; }
+  .stag-blue   { background: rgba(15,98,254,.1); color: var(--blue); }
+  .stag-green  { background: rgba(36,161,72,.1); color: var(--green); }
+  .stag-amber  { background: rgba(200,116,0,.1); color: var(--amber); }
+  .stag-purple { background: rgba(138,63,252,.1); color: var(--purple); }
+
+  /* ── OBJECTIVE CARDS ── */
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .85rem; margin-bottom: 1rem; }
+  .obj-card {
+    border: 1px solid var(--border); border-radius: 5px; padding: 1rem 1.1rem;
+    background: var(--bg);
+  }
+  .obj-num  { font-size: .62rem; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .3rem; }
+  .obj-title { font-size: .875rem; font-weight: 700; color: var(--text); margin-bottom: .4rem; }
+  .obj-body  { font-size: .78rem; color: var(--sub); line-height: 1.6; }
+
+  /* ── TASK CARDS ── */
+  .task-card {
+    border: 1px solid var(--border); border-radius: 5px;
+    margin-bottom: 1rem; overflow: hidden;
+  }
+  .task-header {
+    display: flex; align-items: center; gap: .75rem;
+    padding: .75rem 1rem; background: var(--surf);
+    border-bottom: 1px solid var(--border);
+  }
+  .task-num {
+    background: var(--blue); color: #fff;
+    font-size: .68rem; font-weight: 700; width: 24px; height: 24px;
+    border-radius: 3px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .task-title { font-size: .875rem; font-weight: 700; color: var(--text); flex: 1; }
+  .task-screen { font-size: .68rem; color: var(--muted); }
+  .task-body  { padding: .85rem 1rem; }
+  .task-scenario { background: var(--rail); border-left: 3px solid var(--blue); padding: .5rem .75rem; border-radius: 0 3px 3px 0; font-size: .78rem; color: var(--sub); margin-bottom: .7rem; line-height: 1.55; }
+  .task-scenario strong { color: var(--blue); }
+  .probe-list { display: flex; flex-direction: column; gap: .3rem; }
+  .probe-item { display: flex; gap: .5rem; align-items: flex-start; font-size: .78rem; color: var(--sub); }
+  .probe-dot  { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); margin-top: .4rem; flex-shrink: 0; }
+  .metrics-row { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .65rem; }
+  .metric-chip {
+    font-size: .62rem; font-weight: 700; padding: .12rem .45rem; border-radius: 2px;
+    border: 1px solid var(--border); color: var(--sub); background: var(--surf);
+  }
+
+  /* ── PARTICIPANT TABLE ── */
+  table { width: 100%; border-collapse: collapse; font-size: .8rem; margin-bottom: 1.25rem; }
+  th { background: var(--surf); text-align: left; padding: .5rem .75rem; font-weight: 700; border: 1px solid var(--border); font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  td { padding: .5rem .75rem; border: 1px solid var(--border); vertical-align: top; color: var(--sub); }
+  tr:nth-child(even) td { background: #fafbfc; }
+
+  /* ── TIMELINE ── */
+  .timeline { display: flex; flex-direction: column; gap: 0; margin-bottom: 1rem; }
+  .tl-item  { display: flex; gap: 1rem; }
+  .tl-left  { display: flex; flex-direction: column; align-items: center; width: 28px; flex-shrink: 0; }
+  .tl-dot   { width: 12px; height: 12px; border-radius: 50%; background: var(--blue); margin-top: .3rem; flex-shrink: 0; }
+  .tl-line  { flex: 1; width: 2px; background: var(--border); margin: 4px 0; }
+  .tl-right { padding-bottom: 1.25rem; }
+  .tl-week  { font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--blue); margin-bottom: .15rem; }
+  .tl-title { font-size: .875rem; font-weight: 700; color: var(--text); margin-bottom: .2rem; }
+  .tl-body  { font-size: .78rem; color: var(--sub); line-height: 1.55; }
+
+  /* ── METRICS SECTION ── */
+  .metrics-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: .75rem; margin-bottom: 1rem; }
+  .metric-card  { border: 1px solid var(--border); border-radius: 5px; padding: .85rem 1rem; background: var(--bg); }
+  .metric-type  { font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .35rem; }
+  .metric-items { display: flex; flex-direction: column; gap: .25rem; }
+  .metric-item  { font-size: .78rem; color: var(--sub); display: flex; gap: .4rem; align-items: flex-start; }
+  .metric-bullet { color: var(--blue); font-size: .9rem; line-height: 1.2; flex-shrink: 0; }
+
+  /* ── ANALYSIS TABLE ── */
+  .analysis-card { border: 1px solid var(--border); border-radius: 5px; overflow: hidden; margin-bottom: 1rem; }
+  .analysis-head { background: var(--surf); padding: .6rem 1rem; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .analysis-body { padding: .75rem 1rem; display: flex; flex-direction: column; gap: .45rem; }
+  .analysis-row  { display: flex; gap: .75rem; align-items: flex-start; font-size: .8rem; }
+  .ar-label { font-weight: 700; color: var(--text); min-width: 140px; flex-shrink: 0; }
+  .ar-val   { color: var(--sub); }
+
+  /* ── DISCUSSION GUIDE ── */
+  .guide-section { border: 1px solid var(--border); border-radius: 5px; overflow: hidden; margin-bottom: 1rem; }
+  .guide-head { background: var(--blue); color: #fff; padding: .5rem 1rem; font-size: .75rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+  .guide-time { font-size: .65rem; opacity: .75; font-weight: 400; }
+  .guide-body { padding: .85rem 1rem; display: flex; flex-direction: column; gap: .35rem; }
+  .guide-q    { font-size: .8rem; color: var(--sub); padding-left: .75rem; border-left: 2px solid var(--border); line-height: 1.55; }
+
+  /* ── RISK TABLE ── */
+  .risk-row { display: flex; align-items: flex-start; gap: .75rem; padding: .65rem .85rem; border-bottom: 1px solid var(--border); font-size: .8rem; }
+  .risk-row:last-child { border-bottom: none; }
+  .risk-badge { font-size: .6rem; font-weight: 700; padding: .1rem .38rem; border-radius: 2px; flex-shrink: 0; margin-top: .1rem; }
+  .rb-high   { background: #fde8e8; color: var(--red); }
+  .rb-medium { background: #fff0db; color: var(--amber); }
+  .rb-low    { background: #e8f0fe; color: var(--blue); }
+  .risk-issue    { font-weight: 700; color: var(--text); min-width: 160px; flex-shrink: 0; }
+  .risk-mitigate { color: var(--sub); }
+
+  /* ── FOOTER ── */
+  .page-footer { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: .72rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div>
+    <div class="topbar-brand">IBM Design Research</div>
+    <div class="topbar-title">UXR Plan — Headless AI Concept Testing</div>
+  </div>
+  <div class="topbar-meta">IBM Network Intelligence · 2025</div>
+</div>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-label">User research plan · Concept testing</div>
+    <div class="hero-title">Headless AI Agent Interface<br>Concept Validation Study</div>
+    <div class="hero-sub">A moderated concept test to evaluate comprehension, trust, and decision-making confidence across three novel interface surfaces — Canvas, Agentic Trace, and Policy & Permissions — designed for operators managing autonomous AI agents in network infrastructure.</div>
+    <div class="hero-pills">
+      <span class="hero-pill">Moderated remote</span>
+      <span class="hero-pill">5 screens</span>
+      <span class="hero-pill">8–10 participants</span>
+      <span class="hero-pill">60 min sessions</span>
+      <span class="hero-pill">Think-aloud protocol</span>
+    </div>
+  </div>
+
+  <!-- META -->
+  <div class="meta-grid">
+    <div class="meta-cell">
+      <div class="meta-key">Study type</div>
+      <div class="meta-val">Concept test</div>
+      <div class="meta-sub">Moderated, remote</div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-key">Session length</div>
+      <div class="meta-val">60 min</div>
+      <div class="meta-sub">+ 10 min debrief</div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-key">Participants</div>
+      <div class="meta-val">8–10</div>
+      <div class="meta-sub">Network ops / SRE / NOC</div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-key">Timeline</div>
+      <div class="meta-val">3 weeks</div>
+      <div class="meta-sub">Prep · Field · Synthesis</div>
+    </div>
+  </div>
+
+  <!-- ── 1. BACKGROUND ── -->
+  <h2><span class="h2-num">1</span> Background &amp; context</h2>
+  <p>The IBM Network Intelligence team is exploring a new interaction paradigm for AI-powered network operations: <strong>headless AI agents</strong> that detect anomalies, make remediation decisions, and take actions autonomously — surfacing to human operators only for escalations, approvals, or audit.</p>
+  <p>The concept introduces three novel surfaces that operators have never encountered before: a <strong>Canvas</strong> that shows ambient system confidence rather than alerts, an <strong>Agentic Trace</strong> that exposes agent decision reasoning, and a <strong>Policy & Permissions</strong> studio where operators define what an agent is allowed to do autonomously. All five screens below represent early-stage concepts for validation before high-fidelity build.</p>
+
+  <!-- SCREENS -->
+  <h3>Screens under test</h3>
+  <div class="screen-grid">
+    <div class="screen-card">
+      <div class="screen-card-header"><span>Screen 01</span><span>Canvas</span></div>
+      <div class="screen-card-body">
+        <div class="screen-card-title">Canvas — Dashboard</div>
+        <div class="screen-card-desc">Ambient confidence view showing overall agent health (95%), fleet status, escalation cards with Approve/Escalate actions, and an activity timeline with notable event markers.</div>
+        <div class="screen-card-tags">
+          <span class="stag stag-blue">Ambient UI</span>
+          <span class="stag stag-amber">Escalation</span>
+          <span class="stag stag-green">Trust signals</span>
+        </div>
+      </div>
+    </div>
+    <div class="screen-card">
+      <div class="screen-card-header"><span>Screen 02</span><span>Agentic Trace</span></div>
+      <div class="screen-card-body">
+        <div class="screen-card-title">Agentic Trace — Case list</div>
+        <div class="screen-card-desc">List of 40 cases with outcome labels (Auto resolved, Escalation, Fix failed), agent attribution, priority, duration, and follow-up status. Summary KPIs: 100/120 completed, 82% auto-resolution.</div>
+        <div class="screen-card-tags">
+          <span class="stag stag-blue">Trace list</span>
+          <span class="stag stag-green">Auto resolution</span>
+          <span class="stag stag-amber">Escalation</span>
+        </div>
+      </div>
+    </div>
+    <div class="screen-card">
+      <div class="screen-card-header"><span>Screen 03</span><span>Agentic Trace</span></div>
+      <div class="screen-card-body">
+        <div class="screen-card-title">Agentic Trace — Case detail</div>
+        <div class="screen-card-desc">Deep dive into case C-2837: confidence trajectory chart, approval gates, gate ledger, and full Decision Reasoning timeline showing Detected → Investigated → Escalated steps with evidence and timestamps.</div>
+        <div class="screen-card-tags">
+          <span class="stag stag-blue">Decision reasoning</span>
+          <span class="stag stag-amber">Approval gate</span>
+          <span class="stag stag-purple">Confidence</span>
+        </div>
+      </div>
+    </div>
+    <div class="screen-card">
+      <div class="screen-card-header"><span>Screen 04</span><span>Policy &amp; Permissions</span></div>
+      <div class="screen-card-body">
+        <div class="screen-card-title">Policy Studio</div>
+        <div class="screen-card-desc">Composite score (85/100), permission matrix with Auto/Ask/Approval controls per action, Model & remediation knobs, and a Posture Projection radar chart visualizing the tradeoff between autonomy and compliance.</div>
+        <div class="screen-card-tags">
+          <span class="stag stag-blue">Permission matrix</span>
+          <span class="stag stag-purple">Posture radar</span>
+          <span class="stag stag-green">Composite score</span>
+        </div>
+      </div>
+    </div>
+    <div class="screen-card">
+      <div class="screen-card-header"><span>Screen 05</span><span>Policy &amp; Permissions</span></div>
+      <div class="screen-card-body">
+        <div class="screen-card-title">Configuration Testing — Digital Twin</div>
+        <div class="screen-card-desc">Live virtual copy of the network used to simulate agent behavior before deployment. SLA compliance test shows Outcome: Contained, 8 min resolution, 5 autonomous acts, 1 human intervention. Includes network topology visualization.</div>
+        <div class="screen-card-tags">
+          <span class="stag stag-green">Digital twin</span>
+          <span class="stag stag-blue">Simulation</span>
+          <span class="stag stag-purple">Pre-flight check</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 2. RESEARCH OBJECTIVES ── -->
+  <h2><span class="h2-num">2</span> Research objectives</h2>
+  <div class="obj-grid">
+    <div class="obj-card">
+      <div class="obj-num">Objective 01 · Comprehension</div>
+      <div class="obj-title">Do operators understand what the agent did and why?</div>
+      <div class="obj-body">Evaluate whether the Canvas, Trace, and Decision Reasoning surfaces communicate agent state, actions, and reasoning clearly enough for operators to make confident decisions without guessing.</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">Objective 02 · Trust calibration</div>
+      <div class="obj-title">Do operators trust the agent at the right level?</div>
+      <div class="obj-body">Assess whether confidence scores, approval gates, and posture indicators help operators develop accurate, calibrated trust — neither over-relying nor dismissing agent decisions.</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">Objective 03 · Decision support</div>
+      <div class="obj-title">Can operators make good decisions at escalation moments?</div>
+      <div class="obj-body">Determine whether the escalation card (Canvas) and case detail (Trace) give operators sufficient context to approve, deny, or redirect an agent action within the 26-minute expiry window.</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">Objective 04 · Policy legibility</div>
+      <div class="obj-title">Can operators configure and verify agent policy with confidence?</div>
+      <div class="obj-body">Assess whether the permission matrix, composite score, and digital twin surfaces enable operators to set guardrails, understand the tradeoffs, and verify intended behavior before deployment.</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">Objective 05 · Mental model fit</div>
+      <div class="obj-title">Does the "agent as autonomous colleague" model land?</div>
+      <div class="obj-body">Explore whether operators' existing mental models (alert-driven, human-initiated) conflict with the new ambient/autonomous paradigm — and identify where the biggest conceptual gaps are.</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">Objective 06 · Anxiety &amp; control</div>
+      <div class="obj-title">Where do operators feel they have lost control?</div>
+      <div class="obj-body">Surface moments where the invisible nature of agent operation causes anxiety, confusion, or a desire to intervene — to guide which surfaces need more presence signals or override affordances.</div>
+    </div>
+  </div>
+
+  <!-- ── 3. RESEARCH QUESTIONS ── -->
+  <h2><span class="h2-num">3</span> Key research questions</h2>
+  <h4>Comprehension</h4>
+  <ul>
+    <li>When looking at the Canvas, what does the operator think the system is doing right now?</li>
+    <li>Does "Confidence Score 95%" communicate health, risk, or something else?</li>
+    <li>Can operators locate which agent handled a specific case and what it decided?</li>
+    <li>Does the Decision Reasoning timeline (Detected → Investigated → Escalated) read as a logical sequence?</li>
+  </ul>
+  <h4>Trust</h4>
+  <ul>
+    <li>At what point does the operator feel comfortable approving an action they didn't initiate?</li>
+    <li>Does seeing a confidence score of 87% make approval easier or harder?</li>
+    <li>What does "82% auto-resolution rate" mean to an operator — is it reassuring or alarming?</li>
+    <li>Does the 4th recurring failure ("CHRONIC TVM-EDGE-04") trigger distrust of the agent?</li>
+  </ul>
+  <h4>Decision support</h4>
+  <ul>
+    <li>What information does the operator need before clicking Approve vs. Escalate?</li>
+    <li>Is the 26-minute expiry window on the escalation card noticed? Does it create pressure?</li>
+    <li>Does "View reasoning trace" get used before deciding? If not, why not?</li>
+  </ul>
+  <h4>Policy configuration</h4>
+  <ul>
+    <li>Does the Auto/Ask/Approval permission model map to how operators think about authorization?</li>
+    <li>What does the Composite Score (85/100) tell the operator — and what would make them change it?</li>
+    <li>Does the Posture Projection radar communicate the autonomy/compliance tradeoff intuitively?</li>
+    <li>Would operators use the digital twin to verify policy before deploying? What are their concerns?</li>
+  </ul>
+
+  <!-- ── 4. PARTICIPANTS ── -->
+  <h2><span class="h2-num">4</span> Participant criteria</h2>
+  <table>
+    <tr>
+      <th>Segment</th><th>Role</th><th>Experience</th><th>N</th><th>Rationale</th>
+    </tr>
+    <tr>
+      <td><strong>Primary</strong></td>
+      <td>Network Operations Engineer / NOC Operator</td>
+      <td>2+ years managing network infrastructure; experience with incident response</td>
+      <td>4–5</td>
+      <td>Core user — manages escalations and monitors fleet health daily</td>
+    </tr>
+    <tr>
+      <td><strong>Primary</strong></td>
+      <td>Site Reliability Engineer (SRE)</td>
+      <td>Experience with automation, runbooks, on-call rotations</td>
+      <td>2–3</td>
+      <td>Policy configuration and autonomous remediation are part of their workflow</td>
+    </tr>
+    <tr>
+      <td><strong>Secondary</strong></td>
+      <td>Network Architect / Senior NOC Lead</td>
+      <td>Approves change policies; sets guardrails for automation</td>
+      <td>1–2</td>
+      <td>Policy Studio and composite score are most relevant to this role</td>
+    </tr>
+  </table>
+
+  <h4>Screener criteria</h4>
+  <ul>
+    <li>Currently works in a network operations, SRE, or infrastructure role</li>
+    <li>Has experience with at least one monitoring/observability tool (Instana, Grafana, PagerDuty, Prometheus, or similar)</li>
+    <li>Has responded to at least 5 network incidents in the past 3 months</li>
+    <li>Has some familiarity with automation or scripted remediation (runbooks, Ansible, etc.)</li>
+    <li><strong>Exclude:</strong> participants who have previously seen IBM Network Intelligence mockups</li>
+    <li><strong>Exclude:</strong> IBM employees directly working on this product</li>
+  </ul>
+
+  <!-- ── 5. TASKS ── -->
+  <h2><span class="h2-num">5</span> Tasks &amp; discussion guide</h2>
+  <p>Sessions are moderated and remote. Participants share their screen. Facilitator uses think-aloud protocol throughout. Screens are shown as static images in Figma/Miro — no interactive prototype required.</p>
+
+  <!-- Task 1 -->
+  <div class="task-card">
+    <div class="task-header">
+      <div class="task-num">T1</div>
+      <div class="task-title">First impressions — Canvas</div>
+      <div class="task-screen">Screen 01 · 10 min</div>
+    </div>
+    <div class="task-body">
+      <div class="task-scenario"><strong>Scenario:</strong> "You've just started your shift. This is the first screen you see. Take a moment to look around — tell me what you think is happening in the system right now."</div>
+      <div class="probe-list">
+        <div class="probe-item"><div class="probe-dot"></div>What does "Confidence Score 95%" mean to you? Good or bad?</div>
+        <div class="probe-item"><div class="probe-dot"></div>What would you do first on this screen — and why?</div>
+        <div class="probe-item"><div class="probe-dot"></div>Where do you think the "1 agent | 40%" figure comes from?</div>
+        <div class="probe-item"><div class="probe-dot"></div>What does the Activity Timeline tell you? Would you normally look at this first?</div>
+        <div class="probe-item"><div class="probe-dot"></div>How is this different from the dashboards you use today?</div>
+      </div>
+      <div class="metrics-row">
+        <span class="metric-chip">First-click location</span>
+        <span class="metric-chip">Mental model of confidence score</span>
+        <span class="metric-chip">Comprehension of ambient state</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task 2 -->
+  <div class="task-card">
+    <div class="task-header">
+      <div class="task-num">T2</div>
+      <div class="task-title">Escalation decision — Canvas approval card</div>
+      <div class="task-screen">Screen 01 · 10 min</div>
+    </div>
+    <div class="task-body">
+      <div class="task-scenario"><strong>Scenario:</strong> "The agent has flagged an issue on TVM-EDGE-04 and prepared a fix. It needs your sign-off before it can proceed. The card expires in 26 minutes. What do you do?"</div>
+      <div class="probe-list">
+        <div class="probe-item"><div class="probe-dot"></div>Walk me through what this card is telling you.</div>
+        <div class="probe-item"><div class="probe-dot"></div>What does "Blast Radius: 1200 subs, no drop" mean to you?</div>
+        <div class="probe-item"><div class="probe-dot"></div>Would you click "View reasoning trace" before approving? What would you expect to see?</div>
+        <div class="probe-item"><div class="probe-dot"></div>What would make you click Escalate instead of Approve?</div>
+        <div class="probe-item"><div class="probe-dot"></div>The card expires in 26 minutes — does that change how you feel about this decision?</div>
+        <div class="probe-item"><div class="probe-dot"></div>The second card says this is the 4th failed fix this week. What does that tell you about the agent?</div>
+      </div>
+      <div class="metrics-row">
+        <span class="metric-chip">Decision confidence (1–7 Likert)</span>
+        <span class="metric-chip">Information sufficiency</span>
+        <span class="metric-chip">Time pressure effect</span>
+        <span class="metric-chip">Chronic issue recognition</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task 3 -->
+  <div class="task-card">
+    <div class="task-header">
+      <div class="task-num">T3</div>
+      <div class="task-title">Trace navigation — case list to detail</div>
+      <div class="task-screen">Screens 02 → 03 · 12 min</div>
+    </div>
+    <div class="task-body">
+      <div class="task-scenario"><strong>Scenario:</strong> "You want to understand what happened with the recurring CRC error case — specifically, why the agent decided to escalate rather than fix it automatically. Can you find that information?"</div>
+      <div class="probe-list">
+        <div class="probe-item"><div class="probe-dot"></div>On the list screen: how do you interpret the outcome labels — Auto resolved, Escalation, Fix failed?</div>
+        <div class="probe-item"><div class="probe-dot"></div>What does "82% auto-resolution rate" tell you about how the system is performing?</div>
+        <div class="probe-item"><div class="probe-dot"></div>On the case detail: can you tell me in your own words why the agent escalated this case?</div>
+        <div class="probe-item"><div class="probe-dot"></div>What does the Confidence Trajectory chart show? Does it change how you read the decision?</div>
+        <div class="probe-item"><div class="probe-dot"></div>What is the Gate Ledger — what does "Blast cap &lt; 5%" mean here?</div>
+        <div class="probe-item"><div class="probe-dot"></div>Is there anything missing that you'd want to see before deciding to approve?</div>
+      </div>
+      <div class="metrics-row">
+        <span class="metric-chip">Navigation success rate</span>
+        <span class="metric-chip">Reasoning comprehension score</span>
+        <span class="metric-chip">Trust in agent decision</span>
+        <span class="metric-chip">Missing information gaps</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task 4 -->
+  <div class="task-card">
+    <div class="task-header">
+      <div class="task-num">T4</div>
+      <div class="task-title">Policy configuration — permission matrix</div>
+      <div class="task-screen">Screen 04 · 12 min</div>
+    </div>
+    <div class="task-body">
+      <div class="task-scenario"><strong>Scenario:</strong> "Your team is deploying a new agent that will handle network remediation. You're reviewing what it's allowed to do on its own — and what needs human sign-off. Does this setup look right to you?"</div>
+      <div class="probe-list">
+        <div class="probe-item"><div class="probe-dot"></div>Walk me through what the permission matrix is showing you.</div>
+        <div class="probe-item"><div class="probe-dot"></div>What does Auto / Ask / Approval mean in your own words?</div>
+        <div class="probe-item"><div class="probe-dot"></div>The agent can "Restart pods" on Ask — would you change that? Why?</div>
+        <div class="probe-item"><div class="probe-dot"></div>What does the Composite Score of 85/100 tell you — is 85 good?</div>
+        <div class="probe-item"><div class="probe-dot"></div>What does the Posture Projection radar show? Do you understand the axes?</div>
+        <div class="probe-item"><div class="probe-dot"></div>If you changed "Modify BGP policies" from Approval to Auto — what would you expect to happen on the radar?</div>
+      </div>
+      <div class="metrics-row">
+        <span class="metric-chip">Permission model comprehension</span>
+        <span class="metric-chip">Composite score interpretation</span>
+        <span class="metric-chip">Radar chart legibility</span>
+        <span class="metric-chip">Policy confidence (1–7 Likert)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task 5 -->
+  <div class="task-card">
+    <div class="task-header">
+      <div class="task-num">T5</div>
+      <div class="task-title">Digital twin — pre-flight simulation</div>
+      <div class="task-screen">Screen 05 · 8 min</div>
+    </div>
+    <div class="task-body">
+      <div class="task-scenario"><strong>Scenario:</strong> "Before you go live with the new policy, there's a way to test it against a virtual copy of your network. You're looking at the results of that test. Does this help you feel confident about deploying?"</div>
+      <div class="probe-list">
+        <div class="probe-item"><div class="probe-dot"></div>What does "Test with digital twin" mean to you?</div>
+        <div class="probe-item"><div class="probe-dot"></div>The outcome says "Contained" — what does that tell you about whether to proceed?</div>
+        <div class="probe-item"><div class="probe-dot"></div>5 autonomous acts, 1 human intervention — is that ratio acceptable to you?</div>
+        <div class="probe-item"><div class="probe-dot"></div>What is the network topology diagram on the right showing? Is it useful?</div>
+        <div class="probe-item"><div class="probe-dot"></div>Would you trust a digital twin simulation enough to skip manual testing in staging?</div>
+        <div class="probe-item"><div class="probe-dot"></div>What would have to be different about this result for you to NOT proceed?</div>
+      </div>
+      <div class="metrics-row">
+        <span class="metric-chip">Digital twin concept comprehension</span>
+        <span class="metric-chip">Deployment confidence (1–7 Likert)</span>
+        <span class="metric-chip">Trust in simulation</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 6. METRICS ── -->
+  <h2><span class="h2-num">6</span> Success metrics</h2>
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-type">Behavioral</div>
+      <div class="metric-items">
+        <div class="metric-item"><span class="metric-bullet">·</span>First-click accuracy on Canvas (target: escalation card)</div>
+        <div class="metric-item"><span class="metric-bullet">·</span>Task completion rate for trace navigation (T3)</div>
+        <div class="metric-item"><span class="metric-bullet">·</span>Time to locate decision reasoning on case detail</div>
+        <div class="metric-item"><span class="metric-bullet">·</span>Unprompted use of "View reasoning trace" before approving</div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-type">Attitudinal (Likert 1–7)</div>
+      <div class="metric-items">
+        <div class="metric-item"><span class="metric-bullet">·</span>Decision confidence at approval gate (T2)</div>
+        <div class="metric-item"><span class="metric-bullet">·</span>Trust in agent's auto-resolution judgment (T3)</div>
+        <div class="metric-item"><span class="metric-bullet">·</span>Confidence in policy setup before deploy (T4)</div>
+        <div class="metric-item"><span class="metric-bullet">·</span>Confidence in digital twin simulation (T5)</div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-type">Qualitative</div>
+      <div class="metric-items">
+        <div class="metric-item"><span class="metric-bullet">·</span>Spontaneous verbalization of mental model (correct / partial / incorrect)</div>
+        <div class="metric-item"><span class="metric-bullet">·</span>Moments of confusion or anxiety (coded by type)</div>
+        <div class="metric-item"><span class="metric-bullet">·</span>Unprompted questions about missing information</div>
+        <div class="metric-item"><span class="metric-bullet">·</span>Vocabulary participants use to describe agent behavior</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 7. TIMELINE ── -->
+  <h2><span class="h2-num">7</span> Study timeline</h2>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-right">
+        <div class="tl-week">Week 1 — Preparation</div>
+        <div class="tl-title">Screener, guide, and stimulus prep</div>
+        <div class="tl-body">Finalise discussion guide · Recruit 8–10 participants via screener · Prepare 5 screens in Figma or Miro · Pilot session with 1 internal participant · Brief all observers</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-right">
+        <div class="tl-week">Week 2 — Field</div>
+        <div class="tl-title">Run moderated sessions</div>
+        <div class="tl-body">5 sessions over 3 days · 60 min each · Remote via Zoom + screen share · Recording with consent · 1 facilitator + 1 note-taker · Optional: up to 2 silent observers per session</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-right">
+        <div class="tl-week">Week 2–3 — Analysis</div>
+        <div class="tl-title">Synthesis and pattern finding</div>
+        <div class="tl-body">Affinity mapping of observations · Code confusion moments by screen and type · Score behavioral and attitudinal metrics · Draft top findings per research objective</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot"></div></div>
+      <div class="tl-right">
+        <div class="tl-week">Week 3 — Readout</div>
+        <div class="tl-title">Findings presentation to design + product</div>
+        <div class="tl-body">Present top 5 findings · Prioritized issues by screen · Recommendations per research objective · Highlight reel of key participant moments · Proposed design iterations</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 8. ANALYSIS FRAMEWORK ── -->
+  <h2><span class="h2-num">8</span> Analysis framework</h2>
+  <div class="analysis-card">
+    <div class="analysis-head">Coding framework — confusion &amp; trust moments</div>
+    <div class="analysis-body">
+      <div class="analysis-row"><div class="ar-label">Confusion: terminology</div><div class="ar-val">Participant misunderstands a label, metric, or concept (e.g. "Blast Radius", "Composite Score", "Gate Ledger")</div></div>
+      <div class="analysis-row"><div class="ar-label">Confusion: missing context</div><div class="ar-val">Participant cannot make a decision because they lack information that isn't on screen</div></div>
+      <div class="analysis-row"><div class="ar-label">Confusion: navigation</div><div class="ar-val">Participant cannot find the information they're looking for or takes an unexpected path</div></div>
+      <div class="analysis-row"><div class="ar-label">Trust: over-reliance</div><div class="ar-val">Participant approves without checking evidence or reasoning — no verification behavior</div></div>
+      <div class="analysis-row"><div class="ar-label">Trust: under-reliance</div><div class="ar-val">Participant expresses distrust despite favorable indicators; wants to override agent decisions</div></div>
+      <div class="analysis-row"><div class="ar-label">Trust: calibrated</div><div class="ar-val">Participant checks evidence, reads reasoning, and makes a confident, reasoned decision</div></div>
+      <div class="analysis-row"><div class="ar-label">Anxiety: loss of control</div><div class="ar-val">Participant expresses discomfort that the agent acted without them, or fear of what they might have missed</div></div>
+      <div class="analysis-row"><div class="ar-label">Mental model: mismatch</div><div class="ar-val">Participant maps the new interface onto an old mental model (alert dashboard, ticketing system) in a way that causes errors</div></div>
+    </div>
+  </div>
+
+  <!-- ── 9. DISCUSSION GUIDE OUTLINE ── -->
+  <h2><span class="h2-num">9</span> Discussion guide outline</h2>
+  <div class="guide-section">
+    <div class="guide-head"><span>Introduction &amp; warm-up</span><span class="guide-time">0–8 min</span></div>
+    <div class="guide-body">
+      <div class="guide-q">Tell me about your current role and what a typical shift looks like for you.</div>
+      <div class="guide-q">How do you monitor your network today? What tools do you use?</div>
+      <div class="guide-q">Have you worked with any automated remediation tools? What was that like?</div>
+      <div class="guide-q">When something breaks overnight — how does your team find out? What do you do first?</div>
+    </div>
+  </div>
+  <div class="guide-section">
+    <div class="guide-head"><span>Screen walkthroughs (Tasks 1–5)</span><span class="guide-time">8–55 min</span></div>
+    <div class="guide-body">
+      <div class="guide-q">See individual task scripts above. Think-aloud throughout. Do not correct or guide unless participant is stuck for more than 90 seconds.</div>
+      <div class="guide-q">After each screen: "On a scale of 1–7, how confident would you feel making a decision from this screen? What would need to change to get you to a 7?"</div>
+    </div>
+  </div>
+  <div class="guide-section">
+    <div class="guide-head"><span>Concept reaction — overall</span><span class="guide-time">55–65 min</span></div>
+    <div class="guide-body">
+      <div class="guide-q">Having seen all five screens — what's the one thing that stands out most to you?</div>
+      <div class="guide-q">Is there a moment where you felt you had lost control of what was happening?</div>
+      <div class="guide-q">If this system existed today, what would you need to trust it enough to actually use it?</div>
+      <div class="guide-q">What's the biggest thing that's missing?</div>
+      <div class="guide-q">If a colleague asked you to describe this product in one sentence — what would you say?</div>
+    </div>
+  </div>
+  <div class="guide-section">
+    <div class="guide-head"><span>Debrief &amp; close</span><span class="guide-time">65–70 min</span></div>
+    <div class="guide-body">
+      <div class="guide-q">Thank participant · Explain next steps · Confirm consent for recording use · Provide incentive details.</div>
+    </div>
+  </div>
+
+  <!-- ── 10. RISKS ── -->
+  <h2><span class="h2-num">10</span> Risks &amp; mitigations</h2>
+  <div style="border:1px solid var(--border);border-radius:5px;overflow:hidden;margin-bottom:1rem;">
+    <div class="risk-row">
+      <span class="risk-badge rb-high">High</span>
+      <span class="risk-issue">Recruitment difficulty</span>
+      <span class="risk-mitigate">Network ops roles are specialized. Recruit 12, expect 10% no-show. Start recruitment in Week 1 day 1. Use LinkedIn, IBM Design research panel, and partner with IBM Network product team for customer contacts.</span>
+    </div>
+    <div class="risk-row">
+      <span class="risk-badge rb-high">High</span>
+      <span class="risk-issue">Concept too novel to evaluate</span>
+      <span class="risk-mitigate">Participants may not have a reference frame for autonomous agents. Brief them on the premise (2 min) before screens — not enough to bias, but enough to prevent total confusion. Pilot session will validate briefing length.</span>
+    </div>
+    <div class="risk-row">
+      <span class="risk-badge rb-medium">Medium</span>
+      <span class="risk-issue">Static screens limit interaction testing</span>
+      <span class="risk-mitigate">This study tests comprehension and concept resonance — not usability. Frame all tasks as "what would you do / how do you feel" rather than "can you complete this task." Save interaction testing for a prototype study in the next sprint.</span>
+    </div>
+    <div class="risk-row">
+      <span class="risk-badge rb-medium">Medium</span>
+      <span class="risk-issue">Facilitator bias on novel concepts</span>
+      <span class="risk-mitigate">Facilitator must not explain terminology or confirm participant interpretations. Agree on probing language in advance. Use co-facilitator or observer to flag leading questions in debrief.</span>
+    </div>
+    <div class="risk-row">
+      <span class="risk-badge rb-low">Low</span>
+      <span class="risk-issue">Recording consent issues</span>
+      <span class="risk-mitigate">Send consent form 48h before session. Have verbal and written consent before starting recording. Store recordings in IBM-approved secure storage only.</span>
+    </div>
+  </div>
+
+  <!-- ── 11. DELIVERABLES ── -->
+  <h2><span class="h2-num">11</span> Deliverables</h2>
+  <table>
+    <tr><th>Deliverable</th><th>Format</th><th>Audience</th><th>Due</th></tr>
+    <tr><td><strong>Session recordings + notes</strong></td><td>Video + structured note doc per session</td><td>Research team</td><td>End of Week 2</td></tr>
+    <tr><td><strong>Affinity map</strong></td><td>Miro board — observations grouped by theme</td><td>Design + research team</td><td>End of Week 2</td></tr>
+    <tr><td><strong>Findings report</strong></td><td>Slide deck — top 5 findings, evidence, severity, recommendations</td><td>Design, Product, Engineering</td><td>End of Week 3</td></tr>
+    <tr><td><strong>Highlight reel</strong></td><td>3–5 min video clip of key participant moments</td><td>All stakeholders</td><td>End of Week 3</td></tr>
+    <tr><td><strong>Design recommendations</strong></td><td>Annotated screens with priority fixes</td><td>Design team</td><td>End of Week 3</td></tr>
+  </table>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <span>IBM Network Intelligence · Headless AI UXR Plan · 2025</span>
+    <span>IBM Design Research · Made with Bob</span>
+  </div>
+
+</div>
+</body>
+</html>
