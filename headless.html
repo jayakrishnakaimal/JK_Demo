@@ -397,6 +397,340 @@
   /* ensure greeting sits above bg-layer */
   .greeting { z-index: 2; }
 
+  /* ── agentic trace cases view ── */
+  .at-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: transparent;
+    padding: 28px 32px 0;
+  }
+
+  .at-header { flex-shrink: 0; margin-bottom: 20px; }
+
+  .at-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .at-title {
+    font-size: 26px;
+    font-weight: 400;
+    color: #111827;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .at-count { font-size: 22px; font-weight: 300; color: #6b7280; }
+
+  .at-summary-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border: 1px solid #2563eb;
+    border-radius: 5px;
+    background: #ffffff;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .at-summary-btn:hover { background: #eff6ff; }
+
+  .at-filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .at-search {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #e5e7eb;
+    border-radius: 5px;
+    padding: 5px 10px;
+    background: #ffffff;
+    width: 180px;
+  }
+  .at-search input {
+    border: none;
+    outline: none;
+    font-size: 12px;
+    color: #374151;
+    background: transparent;
+    width: 100%;
+    font-family: inherit;
+  }
+  .at-search input::placeholder { color: #9ca3af; }
+
+  .at-select {
+    border: 1px solid #e5e7eb;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 12px;
+    color: #374151;
+    background: #ffffff;
+    cursor: pointer;
+    outline: none;
+    font-family: inherit;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M2 3.5l3 3 3-3' stroke='%236b7280' stroke-width='1.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 24px;
+  }
+  .at-select:hover { border-color: #d1d5db; }
+
+  /* stats row */
+  .at-stats-row {
+    display: flex;
+    gap: 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #ffffff;
+  }
+
+  .at-stat-card {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 18px;
+    border-right: 1px solid #e5e7eb;
+  }
+  .at-stat-card:last-child { border-right: none; }
+
+  .at-stat-icon { flex-shrink: 0; margin-top: 2px; }
+
+  .at-stat-label {
+    font-size: 11px;
+    font-weight: 400;
+    color: #6b7280;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .at-badge-good {
+    background: #dcfce7;
+    color: #16a34a;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  .at-stat-val {
+    font-size: 26px;
+    font-weight: 300;
+    color: #111827;
+    line-height: 1.1;
+    margin-bottom: 3px;
+    letter-spacing: -0.5px;
+  }
+  .at-stat-green  { color: #166534; }
+  .at-stat-sub    { font-size: 14px; font-weight: 400; color: #9ca3af; }
+  .at-stat-amber  { color: #d97706; font-size: 26px; font-weight: 300; }
+  .at-stat-green-lg { color: #166534; font-size: 26px; font-weight: 300; display: block; }
+  .at-stat-red    { color: #dc2626; font-size: 26px; font-weight: 300; display: block; }
+  .at-stat-note   { font-size: 11px; color: #9ca3af; }
+
+  /* table */
+  .at-table-wrap {
+    flex: 1;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #ffffff;
+    margin-bottom: 20px;
+  }
+  .at-table-wrap::-webkit-scrollbar { width: 4px; }
+  .at-table-wrap::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+
+  .at-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .at-table thead tr {
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .at-table th {
+    padding: 11px 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 400;
+    color: #9ca3af;
+    white-space: nowrap;
+    background: #ffffff;
+  }
+
+  .at-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+    color: #111827;
+    font-size: 13px;
+    font-weight: 400;
+  }
+
+  .at-table tbody tr {
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .at-table tbody tr:hover { background: #f9fafb; }
+  .at-table tbody tr.at-row-selected {
+    background: #eff6ff;
+    outline: 1.5px solid #2563eb;
+    outline-offset: -1px;
+  }
+  .at-table tbody tr:last-child td { border-bottom: none; }
+
+  /* issue name cell */
+  .at-issue-name { font-weight: 400; color: #111827; }
+  .at-case-id {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 11px;
+    font-weight: 400;
+    color: #6b7280;
+    background: #f3f4f6;
+    border-radius: 3px;
+    padding: 1px 5px;
+  }
+  .at-case-tag {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 11px;
+    color: #9ca3af;
+  }
+
+  /* outcome badges */
+  .at-outcome {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+  .at-outcome.auto-resolved { background: #dcfce7; color: #166534; }
+  .at-outcome.escalation    { background: #fef9c3; color: #854d0e; }
+  .at-outcome.fix-failed    { background: #fee2e2; color: #dc2626; }
+
+  /* priority badges */
+  .at-priority {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+  .at-priority.p1 { background: #fee2e2; color: #dc2626; }
+  .at-priority.p2 { background: #ffedd5; color: #c2410c; }
+  .at-priority.p3 { background: #fef9c3; color: #854d0e; }
+
+  /* follow up */
+  .at-followup { color: #374151; }
+  .at-followup-arrow { color: #9ca3af; font-size: 13px; }
+
+  /* detail drawer */
+  .at-drawer {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 400px;
+    background: #ffffff;
+    border-left: 1px solid #e5e7eb;
+    box-shadow: -4px 0 24px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+    z-index: 50;
+    overflow: hidden;
+  }
+  .at-drawer.open { transform: translateX(0); }
+
+  .at-drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    flex-shrink: 0;
+  }
+  .at-drawer-title { font-size: 15px; font-weight: 500; color: #111827; margin-bottom: 3px; }
+  .at-drawer-meta  { font-size: 12px; color: #6b7280; }
+  .at-drawer-close {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 3px;
+    line-height: 1;
+    transition: background 0.1s;
+  }
+  .at-drawer-close:hover { background: #f3f4f6; color: #374151; }
+
+  .at-drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .at-drawer-body::-webkit-scrollbar { width: 4px; }
+  .at-drawer-body::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+
+  .at-drawer-section { margin-bottom: 20px; }
+  .at-drawer-section-title { font-size: 11px; font-weight: 500; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .at-drawer-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
+  .at-drawer-row:last-child { border-bottom: none; }
+  .at-drawer-key { color: #6b7280; }
+  .at-drawer-val { color: #111827; font-weight: 400; }
+
+  .at-trace-steps { display: flex; flex-direction: column; gap: 10px; }
+  .at-trace-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .at-trace-dot {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .at-trace-dot.done { background: #dcfce7; color: #16a34a; }
+  .at-trace-dot.fail { background: #fee2e2; color: #dc2626; }
+  .at-trace-dot.warn { background: #fef9c3; color: #854d0e; }
+  .at-trace-text { font-size: 12px; color: #374151; line-height: 1.5; }
+  .at-trace-text strong { color: #111827; font-weight: 500; display: block; }
+
+  /* canvas area needs to be relative for drawer */
+  #tab-agentic { position: relative; overflow: hidden; background: transparent; }
+
   /* ── right panel ── */
   .right-panel {
     width: 360px;
@@ -878,7 +1212,148 @@
   .trace-name { font-size: 13px; font-weight: 600; color: #111827; }
   .trace-detail { font-size: 12px; color: #6b7280; margin-top: 2px; }
 
-  /* permissions panel */
+  /* ── policy & permissions studio ── */
+  .pp-wrap {
+    flex: 1; display: flex; flex-direction: column; overflow: hidden; background: transparent;
+  }
+  .pp-header {
+    background: rgba(255,255,255,0.92);
+    padding: 20px 28px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    flex-shrink: 0;
+  }
+  .pp-mode-row {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 6px;
+  }
+  .pp-mode-title {
+    font-size: 24px; font-weight: 400; color: #111827;
+  }
+  .pp-mode-title span { color: #6b7280; font-weight: 300; }
+  .pp-mode-desc { font-size: 12px; color: #6b7280; }
+  .pp-header-btns { display: flex; gap: 10px; flex-shrink: 0; }
+  .pp-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border: 1px solid #2563eb; border-radius: 5px;
+    background: #ffffff; color: #2563eb; font-size: 12px; font-weight: 400;
+    cursor: pointer; white-space: nowrap; transition: background 0.15s;
+  }
+  .pp-btn:hover { background: #eff6ff; }
+
+  .pp-score-row {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 20px;
+    padding: 16px 28px; background: rgba(255,255,255,0.92); border-bottom: 1px solid #e5e7eb; flex-shrink: 0;
+  }
+  .pp-score-label { font-size: 12px; color: #6b7280; margin-bottom: 10px; }
+  .pp-score-label span { color: #9ca3af; }
+  .pp-score-left { display: flex; align-items: flex-start; gap: 20px; flex: 1; }
+  .pp-donut-wrap { position: relative; width: 80px; height: 80px; flex-shrink: 0; }
+  .pp-donut-wrap svg { width: 80px; height: 80px; }
+  .pp-donut-num {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 300; color: #111827; line-height: 1;
+  }
+  .pp-donut-num small { font-size: 10px; color: #9ca3af; }
+  .pp-summary-text { font-size: 13px; color: #374151; line-height: 1.6; max-width: 420px; }
+  .pp-summary-text strong { font-weight: 500; color: #111827; display: block; margin-bottom: 4px; }
+  .pp-trend-wrap { flex-shrink: 0; width: 320px; }
+  .pp-trend-months {
+    display: flex; justify-content: space-between; font-size: 10px; color: #9ca3af; margin-top: 4px;
+  }
+  .pp-trend-month-active { color: #2563eb; font-weight: 600; }
+
+  .pp-body { flex: 1; display: flex; overflow: hidden; }
+  .pp-left { flex: 1; overflow-y: auto; padding: 0; }
+  .pp-left::-webkit-scrollbar { width: 4px; }
+  .pp-left::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+
+  .pp-tabs {
+    display: flex; border-bottom: 1px solid #e5e7eb;
+    background: rgba(255,255,255,0.95); position: sticky; top: 0; z-index: 5; flex-shrink: 0;
+  }
+  .pp-tab {
+    padding: 12px 24px; font-size: 13px; font-weight: 400; color: #6b7280;
+    cursor: pointer; border: none; background: transparent; border-bottom: 2px solid transparent;
+    transition: all 0.15s; margin-bottom: -1px;
+  }
+  .pp-tab.active { color: #111827; font-weight: 500; border-bottom-color: #111827; }
+  .pp-tab:hover:not(.active) { color: #374151; }
+
+  .pp-studio { padding: 20px 28px; }
+
+  .pp-agent-card {
+    background: rgba(255,255,255,0.95); border: 1px solid #e5e7eb; border-radius: 8px;
+    padding: 16px 20px; margin-bottom: 20px;
+  }
+  .pp-agent-card-header {
+    display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;
+  }
+  .pp-agent-card-title { font-size: 13px; font-weight: 500; color: #111827; }
+  .pp-agent-card-desc  { font-size: 12px; color: #6b7280; margin-bottom: 14px; }
+  .pp-edit-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border: 1px solid #e5e7eb; border-radius: 4px;
+    background: #ffffff; color: #374151; font-size: 12px; cursor: pointer; transition: background 0.1s;
+  }
+  .pp-edit-btn:hover { background: #f3f4f6; }
+
+  .pp-section-label {
+    font-size: 11px; font-weight: 400; color: #9ca3af; margin-bottom: 8px; margin-top: 4px;
+  }
+  .pp-perm-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: 6px; margin-bottom: 6px;
+    background: rgba(255,255,255,0.7); border: 1px solid #f0f2f5;
+    transition: background 0.12s;
+  }
+  .pp-perm-row:hover { background: #ffffff; }
+  .pp-perm-row.highlighted { border: 1.5px dashed #2563eb; background: #eff6ff; }
+  .pp-perm-icon { flex-shrink: 0; color: #9ca3af; }
+  .pp-perm-info { flex: 1; }
+  .pp-perm-name { font-size: 13px; font-weight: 400; color: #111827; }
+  .pp-perm-desc { font-size: 11px; color: #9ca3af; }
+  .pp-mode-badge {
+    font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 4px;
+    cursor: pointer; border: none; white-space: nowrap; transition: opacity 0.15s;
+  }
+  .pp-mode-badge:hover { opacity: 0.8; }
+  .pp-mode-auto     { background: #dcfce7; color: #166534; }
+  .pp-mode-ask      { background: #dbeafe; color: #1d4ed8; }
+  .pp-mode-approval { background: #f3f4f6; color: #374151; }
+
+  /* right knobs panel */
+  .pp-right {
+    width: 320px; flex-shrink: 0; overflow-y: auto;
+    border-left: 1px solid #e5e7eb; background: rgba(255,255,255,0.95);
+    padding: 20px;
+  }
+  .pp-right::-webkit-scrollbar { width: 4px; }
+  .pp-right::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+  .pp-knobs-title { font-size: 14px; font-weight: 500; color: #111827; margin-bottom: 14px; }
+  .pp-knob-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px;
+  }
+  .pp-knob-row:last-child { border-bottom: none; }
+  .pp-knob-label { color: #374151; }
+  .pp-knob-val { font-weight: 400; color: #111827; font-size: 18px; letter-spacing: -0.5px; }
+  .pp-knob-val small { font-size: 11px; color: #9ca3af; font-weight: 400; margin-left: 2px; }
+  .pp-posture-title { font-size: 13px; font-weight: 500; color: #111827; margin: 20px 0 4px; }
+  .pp-posture-sub   { font-size: 11px; color: #9ca3af; margin-bottom: 12px; }
+  .pp-radar-wrap    { width: 100%; }
+  .pp-radar-legend  { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+  .pp-radar-legend-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #6b7280; }
+  .pp-radar-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .pp-posture-note { font-size: 11px; color: #6b7280; line-height: 1.6; margin-top: 12px; }
+
+  /* config testing tab content */
+  .pp-config { padding: 20px 28px; }
+  .pp-config-placeholder {
+    background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px;
+    padding: 32px; text-align: center; color: #9ca3af; font-size: 13px;
+  }
+
+  /* permissions panel (legacy — keep for fallback) */
   .permissions-panel {
     display: none;
   }
@@ -1120,96 +1595,335 @@
       </div>
 
       <!-- AGENTIC TRACE TAB -->
-      <div class="canvas-area trace-panel canvas-tab-content" id="tab-agentic" style="background:#fafafa;">
-        <div class="trace-panel active-tab" style="display:flex;">
-          <div style="padding:0 0 16px;border-bottom:1px solid #e5e7eb;margin-bottom:4px;">
-            <div style="font-size:15px;font-weight:700;color:#111827;">Agentic Trace — TVM-EDGE-04</div>
-            <div style="font-size:12px;color:#6b7280;margin-top:3px;">Last run: 4 minutes ago · 5 steps completed</div>
-          </div>
-          <div class="trace-step">
-            <div class="trace-line-wrap">
-              <div class="trace-circle done">✓</div>
-              <div class="trace-connector"></div>
+      <div class="canvas-area canvas-tab-content" id="tab-agentic">
+        <div class="at-container">
+
+          <!-- Page header -->
+          <div class="at-header">
+            <div class="at-title-row">
+              <h2 class="at-title">Cases <span class="at-count">· 40</span></h2>
+              <button class="at-summary-btn" onclick="showToast('Summary report generated', 'blue')">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                View summary
+              </button>
             </div>
-            <div class="trace-content">
-              <div class="trace-name">Anomaly Detection</div>
-              <div class="trace-detail">Line card failure detected on port 4/2. Signal loss at 14:31 UTC.</div>
-            </div>
-          </div>
-          <div class="trace-step">
-            <div class="trace-line-wrap">
-              <div class="trace-circle done">✓</div>
-              <div class="trace-connector"></div>
-            </div>
-            <div class="trace-content">
-              <div class="trace-name">Historical Pattern Matching</div>
-              <div class="trace-detail">14 similar cases found. Avg recovery time: 6.2 min. Confidence: 87%.</div>
-            </div>
-          </div>
-          <div class="trace-step">
-            <div class="trace-line-wrap">
-              <div class="trace-circle done">✓</div>
-              <div class="trace-connector"></div>
-            </div>
-            <div class="trace-content">
-              <div class="trace-name">Blast Radius Assessment</div>
-              <div class="trace-detail">1200 subscribers affected. No drop predicted with restart sequence.</div>
-            </div>
-          </div>
-          <div class="trace-step">
-            <div class="trace-line-wrap">
-              <div class="trace-circle active">→</div>
-              <div class="trace-connector"></div>
-            </div>
-            <div class="trace-content">
-              <div class="trace-name">Awaiting Human Approval</div>
-              <div class="trace-detail">Approve restart sequence to proceed. SLA breach risk in ~12 minutes.</div>
+
+            <!-- Filters -->
+            <div class="at-filters">
+              <div class="at-search">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="#9ca3af" stroke-width="1.4"/><path d="M10 10l3 3" stroke="#9ca3af" stroke-width="1.4" stroke-linecap="round"/></svg>
+                <input type="text" placeholder="Search" id="atSearch" oninput="filterCases()" />
+              </div>
+              <select class="at-select" id="filterOutcome" onchange="filterCases()">
+                <option value="">Outcome: All</option>
+                <option value="Auto resolved">Auto resolved</option>
+                <option value="Escalation">Escalation</option>
+                <option value="Fix failed">Fix failed</option>
+              </select>
+              <select class="at-select" id="filterPriority" onchange="filterCases()">
+                <option value="">Priority: All</option>
+                <option value="Priority 1">Priority 1</option>
+                <option value="Priority 2">Priority 2</option>
+                <option value="Priority 3">Priority 3</option>
+              </select>
+              <select class="at-select" id="filterAgent" onchange="filterCases()">
+                <option value="">Agent: All</option>
+                <option value="Route Guard Agent">Route Guard Agent</option>
+                <option value="Fault Detection Agent">Fault Detection Agent</option>
+              </select>
+              <select class="at-select" id="filterTime" onchange="filterCases()">
+                <option value="">Last 7 days</option>
+                <option value="24h">Last 24h</option>
+                <option value="30d">Last 30 days</option>
+              </select>
             </div>
           </div>
-          <div class="trace-step">
-            <div class="trace-line-wrap">
-              <div class="trace-circle pending">5</div>
+
+          <!-- Summary stats row -->
+          <div class="at-stats-row">
+            <div class="at-stat-card">
+              <div class="at-stat-icon">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="12" stroke="#d1d5db" stroke-width="1.4"/><path d="M9 14l3 3 7-7" stroke="#d1d5db" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div>
+                <div class="at-stat-label">Cases completed <span class="at-badge-good">Good</span></div>
+                <div class="at-stat-val"><span class="at-stat-green">100</span><span class="at-stat-sub">/120</span></div>
+                <div class="at-stat-note">Avg resolve time | 4.2 mins</div>
+              </div>
             </div>
-            <div class="trace-content">
-              <div class="trace-name">Execute Remediation</div>
-              <div class="trace-detail">Pending approval. Will run restart A→B→C sequence.</div>
+            <div class="at-stat-card">
+              <div class="at-stat-icon">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="8" r="4" stroke="#d1d5db" stroke-width="1.4"/><path d="M6 22c0-4 3.6-7 8-7" stroke="#d1d5db" stroke-width="1.4" stroke-linecap="round"/><path d="M18 17l2-3" stroke="#d1d5db" stroke-width="1.4" stroke-linecap="round"/></svg>
+              </div>
+              <div>
+                <div class="at-stat-label">Cases that require user attention</div>
+                <div class="at-stat-val at-stat-amber">10</div>
+                <div class="at-stat-note">since 5 days</div>
+              </div>
+            </div>
+            <div class="at-stat-card">
+              <div class="at-stat-icon">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="11" stroke="#d1d5db" stroke-width="1.4"/><path d="M14 9v5l3 3" stroke="#d1d5db" stroke-width="1.4" stroke-linecap="round"/><path d="M7 14a7 7 0 0 1 7-7" stroke="#d1d5db" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="2 2"/></svg>
+              </div>
+              <div>
+                <div class="at-stat-label">Auto resolution rate</div>
+                <div class="at-stat-val at-stat-green-lg">82%</div>
+                <div class="at-stat-note">resolved without human input</div>
+              </div>
+            </div>
+            <div class="at-stat-card">
+              <div class="at-stat-icon">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="10" cy="10" r="4" stroke="#d1d5db" stroke-width="1.4"/><circle cx="18" cy="18" r="3" stroke="#d1d5db" stroke-width="1.3"/><line x1="10" y1="14" x2="15" y2="15" stroke="#d1d5db" stroke-width="1.3"/></svg>
+              </div>
+              <div>
+                <div class="at-stat-label">Recurring issue</div>
+                <div class="at-stat-val at-stat-red">6</div>
+                <div class="at-stat-note">flagged 2nd+ time this week</div>
+              </div>
             </div>
           </div>
+
+          <!-- Cases table -->
+          <div class="at-table-wrap">
+            <table class="at-table" id="casesTable">
+              <thead>
+                <tr>
+                  <th>Issue Name</th>
+                  <th>Outcome</th>
+                  <th>Agent name</th>
+                  <th>Priority</th>
+                  <th>Duration</th>
+                  <th>Follow up</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="casesBody">
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <!-- Case detail drawer -->
+        <div class="at-drawer" id="caseDrawer">
+          <div class="at-drawer-header">
+            <div>
+              <div class="at-drawer-title" id="drawerTitle">BGP-flap dampened - Core RTR</div>
+              <div class="at-drawer-meta" id="drawerMeta">C-2840 · Route Guard Agent · 46m ago</div>
+            </div>
+            <button class="at-drawer-close" onclick="closeDrawer()">✕</button>
+          </div>
+          <div class="at-drawer-body" id="drawerBody"></div>
         </div>
       </div>
 
       <!-- POLICY & PERMISSIONS TAB -->
-      <div class="canvas-area permissions-panel canvas-tab-content" id="tab-policy" style="background:#fafafa;">
-        <div class="permissions-panel active-tab" style="display:flex;">
-          <div style="padding:0 0 16px;border-bottom:1px solid #e5e7eb;margin-bottom:4px;">
-            <div style="font-size:15px;font-weight:700;color:#111827;">Policy &amp; Permissions</div>
-            <div style="font-size:12px;color:#6b7280;margin-top:3px;">Configure what agents are allowed to do autonomously</div>
+      <div class="canvas-area canvas-tab-content" id="tab-policy">
+        <div class="pp-wrap">
+
+          <!-- Header: operating mode -->
+          <div class="pp-header">
+            <div class="pp-mode-row">
+              <div>
+                <div class="pp-mode-title">Operating mode <span>· Balance</span></div>
+                <div class="pp-mode-desc">Routine fixes run automatically. Tier 3 and above escalates to the human que</div>
+              </div>
+              <div class="pp-header-btns">
+                <button class="pp-btn" onclick="showToast('Edit mode opened','blue')">
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M11 2l3 3-8 8H3v-3l8-8z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Edit operating mode
+                </button>
+                <button class="pp-btn" onclick="showToast('Change mode dialog opening…','blue')">
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 8h12M10 5l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Change operating mode
+                </button>
+              </div>
+            </div>
           </div>
-          <div class="perm-row">
-            <div><div class="perm-name">Auto-restart line cards</div><div class="perm-scope">Scope: TVM nodes · Japan region</div></div>
-            <label class="toggle-wrap"><input class="toggle-input" type="checkbox" checked onchange="permToggle(this,'Auto-restart line cards')"><span class="toggle-slider"></span></label>
+
+          <!-- Composite score row -->
+          <div class="pp-score-row">
+            <div style="flex:1;">
+              <div class="pp-score-label">Composite Score <span>· last 24 hours</span></div>
+              <div class="pp-score-left">
+                <div class="pp-donut-wrap">
+                  <svg viewBox="0 0 80 80">
+                    <circle cx="40" cy="40" r="32" fill="none" stroke="#e5e7eb" stroke-width="7"/>
+                    <circle cx="40" cy="40" r="32" fill="none" stroke="#2563eb" stroke-width="7"
+                      stroke-dasharray="201" stroke-dashoffset="41" stroke-linecap="round"
+                      transform="rotate(-90 40 40)" id="ppDonutArc"/>
+                  </svg>
+                  <div class="pp-donut-num">85<small>/100</small></div>
+                </div>
+                <div class="pp-summary-text">
+                  <strong>Summary</strong>
+                  Every knob, permission and preset rolls into one Composite score — a live read of the agent's posture across the axes you told it to care about.
+                </div>
+              </div>
+            </div>
+            <div class="pp-trend-wrap">
+              <svg viewBox="0 0 320 80" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:80px;">
+                <defs>
+                  <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#2563eb" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="#2563eb" stop-opacity="0.02"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0,60 C40,55 60,35 100,30 C140,25 160,40 200,35 C240,30 270,20 290,18 L320,20 L320,80 L0,80Z" fill="url(#trendGrad)"/>
+                <path d="M0,60 C40,55 60,35 100,30 C140,25 160,40 200,35 C240,30 270,20 290,18 L320,20" stroke="#2563eb" stroke-width="2" fill="none" stroke-linejoin="round"/>
+                <circle cx="290" cy="18" r="4" fill="#2563eb" stroke="white" stroke-width="1.5"/>
+              </svg>
+              <div class="pp-trend-months">
+                <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span>
+                <span class="pp-trend-month-active">Jun</span><span>Jul</span>
+              </div>
+            </div>
           </div>
-          <div class="perm-row">
-            <div><div class="perm-name">Traffic rerouting</div><div class="perm-scope">Scope: All nodes · Global</div></div>
-            <label class="toggle-wrap"><input class="toggle-input" type="checkbox" checked onchange="permToggle(this,'Traffic rerouting')"><span class="toggle-slider"></span></label>
-          </div>
-          <div class="perm-row">
-            <div><div class="perm-name">Escalate to NOC</div><div class="perm-scope">Scope: Hard breaches only</div></div>
-            <label class="toggle-wrap"><input class="toggle-input" type="checkbox" checked onchange="permToggle(this,'Escalate to NOC')"><span class="toggle-slider"></span></label>
-          </div>
-          <div class="perm-row">
-            <div><div class="perm-name">Firmware rollback</div><div class="perm-scope">Scope: Requires dual approval</div></div>
-            <label class="toggle-wrap"><input class="toggle-input" type="checkbox" onchange="permToggle(this,'Firmware rollback')"><span class="toggle-slider"></span></label>
-          </div>
-          <div class="perm-row">
-            <div><div class="perm-name">Policy auto-update</div><div class="perm-scope">Scope: Minor patches only</div></div>
-            <label class="toggle-wrap"><input class="toggle-input" type="checkbox" onchange="permToggle(this,'Policy auto-update')"><span class="toggle-slider"></span></label>
-          </div>
-          <div class="perm-row">
-            <div><div class="perm-name">Subscriber notification</div><div class="perm-scope">Scope: All regions</div></div>
-            <label class="toggle-wrap"><input class="toggle-input" type="checkbox" checked onchange="permToggle(this,'Subscriber notification')"><span class="toggle-slider"></span></label>
-          </div>
-        </div>
+
+          <!-- Body: left studio + right knobs -->
+          <div class="pp-body">
+
+            <!-- Left: Studio / Config tabs -->
+            <div class="pp-left">
+              <div class="pp-tabs">
+                <button class="pp-tab active" onclick="switchPPTab('studio',this)">Studio</button>
+                <button class="pp-tab" onclick="switchPPTab('config',this)">Configuration Testing</button>
+              </div>
+
+              <!-- Studio tab -->
+              <div id="pp-studio-tab" class="pp-studio">
+                <div class="pp-agent-card">
+                  <div class="pp-agent-card-header">
+                    <div>
+                      <div class="pp-agent-card-title">What can the agent do on it own</div>
+                      <div class="pp-agent-card-desc">Auto boosts autonomy and speed. Approval raises human load, compliance and reversibility. See the graph react.</div>
+                    </div>
+                    <button class="pp-edit-btn" onclick="showToast('Edit permissions mode','blue')">
+                      Edit
+                      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M11 2l3 3-8 8H3v-3l8-8z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                  </div>
+
+                  <!-- Observability section -->
+                  <div class="pp-section-label">Observability</div>
+                  <div class="pp-perm-row">
+                    <div class="pp-perm-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="4" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+                    <div class="pp-perm-info"><div class="pp-perm-name">Read telemetry</div><div class="pp-perm-desc">Query Instana, Prometheus, Grafana</div></div>
+                    <button class="pp-mode-badge pp-mode-auto" onclick="cycleBadge(this)">Auto</button>
+                  </div>
+                  <div class="pp-perm-row">
+                    <div class="pp-perm-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><ellipse cx="8" cy="8" rx="6" ry="4" stroke="currentColor" stroke-width="1.4"/><path d="M2 8c0 2.2 2.7 4 6 4s6-1.8 6-4" stroke="currentColor" stroke-width="1.4"/></svg></div>
+                    <div class="pp-perm-info"><div class="pp-perm-name">Read CMDB / topology</div><div class="pp-perm-desc">Access asset inventory &amp; graphs</div></div>
+                    <button class="pp-mode-badge pp-mode-auto" onclick="cycleBadge(this)">Auto</button>
+                  </div>
+
+                  <!-- Remediation section -->
+                  <div class="pp-section-label" style="margin-top:12px;">Remediation</div>
+                  <div class="pp-perm-row highlighted">
+                    <div class="pp-perm-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8a5 5 0 0 1 10 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M8 3V1M5 4L3.5 2.5M11 4l1.5-1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+                    <div class="pp-perm-info"><div class="pp-perm-name">Restart pods</div><div class="pp-perm-desc">K8s pod bounces on non-protected wl.</div></div>
+                    <button class="pp-mode-badge pp-mode-ask" onclick="cycleBadge(this)">Ask</button>
+                  </div>
+                  <div class="pp-perm-row highlighted">
+                    <div class="pp-perm-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+                    <div class="pp-perm-info"><div class="pp-perm-name">Cordon nodes</div><div class="pp-perm-desc">Prevent scheduling on unhealthy hw</div></div>
+                    <button class="pp-mode-badge pp-mode-ask" onclick="cycleBadge(this)">Ask</button>
+                  </div>
+
+                  <!-- Network section -->
+                  <div class="pp-section-label" style="margin-top:12px;">Network</div>
+                  <div class="pp-perm-row">
+                    <div class="pp-perm-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="3" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/><circle cx="13" cy="5" r="2" stroke="currentColor" stroke-width="1.3"/><circle cx="13" cy="11" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 8h3l2-3M5 8h3l2 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+                    <div class="pp-perm-info"><div class="pp-perm-name">Modify BGP policies</div><div class="pp-perm-desc">Route damping, policy revert</div></div>
+                    <button class="pp-mode-badge pp-mode-approval" onclick="cycleBadge(this)">Approval</button>
+                  </div>
+                  <div class="pp-perm-row">
+                    <div class="pp-perm-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 11l4-6 3 4 2-3 3 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div class="pp-perm-info"><div class="pp-perm-name">QoS shaping</div><div class="pp-perm-desc">Cross-tenant bandwidth adjustments</div></div>
+                    <button class="pp-mode-badge pp-mode-approval" onclick="cycleBadge(this)">Approval</button>
+                  </div>
+
+                  <!-- Data section -->
+                  <div class="pp-section-label" style="margin-top:12px;">Data</div>
+                  <div class="pp-perm-row">
+                    <div class="pp-perm-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="2.5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="8" width="12" height="2.5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="12" width="8" height="2" rx="1" stroke="currentColor" stroke-width="1.3"/></svg></div>
+                    <div class="pp-perm-info"><div class="pp-perm-name">Cross-tenant correlation</div><div class="pp-perm-desc">Access data across tenant boundaries</div></div>
+                    <button class="pp-mode-badge pp-mode-approval" onclick="cycleBadge(this)">Approval</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Config Testing tab (hidden) -->
+              <div id="pp-config-tab" class="pp-config" style="display:none;">
+                <div class="pp-config-placeholder">Configuration Testing panel — run simulated scenarios to validate policy changes before applying.</div>
+              </div>
+            </div>
+
+            <!-- Right: knobs + radar -->
+            <div class="pp-right">
+              <div class="pp-knobs-title">Model &amp; remediation knobs</div>
+              <div class="pp-knob-row">
+                <span class="pp-knob-label">Model confidence gate</span>
+                <span class="pp-knob-val">80<small>%</small></span>
+              </div>
+              <div class="pp-knob-row">
+                <span class="pp-knob-label">Action rate limit</span>
+                <span class="pp-knob-val">12<small> acts/min</small></span>
+              </div>
+              <div class="pp-knob-row">
+                <span class="pp-knob-label">Blast radius cap</span>
+                <span class="pp-knob-val">2<small> level</small></span>
+              </div>
+
+              <div class="pp-posture-title">Posture Projection</div>
+              <div class="pp-posture-sub">Under balanced</div>
+
+              <!-- Radar chart SVG -->
+              <div class="pp-radar-wrap">
+                <svg viewBox="0 0 240 220" width="100%" xmlns="http://www.w3.org/2000/svg">
+                  <!-- axis labels -->
+                  <text x="120" y="14" text-anchor="middle" font-size="9" fill="#9ca3af">Risk Exposure</text>
+                  <text x="226" y="80" text-anchor="end" font-size="9" fill="#9ca3af">Time to remediate</text>
+                  <text x="226" y="160" text-anchor="end" font-size="9" fill="#9ca3af">Tool calls / task</text>
+                  <text x="120" y="215" text-anchor="middle" font-size="9" fill="#9ca3af">Human review load</text>
+                  <text x="14" y="160" text-anchor="start" font-size="9" fill="#9ca3af">Reversibility</text>
+                  <text x="14" y="80" text-anchor="start" font-size="9" fill="#9ca3af">Compliance</text>
+                  <text x="120" y="175" text-anchor="middle" font-size="9" fill="#9ca3af">Autonomy</text>
+                  <text x="14" y="120" text-anchor="start" font-size="9" fill="#9ca3af">Blast radius</text>
+                  <!-- grid rings -->
+                  <g stroke="#e5e7eb" stroke-width="1" fill="none">
+                    <polygon points="120,30 190,65 190,145 120,180 50,145 50,65" opacity="0.6"/>
+                    <polygon points="120,50 175,78 175,132 120,160 65,132 65,78" opacity="0.6"/>
+                    <polygon points="120,70 160,91 160,119 120,140 80,119 80,91" opacity="0.6"/>
+                    <polygon points="120,90 145,104 145,106 120,120 95,106 95,104" opacity="0.6"/>
+                  </g>
+                  <!-- axis lines -->
+                  <g stroke="#e5e7eb" stroke-width="1">
+                    <line x1="120" y1="30" x2="120" y2="180"/>
+                    <line x1="190" y1="65" x2="50" y2="145"/>
+                    <line x1="190" y1="145" x2="50" y2="65"/>
+                  </g>
+                  <!-- Balanced polygon (blue) -->
+                  <polygon points="120,45 178,72 182,135 120,168 58,135 62,72"
+                    fill="rgba(37,99,235,0.15)" stroke="#2563eb" stroke-width="1.5" fill-opacity="0.3"/>
+                  <!-- Reversibility polygon (red/pink) -->
+                  <polygon points="120,60 165,80 170,130 120,155 70,130 75,80"
+                    fill="rgba(239,68,68,0.2)" stroke="#ef4444" stroke-width="1.2" fill-opacity="0.25"/>
+                  <!-- Baseline polygon (yellow) -->
+                  <polygon points="120,75 150,90 155,120 120,140 85,120 90,90"
+                    fill="rgba(234,179,8,0.2)" stroke="#eab308" stroke-width="1.2" fill-opacity="0.25"/>
+                </svg>
+                <div class="pp-radar-legend">
+                  <div class="pp-radar-legend-item"><div class="pp-radar-dot" style="background:#ef4444;"></div>Reversibility</div>
+                  <div class="pp-radar-legend-item"><div class="pp-radar-dot" style="background:#2563eb;"></div>Balanced</div>
+                  <div class="pp-radar-legend-item"><div class="pp-radar-dot" style="background:#eab308;"></div>Baseline</div>
+                </div>
+              </div>
+              <div class="pp-posture-note">More autonomy and tool usage means less compliance and blast-radius containment. The compliance-heavy profile gains safety but sacrifices speed and independence.</div>
+            </div>
+
+          </div><!-- /pp-body -->
+        </div><!-- /pp-wrap -->
       </div>
 
       <!-- RIGHT PANEL (always visible) -->
@@ -1369,6 +2083,10 @@
     // show the selected one
     const panel = document.getElementById('tab-' + tabId);
     if (panel) panel.classList.add('active-tab');
+
+    // hide right panel on agentic + policy tabs
+    const rightPanel = document.getElementById('rightPanel');
+    if (rightPanel) rightPanel.style.display = (tabId === 'agentic' || tabId === 'policy') ? 'none' : '';
   }
 
   /* ────────────────────────────────────────────
@@ -1511,6 +2229,27 @@
   }
 
   /* ────────────────────────────────────────────
+     POLICY STUDIO
+  ──────────────────────────────────────────── */
+  function switchPPTab(tab, btn) {
+    document.querySelectorAll('.pp-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pp-studio-tab').style.display = tab === 'studio' ? '' : 'none';
+    document.getElementById('pp-config-tab').style.display = tab === 'config' ? '' : 'none';
+  }
+
+  const badgeCycle = ['Auto','Ask','Approval'];
+  const badgeClass = { Auto: 'pp-mode-auto', Ask: 'pp-mode-ask', Approval: 'pp-mode-approval' };
+
+  function cycleBadge(btn) {
+    const cur = btn.textContent.trim();
+    const next = badgeCycle[(badgeCycle.indexOf(cur) + 1) % 3];
+    btn.textContent = next;
+    btn.className = 'pp-mode-badge ' + badgeClass[next];
+    showToast('Permission changed to ' + next, next === 'Auto' ? 'green' : next === 'Ask' ? 'blue' : 'orange');
+  }
+
+  /* ────────────────────────────────────────────
      PERMISSIONS TOGGLE
   ──────────────────────────────────────────── */
   function permToggle(input, name) {
@@ -1539,11 +2278,112 @@
   }
 
   /* ────────────────────────────────────────────
+     AGENTIC TRACE — CASES TABLE
+  ──────────────────────────────────────────── */
+  const casesData = [
+    { id:'C-2840', name:'BGP-flap dampened - Core RTR',            tag:'',              outcome:'Auto resolved', agent:'Route Guard Agent',     priority:'Priority 1', duration:'46m',      followup:'Verified 24 h',  trace:[{s:'done',t:'Anomaly detected',d:'BGP flap on Core RTR at 14:31 UTC.'},{s:'done',t:'Pattern match',d:'12 similar cases — avg fix 4.1m.'},{s:'done',t:'Auto-remediation',d:'Route dampening applied, BGP re-converged.'}] },
+    { id:'C-2837', name:'Recurring CRC error - TVM',               tag:'4th this week', outcome:'Escalation',    agent:'Route Guard Agent',     priority:'Priority 1', duration:'26m open', followup:'Awaiting human', trace:[{s:'done',t:'CRC error detected',d:'4th occurrence this week on same port.'},{s:'warn',t:'Escalation triggered',d:'Recurring pattern — human review required.'}] },
+    { id:'C-2840', name:'BGP-flap dampened - Core RTR',            tag:'',              outcome:'Fix failed',    agent:'Fault Detection Agent', priority:'Priority 2', duration:'21m',      followup:'Failed check',   trace:[{s:'done',t:'Anomaly detected',d:'BGP flap, secondary path.'},{s:'fail',t:'Fix failed',d:'Attempted route refresh — no convergence after 21m.'}] },
+    { id:'C-2840', name:'Detected thermal anomaly on 6 H100',      tag:'',              outcome:'Fix failed',    agent:'Fault Detection Agent', priority:'Priority 3', duration:'21m',      followup:'Failed check',   trace:[{s:'done',t:'Thermal spike detected',d:'GPU cluster H100 node 6 — 94°C.'},{s:'fail',t:'Cooling adjustment failed',d:'Fan controller unresponsive.'}] },
+    { id:'C-2840', name:'Drafting remediation: cordon + reroute',  tag:'',              outcome:'Auto resolved', agent:'Route Guard Agent',     priority:'Priority 1', duration:'46m',      followup:'Verified 24 h',  trace:[{s:'done',t:'Remediation drafted',d:'Cordon + reroute strategy generated.'},{s:'done',t:'Applied',d:'Traffic rerouted, no subscriber impact.'}] },
+    { id:'C-2840', name:'Blocked auto-restart on protected work...', tag:'',            outcome:'Fix failed',    agent:'Fault Detection Agent', priority:'Priority 2', duration:'21m',      followup:'Failed check',   trace:[{s:'done',t:'Restart attempted',d:'Auto-restart blocked by policy on protected workload.'},{s:'fail',t:'Policy violation',d:'Requires manual override.'}] },
+    { id:'C-2840', name:'BGP-flap dampened - Core RTR',            tag:'',              outcome:'Fix failed',    agent:'Fault Detection Agent', priority:'Priority 3', duration:'21m',      followup:'Failed check',   trace:[{s:'done',t:'BGP flap detected',d:'Tertiary path instability.'},{s:'fail',t:'Fix failed',d:'Route dampening ineffective — escalating.'}] },
+    { id:'C-2835', name:'Link flap on spine-03 port 14',           tag:'',              outcome:'Auto resolved', agent:'Route Guard Agent',     priority:'Priority 2', duration:'12m',      followup:'Verified 24 h',  trace:[{s:'done',t:'Link flap detected',d:'Spine-03 port 14 intermittent.'},{s:'done',t:'Auto-resolved',d:'Port bounced and stabilised.'}] },
+    { id:'C-2833', name:'OSPF adjacency lost - DC-Edge-01',        tag:'',              outcome:'Escalation',    agent:'Fault Detection Agent', priority:'Priority 1', duration:'34m open', followup:'Awaiting human', trace:[{s:'done',t:'OSPF adjacency lost',d:'DC-Edge-01 peer unreachable.'},{s:'warn',t:'Escalated',d:'Cannot auto-resolve — requires NOC intervention.'}] },
+    { id:'C-2831', name:'Memory pressure on AGT-09',               tag:'',              outcome:'Auto resolved', agent:'Fault Detection Agent', priority:'Priority 3', duration:'8m',       followup:'Verified 24 h',  trace:[{s:'done',t:'Memory threshold exceeded',d:'AGT-09 at 91%.'},{s:'done',t:'GC triggered',d:'Memory freed, pressure resolved.'}] },
+  ];
+
+  let selectedRow = null;
+
+  function outcomeCls(o) {
+    if (o === 'Auto resolved') return 'auto-resolved';
+    if (o === 'Escalation')    return 'escalation';
+    return 'fix-failed';
+  }
+
+  function priorityCls(p) {
+    if (p === 'Priority 1') return 'p1';
+    if (p === 'Priority 2') return 'p2';
+    return 'p3';
+  }
+
+  function renderCases(data) {
+    const tbody = document.getElementById('casesBody');
+    if (!tbody) return;
+    tbody.innerHTML = data.map((c, i) => `
+      <tr onclick="openDrawer(${i})" class="${selectedRow === i ? 'at-row-selected' : ''}">
+        <td>
+          <span class="at-issue-name">${c.name}</span>
+          <span class="at-case-id">${c.id}</span>
+          ${c.tag ? `<span class="at-case-tag">${c.tag}</span>` : ''}
+        </td>
+        <td><span class="at-outcome ${outcomeCls(c.outcome)}">${c.outcome}</span></td>
+        <td>${c.agent}</td>
+        <td><span class="at-priority ${priorityCls(c.priority)}">${c.priority}</span></td>
+        <td>${c.duration}</td>
+        <td><span class="at-followup">${c.followup}</span></td>
+        <td><span class="at-followup-arrow">›</span></td>
+      </tr>`).join('');
+  }
+
+  function filterCases() {
+    const q  = (document.getElementById('atSearch')?.value || '').toLowerCase();
+    const fo = document.getElementById('filterOutcome')?.value  || '';
+    const fp = document.getElementById('filterPriority')?.value || '';
+    const fa = document.getElementById('filterAgent')?.value    || '';
+    const filtered = casesData.filter(c =>
+      (!q  || c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q)) &&
+      (!fo || c.outcome  === fo) &&
+      (!fp || c.priority === fp) &&
+      (!fa || c.agent    === fa)
+    );
+    renderCases(filtered);
+  }
+
+  function openDrawer(idx) {
+    selectedRow = idx;
+    const c = casesData[idx];
+    if (!c) return;
+    document.getElementById('drawerTitle').textContent = c.name;
+    document.getElementById('drawerMeta').textContent  = `${c.id} · ${c.agent} · ${c.duration}`;
+    document.getElementById('drawerBody').innerHTML = `
+      <div class="at-drawer-section">
+        <div class="at-drawer-section-title">Case details</div>
+        <div class="at-drawer-row"><span class="at-drawer-key">Case ID</span><span class="at-drawer-val">${c.id}</span></div>
+        <div class="at-drawer-row"><span class="at-drawer-key">Outcome</span><span class="at-drawer-val"><span class="at-outcome ${outcomeCls(c.outcome)}">${c.outcome}</span></span></div>
+        <div class="at-drawer-row"><span class="at-drawer-key">Priority</span><span class="at-drawer-val"><span class="at-priority ${priorityCls(c.priority)}">${c.priority}</span></span></div>
+        <div class="at-drawer-row"><span class="at-drawer-key">Agent</span><span class="at-drawer-val">${c.agent}</span></div>
+        <div class="at-drawer-row"><span class="at-drawer-key">Duration</span><span class="at-drawer-val">${c.duration}</span></div>
+        <div class="at-drawer-row"><span class="at-drawer-key">Follow-up</span><span class="at-drawer-val">${c.followup}</span></div>
+      </div>
+      <div class="at-drawer-section">
+        <div class="at-drawer-section-title">Agent trace</div>
+        <div class="at-trace-steps">${c.trace.map(t => `
+          <div class="at-trace-item">
+            <div class="at-trace-dot ${t.s}">${t.s === 'done' ? '✓' : t.s === 'fail' ? '✕' : '!'}</div>
+            <div class="at-trace-text"><strong>${t.t}</strong>${t.d}</div>
+          </div>`).join('')}
+        </div>
+      </div>`;
+    document.getElementById('caseDrawer').classList.add('open');
+    renderCases(casesData);
+  }
+
+  function closeDrawer() {
+    document.getElementById('caseDrawer').classList.remove('open');
+    selectedRow = null;
+    renderCases(casesData);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => renderCases(casesData));
+
+  /* ────────────────────────────────────────────
      KEYBOARD SHORTCUTS
   ──────────────────────────────────────────── */
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('open'));
+      closeDrawer();
       closeDropdown();
     }
   });
