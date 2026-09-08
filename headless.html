@@ -1355,72 +1355,62 @@
 
   /* right knobs panel */
   .pp-right {
-    width: 360px; flex-shrink: 0; overflow-y: auto;
-    border-left: 1px solid rgba(229,231,235,0.7);
-    background: rgba(255,255,255,0.72);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    padding: 28px 24px 28px;
+    width: 340px; flex-shrink: 0; overflow-y: auto;
+    border-left: 1px solid #e5e7eb;
+    background: #ffffff;
+    padding: 28px 28px 32px;
   }
   .pp-right::-webkit-scrollbar { width: 4px; }
   .pp-right::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
 
-  /* Knobs section */
+  /* Knobs title */
   .pp-knobs-title {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 24px; font-weight: 400; color: #111827;
-    margin-bottom: 22px; line-height: 1.25; letter-spacing: -0.2px;
+    font-size: 26px; font-weight: 300; color: #111827;
+    margin-bottom: 20px; line-height: 1.2; letter-spacing: -0.5px;
   }
+  /* Knob rows */
   .pp-knob-row {
     display: flex; justify-content: space-between; align-items: baseline;
-    padding: 5px 0; font-size: 13px;
+    padding: 4px 0;
   }
   .pp-knob-label { color: #374151; font-size: 13px; font-weight: 400; }
   .pp-knob-val {
-    font-weight: 300; color: #166534; font-size: 42px;
-    letter-spacing: -2px; line-height: 1;
-    display: flex; align-items: baseline; gap: 3px;
+    display: flex; align-items: baseline; gap: 2px;
+    font-size: 44px; font-weight: 300; color: #166534;
+    letter-spacing: -1px; line-height: 1;
   }
   .pp-knob-val small {
     font-size: 13px; color: #6b7280; font-weight: 400;
-    letter-spacing: 0; margin-left: 2px;
+    letter-spacing: 0; line-height: 1; padding-bottom: 6px;
+  }
+  .pp-knob-divider {
+    border: none; border-top: 1px solid #f3f4f6;
+    margin: 10px 0 18px;
   }
 
   /* Posture section */
   .pp-posture-title {
-    font-family: Georgia, 'Times New Roman', serif;
     font-size: 20px; font-weight: 400; color: #111827;
-    margin: 30px 0 3px; line-height: 1.25;
+    margin: 0 0 2px; line-height: 1.25;
   }
   .pp-posture-sub {
-    font-size: 13px; color: #6b7280; font-weight: 300;
-    margin-bottom: 14px;
+    font-size: 13px; color: #6b7280; font-weight: 400;
+    margin-bottom: 18px;
   }
 
-  /* Radar chart */
-  .pp-radar-wrap { width: 100%; position: relative; }
-  #radarCanvas { width: 100%; display: block; cursor: crosshair; }
-  .radar-tooltip {
-    position: fixed; background: #1f2937; color: #f9fafb;
-    font-size: 12px; padding: 6px 10px; border-radius: 5px;
-    pointer-events: none; white-space: nowrap; z-index: 999;
-    opacity: 0; transition: opacity 0.12s;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  }
-  .radar-tooltip.visible { opacity: 1; }
+  /* Radar */
+  .pp-radar-wrap { width: 100%; }
   .pp-radar-legend {
-    display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; align-items: center;
+    display: flex; gap: 18px; flex-wrap: wrap; margin-top: 14px; align-items: center;
   }
   .pp-radar-legend-item {
-    display: flex; align-items: center; gap: 6px;
+    display: flex; align-items: center; gap: 5px;
     font-size: 12px; color: #374151; font-weight: 400;
-    cursor: pointer; user-select: none; transition: opacity 0.15s;
   }
-  .pp-radar-legend-item.muted { opacity: 0.35; }
-  .pp-radar-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .pp-radar-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .pp-posture-note {
     font-size: 13px; color: #374151; line-height: 1.65;
-    margin-top: 20px; padding-top: 0;
+    margin-top: 20px;
   }
 
   /* config testing tab content */
@@ -1940,155 +1930,170 @@
             <!-- Right: knobs + radar -->
             <div class="pp-right">
               <div class="pp-knobs-title">Model &amp; remediation knobs</div>
+
               <div class="pp-knob-row">
                 <span class="pp-knob-label">Model confidence gate</span>
                 <span class="pp-knob-val">80<small>%</small></span>
               </div>
               <div class="pp-knob-row">
                 <span class="pp-knob-label">Action rate limit</span>
-                <span class="pp-knob-val">12<small> acts/min</small></span>
+                <span class="pp-knob-val">12<small>&nbsp;acts/min</small></span>
               </div>
               <div class="pp-knob-row">
                 <span class="pp-knob-label">Blast radius cap</span>
-                <span class="pp-knob-val">2<small> level</small></span>
+                <span class="pp-knob-val">2<small>&nbsp;level</small></span>
               </div>
+
+              <hr class="pp-knob-divider"/>
 
               <div class="pp-posture-title">Posture Projection</div>
               <div class="pp-posture-sub">Under balanced</div>
 
               <!--
-                8-axis radar. Centre (cx,cy) = (160,200). Max radius = 130.
-                Axes at 0° = top, stepping 45° clockwise:
-                  0  = Risk Exposure      (top)          → (160, 70)
-                  45 = Time to remediate  (top-right)    → (252, 108)
-                  90 = Tool calls / task  (right)        → (290, 200)
-                 135 = Autonomy           (bottom-right) → (252, 292)
-                 180 = Human review load  (bottom)       → (160, 330)
-                 225 = Reversibility      (bottom-left)  → (68,  292)
-                 270 = Blast radius       (left)         → (30,  200)
-                 315 = Compliance         (top-left)     → (68,  108)
+                Mathematically precise 8-axis radar.
+                Centre cx=160, cy=195, max-radius R=115.
+                Axes (0°=top, 45° steps clockwise):
+                  0°  Risk Exposure      → 160, 80
+                  45° Time to remediate  → 160+115sin45, 195-115cos45 = 241.3, 113.7
+                  90° Tool calls / task  → 275, 195
+                  135° Autonomy         → 241.3, 276.3
+                  180° Human review load → 160, 310
+                  225° Reversibility    → 78.7, 276.3
+                  270° Blast radius     → 45, 195
+                  315° Compliance       → 78.7, 113.7
 
-                Grid rings at r = 32.5, 65, 97.5, 130 (25%, 50%, 75%, 100%).
+                Ring radii: 29, 58, 87, 115 (25/50/75/100%)
+
+                Polygon point = cx + R*v*sin(a), cy - R*v*cos(a)
+                where v = fraction value (0-1), a = axis angle in radians
+
+                Series values [Risk, TimeRemediate, ToolCalls, Autonomy, HumanReview, Reversibility, BlastRadius, Compliance]:
+                  Blue  (Balanced):    [0.70, 0.55, 0.65, 0.50, 0.60, 0.68, 0.55, 0.75]
+                  Red   (Reversibility):[0.52, 0.46, 0.80, 0.90, 0.68, 0.38, 0.44, 0.32]
+                  Yellow(Baseline):    [0.38, 0.32, 0.50, 0.78, 0.85, 0.55, 0.35, 0.48]
               -->
               <div class="pp-radar-wrap">
-                <svg viewBox="0 0 320 400" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,'Segoe UI',system-ui,sans-serif">
+                <svg viewBox="0 0 320 390" width="100%" xmlns="http://www.w3.org/2000/svg"
+                     style="font-family:-apple-system,'Segoe UI',system-ui,sans-serif;">
 
-                  <!-- axis labels — positioned just beyond the outermost ring -->
-                  <text x="160" y="58"  text-anchor="middle" font-size="10" fill="#9ca3af">Risk Exposure</text>
-                  <text x="268" y="98"  text-anchor="start"  font-size="10" fill="#9ca3af">Time to remediate</text>
-                  <text x="300" y="204" text-anchor="start"  font-size="10" fill="#9ca3af">Tool calls / task</text>
-                  <text x="268" y="308" text-anchor="start"  font-size="10" fill="#9ca3af">Autonomy</text>
-                  <text x="160" y="352" text-anchor="middle" font-size="10" fill="#9ca3af">Human review load</text>
-                  <text x="52"  y="308" text-anchor="end"    font-size="10" fill="#9ca3af">Reversibility</text>
-                  <text x="20"  y="204" text-anchor="start"  font-size="10" fill="#9ca3af">Blast radius</text>
-                  <text x="52"  y="98"  text-anchor="end"    font-size="10" fill="#9ca3af">Compliance</text>
+                  <!-- ── axis labels ── -->
+                  <text x="160" y="68"  text-anchor="middle" font-size="10.5" fill="#9ca3af">Risk Exposure</text>
+                  <text x="252" y="104" text-anchor="start"  font-size="10.5" fill="#9ca3af">Time to remediate</text>
+                  <text x="282" y="198" text-anchor="start"  font-size="10.5" fill="#9ca3af">Tool calls / task</text>
+                  <text x="252" y="290" text-anchor="start"  font-size="10.5" fill="#9ca3af">Autonomy</text>
+                  <text x="160" y="330" text-anchor="middle" font-size="10.5" fill="#9ca3af">Human review load</text>
+                  <text x="68"  y="290" text-anchor="end"    font-size="10.5" fill="#9ca3af">Reversibility</text>
+                  <text x="38"  y="198" text-anchor="end"    font-size="10.5" fill="#9ca3af">Blast radius</text>
+                  <text x="68"  y="104" text-anchor="end"    font-size="10.5" fill="#9ca3af">Compliance</text>
 
-                  <!-- grid rings (4 concentric octagons at 25%/50%/75%/100% of r=130) -->
-                  <!-- r=32.5 (25%) -->
-                  <polygon points="160,167.5 183,175.5 192.5,200 183,224.5 160,232.5 137,224.5 127.5,200 137,175.5"
+                  <!-- ── grid rings (4 concentric octagons) ── -->
+                  <!-- 25% r=29 -->
+                  <polygon points="160,166 180.5,173.5 189,195 180.5,216.5 160,224 139.5,216.5 131,195 139.5,173.5"
                     fill="none" stroke="#e5e7eb" stroke-width="0.8"/>
-                  <!-- r=65 (50%) -->
-                  <polygon points="160,135 206,153 225,200 206,247 160,265 114,247 95,200 114,153"
+                  <!-- 50% r=58 -->
+                  <polygon points="160,137 201,155 219,195 201,235 160,253 119,235 101,195 119,155"
                     fill="none" stroke="#e5e7eb" stroke-width="0.8"/>
-                  <!-- r=97.5 (75%) -->
-                  <polygon points="160,102.5 229,130.5 257.5,200 229,269.5 160,297.5 91,269.5 62.5,200 91,130.5"
+                  <!-- 75% r=87 -->
+                  <polygon points="160,108 221.5,136.5 247,195 221.5,253.5 160,282 98.5,253.5 73,195 98.5,136.5"
                     fill="none" stroke="#e5e7eb" stroke-width="0.8"/>
-                  <!-- r=130 (100%) — outermost ring -->
-                  <polygon points="160,70 252,108 290,200 252,292 160,330 68,292 30,200 68,108"
+                  <!-- 100% r=115 -->
+                  <polygon points="160,80 241.3,113.7 275,195 241.3,276.3 160,310 78.7,276.3 45,195 78.7,113.7"
                     fill="none" stroke="#d1d5db" stroke-width="1"/>
 
-                  <!-- axis lines from centre to each vertex -->
-                  <g stroke="#e5e7eb" stroke-width="0.8">
-                    <line x1="160" y1="200" x2="160" y2="70"/>
-                    <line x1="160" y1="200" x2="252" y2="108"/>
-                    <line x1="160" y1="200" x2="290" y2="200"/>
-                    <line x1="160" y1="200" x2="252" y2="292"/>
-                    <line x1="160" y1="200" x2="160" y2="330"/>
-                    <line x1="160" y1="200" x2="68"  y2="292"/>
-                    <line x1="160" y1="200" x2="30"  y2="200"/>
-                    <line x1="160" y1="200" x2="68"  y2="108"/>
+                  <!-- ── axis lines, centre→vertex ── -->
+                  <g stroke="#d1d5db" stroke-width="0.8">
+                    <line x1="160" y1="195" x2="160"  y2="80"/>
+                    <line x1="160" y1="195" x2="241.3" y2="113.7"/>
+                    <line x1="160" y1="195" x2="275"  y2="195"/>
+                    <line x1="160" y1="195" x2="241.3" y2="276.3"/>
+                    <line x1="160" y1="195" x2="160"  y2="310"/>
+                    <line x1="160" y1="195" x2="78.7" y2="276.3"/>
+                    <line x1="160" y1="195" x2="45"   y2="195"/>
+                    <line x1="160" y1="195" x2="78.7" y2="113.7"/>
                   </g>
 
                   <!--
-                    Data polygons — 8 values per series, one per axis, as fraction of max radius (130).
-                    Axis order: Risk(0°), TimeToRemediate(45°), ToolCalls(90°), Autonomy(135°),
-                                HumanReview(180°), Reversibility(225°), BlastRadius(270°), Compliance(315°)
+                    Pre-computed polygon vertices (cx=160, cy=195, R=115):
+                    pt(v,a) = [160 + 115·v·sin(a·π/180),  195 − 115·v·cos(a·π/180)]
 
-                    Point formula: cx + r*frac * sin(angle), cy - r*frac * cos(angle)
-                    cx=160, cy=200, r=130
+                    BLUE – Balanced [0.70, 0.55, 0.65, 0.50, 0.60, 0.68, 0.55, 0.75]:
+                      0°   v=0.70 → 160,         114.5
+                      45°  v=0.55 → 160+44.7=204.7, 195-44.7=150.3
+                      90°  v=0.65 → 234.75,       195
+                      135° v=0.50 → 160+40.7=200.7, 195+40.7=235.7
+                      180° v=0.60 → 160,           264
+                      225° v=0.68 → 160-55.3=104.7, 195+55.3=250.3
+                      270° v=0.55 → 96.75,          195
+                      315° v=0.75 → 160-61.0=99.0,  195-61.0=134.0
 
-                    Blue (Balanced):   [0.78, 0.62, 0.70, 0.55, 0.65, 0.72, 0.60, 0.80]
-                    Red (Reversibility):[0.60, 0.52, 0.82, 0.88, 0.72, 0.45, 0.50, 0.40]
-                    Yellow (Baseline): [0.45, 0.38, 0.55, 0.75, 0.82, 0.60, 0.40, 0.55]
+                    RED – Reversibility [0.52, 0.46, 0.80, 0.90, 0.68, 0.38, 0.44, 0.32]:
+                      0°   v=0.52 → 160,         135.2
+                      45°  v=0.46 → 160+37.4=197.4, 195-37.4=157.6
+                      90°  v=0.80 → 252,           195
+                      135° v=0.90 → 160+73.3=233.3, 195+73.3=268.3
+                      180° v=0.68 → 160,           273.8
+                      225° v=0.38 → 160-30.9=129.1, 195+30.9=225.9
+                      270° v=0.44 → 109.4,          195
+                      315° v=0.32 → 160-26.0=134.0, 195-26.0=169.0
+
+                    YELLOW – Baseline [0.38, 0.32, 0.50, 0.78, 0.85, 0.55, 0.35, 0.48]:
+                      0°   v=0.38 → 160,         151.3
+                      45°  v=0.32 → 160+26.0=186.0, 195-26.0=169.0
+                      90°  v=0.50 → 217.5,         195
+                      135° v=0.78 → 160+63.5=223.5, 195+63.5=258.5
+                      180° v=0.85 → 160,           293.25
+                      225° v=0.55 → 160-44.8=115.2, 195+44.8=239.8
+                      270° v=0.35 → 119.75,         195
+                      315° v=0.48 → 160-39.0=121.0, 195-39.0=156.0
                   -->
 
-                  <!-- Blue: Balanced -->
+                  <!-- Blue – Balanced (draw first, lowest) -->
                   <polygon
-                    points="
-                      160,98.6
-                      233.1,143.1
-                      251,200
-                      224.8,259.8
-                      160,284.5
-                      97.3,253.6
-                      82,200
-                      94.0,143.5
-                    "
-                    fill="rgba(96,165,250,0.25)" stroke="#3b82f6" stroke-width="1.8" fill-opacity="1"/>
+                    points="160,114.5 204.7,150.3 234.75,195 200.7,235.7 160,264 104.7,250.3 96.75,195 99.0,134.0"
+                    fill="rgba(147,197,253,0.30)" stroke="#60a5fa" stroke-width="1.6"/>
 
-                  <!-- Red: Reversibility -->
+                  <!-- Yellow – Baseline (draw second) -->
                   <polygon
-                    points="
-                      160,122
-                      215.2,151.3
-                      266.6,200
-                      251.6,291.6
-                      160,306.4
-                      105.5,274.5
-                      95,200
-                      122.4,147.2
-                    "
-                    fill="rgba(248,113,113,0.22)" stroke="#ef4444" stroke-width="1.8" fill-opacity="1"/>
+                    points="160,151.3 186.0,169.0 217.5,195 223.5,258.5 160,293.25 115.2,239.8 119.75,195 121.0,156.0"
+                    fill="rgba(253,224,71,0.40)" stroke="#f59e0b" stroke-width="1.6"/>
 
-                  <!-- Yellow: Baseline -->
+                  <!-- Red – Reversibility (draw last, on top) -->
                   <polygon
-                    points="
-                      160,141.5
-                      200.4,163.5
-                      231.5,200
-                      241.6,284.1
-                      160,306.4
-                      114.1,269.5
-                      108.5,200
-                      131.4,155.2
-                    "
-                    fill="rgba(253,224,71,0.35)" stroke="#eab308" stroke-width="1.8" fill-opacity="1"/>
+                    points="160,135.2 197.4,157.6 252,195 233.3,268.3 160,273.8 129.1,225.9 109.4,195 134.0,169.0"
+                    fill="rgba(252,165,165,0.35)" stroke="#f87171" stroke-width="1.6"/>
 
-                  <!-- dot markers on data points -->
-                  <!-- Blue dots -->
-                  <circle cx="160"  cy="98.6"  r="3" fill="#3b82f6"/>
-                  <circle cx="233.1" cy="143.1" r="3" fill="#3b82f6"/>
-                  <circle cx="251"  cy="200"   r="3" fill="#3b82f6"/>
-                  <circle cx="224.8" cy="259.8" r="3" fill="#3b82f6"/>
-                  <circle cx="160"  cy="284.5" r="3" fill="#3b82f6"/>
-                  <circle cx="97.3" cy="253.6" r="3" fill="#3b82f6"/>
-                  <circle cx="82"   cy="200"   r="3" fill="#3b82f6"/>
-                  <circle cx="94.0" cy="143.5" r="3" fill="#3b82f6"/>
-                  <!-- Red dots -->
-                  <circle cx="160"   cy="122"   r="3" fill="#ef4444"/>
-                  <circle cx="215.2" cy="151.3" r="3" fill="#ef4444"/>
-                  <circle cx="266.6" cy="200"   r="3" fill="#ef4444"/>
-                  <circle cx="251.6" cy="291.6" r="3" fill="#ef4444"/>
-                  <circle cx="160"   cy="306.4" r="3" fill="#ef4444"/>
-                  <circle cx="105.5" cy="274.5" r="3" fill="#ef4444"/>
-                  <circle cx="95"    cy="200"   r="3" fill="#ef4444"/>
-                  <circle cx="122.4" cy="147.2" r="3" fill="#ef4444"/>
+                  <!-- small filled dots at each Red vertex -->
+                  <circle cx="160"   cy="135.2" r="3.5" fill="#f87171"/>
+                  <circle cx="197.4" cy="157.6" r="3.5" fill="#f87171"/>
+                  <circle cx="252"   cy="195"   r="3.5" fill="#f87171"/>
+                  <circle cx="233.3" cy="268.3" r="3.5" fill="#f87171"/>
+                  <circle cx="160"   cy="273.8" r="3.5" fill="#f87171"/>
+                  <circle cx="129.1" cy="225.9" r="3.5" fill="#f87171"/>
+                  <circle cx="109.4" cy="195"   r="3.5" fill="#f87171"/>
+                  <circle cx="134.0" cy="169.0" r="3.5" fill="#f87171"/>
+
+                  <!-- small filled dots at each Blue vertex -->
+                  <circle cx="160"   cy="114.5" r="3.5" fill="#60a5fa"/>
+                  <circle cx="204.7" cy="150.3" r="3.5" fill="#60a5fa"/>
+                  <circle cx="234.75" cy="195"  r="3.5" fill="#60a5fa"/>
+                  <circle cx="200.7" cy="235.7" r="3.5" fill="#60a5fa"/>
+                  <circle cx="160"   cy="264"   r="3.5" fill="#60a5fa"/>
+                  <circle cx="104.7" cy="250.3" r="3.5" fill="#60a5fa"/>
+                  <circle cx="96.75" cy="195"   r="3.5" fill="#60a5fa"/>
+                  <circle cx="99.0"  cy="134.0" r="3.5" fill="#60a5fa"/>
+
                 </svg>
 
                 <div class="pp-radar-legend">
-                  <div class="pp-radar-legend-item"><div class="pp-radar-dot" style="background:#ef4444;"></div>Reversibility</div>
-                  <div class="pp-radar-legend-item"><div class="pp-radar-dot" style="background:#3b82f6;"></div>Balanced</div>
-                  <div class="pp-radar-legend-item"><div class="pp-radar-dot" style="background:#eab308;"></div>Baseline</div>
+                  <div class="pp-radar-legend-item">
+                    <div class="pp-radar-dot" style="background:#f87171;"></div>Reversibility
+                  </div>
+                  <div class="pp-radar-legend-item">
+                    <div class="pp-radar-dot" style="background:#60a5fa;"></div>Balanced
+                  </div>
+                  <div class="pp-radar-legend-item">
+                    <div class="pp-radar-dot" style="background:#f59e0b;"></div>Baseline
+                  </div>
                 </div>
               </div>
               <div class="pp-posture-note">More autonomy and tool usage means less compliance and blast-radius containment. The compliance-heavy profile gains safety but sacrifices speed and independence.</div>
