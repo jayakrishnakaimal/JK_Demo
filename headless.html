@@ -339,6 +339,96 @@
   /* agentic canvas nodes (removed) */
   .canvas-nodes { display: none; }
 
+  /* ── quick-action chart panel ── */
+  .qa-panel {
+    position: absolute; inset: 0;
+    background: rgba(248,250,253,0.97);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    z-index: 10; display: flex; flex-direction: column;
+    opacity: 0; transform: translateY(18px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+  }
+  .qa-panel.visible {
+    opacity: 1; transform: translateY(0); pointer-events: all;
+  
+  }
+  .qa-panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    flex-shrink: 0;
+  }
+  .qa-panel-title {
+    font-size: 15px; font-weight: 500; color: #111827;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .qa-panel-title-tag {
+    font-size: 11px; font-weight: 400; color: #6b7280;
+    background: #f3f4f6; padding: 2px 8px; border-radius: 10px;
+  }
+  .qa-panel-close {
+    background: none; border: none; cursor: pointer;
+    color: #9ca3af; font-size: 16px; line-height: 1; padding: 4px;
+    border-radius: 4px; transition: color 0.15s, background 0.15s;
+  }
+  .qa-panel-close:hover { color: #374151; background: #f3f4f6; }
+  .qa-panel-body {
+    flex: 1; overflow: hidden; display: flex; gap: 0; min-height: 0;
+  }
+  /* left insight summary */
+  .qa-insight {
+    width: 220px; flex-shrink: 0; padding: 20px 18px;
+    border-right: 1px solid #e5e7eb; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .qa-insight-kpi {
+    background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .qa-insight-kpi-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
+    color: #9ca3af; text-transform: uppercase; margin-bottom: 4px;
+  }
+  .qa-insight-kpi-val {
+    font-size: 24px; font-weight: 300; letter-spacing: -0.5px; line-height: 1;
+  }
+  .qa-insight-kpi-val.green { color: #166534; }
+  .qa-insight-kpi-val.red   { color: #dc2626; }
+  .qa-insight-kpi-val.amber { color: #d97706; }
+  .qa-insight-note {
+    font-size: 12px; color: #6b7280; line-height: 1.6;
+    border-left: 3px solid #2563eb; padding-left: 10px;
+  }
+  /* chart area */
+  .qa-chart-area {
+    flex: 1; padding: 20px 24px; overflow: hidden;
+    display: flex; flex-direction: column; gap: 12px; min-width: 0;
+  }
+  .qa-chart-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+    color: #9ca3af; text-transform: uppercase;
+  }
+  .qa-chart-wrap {
+    flex: 1; position: relative; min-height: 0;
+  }
+  .qa-chart-wrap svg {
+    width: 100%; height: 100%; overflow: visible;
+    font-family: -apple-system,'Segoe UI',system-ui,sans-serif;
+  }
+  /* tooltip */
+  #qaTooltip {
+    position: fixed; background: #1e293b; color: #f8fafc;
+    font-size: 11px; padding: 5px 10px; border-radius: 5px;
+    pointer-events: none; white-space: nowrap; z-index: 9999;
+    opacity: 0; transition: opacity 0.1s; line-height: 1.5;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  }
+  /* active button state */
+  .quick-btn.active {
+    background: #eff6ff; border-color: #2563eb; color: #1d4ed8;
+  }
+
   /* ── background micro-interactions ── */
   .bg-layer {
     position: absolute;
@@ -1921,11 +2011,30 @@
             <h1>Hello Fiona, Good morning</h1>
             <p>FYI: 3 resolved cases await their 24h fix-holding check.</p>
             <div class="quick-actions">
-              <button class="quick-btn" onclick="handleQuickAction('latency')">What's causing the latency spike?</button>
-              <button class="quick-btn" onclick="handleQuickAction('c4')">Show me cluster C4 status</button>
-              <button class="quick-btn" onclick="handleQuickAction('rca')">Run root cause analysis</button>
+              <button class="quick-btn" id="qbLatency" onclick="handleQuickAction('latency',this)">What's causing the latency spike?</button>
+              <button class="quick-btn" id="qbC4"      onclick="handleQuickAction('c4',this)">Show me cluster C4 status</button>
+              <button class="quick-btn" id="qbRca"     onclick="handleQuickAction('rca',this)">Run root cause analysis</button>
             </div>
           </div>
+
+          <!-- quick-action chart panel (slides up on click) -->
+          <div class="qa-panel" id="qaPanel">
+            <div class="qa-panel-header">
+              <div class="qa-panel-title" id="qaPanelTitle">
+                Analysis
+                <span class="qa-panel-title-tag" id="qaPanelTag">Live</span>
+              </div>
+              <button class="qa-panel-close" onclick="closeQaPanel()">✕</button>
+            </div>
+            <div class="qa-panel-body">
+              <div class="qa-insight" id="qaInsight"></div>
+              <div class="qa-chart-area">
+                <div class="qa-chart-label" id="qaChartLabel"></div>
+                <div class="qa-chart-wrap" id="qaChartWrap"></div>
+              </div>
+            </div>
+          </div>
+          <div id="qaTooltip"></div>
 
         </div>
       </div>
@@ -2822,16 +2931,222 @@
   }
 
   /* ────────────────────────────────────────────
-     QUICK ACTIONS
+     QUICK-ACTION PANEL — full interactive charts
   ──────────────────────────────────────────── */
-  const quickResponses = {
-    latency: 'Latency spike on TVM-EDGE-04 caused by port 4/2 signal loss. Recommended: line card restart.',
-    c4: 'Cluster C4: 12/13 nodes healthy. Agent-06 showing soft breach — monitoring in progress.',
-    rca: 'Root cause analysis initiated. Scanning last 72h of telemetry data across 13 agents…'
-  };
+  function closeQaPanel() {
+    document.getElementById('qaPanel').classList.remove('visible');
+    document.querySelectorAll('.quick-btn').forEach(b => b.classList.remove('active'));
+  }
 
-  function handleQuickAction(action) {
-    showToast('🤖 ' + quickResponses[action], 'blue');
+  function handleQuickAction(action, btn) {
+    document.querySelectorAll('.quick-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const panel     = document.getElementById('qaPanel');
+    const titleEl   = document.getElementById('qaPanelTitle');
+    const tagEl     = document.getElementById('qaPanelTag');
+    const insightEl = document.getElementById('qaInsight');
+    const labelEl   = document.getElementById('qaChartLabel');
+    const wrapEl    = document.getElementById('qaChartWrap');
+
+    panel.classList.add('visible');
+
+    if (action === 'latency') {
+      titleEl.childNodes[0].nodeValue = 'Latency Analysis ';
+      tagEl.textContent = 'Live · 5s refresh';
+      labelEl.textContent = 'AGENT LATENCY (ms) — LAST 30 MINUTES';
+      insightEl.innerHTML = `
+        <div class="qa-insight-kpi"><div class="qa-insight-kpi-label">Peak Latency</div><div class="qa-insight-kpi-val red">284<span style="font-size:14px;color:#9ca3af"> ms</span></div></div>
+        <div class="qa-insight-kpi"><div class="qa-insight-kpi-label">Avg Latency</div><div class="qa-insight-kpi-val amber">142<span style="font-size:14px;color:#9ca3af"> ms</span></div></div>
+        <div class="qa-insight-kpi"><div class="qa-insight-kpi-label">SLA Threshold</div><div class="qa-insight-kpi-val green">200<span style="font-size:14px;color:#9ca3af"> ms</span></div></div>
+        <div class="qa-insight-note">TVM-EDGE-04 port 4/2 signal loss is the primary driver. Agent-06 cascading. Restart sequence recommended.</div>`;
+      drawLatencyChart(wrapEl);
+
+    } else if (action === 'c4') {
+      titleEl.childNodes[0].nodeValue = 'Cluster C4 Status ';
+      tagEl.textContent = '12 / 13 Healthy';
+      labelEl.textContent = 'NODE HEALTH (%) — CLUSTER C4';
+      insightEl.innerHTML = `
+        <div class="qa-insight-kpi"><div class="qa-insight-kpi-label">Healthy Nodes</div><div class="qa-insight-kpi-val green">12<span style="font-size:14px;color:#9ca3af"> / 13</span></div></div>
+        <div class="qa-insight-kpi"><div class="qa-insight-kpi-label">Degraded</div><div class="qa-insight-kpi-val amber">1</div></div>
+        <div class="qa-insight-kpi"><div class="qa-insight-kpi-label">Avg Health</div><div class="qa-insight-kpi-val green">97<span style="font-size:14px;color:#9ca3af"> %</span></div></div>
+        <div class="qa-insight-note">Agent-06 showing soft breach at 61%. All other nodes nominal. Auto-monitoring engaged.</div>`;
+      drawC4Chart(wrapEl);
+
+    } else if (action === 'rca') {
+      titleEl.childNodes[0].nodeValue = 'Root Cause Analysis ';
+      tagEl.textContent = '72h window';
+      labelEl.textContent = 'INCIDENT CONTRIBUTORS — LAST 72 HOURS';
+      insightEl.innerHTML = `
+        <div class="qa-insight-kpi"><div class="qa-insight-kpi-label">Events Scanned</div><div class="qa-insight-kpi-val" style="color:#1d4ed8">4 820</div></div>
+        <div class="qa-insight-kpi"><div class="qa-insight-kpi-label">Root Causes ID'd</div><div class="qa-insight-kpi-val amber">3</div></div>
+        <div class="qa-insight-kpi"><div class="qa-insight-kpi-label">Confidence</div><div class="qa-insight-kpi-val green">91<span style="font-size:14px;color:#9ca3af"> %</span></div></div>
+        <div class="qa-insight-note">Hardware degradation (47%), config drift (31%), and load spike (22%) account for all incidents.</div>`;
+      drawRcaChart(wrapEl);
+    }
+  }
+
+  /* ── Latency: multi-line time-series ── */
+  function drawLatencyChart(wrap) {
+    wrap.innerHTML = '';
+    const W = wrap.clientWidth  || 540;
+    const H = wrap.clientHeight || 210;
+    const agents = [
+      { name:'Agent-04 (TVM-EDGE-04)', color:'#dc2626',
+        vals:[88,95,102,110,98,105,115,132,158,184,220,256,284,270,248,220,198,175,160,148,140,135,128,122,118,115,112,110,108,105] },
+      { name:'Agent-06', color:'#d97706',
+        vals:[72,74,76,78,76,75,80,88,95,102,108,112,115,118,120,118,115,112,110,108,106,104,102,100,98,96,94,92,90,88] },
+      { name:'Agent-02', color:'#2563eb',
+        vals:[62,63,65,64,65,66,64,65,63,65,66,64,63,65,66,65,64,63,64,65,64,63,62,63,64,63,62,61,62,63] }
+    ];
+    const lp=44, tp=14, bw=W-lp-20, bh=H-tp-38, N=30, maxV=310;
+    const vx = i => lp + i*(bw/(N-1));
+    const vy = v => tp + bh - (v/maxV)*bh;
+
+    let s = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    [0,100,200,300].forEach(v => {
+      const y=vy(v);
+      s += `<line x1="${lp}" y1="${y}" x2="${lp+bw}" y2="${y}" stroke="#e5e7eb" stroke-width="1"/>`;
+      s += `<text x="${lp-6}" y="${y+4}" text-anchor="end" font-size="10" fill="#9ca3af">${v}</text>`;
+    });
+    const slaY=vy(200);
+    s += `<line x1="${lp}" y1="${slaY}" x2="${lp+bw}" y2="${slaY}" stroke="#16a34a" stroke-width="1.2" stroke-dasharray="5,4"/>`;
+    s += `<text x="${lp+bw+4}" y="${slaY+4}" font-size="9" fill="#16a34a">SLA</text>`;
+    ['30m','25m','20m','15m','10m','5m','now'].forEach((l,i)=>{
+      s += `<text x="${vx(Math.round(i*(N-1)/6))}" y="${tp+bh+18}" text-anchor="middle" font-size="10" fill="#9ca3af">${l}</text>`;
+    });
+    agents.forEach(ag => {
+      const ap = `M${vx(0)},${vy(ag.vals[0])} `+ag.vals.slice(1).map((v,i)=>`L${vx(i+1)},${vy(v)}`).join(' ')
+               + ` L${vx(N-1)},${tp+bh} L${vx(0)},${tp+bh} Z`;
+      s += `<path d="${ap}" fill="${ag.color}" fill-opacity="0.07"/>`;
+      const lp2 = `M${vx(0)},${vy(ag.vals[0])} `+ag.vals.slice(1).map((v,i)=>`L${vx(i+1)},${vy(v)}`).join(' ');
+      s += `<path d="${lp2}" fill="none" stroke="${ag.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    });
+    agents.forEach((ag,i)=>{
+      const lx=lp+i*170;
+      s += `<rect x="${lx}" y="${H-14}" width="10" height="3" rx="1.5" fill="${ag.color}"/>`;
+      s += `<text x="${lx+14}" y="${H-10}" font-size="10" fill="#6b7280">${ag.name}</text>`;
+    });
+    const step = bw/(N-1);
+    for(let i=0;i<N;i++){
+      const vals = agents.map(a=>a.vals[i]);
+      s += `<rect x="${vx(i)-step/2}" y="${tp}" width="${step}" height="${bh}" fill="transparent"
+        onmouseenter="qaLatHov(event,${i},${vals.join(',')})" onmouseleave="qaHideTT()"/>`;
+    }
+    s += `<line id="qaCross" x1="0" y1="${tp}" x2="0" y2="${tp+bh}" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,3" opacity="0"/>`;
+    s += '</svg>';
+    wrap.innerHTML = s;
+  }
+
+  function qaLatHov(e,i,v0,v1,v2){
+    const ago = i===29?'now':`${29-i}m ago`;
+    const tt = document.getElementById('qaTooltip');
+    tt.innerHTML=`<b>${ago}</b><br><span style="color:#dc2626">Agent-04: ${v0} ms</span><br><span style="color:#d97706">Agent-06: ${v1} ms</span><br><span style="color:#2563eb">Agent-02: ${v2} ms</span>`;
+    tt.style.opacity='1'; tt.style.left=(e.clientX+14)+'px'; tt.style.top=(e.clientY-10)+'px';
+    const c=document.getElementById('qaCross'); if(c){c.setAttribute('x1',e.offsetX);c.setAttribute('x2',e.offsetX);c.setAttribute('opacity','1');}
+  }
+  function qaHideTT(){
+    document.getElementById('qaTooltip').style.opacity='0';
+    const c=document.getElementById('qaCross'); if(c) c.setAttribute('opacity','0');
+  }
+
+  /* ── C4: horizontal bar chart ── */
+  function drawC4Chart(wrap) {
+    wrap.innerHTML = '';
+    const W = wrap.clientWidth  || 540;
+    const H = wrap.clientHeight || 210;
+    const nodes = [
+      {name:'Agent-01',val:99,color:'#16a34a'},{name:'Agent-02',val:98,color:'#16a34a'},
+      {name:'Agent-03',val:97,color:'#16a34a'},{name:'Agent-04',val:95,color:'#16a34a'},
+      {name:'Agent-05',val:96,color:'#16a34a'},{name:'Agent-06',val:61,color:'#d97706'},
+      {name:'Agent-07',val:99,color:'#16a34a'},{name:'Agent-08',val:98,color:'#16a34a'},
+      {name:'Agent-09',val:97,color:'#16a34a'},{name:'Agent-10',val:99,color:'#16a34a'},
+      {name:'Agent-11',val:96,color:'#16a34a'},{name:'Agent-12',val:98,color:'#16a34a'},
+      {name:'Agent-13',val:100,color:'#16a34a'}
+    ];
+    const lw=72, px=lw+8, pr=46, rowH=Math.floor((H-28)/nodes.length), barW=W-px-pr;
+    let s = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    [0,25,50,75,100].forEach(v=>{
+      const x=px+(v/100)*barW;
+      s+=`<line x1="${x}" y1="0" x2="${x}" y2="${H-20}" stroke="#e5e7eb" stroke-width="1"/>`;
+      s+=`<text x="${x}" y="${H-8}" text-anchor="middle" font-size="10" fill="#9ca3af">${v}%</text>`;
+    });
+    const tx=px+0.8*barW;
+    s+=`<line x1="${tx}" y1="0" x2="${tx}" y2="${H-20}" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="4,3"/>`;
+    s+=`<text x="${tx+3}" y="10" font-size="9" fill="#ef4444">Min 80%</text>`;
+    nodes.forEach((n,i)=>{
+      const y=i*rowH+4, bLen=(n.val/100)*barW;
+      s+=`<text x="${lw}" y="${y+rowH/2+4}" text-anchor="end" font-size="10" fill="#374151">${n.name}</text>`;
+      s+=`<rect x="${px}" y="${y+3}" width="${barW}" height="${rowH-6}" rx="3" fill="#f3f4f6"/>`;
+      s+=`<rect x="${px}" y="${y+3}" width="${bLen}" height="${rowH-6}" rx="3" fill="${n.color}" fill-opacity="0.85"
+        onmouseenter="qaC4Hov(event,'${n.name}',${n.val},'${n.color}')" onmouseleave="qaHideTT()"/>`;
+      s+=`<text x="${px+bLen+4}" y="${y+rowH/2+4}" font-size="10" fill="${n.color}" font-weight="500">${n.val}%</text>`;
+    });
+    s+='</svg>';
+    wrap.innerHTML=s;
+  }
+
+  function qaC4Hov(e,name,val,color){
+    const tt=document.getElementById('qaTooltip');
+    tt.innerHTML=`<b>${name}</b><br>Health: <span style="color:${color}">${val}%</span><br>Status: ${val>=80?'Healthy':'Degraded'}`;
+    tt.style.opacity='1'; tt.style.left=(e.clientX+14)+'px'; tt.style.top=(e.clientY-10)+'px';
+  }
+
+  /* ── RCA: stacked area chart ── */
+  function drawRcaChart(wrap) {
+    wrap.innerHTML = '';
+    const W = wrap.clientWidth  || 540;
+    const H = wrap.clientHeight || 210;
+    const labels=['0h','6h','12h','18h','24h','30h','36h','42h','48h','54h','60h','66h','72h'];
+    const hw  =[10,14,18,22,30,38,44,50,55,58,60,62,63];
+    const cfg =[8,10,12,14,16,18,20,22,24,26,28,29,30];
+    const load=[4,5,6,7,8,9,10,11,12,13,14,14,15];
+    const colors=['#dc2626','#d97706','#2563eb'];
+    const names=['Hardware Degradation','Config Drift','Load Spike'];
+    const lp=36, tp=14, bw=W-lp-16, bh=H-tp-38, N=labels.length, maxV=110;
+    const vx=i=>lp+i*(bw/(N-1));
+    const vy=v=>tp+bh-(v/maxV)*bh;
+
+    let s=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    [0,25,50,75,100].forEach(v=>{
+      const y=vy(v);
+      s+=`<line x1="${lp}" y1="${y}" x2="${lp+bw}" y2="${y}" stroke="#e5e7eb" stroke-width="1"/>`;
+      s+=`<text x="${lp-4}" y="${y+4}" text-anchor="end" font-size="10" fill="#9ca3af">${v}</text>`;
+    });
+    // stacked series bottom-up: load, cfg, hw
+    const series=[
+      {vals:load, bots:load.map(()=>0),                          color:colors[2]},
+      {vals:cfg,  bots:load.map((v,i)=>v),                       color:colors[1]},
+      {vals:hw,   bots:load.map((v,i)=>v+cfg[i]),                color:colors[0]}
+    ];
+    series.forEach(sr=>{
+      const top=sr.vals.map((v,i)=>[vx(i),vy(sr.bots[i]+v)]);
+      const bot=sr.bots.map((b,i)=>[vx(i),vy(b)]);
+      const area=`M${top.map(p=>p.join(',')).join(' L')} L${[...bot].reverse().map(p=>p.join(',')).join(' L')} Z`;
+      s+=`<path d="${area}" fill="${sr.color}" fill-opacity="0.22"/>`;
+      s+=`<path d="M${top.map(p=>p.join(',')).join(' L')}" fill="none" stroke="${sr.color}" stroke-width="1.8" stroke-linejoin="round"/>`;
+    });
+    labels.forEach((l,i)=>{
+      s+=`<text x="${vx(i)}" y="${tp+bh+18}" text-anchor="middle" font-size="10" fill="#9ca3af">${l}</text>`;
+    });
+    const step=bw/(N-1);
+    for(let i=0;i<N;i++){
+      s+=`<rect x="${vx(i)-step/2}" y="${tp}" width="${step}" height="${bh}" fill="transparent"
+        onmouseenter="qaRcaHov(event,'${labels[i]}',${hw[i]},${cfg[i]},${load[i]})" onmouseleave="qaHideTT()"/>`;
+    }
+    names.forEach((nm,i)=>{
+      const lx=lp+i*170;
+      s+=`<rect x="${lx}" y="${H-13}" width="10" height="3" rx="1.5" fill="${colors[i]}"/>`;
+      s+=`<text x="${lx+14}" y="${H-9}" font-size="10" fill="#6b7280">${nm}</text>`;
+    });
+    s+='</svg>';
+    wrap.innerHTML=s;
+  }
+
+  function qaRcaHov(e,label,hw,cfg,load){
+    const tt=document.getElementById('qaTooltip');
+    tt.innerHTML=`<b>${label}</b><br><span style="color:#dc2626">Hardware: ${hw}</span><br><span style="color:#d97706">Config: ${cfg}</span><br><span style="color:#2563eb">Load: ${load}</span>`;
+    tt.style.opacity='1'; tt.style.left=(e.clientX+14)+'px'; tt.style.top=(e.clientY-10)+'px';
   }
 
   /* ────────────────────────────────────────────

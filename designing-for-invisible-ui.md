@@ -602,11 +602,33 @@ A companion **concept testing plan** for validating the three novel UI surfaces 
 
 - Full-viewport gradient canvas area with floating ambient orbs + mouse-tracking glow
 - Greeting text: *"Good morning, Jayakrishna"* with agent status line
-- 3 quick-action buttons: Inspect agent · Review escalations · Run policy check
+- 3 quick-action buttons that open an interactive inline chart panel (`#qaPanel`):
+  - **"What's causing the latency spike?"** → `handleQuickAction('latency', this)`
+  - **"Show me cluster C4 status"** → `handleQuickAction('c4', this)`
+  - **"Run root cause analysis"** → `handleQuickAction('rca', this)`
 - **Right panel** (always visible on Canvas): two floating action cards + Activity Timeline
   - Card 1: Restart line card — restart prompt with Approve/Dismiss
   - Card 2: CHRONIC TVM-EDGE-04 — severity badge, confidence bar, agent chain
   - Timeline: 4 timestamped events with colour-coded icons
+
+#### Quick-Action Panel (`#qaPanel`)
+
+Slides up over the canvas viewport (`position:absolute; inset:15px` when `.visible`) with frosted glass background (`rgba(248,250,253,0.97)` + `backdrop-filter:blur(16px)`).
+
+**Layout:** Left sidebar (220px) of KPI cards + insight note · Right chart area (flex:1)
+
+| Button | Title | Tag | Chart type | KPI cards |
+|---|---|---|---|---|
+| Latency spike | Latency Analysis | Live · 5s refresh | Multi-line time-series (30 min) | Peak 284ms · Avg 142ms · SLA 200ms |
+| Cluster C4 | Cluster C4 Status | 12 / 13 Healthy | Horizontal bar chart (13 nodes) | 12 healthy · 1 degraded · Avg 97% |
+| Root cause | Root Cause Analysis | 72h window | Stacked area chart (72h) | 4 820 events · 3 root causes · 91% confidence |
+
+**Chart interactions:**
+- All charts: hover tooltip (`#qaTooltip` fixed dark pill) showing values at cursor position
+- **Latency chart:** 3 coloured lines (Agent-04 red, Agent-06 amber, Agent-02 blue), SLA dashed green line at 200ms, vertical crosshair on hover (`#qaCross`)
+- **C4 bar chart:** 13 horizontal bars with background track, red dashed minimum threshold at 80%, per-bar hover with name + health % + status
+- **RCA stacked area:** 3 stacked areas (Hardware red, Config Drift amber, Load Spike blue) over 13 × 6h steps, per-column hover with breakdown values
+- Close button (✕) calls `closeQaPanel()` — hides panel + clears active button state
 
 ---
 
@@ -668,7 +690,16 @@ A companion **concept testing plan** for validating the three novel UI surfaces 
 
 Badge cycle on click: `Auto → Ask → Approval → Auto`
 
-**Configuration Testing tab** — placeholder panel
+**Configuration Testing tab** (`09.png`) — Digital Twin Simulator:
+
+| Element | Detail |
+|---|---|
+| Layout | `ct-left: 600px` fixed · `ct-right: flex:1` |
+| Left | 5 scenario cards (Fiber cut, Power surge, BGP storm, DDoS mitigation, Rolling upgrade) |
+| Right | Network topology SVG (7 nodes + edges) · Animated result panel |
+| Scenario card click | Runs `runConfigTest(scenario)` — spinner → `renderCTResult()` with metric count-up |
+| Metrics | Recovery time · Agent decisions · Services protected · Confidence score |
+| pp-right visibility | Hidden when Configuration Testing tab is active (`switchPPTab` hides it) |
 
 #### Right panel — `.pp-right`
 
@@ -731,15 +762,31 @@ Risk Exposure · Time to remediate · Tool calls / task · Autonomy · Human rev
 
 | Function | Purpose |
 |---|---|
-| `switchTab(id, btn)` | Shows active tab panel; hides right panel on `agentic`/`policy` tabs |
-| `switchPPTab(tab, btn)` | Switches Studio ↔ Configuration Testing sub-tabs |
+| `switchTab(id, btn)` | Shows active tab panel; triggers `animateDonut()`, `initTrend()`, `initAtStats()` on respective tabs; hides right panel on `agentic`/`policy` tabs |
+| `switchPPTab(tab, btn)` | Switches Studio ↔ Configuration Testing sub-tabs; hides `pp-right` on config tab |
 | `cycleBadge(btn)` | Cycles permission badge: Auto → Ask → Approval → Auto |
 | `openDrawer(i)` / `closeDrawer()` | Opens/closes agentic trace detail drawer |
-| `renderCases(data)` | Renders cases table rows from data array |
-| `filterCases()` | Filters cases by search + 4 dropdowns |
-| `showToast(msg, type)` | Shows temporary toast notification |
-| `initRadar()` | Draws full interactive SVG radar chart on `DOMContentLoaded` |
-| `closeDropdown()` | Closes any open filter dropdown |
+| `renderCases(data)` / `filterCases()` | Renders + live-filters cases table by search + 4 dropdowns |
+| `showToast(msg, type)` | Shows temporary toast notification (green/blue/orange) |
+| `initRadar()` | Draws 8-axis interactive SVG radar chart; polygon hover, legend toggle, floating tooltip |
+| `animateDonut()` | Animated draw-in + count-up + pulse glow on donut chart; replays every policy tab open |
+| `initTrend()` | Draws trend chart; hover crosshair + tooltip; month-label click redraws curve |
+| `initTimeline()` | Draws activity timeline; draw-in animation; hover crosshair; marker click popovers; time-tab switching |
+| `initAtStats()` | Count-up pop-in on agentic tab open; staggered delay; red pulse glow; amber shimmer |
+| `initStatValues()` | Animates confidence + fleet health stats on load |
+| `handleQuickAction(action, btn)` | Shows `#qaPanel`; marks active button; populates KPI sidebar; draws SVG chart |
+| `closeQaPanel()` | Hides panel; clears active button state |
+| `drawLatencyChart(wrap)` | Draws multi-line latency time-series SVG (30 data points × 3 agents) |
+| `drawC4Chart(wrap)` | Draws horizontal bar chart SVG (13 nodes, health %) |
+| `drawRcaChart(wrap)` | Draws stacked area chart SVG (72h, 3 contributors) |
+| `qaLatHov(e,i,v0,v1,v2)` | Latency chart hover — tooltip + crosshair |
+| `qaC4Hov(e,name,val,color)` | C4 bar hover — tooltip with node name + health status |
+| `qaRcaHov(e,label,hw,cfg,load)` | RCA area hover — tooltip with per-contributor breakdown |
+| `qaHideTT()` | Hides `#qaTooltip` and crosshair line |
+| `runConfigTest(scenario)` / `renderCTResult()` | Runs digital-twin simulation; animated spinner → metric count-up |
+| `renderTopo()` | Draws animated network topology SVG (7 nodes) |
+| `closeDropdown()` / `selectRegion(name)` | Region dropdown open/close/select |
+| `openApproveModal` / `confirmApprove` / `confirmEscalate` | Action card modal flow |
 
 ---
 
@@ -747,15 +794,19 @@ Risk Exposure · Time to remediate · Tool calls / task · Autonomy · Human rev
 
 | Token | Value | Used for |
 |---|---|---|
-| Body gradient | `#f8fafd → #9ec8e0` | Full-page background |
-| Accent blue | `#2563eb` | Tab active border, donut, buttons |
-| Dark green | `#166534` | Knob values, stat percentages |
+| Body gradient | `linear-gradient(160deg, #f8fafd → #f3f6fb → #ddeaf5 → #b8d4e8 → #9ec8e0)` fixed | Full-page background |
+| Accent blue | `#2563eb` | Tab active border, donut, quick-action buttons |
+| Dark green | `#166534` | Knob values, stat percentages, chart KPI values |
+| Red alert | `#dc2626` | Agent-04 latency line, hardware RCA area, at-stat pulse |
+| Amber | `#d97706` | Agent-06 latency line, config-drift RCA area, at-stat shimmer |
 | Text primary | `#111827` | Headings, labels |
 | Text muted | `#6b7280` | Descriptions, subtitles |
-| Text faint | `#9ca3af` | Radar axis labels, meta |
-| Border | `#e5e7eb` | Panel dividers |
-| Surface | `rgba(255,255,255,0.72)` + `backdrop-filter:blur(12px)` | Frosted panels (header, score row, tabs, studio) |
+| Text faint | `#9ca3af` | Radar axis labels, chart grid labels |
+| Border | `#e5e7eb` | Panel dividers, chart grid lines |
+| Surface frosted | `rgba(255,255,255,0.72)` + `backdrop-filter:blur(12px)` | Policy panels (header, score row, tabs, studio) |
+| QA panel bg | `rgba(248,250,253,0.97)` + `backdrop-filter:blur(16px)` | Quick-action panel overlay |
 | White solid | `#ffffff` | `.pp-right` panel |
+| QA panel inset | `inset:15px` when `.visible` | 15px floating margin from canvas edges |
 | Auto badge | `#dcfce7` / `#166534` | Green Auto permission |
 | Ask badge | `#dbeafe` / `#1d4ed8` | Blue Ask permission |
 | Approval badge | `#f3f4f6` / `#374151` | Grey Approval permission |
@@ -800,42 +851,54 @@ Risk Exposure · Time to remediate · Tool calls / task · Autonomy · Human rev
 │       ├── Pillar architecture JS      ~3137–3214
 │       └── Direction micro-interactions ~3215–3410
 │
-├── headless.html                       ← HEADLESS AI DASHBOARD (~2600 lines)
-│   ├── CSS (lines 8–1460)
+├── headless.html                       ← HEADLESS AI DASHBOARD (~3900 lines)
+│   ├── CSS (lines 8–1700)
 │   │   ├── Body gradient + base          ~8–42
 │   │   ├── Top nav                       ~44–165
 │   │   ├── Stats bar + badges            ~166–265
-│   │   ├── Canvas viewport + orbs        ~266–400
-│   │   ├── Agentic trace (.at-*)         ~400–740
+│   │   ├── Canvas viewport + orbs        ~266–342
+│   │   ├── Quick-action panel (.qa-*)    ~343–430
+│   │   ├── Agentic trace (.at-*)         ~430–740
 │   │   ├── Right panel + action cards    ~740–900
-│   │   ├── Policy & Permissions (.pp-*)  ~1215–1460
-│   │   │   ├── pp-header / pp-score-row  ~1216–1264
-│   │   │   ├── pp-tabs / pp-studio       ~1270–1310
-│   │   │   ├── pp-perm-row / badges      ~1310–1355
-│   │   │   └── pp-right / radar          ~1356–1415
-│   │   └── Config testing tab            ~1416–1422
-│   ├── Top nav HTML                      ~1462–1510
-│   ├── Canvas tab HTML                   ~1512–1660
-│   ├── Agentic trace tab HTML            ~1662–1740
-│   │   ├── Stats row                     ~1665–1685
-│   │   ├── Search + filters              ~1686–1715
-│   │   ├── Cases table                   ~1716–1724
-│   │   └── Detail drawer                 ~1728–1739
-│   ├── Policy & Permissions tab HTML     ~1742–2116
-│   │   ├── pp-header                     ~1746–1763
-│   │   ├── pp-score-row (donut + trend)  ~1766–1802
-│   │   ├── pp-left (Studio tab)          ~1808–1932
-│   │   └── pp-right (knobs + radar)      ~1940–2115
-│   ├── Right panel (action cards)        ~2120–2210
-│   └── <script> block                    ~2263–end
-│       ├── switchTab                     ~2267
-│       ├── switchPPTab                   ~2395
-│       ├── cycleBadge                    ~2436
-│       ├── openDrawer / closeDrawer      ~2440–2470
-│       ├── renderCases / filterCases     ~2400–2435
-│       ├── showToast                     ~2450
-│       ├── initRadar (interactive SVG)   ~2487–2644
-│       └── keyboard shortcuts            ~2476–2484
+│   │   ├── Timeline CSS                  ~893–983
+│   │   ├── Policy & Permissions (.pp-*)  ~1293–1544
+│   │   │   ├── pp-header / pp-score-row  ~1295–1345
+│   │   │   ├── pp-tabs / pp-studio       ~1350–1390
+│   │   │   ├── pp-perm-row / badges      ~1390–1430
+│   │   │   └── pp-right / radar          ~1430–1490
+│   │   └── Config testing tab (.ct-*)    ~1544–1700
+│   ├── Top nav HTML                      ~1700–1750
+│   ├── Canvas tab HTML                   ~1750–2040
+│   │   ├── Greeting + quick buttons      ~1900–1960 (3 quick-action btns + #qaPanel)
+│   │   └── #qaPanel (insight + chart)    ~2020–2036
+│   ├── Agentic trace tab HTML            ~2042–2200
+│   │   ├── Stats row                     ~2044–2070
+│   │   ├── Search + 4 filters            ~2055–2090
+│   │   ├── Cases table                   ~2095–2110
+│   │   └── Detail drawer                 ~2140–2200
+│   ├── Policy & Permissions tab HTML     ~2057–2263
+│   │   ├── pp-header                     ~2060–2080
+│   │   ├── pp-score-row (donut + trend)  ~2083–2120
+│   │   ├── pp-left (Studio + Config tab) ~2125–2240
+│   │   └── pp-right (knobs + radar)      ~2245–2263
+│   ├── Right panel (action cards)        ~1700–1840
+│   └── <script> block                    ~2263–end (~3900)
+│       ├── switchTab / initStatValues    ~2267–2510
+│       ├── animateDonut                  ~2510–2560
+│       ├── openDrawer / closeDrawer      ~2560–2620
+│       ├── renderCases / filterCases     ~2620–2750
+│       ├── showToast                     ~2760
+│       ├── Region dropdown               ~2820–2832
+│       ├── Modals (approve/escalate)     ~2833–2890
+│       ├── initTimeline                  ~3037–3250
+│       ├── initTrend                     ~3252–3346
+│       ├── initRadar (interactive SVG)   ~3346–3370
+│       ├── Config testing (CT_SCENARIOS) ~3370–end (runConfigTest / renderTopo)
+│       ├── handleQuickAction + closeQaPanel ~2932–3000
+│       ├── drawLatencyChart              ~3000–3050
+│       ├── drawC4Chart                   ~3055–3100
+│       ├── drawRcaChart                  ~3105–3160
+│       └── hover helpers (qaLatHov etc.) ~3160–3180
 │
 ├── uxr_plan.html                       ← UXR CONCEPT TESTING PLAN (~1460 lines)
 │   ├── Carbon CSS tokens + component styles  lines 10–625
