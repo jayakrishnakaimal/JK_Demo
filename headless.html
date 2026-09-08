@@ -1366,12 +1366,12 @@
   /* Knobs title */
   .pp-knobs-title {
     font-size: 18px; font-weight: 300; color: #111827;
-    margin-bottom: 24px; line-height: 1.2; letter-spacing: -0.3px;
+    margin-bottom: 0; line-height: 1.2; letter-spacing: -0.3px;
   }
   /* Knob rows */
   .pp-knob-row {
     display: flex; justify-content: space-between; align-items: baseline;
-    padding: 10px 0;
+    padding: 5px 0;
     border-bottom: 1px solid #f3f4f6;
   }
   .pp-knob-row:last-of-type { border-bottom: none; }
@@ -1394,7 +1394,7 @@
   }
   .pp-knob-divider {
     border: none; border-top: 1px solid #f0f1f3;
-    margin: 14px 0 22px;
+    margin: 0;
   }
 
   /* Posture section */
@@ -1404,7 +1404,7 @@
   }
   .pp-posture-sub {
     font-size: 13px; color: #6b7280; font-weight: 400;
-    margin-bottom: 18px;
+    margin-bottom: 0;
   }
 
   /* Radar */
@@ -1987,126 +1987,29 @@
                   Red   (Reversibility):[0.52, 0.46, 0.80, 0.90, 0.68, 0.38, 0.44, 0.32]
                   Yellow(Baseline):    [0.38, 0.32, 0.50, 0.78, 0.85, 0.55, 0.35, 0.48]
               -->
-              <div class="pp-radar-wrap">
-                <svg viewBox="0 0 320 390" width="100%" xmlns="http://www.w3.org/2000/svg"
-                     style="font-family:-apple-system,'Segoe UI',system-ui,sans-serif;">
-
-                  <!-- ── axis labels ── -->
-                  <text x="160" y="68"  text-anchor="middle" font-size="10.5" fill="#9ca3af">Risk Exposure</text>
-                  <text x="252" y="104" text-anchor="start"  font-size="10.5" fill="#9ca3af">Time to remediate</text>
-                  <text x="282" y="198" text-anchor="start"  font-size="10.5" fill="#9ca3af">Tool calls / task</text>
-                  <text x="252" y="290" text-anchor="start"  font-size="10.5" fill="#9ca3af">Autonomy</text>
-                  <text x="160" y="330" text-anchor="middle" font-size="10.5" fill="#9ca3af">Human review load</text>
-                  <text x="68"  y="290" text-anchor="end"    font-size="10.5" fill="#9ca3af">Reversibility</text>
-                  <text x="38"  y="198" text-anchor="end"    font-size="10.5" fill="#9ca3af">Blast radius</text>
-                  <text x="68"  y="104" text-anchor="end"    font-size="10.5" fill="#9ca3af">Compliance</text>
-
-                  <!-- ── grid rings (4 concentric octagons) ── -->
-                  <!-- 25% r=29 -->
-                  <polygon points="160,166 180.5,173.5 189,195 180.5,216.5 160,224 139.5,216.5 131,195 139.5,173.5"
-                    fill="none" stroke="#e5e7eb" stroke-width="0.8"/>
-                  <!-- 50% r=58 -->
-                  <polygon points="160,137 201,155 219,195 201,235 160,253 119,235 101,195 119,155"
-                    fill="none" stroke="#e5e7eb" stroke-width="0.8"/>
-                  <!-- 75% r=87 -->
-                  <polygon points="160,108 221.5,136.5 247,195 221.5,253.5 160,282 98.5,253.5 73,195 98.5,136.5"
-                    fill="none" stroke="#e5e7eb" stroke-width="0.8"/>
-                  <!-- 100% r=115 -->
-                  <polygon points="160,80 241.3,113.7 275,195 241.3,276.3 160,310 78.7,276.3 45,195 78.7,113.7"
-                    fill="none" stroke="#d1d5db" stroke-width="1"/>
-
-                  <!-- ── axis lines, centre→vertex ── -->
-                  <g stroke="#d1d5db" stroke-width="0.8">
-                    <line x1="160" y1="195" x2="160"  y2="80"/>
-                    <line x1="160" y1="195" x2="241.3" y2="113.7"/>
-                    <line x1="160" y1="195" x2="275"  y2="195"/>
-                    <line x1="160" y1="195" x2="241.3" y2="276.3"/>
-                    <line x1="160" y1="195" x2="160"  y2="310"/>
-                    <line x1="160" y1="195" x2="78.7" y2="276.3"/>
-                    <line x1="160" y1="195" x2="45"   y2="195"/>
-                    <line x1="160" y1="195" x2="78.7" y2="113.7"/>
-                  </g>
-
-                  <!--
-                    Pre-computed polygon vertices (cx=160, cy=195, R=115):
-                    pt(v,a) = [160 + 115·v·sin(a·π/180),  195 − 115·v·cos(a·π/180)]
-
-                    BLUE – Balanced [0.70, 0.55, 0.65, 0.50, 0.60, 0.68, 0.55, 0.75]:
-                      0°   v=0.70 → 160,         114.5
-                      45°  v=0.55 → 160+44.7=204.7, 195-44.7=150.3
-                      90°  v=0.65 → 234.75,       195
-                      135° v=0.50 → 160+40.7=200.7, 195+40.7=235.7
-                      180° v=0.60 → 160,           264
-                      225° v=0.68 → 160-55.3=104.7, 195+55.3=250.3
-                      270° v=0.55 → 96.75,          195
-                      315° v=0.75 → 160-61.0=99.0,  195-61.0=134.0
-
-                    RED – Reversibility [0.52, 0.46, 0.80, 0.90, 0.68, 0.38, 0.44, 0.32]:
-                      0°   v=0.52 → 160,         135.2
-                      45°  v=0.46 → 160+37.4=197.4, 195-37.4=157.6
-                      90°  v=0.80 → 252,           195
-                      135° v=0.90 → 160+73.3=233.3, 195+73.3=268.3
-                      180° v=0.68 → 160,           273.8
-                      225° v=0.38 → 160-30.9=129.1, 195+30.9=225.9
-                      270° v=0.44 → 109.4,          195
-                      315° v=0.32 → 160-26.0=134.0, 195-26.0=169.0
-
-                    YELLOW – Baseline [0.38, 0.32, 0.50, 0.78, 0.85, 0.55, 0.35, 0.48]:
-                      0°   v=0.38 → 160,         151.3
-                      45°  v=0.32 → 160+26.0=186.0, 195-26.0=169.0
-                      90°  v=0.50 → 217.5,         195
-                      135° v=0.78 → 160+63.5=223.5, 195+63.5=258.5
-                      180° v=0.85 → 160,           293.25
-                      225° v=0.55 → 160-44.8=115.2, 195+44.8=239.8
-                      270° v=0.35 → 119.75,         195
-                      315° v=0.48 → 160-39.0=121.0, 195-39.0=156.0
-                  -->
-
-                  <!-- Blue – Balanced (draw first, lowest) -->
-                  <polygon
-                    points="160,114.5 204.7,150.3 234.75,195 200.7,235.7 160,264 104.7,250.3 96.75,195 99.0,134.0"
-                    fill="rgba(147,197,253,0.30)" stroke="#60a5fa" stroke-width="1.6"/>
-
-                  <!-- Yellow – Baseline (draw second) -->
-                  <polygon
-                    points="160,151.3 186.0,169.0 217.5,195 223.5,258.5 160,293.25 115.2,239.8 119.75,195 121.0,156.0"
-                    fill="rgba(253,224,71,0.40)" stroke="#f59e0b" stroke-width="1.6"/>
-
-                  <!-- Red – Reversibility (draw last, on top) -->
-                  <polygon
-                    points="160,135.2 197.4,157.6 252,195 233.3,268.3 160,273.8 129.1,225.9 109.4,195 134.0,169.0"
-                    fill="rgba(252,165,165,0.35)" stroke="#f87171" stroke-width="1.6"/>
-
-                  <!-- small filled dots at each Red vertex -->
-                  <circle cx="160"   cy="135.2" r="3.5" fill="#f87171"/>
-                  <circle cx="197.4" cy="157.6" r="3.5" fill="#f87171"/>
-                  <circle cx="252"   cy="195"   r="3.5" fill="#f87171"/>
-                  <circle cx="233.3" cy="268.3" r="3.5" fill="#f87171"/>
-                  <circle cx="160"   cy="273.8" r="3.5" fill="#f87171"/>
-                  <circle cx="129.1" cy="225.9" r="3.5" fill="#f87171"/>
-                  <circle cx="109.4" cy="195"   r="3.5" fill="#f87171"/>
-                  <circle cx="134.0" cy="169.0" r="3.5" fill="#f87171"/>
-
-                  <!-- small filled dots at each Blue vertex -->
-                  <circle cx="160"   cy="114.5" r="3.5" fill="#60a5fa"/>
-                  <circle cx="204.7" cy="150.3" r="3.5" fill="#60a5fa"/>
-                  <circle cx="234.75" cy="195"  r="3.5" fill="#60a5fa"/>
-                  <circle cx="200.7" cy="235.7" r="3.5" fill="#60a5fa"/>
-                  <circle cx="160"   cy="264"   r="3.5" fill="#60a5fa"/>
-                  <circle cx="104.7" cy="250.3" r="3.5" fill="#60a5fa"/>
-                  <circle cx="96.75" cy="195"   r="3.5" fill="#60a5fa"/>
-                  <circle cx="99.0"  cy="134.0" r="3.5" fill="#60a5fa"/>
-
+              <div class="pp-radar-wrap" id="radarWrap">
+                <!-- SVG drawn by initRadar() below -->
+                <svg id="radarSvg" viewBox="0 0 320 390" width="100%"
+                     xmlns="http://www.w3.org/2000/svg"
+                     style="font-family:-apple-system,'Segoe UI',system-ui,sans-serif; overflow:visible; cursor:default;">
                 </svg>
+                <!-- floating tooltip -->
+                <div id="radarTooltip" style="
+                  position:fixed; background:#1e293b; color:#f8fafc;
+                  font-size:11.5px; padding:6px 11px; border-radius:6px;
+                  pointer-events:none; white-space:nowrap; z-index:9999;
+                  opacity:0; transition:opacity 0.12s; line-height:1.5;
+                  box-shadow:0 4px 14px rgba(0,0,0,0.22);
+                "></div>
 
-                <div class="pp-radar-legend">
-                  <div class="pp-radar-legend-item">
+                <div class="pp-radar-legend" id="radarLegend">
+                  <div class="pp-radar-legend-item" data-series="red" style="cursor:pointer;user-select:none;transition:opacity .2s;">
                     <div class="pp-radar-dot" style="background:#f87171;"></div>Reversibility
                   </div>
-                  <div class="pp-radar-legend-item">
+                  <div class="pp-radar-legend-item" data-series="blue" style="cursor:pointer;user-select:none;transition:opacity .2s;">
                     <div class="pp-radar-dot" style="background:#60a5fa;"></div>Balanced
                   </div>
-                  <div class="pp-radar-legend-item">
+                  <div class="pp-radar-legend-item" data-series="yellow" style="cursor:pointer;user-select:none;transition:opacity .2s;">
                     <div class="pp-radar-dot" style="background:#f59e0b;"></div>Baseline
                   </div>
                 </div>
@@ -2567,7 +2470,10 @@
     renderCases(casesData);
   }
 
-  document.addEventListener('DOMContentLoaded', () => renderCases(casesData));
+  document.addEventListener('DOMContentLoaded', () => {
+    renderCases(casesData);
+    initRadar();
+  });
 
   /* ────────────────────────────────────────────
      KEYBOARD SHORTCUTS
@@ -2579,6 +2485,160 @@
       closeDropdown();
     }
   });
+
+  /* ────────────────────────────────────────────
+     RADAR CHART
+  ──────────────────────────────────────────── */
+  function initRadar() {
+    const svg = document.getElementById('radarSvg');
+    const tip = document.getElementById('radarTooltip');
+    if (!svg) return;
+
+    const NS   = 'http://www.w3.org/2000/svg';
+    const CX   = 160, CY = 195, R = 115;
+    const AXES = [
+      { label: 'Risk Exposure',      angle:   0, lx: 160, ly:  66, anchor: 'middle' },
+      { label: 'Time to remediate',  angle:  45, lx: 253, ly: 104, anchor: 'start'  },
+      { label: 'Tool calls / task',  angle:  90, lx: 284, ly: 198, anchor: 'start'  },
+      { label: 'Autonomy',           angle: 135, lx: 253, ly: 292, anchor: 'start'  },
+      { label: 'Human review load',  angle: 180, lx: 160, ly: 332, anchor: 'middle' },
+      { label: 'Reversibility',      angle: 225, lx:  67, ly: 292, anchor: 'end'    },
+      { label: 'Blast radius',       angle: 270, lx:  36, ly: 198, anchor: 'end'    },
+      { label: 'Compliance',         angle: 315, lx:  67, ly: 104, anchor: 'end'    },
+    ];
+
+    const SERIES = [
+      { key: 'blue',   name: 'Balanced',      color: '#60a5fa', fill: 'rgba(147,197,253,0.28)', vals: [0.70,0.55,0.65,0.50,0.60,0.68,0.55,0.75], dots: true  },
+      { key: 'yellow', name: 'Baseline',      color: '#f59e0b', fill: 'rgba(253,211,77,0.38)',  vals: [0.38,0.32,0.50,0.78,0.85,0.55,0.35,0.48], dots: false },
+      { key: 'red',    name: 'Reversibility', color: '#f87171', fill: 'rgba(252,165,165,0.33)', vals: [0.52,0.46,0.80,0.90,0.68,0.38,0.44,0.32], dots: true  },
+    ];
+
+    // helper: SVG point from axis angle + fraction value
+    function pt(v, angleDeg) {
+      const a = (angleDeg - 90) * Math.PI / 180;
+      return [CX + R * v * Math.cos(a), CY + R * v * Math.sin(a)];
+    }
+
+    // helper: create SVG element
+    function el(tag, attrs) {
+      const e = document.createElementNS(NS, tag);
+      Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v));
+      return e;
+    }
+
+    // ── grid rings ──
+    [0.25, 0.50, 0.75, 1.00].forEach(frac => {
+      const pts = AXES.map(a => pt(frac, a.angle).join(',')).join(' ');
+      svg.appendChild(el('polygon', {
+        points: pts, fill: 'none',
+        stroke: frac === 1 ? '#d1d5db' : '#e5e7eb',
+        'stroke-width': frac === 1 ? '1' : '0.8'
+      }));
+    });
+
+    // ── axis lines ──
+    AXES.forEach(a => {
+      const [x2, y2] = pt(1, a.angle);
+      svg.appendChild(el('line', { x1: CX, y1: CY, x2, y2, stroke: '#d1d5db', 'stroke-width': '0.8' }));
+    });
+
+    // ── axis labels ──
+    AXES.forEach(a => {
+      const t = el('text', {
+        x: a.lx, y: a.ly, 'text-anchor': a.anchor,
+        'font-size': '10.5', fill: '#9ca3af'
+      });
+      t.textContent = a.label;
+      svg.appendChild(t);
+    });
+
+    // ── series state ──
+    const hidden = { red: false, blue: false, yellow: false };
+    const polyEls = {}, dotEls = {};
+
+    // ── draw polygons + dots ──
+    SERIES.forEach(s => {
+      const ptsArr = AXES.map((a, i) => pt(s.vals[i], a.angle));
+      const ptStr  = ptsArr.map(p => p.join(',')).join(' ');
+
+      const poly = el('polygon', {
+        points: ptStr, fill: s.fill, stroke: s.color,
+        'stroke-width': '1.6',
+        style: 'transition: fill-opacity 0.2s, stroke-opacity 0.2s, stroke-width 0.15s; cursor: pointer;'
+      });
+      svg.appendChild(poly);
+      polyEls[s.key] = poly;
+
+      // hover: brighten this series, dim others
+      poly.addEventListener('mouseenter', () => {
+        if (hidden[s.key]) return;
+        SERIES.forEach(o => {
+          if (o.key === s.key) {
+            polyEls[o.key].setAttribute('stroke-width', '2.4');
+            polyEls[o.key].style.fillOpacity = '1';
+          } else {
+            polyEls[o.key].style.opacity = '0.25';
+          }
+        });
+      });
+      poly.addEventListener('mouseleave', () => {
+        SERIES.forEach(o => {
+          polyEls[o.key].setAttribute('stroke-width', '1.6');
+          polyEls[o.key].style.fillOpacity = '';
+          polyEls[o.key].style.opacity = hidden[o.key] ? '0' : '1';
+        });
+        tip.style.opacity = '0';
+      });
+
+      // tooltip on mousemove over polygon
+      poly.addEventListener('mousemove', e => {
+        if (hidden[s.key]) return;
+        // find nearest axis
+        const svgRect = svg.getBoundingClientRect();
+        const scaleX  = 320 / svgRect.width;
+        const svgX    = (e.clientX - svgRect.left) * scaleX;
+        const svgY    = (e.clientY - svgRect.top)  * (390 / svgRect.height);
+        let nearest = 0, nearDist = Infinity;
+        AXES.forEach((a, i) => {
+          const [px, py] = pt(s.vals[i], a.angle);
+          const d = Math.hypot(svgX - px, svgY - py);
+          if (d < nearDist) { nearDist = d; nearest = i; }
+        });
+        const pct = Math.round(s.vals[nearest] * 100);
+        tip.innerHTML = `<strong style="color:${s.color}">${s.name}</strong><br>${AXES[nearest].label}: <strong>${pct}%</strong>`;
+        tip.style.opacity = '1';
+        tip.style.left = (e.clientX + 14) + 'px';
+        tip.style.top  = (e.clientY - 10) + 'px';
+      });
+
+      // dots
+      if (s.dots) {
+        dotEls[s.key] = [];
+        ptsArr.forEach(([x, y], i) => {
+          const c = el('circle', {
+            cx: x, cy: y, r: '3.5', fill: s.color,
+            style: 'transition: opacity 0.2s; pointer-events: none;'
+          });
+          svg.appendChild(c);
+          dotEls[s.key].push(c);
+        });
+      }
+    });
+
+    // ── legend toggle ──
+    document.querySelectorAll('#radarLegend .pp-radar-legend-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const key = item.dataset.series;
+        hidden[key] = !hidden[key];
+        item.style.opacity = hidden[key] ? '0.35' : '1';
+        polyEls[key].style.opacity = hidden[key] ? '0' : '1';
+        if (dotEls[key]) dotEls[key].forEach(c => { c.style.opacity = hidden[key] ? '0' : '1'; });
+      });
+    });
+
+    // ── hide tooltip when mouse leaves SVG ──
+    svg.addEventListener('mouseleave', () => { tip.style.opacity = '0'; });
+  }
 </script>
 </body>
 </html>
