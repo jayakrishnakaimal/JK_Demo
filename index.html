@@ -1,0 +1,3415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Designing for Invisible UI — IBM</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:    #0f62fe;
+      --blue-h:  #0043ce;
+      --blue-lt: rgba(15,98,254,.08);
+      --green:   #24a148;
+      --green-lt:#d4edda;
+      --amber:   #f1c21b;
+      --red:     #da1e28;
+      --text:    #161616;
+      --sub:     #525252;
+      --muted:   #8d8d8d;
+      --border:  #e0e0e0;
+      --bg:      #ffffff;
+      --surface: #f4f4f4;
+      --rail:    #f0f4f8;
+      --signal:  #e8f5d0;
+      --font:    'IBM Plex Sans', 'Segoe UI', Arial, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: var(--font); font-size: 16px; line-height: 1.6;
+      overflow-x: hidden;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); }
+
+    /* ── TOP NAV ── */
+    .top-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+      height: 48px; background: #fff;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: stretch;
+    }
+    .tn-brand {
+      display: flex; align-items: center;
+      padding: 0 1.5rem; font-size: .875rem; font-weight: 600;
+      color: var(--text); border-right: 1px solid var(--border);
+      white-space: nowrap; gap: .5rem;
+    }
+    .tn-tabs { display: flex; list-style: none; height: 100%; }
+    .tn-tabs li a {
+      display: flex; align-items: center; padding: 0 1.1rem;
+      font-size: .875rem; color: var(--sub); height: 100%;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: color .15s;
+    }
+    .tn-tabs li a:hover { color: var(--text); }
+    .tn-tabs li a.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .tn-right {
+      margin-left: auto; display: flex; align-items: center; gap: .5rem; padding: 0 1rem;
+    }
+    .role-select {
+      border: 1px solid var(--blue); border-radius: 2px;
+      padding: .2rem .5rem; font-size: .8rem; color: var(--text);
+      background: #fff; font-family: var(--font); cursor: pointer; font-weight: 600;
+    }
+    .icon-btn {
+      width: 32px; height: 32px; border: none; background: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); border-radius: 2px; transition: background .15s;
+    }
+    .icon-btn:hover { background: var(--surface); color: var(--text); }
+
+    /* ── STEPPER BAR ── */
+    .stepper-bar {
+      position: fixed; top: 48px; left: 0; right: 0; z-index: 200;
+      background: #fff; border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      display: flex; align-items: center; gap: 0;
+      height: 56px;
+    }
+    .breadcrumb {
+      font-size: .78rem; color: var(--muted);
+      display: flex; align-items: center; gap: .35rem;
+      padding-right: 2rem; border-right: 1px solid var(--border);
+      margin-right: 2rem; white-space: nowrap;
+    }
+    .breadcrumb a { color: var(--blue); font-size: .78rem; }
+    .breadcrumb .sep { color: var(--border); }
+    .breadcrumb .current { color: var(--text); font-weight: 600; }
+    .steps { display: flex; align-items: center; gap: 2rem; list-style: none; }
+    .step-item {
+      display: flex; align-items: center; gap: .6rem;
+      cursor: pointer; padding: .35rem 0;
+    }
+    .step-circle {
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 700; color: var(--muted);
+      flex-shrink: 0; transition: all .2s;
+    }
+    .step-item.active .step-circle {
+      border-color: var(--blue); background: var(--blue); color: #fff;
+    }
+    .step-item.done .step-circle {
+      border-color: var(--green); background: var(--green); color: #fff;
+    }
+    .step-labels { line-height: 1.2; }
+    .step-title { font-size: .82rem; font-weight: 600; color: var(--text); }
+    .step-sub   { font-size: .72rem; color: var(--muted); }
+    .step-item.active .step-title { color: var(--blue); }
+
+    /* ── BODY OFFSET ── */
+    body { padding-top: 104px; }
+
+    /* ── PANELS ── */
+    .panel { display: none; min-height: calc(100vh - 104px - 52px); }
+    .panel.active { display: flex; }
+
+    /* Two-column split */
+    .split {
+      display: grid; grid-template-columns: 1fr 380px;
+      width: 100%; align-items: stretch;
+    }
+    .main-col {
+      padding: 3rem 3rem 3rem 3.5rem;
+      border-right: 1px solid var(--border);
+    }
+    .rail-col {
+      background: var(--rail);
+      padding: 2.5rem 2rem;
+      position: relative;
+    }
+
+    /* ── CONDITION PILL ── */
+    .condition-pill {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: var(--blue-lt); border: 1px solid rgba(15,98,254,.2);
+      color: var(--blue); font-size: .75rem; font-weight: 600;
+      padding: .28rem .85rem; border-radius: 99px; margin-bottom: 1.5rem;
+    }
+
+    /* ── MAIN HEADING ── */
+    .panel-title {
+      font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 300;
+      line-height: 1.1; letter-spacing: -.02em; color: var(--text);
+      margin-bottom: 1.25rem;
+    }
+    .panel-body {
+      font-size: .9375rem; color: var(--sub); line-height: 1.75;
+      max-width: 600px; margin-bottom: 1.5rem;
+    }
+
+    /* ── SIGNAL BADGE ── */
+    .signal-row { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.5rem; }
+    .signal-badge {
+      background: var(--signal); color: #3a5c00;
+      font-size: .78rem; font-weight: 700;
+      padding: .28rem .75rem; border-radius: 3px; white-space: nowrap;
+    }
+    .signal-text { font-size: .875rem; color: var(--sub); }
+
+    /* ── BLOCKQUOTE ── */
+    .bq {
+      border-left: 4px solid var(--blue); padding: .5rem 0 .5rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .bq p {
+      font-size: clamp(1.15rem, 2.5vw, 1.55rem); font-weight: 300;
+      font-style: italic; color: var(--text); line-height: 1.5;
+    }
+
+    /* ── META ROW ── */
+    .meta-row {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      border: 1px solid var(--border); border-radius: 2px;
+      overflow: hidden; margin: 1.75rem 0;
+    }
+    .meta-cell {
+      padding: .75rem 1rem; display: flex; align-items: center; gap: .6rem;
+      font-size: .82rem; background: var(--surface);
+    }
+    .meta-cell + .meta-cell { border-left: 1px solid var(--border); }
+    .meta-cell .mc-icon { color: var(--muted); flex-shrink: 0; }
+    .meta-cell .mc-label { font-size: .68rem; color: var(--muted); display: block; }
+    .meta-cell .mc-val { font-size: .82rem; font-weight: 600; color: var(--text); }
+
+    /* ── CTA ROW ── */
+    .cta-row { display: flex; gap: .75rem; margin-top: 2rem; align-items: center; }
+    .btn-forward {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .8rem 1.75rem; font-size: .9375rem; font-weight: 400;
+      background: var(--blue); color: #fff;
+      border: none; border-radius: 0;
+      cursor: pointer; font-family: var(--font);
+      transition: background .15s;
+    }
+    .btn-forward:hover { background: var(--blue-h); }
+    .btn-forward svg { transition: transform .2s; }
+    .btn-forward:hover svg { transform: translateX(3px); }
+    .btn-back {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .8rem 1.5rem; font-size: .9375rem; font-weight: 400;
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border); border-radius: 0;
+      cursor: pointer; font-family: var(--font);
+      transition: border-color .15s, color .15s;
+    }
+    .btn-back:hover { border-color: var(--text); color: var(--text); }
+    .btn-back svg { transition: transform .2s; }
+    .btn-back:hover svg { transform: translateX(-3px); }
+    .btn-primary {
+      background: var(--blue); color: #fff;
+      padding: .85rem 2rem; font-size: .9375rem; font-weight: 400;
+      border: none; cursor: pointer; font-family: var(--font);
+      display: flex; align-items: center; gap: .5rem;
+      transition: background .15s;
+    }
+    .btn-primary:hover { background: var(--blue-h); }
+    .btn-ghost {
+      background: #fff; color: var(--blue);
+      padding: .85rem 1.5rem; font-size: .9375rem; font-weight: 400;
+      border: 1px solid var(--blue); border-left: none; cursor: pointer;
+      font-family: var(--font); display: flex; align-items: center; gap: .5rem;
+      transition: background .15s;
+    }
+    .btn-ghost:hover { background: var(--blue-lt); }
+
+    /* ── STEP NUMBER ── */
+    .step-num {
+      font-size: .72rem; color: var(--blue); font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase; margin-bottom: .2rem;
+    }
+    .step-num-big {
+      font-size: 3rem; font-weight: 300; color: var(--blue); line-height: 1;
+    }
+    .step-num-label { font-size: .78rem; color: var(--muted); margin-top: .1rem; }
+
+    /* ── RAIL ELEMENTS ── */
+    .ready-badge {
+      position: absolute; top: 1.5rem; right: 1.5rem;
+      background: var(--green-lt); color: var(--green);
+      font-size: .78rem; font-weight: 700;
+      padding: .4rem 1rem; border-radius: 6px;
+    }
+    .rail-step-num { margin-bottom: 1.5rem; }
+    .your-part {
+      margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .yp-label { font-size: .72rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .5rem; }
+    .yp-role { font-size: .82rem; font-weight: 600; color: var(--text); margin-bottom: .5rem; }
+    .yp-text {
+      font-size: clamp(1rem, 2vw, 1.35rem); font-weight: 300;
+      color: var(--text); line-height: 1.45;
+    }
+    .yp-sub { font-size: .82rem; color: var(--sub); margin-top: .75rem; line-height: 1.6; }
+
+    /* ── UX SHIFTS GRID (panel 1) ── */
+    .shifts-grid {
+      display: grid; grid-template-columns: repeat(2,1fr);
+      margin-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .shift-col {
+      background: #fff;
+      padding: 1.75rem 1.75rem 1.5rem;
+      display: flex; flex-direction: column;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      cursor: default;
+      transition: background .18s;
+    }
+    .shift-col:last-child { border-right: none; }
+    .shift-col:nth-child(2) { border-right: none; }
+    .shift-col:hover { background: #fafbff; }
+
+    /* top row: pill + number */
+    .shift-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+    .shift-pill {
+      font-size: .72rem; font-weight: 500; color: var(--blue);
+      background: rgba(15,98,254,.08); border: 1px solid rgba(15,98,254,.18);
+      padding: .22rem .7rem; border-radius: 99px;
+    }
+    .shift-num {
+      font-size: .82rem; color: var(--muted); font-weight: 400;
+    }
+
+    /* headline */
+    .shift-headline {
+      font-size: clamp(1.05rem, 2vw, 1.3rem); font-weight: 300;
+      color: var(--text); line-height: 1.35; letter-spacing: -.01em;
+      margin-bottom: .85rem; flex: 1;
+    }
+
+    /* body copy */
+    .shift-body {
+      font-size: .84rem; color: var(--sub); line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+
+    /* footer row */
+    .shift-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 1rem; border-top: 1px solid var(--border);
+    }
+    .shift-footer-label {
+      font-size: .82rem; color: var(--blue); font-weight: 400;
+    }
+    .shift-footer svg { color: var(--blue); flex-shrink: 0; }
+
+    /* ── VS TOGGLE (panel 2) ── */
+    .vs-wrap { margin-top: 2rem; }
+    .vs-toggle-row { display: flex; align-items: center; gap: .85rem; margin-bottom: 1.25rem; }
+    .vs-lbl { font-size: .875rem; font-weight: 600; padding: .25rem .8rem; border-radius: 99px; border: 1px solid var(--border); color: var(--muted); transition: all .2s; }
+    .vs-lbl.on { border-color: var(--blue); color: var(--blue); background: var(--blue-lt); }
+    .sw { width: 46px; height: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; cursor: pointer; position: relative; transition: background .2s; }
+    .sw.r { background: var(--blue-lt); border-color: var(--blue); }
+    .sw-k { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: var(--muted); transition: all .2s; }
+    .sw.r .sw-k { left: 24px; background: var(--blue); }
+    .vs-tbl { width: 100%; border-collapse: collapse; }
+    .vs-tbl th { padding: .65rem 1rem; text-align: left; font-size: .72rem; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); border-bottom: 2px solid var(--border); font-weight: 600; }
+    .vs-tbl td { padding: .8rem 1rem; font-size: .875rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .vs-tbl tr:last-child td { border-bottom: none; }
+    .vs-tbl td:first-child { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 700; width: 100px; }
+    .c-trad,.c-ai { display: none; }
+    .c-trad.show,.c-ai.show { display: table-cell; }
+    .c-ai.show { color: var(--blue); }
+    .vs-tbl tr:hover td { background: var(--surface); }
+
+    /* ── CHAR TABS (panel 3) ── */
+    .char-tabs { display: flex; border-bottom: 1px solid var(--border); gap: 0; margin-bottom: 2rem; }
+    .ctab {
+      padding: .7rem 1.15rem; font-size: .875rem; color: var(--sub);
+      cursor: pointer; border: none; background: transparent;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      font-family: var(--font); transition: all .15s; white-space: nowrap;
+    }
+    .ctab:hover { color: var(--text); }
+    .ctab.on { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+    .ctab-panel { display: none; }
+    .ctab-panel.on { display: block; animation: fadein .2s ease; }
+    .ctab-panel h3 { font-size: 1.6rem; font-weight: 300; margin-bottom: .75rem; }
+    .ctab-panel .cp-body { font-size: .9375rem; color: var(--sub); line-height: 1.75; max-width: 540px; }
+    .ex-box {
+      margin-top: 1.5rem; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 3px; padding: 1.25rem;
+    }
+    .ex-box .el { font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--blue); font-weight: 700; margin-bottom: .5rem; }
+    .ex-box p { font-size: .875rem; color: var(--sub); line-height: 1.7; }
+
+    /* ── CP TRAIT LIST (shared across all char tabs) ── */
+    .cp-trait-list { display: flex; flex-direction: column; margin-top: 1.5rem; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+    .cp-trait {
+      display: flex; align-items: flex-start; gap: .85rem;
+      padding: .9rem 1.1rem; border-bottom: 1px solid var(--border);
+      background: #fff; transition: background .15s;
+    }
+    .cp-trait:last-child { border-bottom: none; }
+    .cp-trait:hover { background: var(--surface); }
+    .cp-trait-icon {
+      width: 28px; height: 28px; border-radius: 3px;
+      background: var(--blue-lt); display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0; margin-top: .1rem;
+    }
+    .cp-trait-label { font-size: .84rem; font-weight: 600; color: var(--text); margin-bottom: .2rem; }
+    .cp-trait-body  { font-size: .8rem; color: var(--sub); line-height: 1.65; }
+
+    /* ── AUTONOMY SPECTRUM (panel 2 · Autonomous tab) ── */
+    .auto-levels { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; margin-top: 1.5rem; }
+    .auto-lvl {
+      flex: 1; padding: .65rem .5rem; text-align: center; cursor: pointer;
+      font-size: .72rem; font-weight: 600; border-right: 1px solid var(--border);
+      background: #fff; color: var(--sub); transition: background .15s, color .15s;
+      line-height: 1.35;
+    }
+    .auto-lvl:last-child { border-right: none; }
+    .auto-lvl .al-num { font-size: .62rem; color: var(--muted); font-weight: 400; display: block; margin-bottom: .2rem; }
+    .auto-lvl.active { background: var(--blue); color: #fff; }
+    .auto-lvl.active .al-num { color: rgba(255,255,255,.7); }
+    .auto-detail {
+      margin-top: 1.25rem; padding: 1.25rem;
+      border: 1px solid var(--border); border-radius: 3px;
+      background: var(--surface); animation: fadein .2s ease;
+    }
+    .auto-detail h4 { font-size: .875rem; font-weight: 600; margin-bottom: .35rem; color: var(--text); }
+    .auto-detail .ad-body { font-size: .84rem; color: var(--sub); line-height: 1.7; margin-bottom: .85rem; }
+    .auto-implication { border-left: 3px solid var(--blue); padding: .55rem .8rem; background: var(--blue-lt); border-radius: 0 3px 3px 0; }
+    .auto-implication .ai-lbl { font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: var(--blue); margin-bottom: .2rem; }
+    .auto-implication p { font-size: .8rem; color: var(--sub); line-height: 1.6; }
+
+    /* ── ACTION TYPE CARDS (panel 2 · Action Oriented tab) ── */
+    .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; margin-top: 1.5rem; }
+    .action-card {
+      border: 1px solid var(--border); border-radius: 3px; padding: 1.1rem .9rem;
+      background: #fff; cursor: pointer; transition: border-color .18s, box-shadow .18s;
+      position: relative;
+    }
+    .action-card:hover { border-color: var(--blue); }
+    .action-card.ac-active { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-lt); }
+    .ac-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: .65rem; }
+    .ac-icon.read  { background: rgba(36,161,72,.1); }
+    .ac-icon.write { background: var(--blue-lt); }
+    .ac-icon.notify { background: rgba(241,194,27,.12); }
+    .ac-icon.escalate { background: rgba(218,30,40,.08); }
+    .action-card h4 { font-size: .8rem; font-weight: 700; margin-bottom: .25rem; }
+    .action-card .ac-sub { font-size: .72rem; color: var(--muted); }
+    .action-detail-box {
+      margin-top: 1.25rem; padding: 1.25rem;
+      border: 1px solid var(--border); border-radius: 3px;
+      background: var(--surface); animation: fadein .2s ease; display: none;
+    }
+    .action-detail-box.show { display: block; }
+    .action-detail-box h4 { font-size: .875rem; font-weight: 600; margin-bottom: .6rem; }
+    .ad-checklist { list-style: none; display: flex; flex-direction: column; gap: .35rem; }
+    .ad-checklist li { display: flex; align-items: flex-start; gap: .5rem; font-size: .82rem; color: var(--sub); line-height: 1.55; }
+    .ad-checklist li::before { content: ''; width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; margin-top: .15rem; }
+    .ad-checklist li.c-read::before   { background: rgba(36,161,72,.15); border: 1.5px solid var(--green); }
+    .ad-checklist li.c-write::before  { background: var(--blue-lt); border: 1.5px solid var(--blue); }
+    .ad-checklist li.c-notify::before { background: rgba(241,194,27,.15); border: 1.5px solid #d9a800; }
+    .ad-checklist li.c-esc::before    { background: rgba(218,30,40,.08); border: 1.5px solid var(--red); }
+
+    /* ── CONTEXT SOURCE MAP (panel 2 · Context Building tab) ── */
+    .ctx-map { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-top: 1.5rem; }
+    .ctx-node {
+      border: 1px solid var(--border); border-radius: 3px; padding: 1rem;
+      background: #fff; cursor: pointer; transition: border-color .15s;
+      display: flex; align-items: flex-start; gap: .7rem;
+    }
+    .ctx-node:hover { border-color: var(--blue); }
+    .ctx-node.cn-active { border-color: var(--blue); background: var(--blue-lt); }
+    .cn-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 3px; }
+    .ctx-node h4 { font-size: .8rem; font-weight: 700; margin-bottom: .15rem; }
+    .ctx-node .cn-sub { font-size: .72rem; color: var(--muted); }
+    .ctx-detail {
+      margin-top: 1.25rem; padding: 1.25rem;
+      border: 1px solid var(--border); border-radius: 3px;
+      background: var(--surface); animation: fadein .2s ease; display: none;
+    }
+    .ctx-detail.show { display: block; }
+    .ctx-detail h4 { font-size: .875rem; font-weight: 600; margin-bottom: .35rem; }
+    .ctx-detail .cd-body { font-size: .84rem; color: var(--sub); line-height: 1.7; margin-bottom: .85rem; }
+    .ctx-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+    .ctx-chip {
+      font-size: .72rem; padding: .2rem .6rem;
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 20px; color: var(--sub);
+    }
+    .ctx-design-note { margin-top: .85rem; border-left: 3px solid var(--blue); padding: .5rem .75rem; background: var(--blue-lt); border-radius: 0 3px 3px 0; font-size: .8rem; color: var(--sub); line-height: 1.6; }
+
+    /* ── LIVE AGENT DEMO (panel 2 rail) ── */
+    .agent-demo {
+      margin-top: 1.5rem;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      font-family: 'SF Mono', 'Fira Mono', 'Consolas', monospace;
+    }
+    .ad-header {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .55rem .8rem;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+    }
+    .ad-dot-row { display: flex; gap: .35rem; }
+    .ad-dot { width: 10px; height: 10px; border-radius: 50%; display: block; }
+    .ad-title {
+      flex: 1; font-size: .7rem; color: #8b949e;
+      text-align: center; letter-spacing: .03em;
+    }
+    .ad-version { color: #3fb950; }
+    .ad-controls { display: flex; gap: .3rem; }
+    .ad-btn {
+      width: 22px; height: 22px; border-radius: 3px;
+      background: #21262d; border: 1px solid #30363d;
+      color: #8b949e; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s, color .15s;
+    }
+    .ad-btn:hover { background: #30363d; color: #e6edf3; }
+    .ad-log {
+      padding: .75rem .85rem;
+      min-height: 240px;
+      max-height: 320px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: .18rem;
+      scroll-behavior: smooth;
+    }
+    .ad-log::-webkit-scrollbar { width: 3px; }
+    .ad-log::-webkit-scrollbar-thumb { background: #30363d; }
+    .ad-line {
+      font-size: .7rem; line-height: 1.6;
+      display: flex; gap: .5rem; align-items: baseline;
+      animation: ad-fadein .2s ease both;
+    }
+    @keyframes ad-fadein { from{opacity:0;transform:translateX(-4px)} to{opacity:1;transform:none} }
+    .ad-ts   { color: #484f58; flex-shrink: 0; }
+    .ad-tag  { font-size: .62rem; font-weight: 700; padding: .05rem .35rem; border-radius: 2px; flex-shrink: 0; }
+    .tag-ev  { background: rgba(88,166,255,.15); color: #58a6ff; }   /* EVENT */
+    .tag-ctx { background: rgba(210,153,34,.15);  color: #d29922; }  /* CONTEXT */
+    .tag-dec { background: rgba(63,185,80,.15);   color: #3fb950; }  /* DECIDE */
+    .tag-act { background: rgba(248,81,73,.15);   color: #f85149; }  /* ACTION */
+    .tag-log { background: rgba(139,148,158,.12); color: #8b949e; }  /* LOG */
+    .tag-esc { background: rgba(210,153,34,.2);   color: #d29922; }  /* ESCALATE */
+    .tag-ok  { background: rgba(63,185,80,.15);   color: #3fb950; }  /* DONE */
+    .ad-msg  { color: #e6edf3; }
+    .ad-dim  { color: #484f58; }
+    .ad-hl   { color: #79c0ff; }
+    .ad-warn { color: #d29922; }
+    .ad-err  { color: #f85149; }
+    .ad-ok   { color: #3fb950; }
+    .ad-status-bar {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .45rem .85rem;
+      background: #161b22;
+      border-top: 1px solid #30363d;
+      font-size: .65rem; color: #8b949e;
+    }
+    .ad-pulse {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #3fb950; flex-shrink: 0;
+      animation: ad-pulse 1.6s ease-in-out infinite;
+    }
+    .ad-pulse.idle   { background: #484f58; animation: none; }
+    .ad-pulse.warn   { background: #d29922; }
+    .ad-pulse.active { background: #58a6ff; }
+    @keyframes ad-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.75)} }
+
+    /* ── ANALOGY SPLIT (panel 2 rail) ── */
+    .analogy-split { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
+    .analogy-card { border: 1px solid var(--border); border-radius: 3px; padding: 1.25rem; background: #fff; }
+    .analogy-card.hl { border-color: rgba(15,98,254,.3); background: var(--blue-lt); }
+    .analogy-card h4 { font-size: .82rem; font-weight: 700; margin-bottom: .75rem; }
+    .analogy-card ul { list-style: none; }
+    .analogy-card li { padding: .3rem 0; border-bottom: 1px solid var(--border); font-size: .78rem; color: var(--sub); display: flex; gap: .4rem; }
+    .analogy-card li:last-child { border-bottom: none; }
+    .analogy-card li::before { content: '–'; color: var(--blue); font-weight: 700; flex-shrink: 0; }
+
+    /* ── PILLARS (panel 4) ── */
+    .pillar-nav { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    .p-btn {
+      display: flex; align-items: center; gap: .4rem;
+      padding: .45rem 1rem; border-radius: 2px;
+      border: 1px solid var(--border); background: #fff;
+      color: var(--sub); cursor: pointer; font-size: .84rem;
+      transition: all .18s; font-family: var(--font);
+    }
+    .p-btn .n {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid var(--border); display: flex; align-items: center;
+      justify-content: center; font-size: .7rem; font-weight: 700; transition: all .18s;
+    }
+    .p-btn.on, .p-btn:hover { border-color: var(--blue); color: var(--text); }
+    .p-btn.on .n, .p-btn:hover .n { border-color: var(--blue); background: var(--blue); color: #fff; }
+    .p-panel { display: none; }
+    .p-panel.on { display: block; animation: fadein .2s ease; }
+    .p-panel h3 { font-size: 1.5rem; font-weight: 300; margin-bottom: 1rem; }
+    .p-list { list-style: none; margin-top: 1rem; }
+    .p-list li { padding: .45rem 0; border-bottom: 1px solid var(--border); font-size: .875rem; color: var(--sub); display: flex; gap: .5rem; }
+    .p-list li:last-child { border-bottom: none; }
+    .p-list .k { color: var(--text); font-weight: 600; white-space: nowrap; }
+
+    /* Permission rows */
+    .perm-group-label { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 700; padding: .65rem 0 .3rem; }
+    .perm-row { display: flex; align-items: center; gap: .7rem; padding: .6rem 0; border-bottom: 1px solid var(--border); }
+    .perm-row:last-child { border-bottom: none; }
+    .perm-icon { color: var(--muted); flex-shrink: 0; }
+    .perm-info { flex: 1; }
+    .perm-title { font-size: .84rem; font-weight: 600; color: var(--text); }
+    .perm-desc  { font-size: .72rem; color: var(--muted); }
+    .perm-badge { font-size: .68rem; font-weight: 700; padding: .2rem .5rem; border-radius: 3px; white-space: nowrap; }
+    .badge-auto { background: #d4edda; color: #1a6e2e; }
+    .badge-ask  { background: var(--blue-lt); color: var(--blue); }
+    .badge-appr { background: var(--surface); color: var(--sub); border: 1px solid var(--border); }
+
+    /* Trace box */
+    .trace-box { border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+    .trace-header { background: var(--surface); padding: .6rem 1rem; font-size: .75rem; font-weight: 600; border-bottom: 1px solid var(--border); }
+    .trace-body { padding: .65rem .85rem; display: flex; flex-direction: column; gap: .3rem; }
+    .trace-row { display: flex; align-items: center; gap: .55rem; padding: .4rem .6rem; border-radius: 3px; font-size: .75rem; }
+    .trace-row.ok   { background: rgba(36,161,72,.06); }
+    .trace-row.warn { background: rgba(241,194,27,.08); }
+    .trace-row.err  { background: rgba(218,30,40,.06); }
+
+    /* Chat bubbles */
+    .chat-box { border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+    .chat-header { background: var(--surface); padding: .6rem 1rem; font-size: .75rem; font-weight: 600; border-bottom: 1px solid var(--border); }
+    .chat-body { padding: 1rem; display: flex; flex-direction: column; gap: .6rem; }
+    .bubble-agent { background: var(--blue); color: #fff; border-radius: 6px 6px 6px 0; padding: .55rem .85rem; font-size: .8rem; max-width: 90%; }
+    .bubble-user  { background: var(--surface); border: 1px solid var(--border); border-radius: 6px 6px 0 6px; padding: .55rem .85rem; font-size: .8rem; max-width: 90%; margin-left: auto; }
+    .bubble-status{ background: rgba(36,161,72,.08); border-radius: 3px; padding: .35rem .7rem; font-size: .75rem; color: var(--green); }
+
+    /* ── PILLAR RAIL DIAGRAM & CARDS (panel 3 rail) ── */
+    .pillar-arch {
+      margin: 1.25rem 0 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: #fff;
+      overflow: hidden;
+      position: relative;
+    }
+    .pillar-arch canvas { display: block; width: 100%; height: auto; }
+    .pillar-arch-label {
+      position: absolute; bottom: 8px; left: 0; right: 0;
+      text-align: center; font-size: .65rem; color: var(--muted);
+      font-family: var(--font); pointer-events: none;
+    }
+
+    .pillar-mock-card {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .pmc-header {
+      display: flex; align-items: center; gap: .55rem;
+      padding: .65rem .9rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .pmc-icon {
+      width: 24px; height: 24px; border-radius: 3px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .pmc-title { font-size: .78rem; font-weight: 700; color: var(--text); }
+    .pmc-sub   { font-size: .68rem; color: var(--muted); margin-left: auto; }
+    .pmc-body  { padding: .65rem .9rem; display: flex; flex-direction: column; gap: 0; }
+    .pmc-row {
+      display: flex; align-items: center; gap: .6rem;
+      padding: .5rem 0; border-bottom: 1px solid var(--border);
+      font-size: .76rem;
+    }
+    .pmc-row:last-child { border-bottom: none; }
+    .pmc-row-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .pmc-row-label { flex: 1; color: var(--text); font-weight: 500; }
+    .pmc-row-desc  { font-size: .68rem; color: var(--muted); }
+    .pmc-badge {
+      font-size: .62rem; font-weight: 700;
+      padding: .15rem .45rem; border-radius: 2px;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .pmb-auto  { background: #d4edda; color: #1a6e2e; }
+    .pmb-ask   { background: var(--blue-lt); color: var(--blue); }
+    .pmb-appr  { background: var(--surface); color: var(--sub); border: 1px solid var(--border); }
+    .pmb-ok    { background: rgba(36,161,72,.1); color: var(--green); }
+    .pmb-warn  { background: rgba(241,194,27,.12); color: #9a6e00; border: 1px solid rgba(241,194,27,.4); }
+    .pmb-err   { background: rgba(218,30,40,.06); color: var(--red); border: 1px solid rgba(218,30,40,.2); }
+    .pmb-id    { background: rgba(138,63,252,.08); color: #6929c4; border: 1px solid rgba(138,63,252,.2); }
+
+    .pillar-concept {
+      margin-top: 1.1rem;
+      border-left: 3px solid var(--blue);
+      padding: .55rem .8rem;
+      background: var(--blue-lt);
+      border-radius: 0 3px 3px 0;
+      font-size: .75rem; color: var(--sub); line-height: 1.6;
+    }
+    .pillar-concept strong { color: var(--blue); font-weight: 700; }
+
+    /* ── DIRECTIONS (panel 5) ── */
+    .dir-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+    .dir-card { background: #fff; padding: 1.5rem; cursor: pointer; transition: background .18s; }
+    .dir-card:hover { background: var(--surface); }
+    .dir-num { font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--blue); font-weight: 700; margin-bottom: .4rem; }
+    .dir-card h3 { font-size: .9375rem; font-weight: 600; margin-bottom: .45rem; line-height: 1.35; }
+    .dir-card p { font-size: .84rem; color: var(--sub); line-height: 1.65; }
+    .dir-hint { font-size: .72rem; color: var(--muted); margin-top: .55rem; display: flex; align-items: center; gap: .25rem; }
+    .dir-hint::before { content: '↓'; }
+    .dir-card.exp .dir-hint::before { content: '↑'; }
+    .ex-slide { max-height: 0; overflow: hidden; transition: max-height .35s ease, margin .25s; }
+    .dir-card.exp .ex-slide { max-height: 180px; margin-top: .75rem; }
+    .ex-inner { background: var(--surface); border-left: 3px solid var(--green); border-radius: 0 3px 3px 0; padding: .6rem .85rem; }
+    .ex-inner .el { font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; color: var(--green); font-weight: 700; margin-bottom: .25rem; }
+    .ex-inner p { font-size: .82rem; color: var(--sub); line-height: 1.6; }
+
+    /* ── DIRECTION MICRO-INTERACTION ── */
+    .dmi-wrap {
+      background: #fff; border: 1px solid var(--border); border-radius: 6px;
+      overflow: hidden; margin-top: 1.25rem;
+    }
+    .dmi-label {
+      font-size: .6rem; text-transform: uppercase; letter-spacing: .1em;
+      font-weight: 700; color: var(--muted); padding: .6rem 1rem .0rem;
+    }
+    .dmi-tabs {
+      display: flex; gap: 0; padding: .5rem 1rem .6rem; border-bottom: 1px solid var(--border);
+    }
+    .dmi-tab {
+      background: none; border: 1px solid var(--border); border-radius: 3px;
+      font-size: .72rem; font-weight: 700; color: var(--muted);
+      padding: .22rem .52rem; cursor: pointer; margin-right: .3rem;
+      font-family: var(--font); transition: background .15s, color .15s, border-color .15s;
+    }
+    .dmi-tab.on {
+      background: var(--blue); color: #fff; border-color: var(--blue);
+    }
+    .dmi-tab:hover:not(.on) { border-color: var(--blue); color: var(--blue); }
+    .dmi-name {
+      font-size: .78rem; font-weight: 600; color: var(--text);
+      padding: .5rem 1rem .25rem; min-height: 2rem;
+    }
+    .dmi-scene { display: none; padding: .75rem 1rem .5rem; }
+    .dmi-scene.on { display: block; }
+    .dmi-caption {
+      font-size: .72rem; color: var(--muted); line-height: 1.55;
+      margin-top: .65rem; padding-top: .55rem;
+      border-top: 1px solid var(--border);
+    }
+    .dmi-replay {
+      display: inline-flex; align-items: center; gap: .3rem;
+      background: none; border: 1px solid var(--border); border-radius: 3px;
+      font-size: .7rem; color: var(--sub); padding: .2rem .6rem;
+      cursor: pointer; margin-top: .5rem; font-family: var(--font);
+      transition: border-color .15s, color .15s;
+    }
+    .dmi-replay:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* D01 — Rule engine */
+    .dmi-rule-engine { background: var(--surface); border-radius: 4px; padding: .65rem .75rem; }
+    .dre-label { font-size: .6rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; color: var(--blue); margin-bottom: .45rem; }
+    .dre-rows { display: flex; flex-direction: column; gap: .22rem; }
+    .dre-row {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: .73rem; color: var(--sub); padding: .3rem .45rem;
+      border-radius: 3px; background: #fff; border: 1px solid var(--border);
+      transition: background .2s, border-color .2s;
+    }
+    .dre-row[data-state="pass"] { background: #f0fff4; border-color: var(--green); }
+    .dre-row[data-state="fail"] { background: #fff0f0; border-color: var(--red); }
+    .dre-row[data-state="run"]  { background: #eff4ff; border-color: var(--blue); animation: dreRowPulse .6s ease infinite alternate; }
+    @keyframes dreRowPulse { from { opacity:.7; } to { opacity:1; } }
+    .dre-icon { font-size: .75rem; flex-shrink: 0; width: 14px; text-align:center; }
+    .dre-text { flex: 1; }
+    .dre-badge { font-size: .6rem; font-weight: 700; padding: .08rem .3rem; border-radius: 2px; min-width: 36px; text-align: center; color: var(--muted); background: var(--surface); }
+    .dre-row[data-state="pass"] .dre-badge { background: var(--green); color: #fff; }
+    .dre-row[data-state="fail"] .dre-badge { background: var(--red);   color: #fff; }
+    .dre-row[data-state="run"]  .dre-badge { background: var(--blue);  color: #fff; }
+    .dre-verdict {
+      margin-top: .55rem; font-size: .72rem; font-weight: 700;
+      text-align: center; min-height: 1.2rem; letter-spacing: .02em;
+      transition: color .3s;
+    }
+
+    /* D02 — Flex & deform */
+    .dfd-wrap { position: relative; min-height: 120px; }
+    .dfd-ambient {
+      display: flex; flex-direction: column; align-items: center; gap: .35rem;
+      background: var(--surface); border-radius: 5px; padding: 1rem .75rem;
+      border: 1px solid var(--border); transition: all .35s ease;
+    }
+    .dfd-pulse-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--green); animation: dfdPulse 2.2s ease-in-out infinite;
+    }
+    @keyframes dfdPulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(36,161,72,.4); }
+      50% { box-shadow: 0 0 0 7px rgba(36,161,72,0); }
+    }
+    .dfd-status-line { font-size: .73rem; color: var(--sub); }
+    .dfd-kpis { display: flex; gap: .85rem; font-size: .68rem; color: var(--muted); }
+    .dfd-kpis strong { color: var(--text); }
+    .dfd-expanded {
+      display: none; background: #fff; border: 1px solid var(--amber);
+      border-radius: 5px; padding: .7rem .85rem;
+      animation: dfdExpand .3s ease;
+    }
+    .dfd-expanded.show { display: block; }
+    @keyframes dfdExpand { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+    .dfd-exp-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem; }
+    .dfd-alert-chip { font-size: .6rem; font-weight: 700; padding: .08rem .35rem; border-radius: 2px; background: rgba(241,194,27,.18); color: #7a5c00; border: 1px solid rgba(241,194,27,.4); }
+    .dfd-exp-title  { font-size: .72rem; font-weight: 600; color: var(--text); flex: 1; }
+    .dfd-dismiss    { background: none; border: none; font-size: .65rem; color: var(--muted); cursor: pointer; }
+    .dfd-exp-trace  { display: flex; flex-direction: column; gap: .18rem; margin-bottom: .55rem; }
+    .dfd-trace-row  { font-size: .68rem; padding: .22rem .4rem; border-radius: 3px; }
+    .dfd-trace-row.ok   { color: var(--green); background: rgba(36,161,72,.07); }
+    .dfd-trace-row.warn { color: #7a5c00; background: rgba(241,194,27,.12); }
+    .dfd-actions    { display: flex; gap: .5rem; }
+    .dfd-approve    { background: var(--blue); color: #fff; border: none; border-radius: 3px; font-size: .7rem; padding: .3rem .7rem; cursor: pointer; font-family: var(--font); }
+    .dfd-reject     { background: none; border: 1px solid var(--border); border-radius: 3px; font-size: .7rem; color: var(--sub); padding: .3rem .7rem; cursor: pointer; font-family: var(--font); }
+
+    /* D03 — Proactive / verify */
+    .dpv-wrap { min-height: 120px; }
+    .dpv-step { }
+    .dpv-step.hidden { display: none; }
+    .dpv-agent-thinking { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .55rem; padding: 1.2rem .5rem; background: var(--surface); border-radius: 5px; }
+    .dpv-dot-row { display: flex; gap: .35rem; }
+    .dpv-dot-row span { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); animation: dpvBounce 1.1s ease-in-out infinite; }
+    .dpv-dot-row span:nth-child(2) { animation-delay: .18s; }
+    .dpv-dot-row span:nth-child(3) { animation-delay: .36s; }
+    @keyframes dpvBounce { 0%,80%,100% { transform:scale(0.5); opacity:.4; } 40% { transform:scale(1); opacity:1; } }
+    .dpv-think-label { font-size: .72rem; color: var(--muted); }
+    .dpv-summary-card { background: #fff; border: 1px solid var(--border); border-radius: 5px; overflow: hidden; animation: dfdExpand .3s ease; }
+    .dpv-summary-header { font-size: .7rem; font-weight: 700; background: var(--blue-lt); color: var(--blue); padding: .4rem .7rem; border-bottom: 1px solid rgba(15,98,254,.15); }
+    .dpv-summary-row { display: flex; justify-content: space-between; padding: .32rem .7rem; border-bottom: 1px solid var(--border); font-size: .69rem; }
+    .dpv-summary-row:last-of-type { border-bottom: none; }
+    .dpv-k { color: var(--muted); }
+    .dpv-v { color: var(--text); font-weight: 600; }
+    .dpv-approve-row { display: flex; gap: .5rem; padding: .55rem .7rem; background: var(--surface); }
+    .dpv-yes { background: var(--blue); color: #fff; border: none; border-radius: 3px; font-size: .7rem; padding: .28rem .65rem; cursor: pointer; font-family: var(--font); }
+    .dpv-no  { background: none; border: 1px solid var(--border); border-radius: 3px; font-size: .7rem; color: var(--sub); padding: .28rem .65rem; cursor: pointer; font-family: var(--font); }
+    .dpv-done-card { text-align: center; padding: 1rem .5rem; background: #f0fff4; border: 1px solid rgba(36,161,72,.3); border-radius: 5px; animation: dfdExpand .3s ease; }
+    .dpv-done-icon { font-size: 1.4rem; color: var(--green); margin-bottom: .25rem; }
+    .dpv-done-msg  { font-size: .82rem; font-weight: 700; color: var(--green); }
+    .dpv-done-sub  { font-size: .68rem; color: var(--muted); margin-top: .2rem; }
+
+    /* D04 — Presence aesthetic */
+    .dpr-wrap { }
+    .dpr-screen { background: #0d1117; border-radius: 6px; overflow: hidden; }
+    .dpr-top-bar {
+      display: flex; align-items: center; gap: .55rem;
+      padding: .45rem .75rem; border-bottom: 1px solid rgba(255,255,255,.07);
+      background: #161b22;
+    }
+    .dpr-brand { font-size: .62rem; color: rgba(255,255,255,.5); font-weight: 600; }
+    .dpr-pulse-container { position: relative; width: 10px; height: 10px; flex-shrink: 0; }
+    .dpr-pulse-core {
+      position: absolute; inset: 2px; border-radius: 50%;
+      background: var(--green);
+    }
+    .dpr-pulse-ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      border: 1.5px solid var(--green); opacity: 0;
+      animation: dprRing 2.5s ease-in-out infinite;
+    }
+    @keyframes dprRing {
+      0%   { transform: scale(1); opacity: .8; }
+      100% { transform: scale(2.4); opacity: 0; }
+    }
+    .dpr-live-label { font-size: .62rem; color: rgba(255,255,255,.35); flex: 1; font-style: italic; }
+    .dpr-content { padding: .65rem .75rem .75rem; }
+    .dpr-kpi-row { display: flex; gap: .5rem; margin-bottom: .65rem; }
+    .dpr-kpi { flex: 1; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 4px; padding: .35rem .45rem; }
+    .dpr-kpi-val { font-size: .85rem; font-weight: 700; color: rgba(255,255,255,.85); line-height: 1; }
+    .dpr-kpi-key { font-size: .55rem; color: rgba(255,255,255,.3); margin-top: .18rem; text-transform: uppercase; letter-spacing: .06em; }
+    .dpr-timeline { }
+    .dpr-tl-label { font-size: .55rem; color: rgba(255,255,255,.25); text-transform: uppercase; letter-spacing: .07em; margin-bottom: .35rem; }
+    .dpr-bars { display: flex; align-items: flex-end; gap: 3px; height: 36px; }
+    .dpr-bar { flex: 1; border-radius: 2px 2px 0 0; background: rgba(15,98,254,.6); min-width: 0; transition: height .4s ease; }
+
+    /* D05 — Trust meter */
+    .dtr-wrap { }
+    .dtr-label { font-size: .62rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; color: var(--muted); margin-bottom: .45rem; }
+    .dtr-levels { display: flex; flex-direction: column; gap: .28rem; margin-bottom: .75rem; }
+    .dtr-lvl {
+      font-size: .72rem; color: var(--sub); padding: .3rem .65rem;
+      border: 1px solid var(--border); border-radius: 3px;
+      cursor: pointer; background: #fff; transition: all .18s;
+    }
+    .dtr-lvl:hover { border-color: var(--blue); color: var(--blue); }
+    .dtr-lvl.active { background: var(--blue); color: #fff; border-color: var(--blue); font-weight: 600; }
+    .dtr-bar-wrap { margin-bottom: .7rem; }
+    .dtr-bar-track { background: var(--border); border-radius: 99px; height: 6px; overflow: hidden; margin-bottom: .25rem; }
+    .dtr-bar-fill  { height: 100%; background: var(--blue); border-radius: 99px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+    .dtr-bar-labels { display: flex; justify-content: space-between; font-size: .6rem; color: var(--muted); }
+    .dtr-metrics { display: flex; flex-direction: column; gap: .2rem; background: var(--surface); border-radius: 4px; padding: .5rem .65rem; margin-bottom: .55rem; }
+    .dtr-metric { display: flex; justify-content: space-between; font-size: .71rem; }
+    .dtr-mkey { color: var(--muted); }
+    .dtr-mval { font-weight: 700; color: var(--text); }
+    .dtr-insight { font-size: .68rem; color: var(--sub); background: var(--blue-lt); border-left: 3px solid var(--blue); padding: .38rem .6rem; border-radius: 0 3px 3px 0; line-height: 1.5; min-height: 2.5rem; transition: all .3s; }
+
+    /* Team */
+    .team-grid { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.75rem; }
+    .tm {
+      border: 1px solid var(--border); border-radius: 3px;
+      padding: .9rem 1.2rem; display: flex; align-items: center; gap: .8rem;
+      background: #fff; transition: border-color .18s; min-width: 190px;
+    }
+    .tm:hover { border-color: var(--blue); }
+    .av { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .85rem; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .tm h4 { font-size: .84rem; font-weight: 600; }
+    .tm span { font-size: .72rem; color: var(--muted); }
+
+    /* ── DESIGN GALLERY (panel 4) ── */
+    .gallery-section { margin-top: 2.5rem; }
+    .gallery-header {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 1.1rem;
+    }
+    .gallery-header-label {
+      font-size: .68rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--blue);
+    }
+    .gallery-header-count { font-size: .72rem; color: var(--muted); }
+
+    /* 4-tile single-row grid */
+    .gallery-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: .65rem;
+    }
+    .gallery-tile {
+      position: relative; border-radius: 5px; overflow: hidden;
+      cursor: zoom-in; border: 1px solid var(--border);
+      background: #f0f4f8;
+      transition: box-shadow .2s, border-color .2s;
+      aspect-ratio: 4 / 3;   /* equal proportion for all 4 */
+    }
+    .gallery-tile:hover {
+      border-color: var(--blue);
+      box-shadow: 0 4px 18px rgba(15,98,254,.18);
+    }
+    .gallery-tile img {
+      display: block; width: 100%; height: 100%;
+      object-fit: cover; object-position: top center;
+      transition: transform .28s ease;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+    }
+    .gallery-tile:hover img { transform: scale(1.04); }
+
+    /* Hover overlay — fades in on hover */
+    .gallery-tile-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,15,28,.82) 0%, rgba(10,15,28,.08) 55%, transparent 100%);
+      opacity: 0; transition: opacity .2s;
+      pointer-events: none;
+    }
+    .gallery-tile:hover .gallery-tile-overlay { opacity: 1; }
+
+    .gallery-tile-meta {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: .5rem .6rem .48rem;
+      transform: translateY(5px); opacity: 0;
+      transition: opacity .2s, transform .2s;
+      pointer-events: none;
+    }
+    .gallery-tile:hover .gallery-tile-meta { opacity: 1; transform: translateY(0); }
+
+    .gallery-tile-title {
+      font-size: .7rem; font-weight: 600; color: #fff;
+      line-height: 1.3; margin-bottom: .1rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .gallery-tile-desc {
+      font-size: .58rem; color: rgba(255,255,255,.6); line-height: 1.35;
+      display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .gallery-tile-tag {
+      position: absolute; top: 6px; left: 6px;
+      font-size: .54rem; font-weight: 700; padding: .1rem .38rem;
+      border-radius: 2px; background: rgba(15,98,254,.9);
+      color: #fff; letter-spacing: .02em;
+    }
+    .gallery-tile-num {
+      position: absolute; top: 6px; right: 6px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: rgba(255,255,255,.2); backdrop-filter: blur(4px);
+      color: #fff; font-size: .58rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .16s;
+    }
+    .gallery-tile:hover .gallery-tile-num { opacity: 1; }
+
+    /* Lightbox */
+    .lightbox {
+      display: none; position: fixed; inset: 0; z-index: 9000;
+      background: rgba(0,0,0,.72); align-items: center; justify-content: center;
+    }
+    .lightbox.open { display: flex; }
+    .lb-inner {
+      background: #111; border-radius: 6px;
+      width: min(92vw, 1400px); max-height: 92vh;
+      overflow: hidden; position: relative;
+      box-shadow: 0 28px 72px rgba(0,0,0,.55);
+      display: flex; flex-direction: column;
+    }
+    .lb-toolbar {
+      display: flex; align-items: center; padding: .6rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,.08); background: #1a1a1a;
+      gap: .75rem; flex-shrink: 0;
+    }
+    .lb-title { font-size: .84rem; font-weight: 600; color: #f4f4f4; flex: 1; }
+    .lb-tag   { font-size: .63rem; font-weight: 700; padding: .18rem .52rem; border-radius: 2px; background: rgba(15,98,254,.9); color: #fff; }
+    .lb-close {
+      width: 28px; height: 28px; border-radius: 3px;
+      background: transparent; border: 1px solid rgba(255,255,255,.15);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: #a8a8a8; transition: background .15s;
+    }
+    .lb-close:hover { background: rgba(255,255,255,.1); }
+    .lb-body  {
+      overflow-y: auto; padding: 0;
+      background: #111;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lb-body img {
+      display: block;
+      max-width: 100%; max-height: calc(92vh - 108px);
+      width: auto; height: auto;
+      object-fit: contain;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+    }
+    .lb-caption { margin-top: 1rem; font-size: .84rem; color: var(--sub); line-height: 1.65; }
+    .lb-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: .6rem 1rem; border-top: 1px solid rgba(255,255,255,.08);
+      background: #1a1a1a; flex-shrink: 0;
+    }
+    .lb-nav-btn {
+      display: flex; align-items: center; gap: .4rem;
+      font-size: .78rem; color: #6ea6ff; cursor: pointer;
+      background: none; border: none; font-family: var(--font); padding: 0;
+    }
+    .lb-nav-btn:hover { color: #fff; }
+    .lb-counter { font-size: .72rem; color: #6f6f6f; }
+
+    /* ── DARK FOOTER ── */
+    .dark-footer {
+      background: #1a1a1a;
+      padding: .9rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem;
+    }
+    .df-brand { font-size: .82rem; font-weight: 600; color: #f4f4f4; }
+    .df-flow { font-size: .75rem; color: #525252; display: flex; align-items: center; gap: .35rem; }
+    .df-flow span { color: #393939; }
+    .df-credit { font-size: .72rem; color: #525252; }
+    .df-credit strong { color: #78a9ff; }
+    .df-restart { font-size: .75rem; color: #78a9ff; background: none; border: none; font-family: var(--font); cursor: pointer; display: flex; align-items: center; gap: .3rem; }
+    .df-restart:hover { text-decoration: underline; }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width: 960px) {
+      .split { grid-template-columns: 1fr; }
+      .rail-col { border-top: 1px solid var(--border); }
+      .analogy-split { grid-template-columns: 1fr; }
+      .dir-grid { grid-template-columns: 1fr; }
+      .stepper-bar .steps { gap: 1rem; }
+      .step-labels { display: none; }
+    }
+    @media(max-width: 640px) {
+      .main-col { padding: 2rem 1.25rem; }
+      .shifts-grid { grid-template-columns: 1fr; }
+    }
+
+    @keyframes fadein { from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;} }
+  </style>
+</head>
+<body>
+
+<!-- ═══ TOP NAV ═══ -->
+<nav class="top-nav">
+  <div class="tn-brand">Headless AI / Invisible UI</div>
+  <ul class="tn-tabs">
+    <li><a href="#" class="active">Today</a></li>
+  </ul>
+  <div class="tn-right">
+    <button class="icon-btn" title="Search">
+      <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M29 27.586l-7.552-7.552a11 11 0 10-1.414 1.414L27.586 29zM4 13a9 9 0 119 9 9.01 9.01 0 01-9-9z"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══ STEPPER BAR ═══ -->
+<div class="stepper-bar">
+  <div class="breadcrumb">
+    <a href="#">Today</a><span class="sep">/</span>
+    <span>Designing for Invisible UI</span><span class="sep">/</span>
+    <span class="current" id="bc-current">Overview</span>
+  </div>
+  <ul class="steps">
+    <li class="step-item active" data-step="0" onclick="goToStep(0)">
+      <div class="step-circle">1</div>
+      <div class="step-labels"><div class="step-title">Overview</div><div class="step-sub">Canvas view</div></div>
+    </li>
+    <li class="step-item" data-step="1" onclick="goToStep(1)">
+      <div class="step-circle">2</div>
+      <div class="step-labels"><div class="step-title">What & Why</div><div class="step-sub">Pattern named</div></div>
+    </li>
+    <li class="step-item" data-step="2" onclick="goToStep(2)">
+      <div class="step-circle">3</div>
+      <div class="step-labels"><div class="step-title">Characteristics</div><div class="step-sub">Useful words</div></div>
+    </li>
+    <li class="step-item" data-step="3" onclick="goToStep(3)">
+      <div class="step-circle">4</div>
+      <div class="step-labels"><div class="step-title">Four Pillars</div><div class="step-sub">Owner + follow-up</div></div>
+    </li>
+    <li class="step-item" data-step="4" onclick="goToStep(4)">
+      <div class="step-circle">5</div>
+      <div class="step-labels"><div class="step-title">Directions</div><div class="step-sub">Evidence in work</div></div>
+    </li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PANEL 0 — OVERVIEW
+═══════════════════════════════════════════ -->
+<div class="panel active" id="panel-0">
+  <div class="split">
+    <div class="main-col">
+      <div class="condition-pill">Likely condition · Designing for Invisible UI</div>
+      <h1 class="panel-title">Designing for<br>Invisible UI</h1>
+      <p class="panel-body">When AI agents work autonomously in the background, the interface disappears. This research explores how designers can create systems built on trust, transparency, and control — without a visible UI driving the work.</p>
+
+      <div class="signal-row">
+        <span class="signal-badge">Not a UI problem</span>
+        <span class="signal-text">This is a system design condition the team can address.</span>
+      </div>
+
+      <!-- KPIs -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:3px;overflow:hidden;margin:2rem 0;">
+        <div style="background:#fff;padding:1.25rem 1.5rem;">
+          <div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:.35rem;">Pillars explored</div>
+          <div style="font-size:2.25rem;font-weight:300;color:var(--text);line-height:1;">4</div>
+          <div style="font-size:.72rem;color:var(--green);margin-top:.2rem;">● Complete</div>
+        </div>
+        <div style="background:#fff;padding:1.25rem 1.5rem;border-left:1px solid var(--border);">
+          <div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:.35rem;">Design directions</div>
+          <div style="font-size:2.25rem;font-weight:300;color:var(--text);line-height:1;">5</div>
+          <div style="font-size:.72rem;color:var(--sub);margin-top:.2rem;">Derived from pillars</div>
+        </div>
+        <div style="background:#fff;padding:1.25rem 1.5rem;border-left:1px solid var(--border);">
+          <div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:.35rem;">Team members</div>
+          <div style="font-size:2.25rem;font-weight:300;color:var(--text);line-height:1;">5</div>
+          <div style="font-size:.72rem;color:var(--sub);margin-top:.2rem;">IBM Design · INI</div>
+        </div>
+      </div>
+
+      <!-- Query chips -->
+      <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2rem;">
+        <button onclick="goToStep(1)" style="border:1px solid var(--border);border-radius:99px;padding:.32rem .85rem;font-size:.82rem;color:var(--sub);background:#fff;cursor:pointer;font-family:var(--font);">What is headless AI?</button>
+        <button onclick="goToStep(2)" style="border:1px solid var(--border);border-radius:99px;padding:.32rem .85rem;font-size:.82rem;color:var(--sub);background:#fff;cursor:pointer;font-family:var(--font);">Key characteristics</button>
+        <button onclick="goToStep(3)" style="border:1px solid var(--border);border-radius:99px;padding:.32rem .85rem;font-size:.82rem;color:var(--sub);background:#fff;cursor:pointer;font-family:var(--font);">Four pillars</button>
+        <button onclick="goToStep(4)" style="border:1px solid var(--border);border-radius:99px;padding:.32rem .85rem;font-size:.82rem;color:var(--sub);background:#fff;cursor:pointer;font-family:var(--font);">Design directions</button>
+      </div>
+
+      <!-- UX Shifts -->
+      <div style="display:flex;align-items:baseline;gap:1rem;margin-bottom:.25rem;">
+        <span style="font-size:1rem;font-weight:300;color:var(--text);letter-spacing:-.01em;font-weight:600;">Rethinking the fundamentals of UX</span>
+        <span style="font-size:.68rem;color:var(--muted);">— 4 paradigm shifts</span>
+      </div>
+      <div class="shifts-grid">
+        <div class="shift-col">
+          <div class="shift-top">
+            <span class="shift-pill">Control</span>
+            <span class="shift-num">01</span>
+          </div>
+          <div class="shift-headline">Human controls every step — agent determines nothing.</div>
+          <div class="shift-body">In traditional UX, users initiate every action. The interface is a direct expression of human intent at each moment.</div>
+          <div class="shift-footer">
+            <span class="shift-footer-label">Shifts to: goal-setting</span>
+            <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4l-1.41 1.41L24.17 15H4v2h20.17l-9.58 9.59L16 28l12-12z"/></svg>
+          </div>
+        </div>
+        <div class="shift-col">
+          <div class="shift-top">
+            <span class="shift-pill">Timing</span>
+            <span class="shift-num">02</span>
+          </div>
+          <div class="shift-headline">Synchronous loops — feedback is immediate and expected.</div>
+          <div class="shift-body">Every action produces a visible response. Waiting is a failure state. Design is built around instant confirmation.</div>
+          <div class="shift-footer">
+            <span class="shift-footer-label">Shifts to: async operation</span>
+            <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4l-1.41 1.41L24.17 15H4v2h20.17l-9.58 9.59L16 28l12-12z"/></svg>
+          </div>
+        </div>
+        <div class="shift-col" style="border-bottom:none;">
+          <div class="shift-top">
+            <span class="shift-pill">Visibility</span>
+            <span class="shift-num">03</span>
+          </div>
+          <div class="shift-headline">Everything happens on screen — if you can't see it, it didn't happen.</div>
+          <div class="shift-body">UI is the work. Visibility is assumed. Invisible processes are an anti-pattern — not a feature.</div>
+          <div class="shift-footer">
+            <span class="shift-footer-label">Shifts to: background execution</span>
+            <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4l-1.41 1.41L24.17 15H4v2h20.17l-9.58 9.59L16 28l12-12z"/></svg>
+          </div>
+        </div>
+        <div class="shift-col" style="border-bottom:none;">
+          <div class="shift-top">
+            <span class="shift-pill">Design Focus</span>
+            <span class="shift-num">04</span>
+          </div>
+          <div class="shift-headline">Arranging visual elements — layout is the primary craft.</div>
+          <div class="shift-body">Designers compose screens. The output is a visual artefact. Success means the interface looks right and feels right.</div>
+          <div class="shift-footer">
+            <span class="shift-footer-label">Shifts to: orchestrating behaviour</span>
+            <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4l-1.41 1.41L24.17 15H4v2h20.17l-9.58 9.59L16 28l12-12z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta-row" style="margin-top:2.5rem;">
+        <button class="btn-forward" onclick="goToStep(1)">
+          Move forward
+          <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4l-1.41 1.41L24.17 15H4v2h20.17l-9.58 9.59L16 28l12-12z"/></svg>
+        </button>
+
+      </div>
+    </div>
+    <div class="rail-col">
+    
+      <div class="rail-step-num">
+        <div class="step-num-big">01</div>
+        <div class="step-num-label">Canvas view</div>
+      </div>
+
+      <!-- MacBook Canvas screenshot illustration -->
+      <div style="margin-bottom:1.5rem;border-top:1px solid var(--border);padding-top:1.5rem;">
+        <style>
+          @keyframes mac-fadein { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+          @keyframes mac-pulse  { 0%,100%{opacity:1} 50%{opacity:.4} }
+          @keyframes mac-dot    { 0%,100%{r:2.5} 50%{r:3.5} }
+          @keyframes mac-chip   { 0%{opacity:0;transform:translateX(-4px)} to{opacity:1;transform:none} }
+        </style>
+        <svg viewBox="0 0 340 252" xmlns="http://www.w3.org/2000/svg"
+             style="width:100%;height:auto;display:block;filter:drop-shadow(0 10px 28px rgba(0,0,0,.16));animation:mac-fadein .6s ease both;">
+          <defs>
+            <linearGradient id="scr-bg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#eef2ff"/>
+              <stop offset="100%" stop-color="#dce8f8"/>
+            </linearGradient>
+            <linearGradient id="tl-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0f62fe" stop-opacity=".3"/>
+              <stop offset="100%" stop-color="#0f62fe" stop-opacity=".02"/>
+            </linearGradient>
+            <clipPath id="scr-clip">
+              <rect x="18" y="14" width="304" height="192" rx="5"/>
+            </clipPath>
+          </defs>
+
+          <!-- MacBook lid -->
+          <rect x="8"  y="4"   width="324" height="206" rx="11" fill="#c9cdd4"/>
+          <rect x="12" y="8"   width="316" height="198" rx="9"  fill="#1c1c1e"/>
+          <!-- Screen -->
+          <rect x="18" y="14" width="304" height="192" rx="5" fill="url(#scr-bg)"/>
+          <!-- Camera -->
+          <circle cx="170" cy="11" r="2" fill="#3d3d3f"/>
+          <!-- Base -->
+          <rect x="0"   y="210" width="340" height="9"  rx="4" fill="#b8bec8"/>
+          <rect x="125" y="215" width="90"  height="4"  rx="2" fill="#a8aeb8"/>
+
+          <!-- ── TOP NAV ── -->
+          <rect x="18" y="14" width="304" height="18" rx="5" fill="#fff" clip-path="url(#scr-clip)"/>
+          <rect x="18" y="24" width="304" height="8"  fill="#fff" clip-path="url(#scr-clip)"/>
+          <!-- Brand icon -->
+          <circle cx="30" cy="23" r="5" fill="#e8f0fe"/>
+          <circle cx="30" cy="23" r="2.5" fill="#0f62fe" opacity=".7">
+            <animate attributeName="opacity" values=".7;.3;.7" dur="2.5s" repeatCount="indefinite"/>
+          </circle>
+          <!-- Canvas tab (active blue) -->
+          <rect x="50" y="18" width="28" height="10" rx="2" fill="#0f62fe"/>
+          <rect x="53" y="21"  width="22" height="3" rx="1" fill="#fff" opacity=".9"/>
+          <!-- Agentic trace tab -->
+          <rect x="84" y="19" width="32" height="8"  rx="1" fill="none"/>
+          <rect x="86" y="21" width="28" height="3"  rx="1" fill="#8d8d8d"/>
+          <!-- Policy & Permissions tab -->
+          <rect x="122" y="19" width="42" height="8"  rx="1" fill="none"/>
+          <rect x="124" y="21" width="38" height="3"  rx="1" fill="#8d8d8d"/>
+          <!-- Nav right icons -->
+          <circle cx="292" cy="23" r="5" fill="#f0f0f0"/>
+          <circle cx="305" cy="23" r="5" fill="#f0f0f0"/>
+          <rect x="288" y="20" width="6" height="6" rx="3" fill="none" stroke="#8d8d8d" stroke-width="1"/>
+          <circle cx="305" cy="23" r="4" fill="none" stroke="#8d8d8d" stroke-width="1"/>
+
+          <!-- divider -->
+          <line x1="18" y1="32" x2="322" y2="32" stroke="#e0e0e0" stroke-width=".5"/>
+
+          <!-- ── LEFT MAIN: KPIs + gradient canvas ── -->
+          <!-- Confidence Score -->
+          <rect x="22" y="36" width="30" height="2.5" rx="1" fill="#8d8d8d"/>
+          <rect x="56" y="36" width="14" height="8" rx="3" fill="#d4edda"/>
+          <rect x="58" y="38" width="10" height="3" rx="1" fill="#24a148"/>
+          <!-- 95% -->
+          <text x="22" y="55" font-family="IBM Plex Sans,sans-serif" font-size="13" font-weight="300" fill="#161616">95%</text>
+          <rect x="22" y="57" width="42" height="2" rx="1" fill="#c8d6f8"/>
+          <rect x="22" y="61" width="30" height="2" rx="1" fill="#d0d7e2"/>
+          <!-- Animated confidence value -->
+          <rect x="22" y="63" width="18" height="2" rx="1" fill="#da1e28" opacity=".8">
+            <animate attributeName="opacity" values=".8;.3;.8" dur="3s" repeatCount="indefinite"/>
+          </rect>
+          <!-- Heartbeat waveform -->
+          <polyline points="70,50 78,50 81,42 84,58 87,44 90,56 93,50 110,50"
+                    fill="none" stroke="#8d8d8d" stroke-width="1" opacity=".6"/>
+          <!-- Agent fleet health -->
+          <rect x="115" y="36" width="36" height="2.5" rx="1" fill="#8d8d8d"/>
+          <text x="115" y="55" font-family="IBM Plex Sans,sans-serif" font-size="13" font-weight="300" fill="#161616">94%</text>
+          <rect x="115" y="57" width="28" height="2" rx="1" fill="#d0d7e2"/>
+          <!-- Breach tags -->
+          <rect x="115" y="61" width="24" height="5" rx="2" fill="#fff3cd"/>
+          <rect x="117" y="62.5" width="20" height="2" rx="1" fill="#856404"/>
+          <rect x="143" y="61" width="28" height="5" rx="2" fill="#f8d7da"/>
+          <rect x="145" y="62.5" width="24" height="2" rx="1" fill="#842029"/>
+
+          <!-- Canvas gradient area (big background) -->
+          <rect x="18" y="70" width="175" height="100" fill="url(#scr-bg)" clip-path="url(#scr-clip)"/>
+
+          <!-- Hello greeting -->
+          <text x="22" y="145" font-family="IBM Plex Sans,sans-serif" font-size="10" font-weight="300" fill="#161616">Hello Fiona, Good morning</text>
+          <rect x="22" y="149" width="100" height="2.5" rx="1" fill="#525252"/>
+
+          <!-- Query chips -->
+          <rect x="22"  y="156" width="52" height="7" rx="3" fill="#fff" stroke="#d0d7e2" stroke-width=".8"/>
+          <rect x="24"  y="158.5" width="48" height="2" rx="1" fill="#8d8d8d"/>
+          <rect x="80"  y="156" width="46" height="7" rx="3" fill="#fff" stroke="#d0d7e2" stroke-width=".8"/>
+          <rect x="82"  y="158.5" width="42" height="2" rx="1" fill="#8d8d8d"/>
+          <rect x="22"  y="167" width="40" height="7" rx="3" fill="#fff" stroke="#d0d7e2" stroke-width=".8"/>
+          <rect x="24"  y="169.5" width="36" height="2" rx="1" fill="#8d8d8d"/>
+          <rect x="66"  y="167" width="50" height="7" rx="3" fill="#fff" stroke="#d0d7e2" stroke-width=".8"/>
+          <rect x="68"  y="169.5" width="46" height="2" rx="1" fill="#8d8d8d"/>
+
+          <!-- vertical divider -->
+          <line x1="197" y1="32" x2="197" y2="206" stroke="#e0e0e0" stroke-width=".6"/>
+
+          <!-- ── RIGHT PANEL ── -->
+          <!-- Card 1: Restart line card -->
+          <rect x="200" y="34" width="120" height="56" rx="3" fill="#fff" stroke="#e8e8e8" stroke-width=".6"/>
+          <rect x="204" y="39" width="52" height="3" rx="1" fill="#161616"/>
+          <rect x="204" y="44" width="36" height="2.5" rx="1" fill="#d0d7e2"/>
+          <line x1="200" y1="49" x2="320" y2="49" stroke="#f0f0f0" stroke-width=".5"/>
+          <!-- Blast Radius / Confidence / No action -->
+          <rect x="204" y="52" width="22" height="2" rx="1" fill="#d0d7e2"/>
+          <rect x="234" y="52" width="18" height="2" rx="1" fill="#d0d7e2"/>
+          <rect x="264" y="52" width="18" height="2" rx="1" fill="#d0d7e2"/>
+          <text x="204" y="62" font-family="IBM Plex Sans,sans-serif" font-size="7" font-weight="600" fill="#0f62fe">1200</text>
+          <text x="234" y="62" font-family="IBM Plex Sans,sans-serif" font-size="7" font-weight="600" fill="#0f62fe">87%</text>
+          <text x="264" y="62" font-family="IBM Plex Sans,sans-serif" font-size="7" font-weight="600" fill="#da1e28">2.1%</text>
+          <!-- Approve / Escalate -->
+          <rect x="204" y="72" width="30" height="10" rx="1.5" fill="#0f62fe">
+            <animate attributeName="opacity" values="1;.75;1" dur="2.8s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="206" y="75.5" width="26" height="3" rx="1" fill="#fff" opacity=".9"/>
+          <rect x="238" y="72" width="34" height="10" rx="1.5" fill="#fff" stroke="#da1e28" stroke-width=".8"/>
+          <rect x="240" y="75.5" width="30" height="3" rx="1" fill="#da1e28" opacity=".7"/>
+
+          <!-- Card 2: Chronic alert -->
+          <rect x="200" y="94" width="120" height="46" rx="3" fill="#fff" stroke="#e8e8e8" stroke-width=".6"/>
+          <rect x="204" y="98" width="30" height="2.5" rx="1" fill="#d0d7e2"/>
+          <rect x="204" y="103" width="110" height="3" rx="1" fill="#161616"/>
+          <rect x="204" y="108" width="95"  height="2.5" rx="1" fill="#161616"/>
+          <rect x="204" y="113" width="60" height="2" rx="1" fill="#d0d7e2"/>
+          <!-- Approve / Escalate -->
+          <rect x="204" y="119" width="30" height="10" rx="1.5" fill="#0f62fe">
+            <animate attributeName="opacity" values="1;.75;1" dur="2.8s" begin=".9s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="206" y="122.5" width="26" height="3" rx="1" fill="#fff" opacity=".9"/>
+          <rect x="238" y="119" width="34" height="10" rx="1.5" fill="#fff" stroke="#da1e28" stroke-width=".8"/>
+          <rect x="240" y="122.5" width="30" height="3" rx="1" fill="#da1e28" opacity=".7"/>
+
+          <!-- Card 3: Activity Timeline -->
+          <rect x="200" y="144" width="120" height="60" rx="3" fill="#fff" stroke="#e8e8e8" stroke-width=".6"/>
+          <rect x="204" y="148" width="40" height="3" rx="1" fill="#161616"/>
+          <rect x="204" y="153" width="70" height="2" rx="1" fill="#d0d7e2"/>
+          <!-- Time axis -->
+          <line x1="204" y1="192" x2="316" y2="192" stroke="#e0e0e0" stroke-width=".5"/>
+          <rect x="204" y="189" width="8" height="2" rx="1" fill="#d0d7e2"/>
+          <rect x="224" y="189" width="8" height="2" rx="1" fill="#d0d7e2"/>
+          <rect x="244" y="189" width="8" height="2" rx="1" fill="#d0d7e2"/>
+          <rect x="264" y="189" width="8" height="2" rx="1" fill="#d0d7e2"/>
+          <rect x="284" y="189" width="8" height="2" rx="1" fill="#d0d7e2"/>
+          <rect x="304" y="189" width="8" height="2" rx="1" fill="#d0d7e2"/>
+          <!-- Timeline chart fill -->
+          <path d="M204,188 C210,183 215,173 222,175 C229,177 232,168 238,168 C244,169 248,162 254,164 C260,166 262,172 268,170 C274,168 278,174 284,172 C290,170 296,176 302,174 L302,192 L204,192 Z"
+                fill="rgba(15,98,254,.12)"/>
+          <path d="M204,188 C210,183 215,173 222,175 C229,177 232,168 238,168 C244,169 248,162 254,164 C260,166 262,172 268,170 C274,168 278,174 284,172 C290,170 296,176 302,174"
+                fill="none" stroke="#0f62fe" stroke-width="1"/>
+          <!-- Animated event dots on timeline -->
+          <circle cx="222" cy="175" r="2.5" fill="#f1c21b">
+            <animate attributeName="r" values="2.5;3.5;2.5" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="262" cy="172" r="2.5" fill="#da1e28">
+            <animate attributeName="r" values="2.5;3.5;2.5" dur="2s" begin=".7s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="290" cy="172" r="2.5" fill="#8a3ffc">
+            <animate attributeName="r" values="2.5;3.5;2.5" dur="2s" begin="1.4s" repeatCount="indefinite"/>
+          </circle>
+          <!-- Legend -->
+          <circle cx="207" cy="198" r="2" fill="#f1c21b"/>
+          <rect x="211" y="196.5" width="16" height="2" rx="1" fill="#d0d7e2"/>
+          <circle cx="232" cy="198" r="2" fill="#da1e28"/>
+          <rect x="236" y="196.5" width="14" height="2" rx="1" fill="#d0d7e2"/>
+          <circle cx="254" cy="198" r="2" fill="#8a3ffc"/>
+          <rect x="258" y="196.5" width="20" height="2" rx="1" fill="#d0d7e2"/>
+
+        </svg>
+      </div>
+
+      <!-- What is Invisible UI -->
+      <div style="border-top:1px solid var(--border);padding-top:1.5rem;margin-bottom:1.5rem;">
+        <div style="font-size:.68rem;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;">What is Invisible UI?</div>
+        <p style="font-size:.84rem;color:var(--sub);line-height:1.7;">Invisible UI is the absence of a traditional interface. The agent acts, decides, and completes tasks entirely in the background — surfacing only when it needs a human decision or something goes wrong.</p>
+      </div>
+
+      <!-- Key principles -->
+      <div style="margin-bottom:1.5rem;">
+        <div style="font-size:.68rem;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem;">Core Principles</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem;">
+          <div style="display:flex;align-items:flex-start;gap:.65rem;padding:.55rem .7rem;background:#fff;border:1px solid var(--border);border-radius:3px;">
+            <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)" style="flex-shrink:0;margin-top:.15rem;"><path d="M11.03 2L4 18h9v12l13-18h-9z"/></svg>
+            <div>
+              <div style="font-size:.8rem;font-weight:600;color:var(--text);">Event, not request</div>
+              <div style="font-size:.72rem;color:var(--muted);">Agents wake from system signals, not user input</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:.65rem;padding:.55rem .7rem;background:#fff;border:1px solid var(--border);border-radius:3px;">
+            <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)" style="flex-shrink:0;margin-top:.15rem;"><path d="M12 10H6.78A11 11 0 0116 5a11 11 0 0111 11h2A13 13 0 0016 3a13 13 0 00-10 4.68V5H4v7h7z"/><path d="M20 22h5.22A11 11 0 0116 27a11 11 0 01-11-11H3a13 13 0 0013 13 13 13 0 0010-4.68V27h2v-7h-7v2z"/></svg>
+            <div>
+              <div style="font-size:.8rem;font-weight:600;color:var(--text);">Always running</div>
+              <div style="font-size:.72rem;color:var(--muted);">Continuous operation — no human trigger needed</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:.65rem;padding:.55rem .7rem;background:#fff;border:1px solid var(--border);border-radius:3px;">
+            <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)" style="flex-shrink:0;margin-top:.15rem;"><path d="M26 28H6a2 2 0 01-2-2V6a2 2 0 012-2h10v2H6v20h20V16h2v10a2 2 0 01-2 2z"/><path d="M21 2v2h5.59L18 12.59 19.41 14 28 5.41V11h2V2z"/></svg>
+            <div>
+              <div style="font-size:.8rem;font-weight:600;color:var(--text);">Actions over answers</div>
+              <div style="font-size:.72rem;color:var(--muted);">Output is a change in the world, not a chat response</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:.65rem;padding:.55rem .7rem;background:#fff;border:1px solid var(--border);border-radius:3px;">
+            <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)" style="flex-shrink:0;margin-top:.15rem;"><path d="M16 2a14 14 0 1014 14A14 14 0 0016 2zm1 21h-2v-2h2zm0-4h-2V9h2z"/></svg>
+            <div>
+              <div style="font-size:.8rem;font-weight:600;color:var(--text);">Escalate at the edges</div>
+              <div style="font-size:.72rem;color:var(--muted);">Humans involved only for high-stakes decisions</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quote -->
+      <div style="border-left:3px solid var(--blue);padding:.5rem 0 .5rem 1rem;">
+        <p style="font-size:.84rem;font-style:italic;font-weight:300;color:var(--text);line-height:1.6;">"The best interface is no interface — until the moment a human truly needs to be there."</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PANEL 1 — WHAT & WHY
+═══════════════════════════════════════════ -->
+<div class="panel" id="panel-1">
+  <div class="split">
+    <div class="main-col">
+      <div class="condition-pill">Pattern named · What &amp; Why</div>
+      <h1 class="panel-title">What are Headless<br>AI Agents?</h1>
+      <p class="panel-body">Headless AI agents are AI systems that operate autonomously without a user-facing interface driving their execution. They work quietly in the background, making decisions and taking actions without requiring a human to initiate or oversee each step.</p>
+
+      <div class="bq">
+        <p>"Before we commit to design — does the agent have a named user, measurable outcome, and evidence of a problem worth solving?"</p>
+      </div>
+
+      <!-- Analogy -->
+      <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.85rem;">The Immune System Analogy</div>
+      <div class="analogy-split">
+        <div class="analogy-card">
+          <h4 style="display:flex;align-items:center;gap:.45rem;">
+            <svg width="18" height="18" viewBox="0 0 32 32" fill="var(--blue)" aria-hidden="true"><path d="M16 2a14 14 0 1014 14A14 14 0 0016 2zm1 5v4.28l3.45-3.45 1.42 1.42L18.4 12.68A6 6 0 0122 18h4v2h-4a6 6 0 01-3.6 5.32l3.47 3.47-1.42 1.42L17 27.17V30h-2v-2.83l-3.45 3.45-1.42-1.42L13.6 25.32A6 6 0 0110 20H6v-2h4a6 6 0 013.6-5.32L10.13 9.21l1.42-1.42L15 11.22V7zm-1 7a4 4 0 100 8 4 4 0 000-8z"/></svg>
+            Immune System
+          </h4>
+          <ul>
+            <li>Monitors body functions continuously</li>
+            <li>Detects threats automatically</li>
+            <li>Responds without conscious thought</li>
+            <li>Escalates when overwhelmed</li>
+            <li>Learns from past encounters</li>
+          </ul>
+        </div>
+        <div class="analogy-card hl">
+          <h4 style="display:flex;align-items:center;gap:.45rem;">
+            <svg width="18" height="18" viewBox="0 0 32 32" fill="var(--blue)" aria-hidden="true"><path d="M13 7a3 3 0 116 0 3 3 0 01-6 0zm3-5a5 5 0 100 10A5 5 0 0016 2zM4 28v-3a12 12 0 0112-12 12 12 0 0112 12v3H4z"/><rect x="10" y="19" width="2" height="2" rx="1"/><rect x="20" y="19" width="2" height="2" rx="1"/><path d="M13 23h6v2h-6z"/></svg>
+            Headless AI Agent
+          </h4>
+          <ul>
+            <li>Monitors systems continuously</li>
+            <li>Detects anomalies automatically</li>
+            <li>Responds without user prompts</li>
+            <li>Escalates complex issues</li>
+            <li>Learns from patterns</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- VS toggle -->
+      <div class="vs-wrap">
+        <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:1rem;">Headless vs. Traditional Chat AI</div>
+        <div class="vs-toggle-row">
+          <span id="l-trad" class="vs-lbl on">Traditional Chat AI</span>
+          <div class="sw" id="vssw" onclick="toggleVS(this)"><div class="sw-k"></div></div>
+          <span id="l-ai" class="vs-lbl">Headless AI Agent</span>
+        </div>
+        <table class="vs-tbl">
+          <thead><tr>
+            <th>Dimension</th>
+            <th class="c-trad show">Traditional Chat AI</th>
+            <th class="c-ai">Headless AI Agent</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>Trigger</td><td class="c-trad show">Request/response loop — waits for user input before acting.</td><td class="c-ai">Event-driven — webhooks, cron schedules, DB changes, queues.</td></tr>
+            <tr><td>State</td><td class="c-trad show">Conversational state maintained across the session.</td><td class="c-ai">Fresh context constructed each invocation — no history.</td></tr>
+            <tr><td>Output</td><td class="c-trad show">Natural language text designed to be read by humans.</td><td class="c-ai">Actions — API calls, database writes, notifications.</td></tr>
+            <tr><td>Human role</td><td class="c-trad show">Human in the loop — oversight and approval at every step.</td><td class="c-ai">Autonomous — works continuously without supervision.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="cta-row">
+        <button class="btn-back" onclick="goToStep(0)">
+          <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M16 28l1.41-1.41L7.83 17H28v-2H7.83l9.58-9.59L16 4 4 16z"/></svg>
+          Go back
+        </button>
+        <button class="btn-forward" onclick="goToStep(2)">
+          Move forward
+          <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4l-1.41 1.41L24.17 15H4v2h20.17l-9.58 9.59L16 28l12-12z"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="rail-col">
+      <span class="ready-badge">Ready to use</span>
+      <div class="rail-step-num">
+        <div class="step-num-big">02</div>
+        <div class="step-num-label">Do this next</div>
+      </div>
+
+      <!-- Competitors section -->
+      <div style="border-top:1px solid var(--border);padding-top:1.25rem;margin-bottom:1.5rem;">
+        <div style="font-size:.68rem;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.85rem;">Who's building headless AI</div>
+
+        <div style="display:flex;flex-direction:column;gap:.6rem;">
+
+          <div style="border:1px solid var(--border);border-radius:3px;padding:.75rem 1rem;background:#fff;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem;">
+              <span style="font-size:.84rem;font-weight:600;color:var(--text);">Salesforce Agentforce</span>
+              <span style="font-size:.65rem;font-weight:700;background:rgba(15,98,254,.08);color:var(--blue);border:1px solid rgba(15,98,254,.2);padding:.15rem .45rem;border-radius:99px;">CRM</span>
+            </div>
+            <p style="font-size:.75rem;color:var(--sub);line-height:1.6;">Autonomous agents that handle customer service, sales follow-ups, and case routing without human initiation — triggered by CRM events.</p>
+          </div>
+
+          <div style="border:1px solid var(--border);border-radius:3px;padding:.75rem 1rem;background:#fff;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem;">
+              <span style="font-size:.84rem;font-weight:600;color:var(--text);">ServiceNow AI Agents</span>
+              <span style="font-size:.65rem;font-weight:700;background:rgba(36,161,72,.08);color:var(--green);border:1px solid rgba(36,161,72,.2);padding:.15rem .45rem;border-radius:99px;">ITSM</span>
+            </div>
+            <p style="font-size:.75rem;color:var(--sub);line-height:1.6;">Background agents that auto-triage incidents, resolve known issues, and escalate only when policy thresholds are breached — no ticket required.</p>
+          </div>
+
+          <div style="border:1px solid var(--border);border-radius:3px;padding:.75rem 1rem;background:#fff;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem;">
+              <span style="font-size:.84rem;font-weight:600;color:var(--text);">Microsoft Copilot Studio</span>
+              <span style="font-size:.65rem;font-weight:700;background:rgba(241,194,27,.12);color:#7d5a00;border:1px solid rgba(241,194,27,.3);padding:.15rem .45rem;border-radius:99px;">Enterprise</span>
+            </div>
+            <p style="font-size:.75rem;color:var(--sub);line-height:1.6;">Autonomous agents that monitor M365 signals, trigger approvals, and complete multi-step workflows across Teams, Outlook, and Dynamics.</p>
+          </div>
+
+          <div style="border:1px solid var(--border);border-radius:3px;padding:.75rem 1rem;background:#fff;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem;">
+              <span style="font-size:.84rem;font-weight:600;color:var(--text);">Cisco ThousandEyes AI</span>
+              <span style="font-size:.65rem;font-weight:700;background:rgba(218,30,40,.07);color:var(--red);border:1px solid rgba(218,30,40,.2);padding:.15rem .45rem;border-radius:99px;">Network</span>
+            </div>
+            <p style="font-size:.75rem;color:var(--sub);line-height:1.6;">Headless observability agents that detect network path degradation, correlate root causes across layers, and auto-remediate without NOC intervention.</p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PANEL 2 — CHARACTERISTICS
+═══════════════════════════════════════════ -->
+<div class="panel" id="panel-2">
+  <div class="split">
+    <div class="main-col">
+      <div class="condition-pill">Useful words · Characteristics</div>
+      <h1 class="panel-title">Four Defining<br>Behaviours</h1>
+      <p class="panel-body">Headless agents share four characteristics that distinguish them from traditional AI systems. Understanding these shapes every design decision you make.</p>
+
+      <div class="char-tabs">
+        <button class="ctab on" data-c="ev">
+          <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor" style="vertical-align:middle;margin-right:.35rem;"><path d="M11.03 2L4 18h9v12l13-18h-9z"/></svg>
+          Event Driven
+        </button>
+        <button class="ctab" data-c="au">
+          <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor" style="vertical-align:middle;margin-right:.35rem;"><path d="M12 10H6.78A11 11 0 0116 5a11 11 0 0111 11h2A13 13 0 0016 3a13 13 0 00-10 4.68V5H4v7h7z"/><path d="M20 22h5.22A11 11 0 0116 27a11 11 0 01-11-11H3a13 13 0 0013 13 13 13 0 0010-4.68V27h2v-7h-7v2z"/></svg>
+          Autonomous
+        </button>
+        <button class="ctab" data-c="ac">
+          <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor" style="vertical-align:middle;margin-right:.35rem;"><path d="M26 28H6a2 2 0 01-2-2V6a2 2 0 012-2h10v2H6v20h20V16h2v10a2 2 0 01-2 2z"/><path d="M21 2v2h5.59L18 12.59 19.41 14 28 5.41V11h2V2z"/></svg>
+          Action Oriented
+        </button>
+        <button class="ctab" data-c="co">
+          <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor" style="vertical-align:middle;margin-right:.35rem;"><ellipse cx="16" cy="8" rx="12" ry="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 8v6c0 2.21 5.37 4 12 4s12-1.79 12-4V8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 14v6c0 2.21 5.37 4 12 4s12-1.79 12-4v-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          Context Building
+        </button>
+      </div>
+
+      <div id="ct-ev" class="ctab-panel on">
+        <h3>Event Driven</h3>
+        <p class="cp-body">Triggered by webhooks, cron schedules, database changes, or queue messages — not user prompts. The agent wakes when something happens in the system, not when a human types a command.</p>
+        <div class="cp-trait-list">
+          <div class="cp-trait">
+            <div class="cp-trait-icon">
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)"><path d="M11.03 2L4 18h9v12l13-18h-9z"/></svg>
+            </div>
+            <div>
+              <div class="cp-trait-label">Triggered by the system, not the user</div>
+              <div class="cp-trait-body">An event — a database row change, a failed health check, a message in a queue — fires the agent. No human types a prompt. This is a fundamental shift from chatbot design: the entry point is a system event, not a user action.</div>
+            </div>
+          </div>
+          <div class="cp-trait">
+            <div class="cp-trait-icon">
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)"><path d="M16 2a14 14 0 1014 14A14 14 0 0016 2zm0 26a12 12 0 1112-12 12 12 0 01-12 12zm1-14V9h-2v6H9v2h8z"/></svg>
+            </div>
+            <div>
+              <div class="cp-trait-label">Timing is owned by the event, not the designer</div>
+              <div class="cp-trait-body">Cron schedules, webhook payloads, and queue depths determine when the agent runs. Designers cannot predict when the UI surfaces — it may appear at 3am. Design for interruption, not for an open browser tab.</div>
+            </div>
+          </div>
+          <div class="cp-trait">
+            <div class="cp-trait-icon">
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)"><path d="M26 28H6a2 2 0 01-2-2V6a2 2 0 012-2h10v2H6v20h20V16h2v10a2 2 0 01-2 2z"/><path d="M21 2v2h5.59L18 12.59 19.41 14 28 5.41V11h2V2z"/></svg>
+            </div>
+            <div>
+              <div class="cp-trait-label">Common event sources</div>
+              <div class="cp-trait-body">Webhooks from external services (Stripe, GitHub, PagerDuty), Kafka or SQS queue messages, cron expressions, database change streams (CDC), API polling thresholds, and IoT sensor feeds are the primary triggers in production agent systems.</div>
+            </div>
+          </div>
+          <div class="cp-trait">
+            <div class="cp-trait-icon">
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)"><path d="M28 6H4a2 2 0 00-2 2v16a2 2 0 002 2h24a2 2 0 002-2V8a2 2 0 00-2-2zm-2 2l-10 8-10-8zm2 16H4V10l10 8a2 2 0 002 0l10-8z"/></svg>
+            </div>
+            <div>
+              <div class="cp-trait-label">Design the event payload, not the UI form</div>
+              <div class="cp-trait-body">For event-driven agents, the designer's most impactful artefact is the event schema — what fields it carries, how they are named, and what data is included. A well-designed event payload means less context-building work for the agent on every run.</div>
+            </div>
+          </div>
+        </div>
+        <div class="ex-box"><div class="el">Real-world example</div><p>A network monitoring agent triggers when CPU usage exceeds 85%, analyzes traffic patterns, identifies the source, redistributes load, and logs the action — no engineer required unless auto-recovery fails.</p></div>
+      </div>
+      <div id="ct-au" class="ctab-panel">
+        <h3>Autonomous</h3>
+        <p class="cp-body">A headless agent operates without a human in the loop. It runs on a schedule or in response to an event, completes its full task, and only surfaces itself when it needs approval or something goes wrong. The designer's job is to define the boundaries of that independence — not remove them.</p>
+        <div class="cp-trait-list">
+          <div class="cp-trait">
+            <div class="cp-trait-icon">
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)"><path d="M12 10H6.78A11 11 0 0116 5a11 11 0 0111 11h2A13 13 0 0016 3a13 13 0 00-10 4.68V5H4v7h7z"/><path d="M20 22h5.22A11 11 0 0116 27a11 11 0 01-11-11H3a13 13 0 0013 13 13 13 0 0010-4.68V27h2v-7h-7v2z"/></svg>
+            </div>
+            <div>
+              <div class="cp-trait-label">Runs without prompting</div>
+              <div class="cp-trait-body">The agent starts from a system event, not a user command. There is no chat interface, no "send" button — it wakes, works, and sleeps on its own cycle.</div>
+            </div>
+          </div>
+          <div class="cp-trait">
+            <div class="cp-trait-icon">
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)"><path d="M13 24l-9-9 1.414-1.414L13 21.171 26.586 7.586 28 9z"/></svg>
+            </div>
+            <div>
+              <div class="cp-trait-label">Acts first, reports after</div>
+              <div class="cp-trait-body">For routine tasks within its permission scope, the agent acts immediately and surfaces a post-action log. Approval gates are reserved for high-stakes or irreversible decisions only.</div>
+            </div>
+          </div>
+          <div class="cp-trait">
+            <div class="cp-trait-icon">
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)"><path d="M16 2a14 14 0 1014 14A14 14 0 0016 2zm1 21h-2v-2h2zm0-4h-2V9h2z"/></svg>
+            </div>
+            <div>
+              <div class="cp-trait-label">Escalates at the edges</div>
+              <div class="cp-trait-body">When the agent encounters a situation outside its authority or confidence, it pauses and surfaces a clear escalation — not an error. The human steps in only when genuinely needed.</div>
+            </div>
+          </div>
+          <div class="cp-trait">
+            <div class="cp-trait-icon">
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)"><path d="M28 6H4a2 2 0 00-2 2v16a2 2 0 002 2h24a2 2 0 002-2V8a2 2 0 00-2-2zm-2 2l-10 8-10-8zm2 16H4V10l10 8a2 2 0 002 0l10-8z"/></svg>
+            </div>
+            <div>
+              <div class="cp-trait-label">Leaves a record, not a conversation</div>
+              <div class="cp-trait-body">The primary UI surface for an autonomous agent is its audit trail — what it did, when, why, and with what confidence. This replaces the chat history of traditional AI.</div>
+            </div>
+          </div>
+        </div>
+        <div class="ex-box"><div class="el">Real-world example</div><p>A security compliance agent monitors access permissions across 50+ apps, detects role changes, revokes stale permissions, and grants new ones — 24/7 without security team involvement. The team reviews a daily digest, not a chat thread.</p></div>
+      </div>
+      <div id="ct-ac" class="ctab-panel">
+        <h3>Action Oriented</h3>
+        <p class="cp-body">The output of a headless agent is not text — it is a change in the world. An API was called. A record was updated. A notification was sent. A ticket was created. The agent measures success by what it altered, not what it explained. Design must follow this: surfaces that show results, not conversations.</p>
+        <div class="cp-trait-list">
+          <div class="cp-trait">
+            <div class="cp-trait-icon">
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)"><path d="M26 28H6a2 2 0 01-2-2V6a2 2 0 012-2h10v2H6v20h20V16h2v10a2 2 0 01-2 2z"/><path d="M21 2v2h5.59L18 12.59 19.41 14 28 5.41V11h2V2z"/></svg>
+            </div>
+            <div>
+              <div class="cp-trait-label">Output is a system change, not a message</div>
+              <div class="cp-trait-body">API calls, database writes, webhook dispatches, Slack alerts, ticket creations — these are the agent's outputs. Language is incidental. Design the confirmation surface for actions, not the reply surface for words.</div>
+            </div>
+          </div>
+          <div class="cp-trait">
+            <div class="cp-trait-icon">
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)"><path d="M11 22H6V10h5v12zm7.5 0h-5V4h5v18zm7.5 0h-5v-8h5v8z"/></svg>
+            </div>
+            <div>
+              <div class="cp-trait-label">Actions have a risk gradient</div>
+              <div class="cp-trait-body">Read operations are safe and can run silently. Write operations carry risk and may need a dry-run preview. Destructive or cross-system actions require explicit authorisation. Design autonomy levels to match this gradient.</div>
+            </div>
+          </div>
+          <div class="cp-trait">
+            <div class="cp-trait-icon">
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)"><path d="M2 26h28v2H2zM25.4 9c.8-.8.8-2 0-2.8l-3.6-3.6c-.8-.8-2-.8-2.8 0l-15 15V24h6.4l15-15zm-5-5L24 7.6l-3 3L17.4 7l3-3zM6 22v-3.6l10-10 3.6 3.6-10 10H6z"/></svg>
+            </div>
+            <div>
+              <div class="cp-trait-label">Reversibility is a first-class design concern</div>
+              <div class="cp-trait-body">Every action the agent takes should carry a reversibility signal: can this be undone, and by whom? Design undo affordances, rollback windows, and clear before/after diffs in the action record.</div>
+            </div>
+          </div>
+          <div class="cp-trait">
+            <div class="cp-trait-icon">
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)"><path d="M16 16a7 7 0 10-7-7 7 7 0 007 7zm0-12a5 5 0 11-5 5 5 5 0 015-5zm10 28H6a2 2 0 01-2-2v-1a9 9 0 0118 0v1a2 2 0 01-2 2z"/></svg>
+            </div>
+            <div>
+              <div class="cp-trait-label">Notification is the agent's only voice</div>
+              <div class="cp-trait-body">When the agent has something to say, it sends a notification — not a chat reply. Design these with the craft of a first-class product surface: clear subject, what triggered it, what was done, and what action is expected next.</div>
+            </div>
+          </div>
+        </div>
+        <div class="ex-box"><div class="el">Real-world example</div><p>An invoice processing agent receives a PDF, extracts structured data, validates it against open POs, writes the approved record to the accounting system, schedules payment, and dispatches a Slack summary — no text response generated at any step.</p></div>
+      </div>
+      <div id="ct-co" class="ctab-panel">
+        <h3>Context Building</h3>
+        <p class="cp-body">A headless agent has no memory of past conversations. Every invocation starts cold. It pulls the context it needs — from APIs, databases, knowledge graphs, and the triggering event itself — constructing a picture from scratch each time. This is not a limitation; it is by design. It keeps the agent stateless and predictable.</p>
+        <div class="cp-trait-list">
+          <div class="cp-trait">
+            <div class="cp-trait-icon">
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)"><ellipse cx="16" cy="8" rx="12" ry="4" fill="none" stroke="var(--blue)" stroke-width="2"/><path d="M4 8v6c0 2.21 5.37 4 12 4s12-1.79 12-4V8" fill="none" stroke="var(--blue)" stroke-width="2"/><path d="M4 14v6c0 2.21 5.37 4 12 4s12-1.79 12-4v-6" fill="none" stroke="var(--blue)" stroke-width="2"/></svg>
+            </div>
+            <div>
+              <div class="cp-trait-label">No persistent memory — fresh every run</div>
+              <div class="cp-trait-body">Unlike a chat assistant that builds on prior turns, a headless agent assembles its full context at the start of each invocation. This makes it auditable: the context for any past run can be fully reconstructed from logs.</div>
+            </div>
+          </div>
+          <div class="cp-trait">
+            <div class="cp-trait-icon">
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)"><path d="M26 28H6a2 2 0 01-2-2V6a2 2 0 012-2h10v2H6v20h20V16h2v10a2 2 0 01-2 2z"/><path d="M21 2v2h5.59L18 12.59 19.41 14 28 5.41V11h2V2z"/></svg>
+            </div>
+            <div>
+              <div class="cp-trait-label">Sources: APIs, databases, events, graphs</div>
+              <div class="cp-trait-body">Context is assembled from external REST APIs, structured databases, vector stores for semantic retrieval, knowledge graphs for relationship traversal, and the triggering event payload itself. Each source adds a layer of meaning.</div>
+            </div>
+          </div>
+          <div class="cp-trait">
+            <div class="cp-trait-icon">
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)"><path d="M16 2a14 14 0 1014 14A14 14 0 0016 2zm1 21h-2v-2h2zm0-4h-2V9h2z"/></svg>
+            </div>
+            <div>
+              <div class="cp-trait-label">Context quality determines decision quality</div>
+              <div class="cp-trait-body">A wrong action is almost always traceable to incomplete or stale context. Designers must surface context health — which sources responded, how fresh the data is, and which lookups failed — as a first-class concern in any agent monitoring UI.</div>
+            </div>
+          </div>
+          <div class="cp-trait">
+            <div class="cp-trait-icon">
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="var(--blue)"><path d="M13 24l-9-9 1.414-1.414L13 21.171 26.586 7.586 28 9z"/></svg>
+            </div>
+            <div>
+              <div class="cp-trait-label">The triggering event is the root context</div>
+              <div class="cp-trait-body">Whatever woke the agent — a webhook payload, a queue message, a cron tick — is the first and most important piece of context. Design event schemas carefully: poorly structured event payloads lead directly to missing context and failed runs.</div>
+            </div>
+          </div>
+        </div>
+        <div class="ex-box"><div class="el">Real-world example</div><p>A customer enrichment agent wakes on a new CRM lead event. It queries LinkedIn for company size, Crunchbase for funding stage, a news API for recent press, and a vector store for similar past deals — assembling a complete intelligence brief from scratch before scoring the lead.</p></div>
+      </div>
+
+      <div class="cta-row" style="margin-top:2.5rem;">
+        <button class="btn-back" onclick="goToStep(1)">
+          <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M16 28l1.41-1.41L7.83 17H28v-2H7.83l9.58-9.59L16 4 4 16z"/></svg>
+          Go back
+        </button>
+        <button class="btn-forward" onclick="goToStep(3)">
+          Move forward
+          <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4l-1.41 1.41L24.17 15H4v2h20.17l-9.58 9.59L16 28l12-12z"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="rail-col">
+      <span class="ready-badge">Conversation ready</span>
+      <div class="rail-step-num">
+        <div class="step-num-big">03</div>
+        <div class="step-num-label">Useful words</div>
+      </div>
+      <div class="bq" style="margin-top:1rem;">
+        <p>"An agent is not a chatbot. It doesn't respond to messages — it responds to events."</p>
+      </div>
+
+      <!-- ── LIVE AGENT DEMO ── -->
+      <div class="agent-demo" id="agent-demo">
+        <div class="ad-header">
+          <div class="ad-dot-row">
+            <span class="ad-dot" style="background:#ff5f57"></span>
+            <span class="ad-dot" style="background:#febc2e"></span>
+            <span class="ad-dot" style="background:#28c840"></span>
+          </div>
+          <div class="ad-title">network-agent <span class="ad-version">v2.4.1</span></div>
+          <div class="ad-controls">
+            <button class="ad-btn" id="ad-pause" onclick="agentPause()" title="Pause">
+              <svg width="10" height="10" viewBox="0 0 32 32" fill="currentColor"><path d="M12 6H8v20h4zm12 0h-4v20h4z"/></svg>
+            </button>
+            <button class="ad-btn" id="ad-replay" onclick="agentReplay()" title="Replay">
+              <svg width="10" height="10" viewBox="0 0 32 32" fill="currentColor"><path d="M18 28A12 12 0 106 16v6H2l6 6 6-6H10v-6a8 8 0 118 8z"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="ad-log" id="ad-log"></div>
+        <div class="ad-status-bar">
+          <span class="ad-pulse" id="ad-pulse"></span>
+          <span id="ad-status-text">Waiting for trigger…</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PANEL 3 — FOUR PILLARS
+═══════════════════════════════════════════ -->
+<div class="panel" id="panel-3">
+  <div class="split">
+    <div class="main-col">
+      <div class="condition-pill">Owner + follow-up · Four Pillars</div>
+      <h1 class="panel-title">The Four Pillars</h1>
+      <p class="panel-body">A structural framework for designing trust, transparency, and control into agent-powered systems. These four pillars are the building blocks of every headless AI interface.</p>
+
+      <div class="pillar-nav">
+        <button class="p-btn on" data-p="sc"><span class="n">1</span> Scope &amp; Policy</button>
+        <button class="p-btn" data-p="tr"><span class="n">2</span> Trace View</button>
+        <button class="p-btn" data-p="ch"><span class="n">3</span> Contextual Chat</button>
+        <button class="p-btn" data-p="id"><span class="n">4</span> Agent Identity</button>
+      </div>
+
+      <div id="pp-sc" class="p-panel on">
+        <h3>Scope &amp; Policy</h3>
+        <div class="bq"><p>"Think of the Agent Policy Layer as the agent's immune system blueprint — established before it begins operating."</p></div>
+        <ul class="p-list">
+          <li><span class="k">Goal definitions</span><span>What is the agent solving for?</span></li>
+          <li><span class="k">Guardrails</span><span>What is it never allowed to do?</span></li>
+          <li><span class="k">Escalation rules</span><span>When must it pause for human approval?</span></li>
+          <li><span class="k">Scheduling</span><span>When does it run? (trigger-based, continuous, on-demand)</span></li>
+        </ul>
+      </div>
+
+      <div id="pp-tr" class="p-panel">
+        <h3>Trace View</h3>
+        <div class="bq"><p>"Think of traces as the agent's thought journal — they reveal how it happened, not just what happened."</p></div>
+        <ul class="p-list">
+          <li><span class="k">Current state</span><span>What phase is it in right now?</span></li>
+          <li><span class="k">Step-by-step trace</span><span>Each action with timestamp and output</span></li>
+          <li><span class="k">Decision nodes</span><span>Where it chose between paths, and why</span></li>
+          <li><span class="k">Interrupt flags</span><span>Where it paused and what it's waiting for</span></li>
+          <li><span class="k">Confidence indicators</span><span>Where was it uncertain?</span></li>
+        </ul>
+      </div>
+
+      <div id="pp-ch" class="p-panel">
+        <h3>Contextual Chat</h3>
+        <div class="bq"><p>"Like asking a specialist for a second opinion. The agent pauses at critical decision points, requests human input, then proceeds — anchored to its own trace."</p></div>
+        <ul class="p-list">
+          <li><span class="k">Activated contextually</span><span>Wakes when blocked, uncertain, or needs approval</span></li>
+          <li><span class="k">Edits to live run</span><span>User can redirect ongoing process mid-flight</span></li>
+          <li><span class="k">Mid-run policy changes</span><span>Adjust rules for this run only</span></li>
+          <li><span class="k">Anchored to trace</span><span>Already knows what the agent just did</span></li>
+        </ul>
+      </div>
+
+      <div id="pp-id" class="p-panel">
+        <h3>Agent Identity</h3>
+        <div class="bq"><p>"Trust and accountability must surface. This answers the W's — who acted, what was the policy, when did it run, why was permission granted."</p></div>
+        <ul class="p-list">
+          <li><span class="k">Name, version, policy</span><span>Which agent, under which ruleset?</span></li>
+          <li><span class="k">Audit trail</span><span>Immutable, exportable record of everything it did</span></li>
+          <li><span class="k">Authorization provenance</span><span>Who granted which permissions?</span></li>
+          <li><span class="k">Active session context</span><span>What is it watching right now?</span></li>
+        </ul>
+      </div>
+
+      <div class="cta-row" style="margin-top:2.5rem;">
+        <button class="btn-back" onclick="goToStep(2)">
+          <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M16 28l1.41-1.41L7.83 17H28v-2H7.83l9.58-9.59L16 4 4 16z"/></svg>
+          Go back
+        </button>
+        <button class="btn-forward" onclick="goToStep(4)">
+          Move forward
+          <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4l-1.41 1.41L24.17 15H4v2h20.17l-9.58 9.59L16 28l12-12z"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="rail-col" id="pillar-rail">
+      <span class="ready-badge">Agreement visible</span>
+      <div class="rail-step-num">
+        <div class="step-num-big">04</div>
+        <div class="step-num-label">Owner + follow-up</div>
+      </div>
+
+      <!-- ── Architecture diagram — interactive SVG ── -->
+      <div class="pillar-arch" id="pillar-arch-wrap" style="background:#06101f;cursor:default;">
+        <svg id="pa-svg" viewBox="0 0 360 300" xmlns="http://www.w3.org/2000/svg"
+             style="display:block;width:100%;height:auto;" role="img" aria-label="Four pillars architecture">
+          <defs>
+            <!-- pillar glow filters -->
+            <filter id="gf-sc" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="4" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="gf-tr" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="4" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="gf-ch" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="4" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="gf-id" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="4" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="gf-core" x="-80%" y="-80%" width="360%" height="360%">
+              <feGaussianBlur stdDeviation="7" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <!-- beam gradient — sc -->
+            <linearGradient id="bg-sc" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" x1="180" y1="150" x2="180" y2="40">
+              <stop offset="0%" stop-color="#4d8eff" stop-opacity="0"/>
+              <stop offset="50%" stop-color="#4d8eff" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="#4d8eff" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="bg-tr" gradientUnits="userSpaceOnUse" x1="180" y1="150" x2="50" y2="150">
+              <stop offset="0%" stop-color="#3dd68c" stop-opacity="0"/>
+              <stop offset="50%" stop-color="#3dd68c" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="#3dd68c" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="bg-ch" gradientUnits="userSpaceOnUse" x1="180" y1="150" x2="180" y2="260">
+              <stop offset="0%" stop-color="#f1c21b" stop-opacity="0"/>
+              <stop offset="50%" stop-color="#f1c21b" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="#f1c21b" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="bg-id" gradientUnits="userSpaceOnUse" x1="180" y1="150" x2="310" y2="150">
+              <stop offset="0%" stop-color="#a56eff" stop-opacity="0"/>
+              <stop offset="50%" stop-color="#a56eff" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="#a56eff" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <style>
+            /* ── base ── */
+            #pa-svg { font-family:'IBM Plex Sans',system-ui,sans-serif; }
+
+            /* ── rings ── */
+            .pa-orbit { fill:none; stroke:#4d8eff; stroke-width:.6; stroke-dasharray:4 7; opacity:.18; }
+            .pa-orbit-inner { fill:none; stroke:#4d8eff; stroke-width:.5; stroke-dasharray:2 9; opacity:.1; }
+            .pa-orbit { animation: pa-spin 28s linear infinite; transform-origin:180px 150px; }
+            .pa-orbit-inner { animation: pa-spin 18s linear infinite reverse; transform-origin:180px 150px; }
+            @keyframes pa-spin { to { stroke-dashoffset:-200; } }
+
+            /* ── pulse rings from core ── */
+            .pa-pulse { fill:none; stroke:#4d8eff; stroke-width:.8; opacity:0; transform-origin:180px 150px; }
+            .pa-pulse-1 { animation: pa-ring 3.2s ease-out infinite; }
+            .pa-pulse-2 { animation: pa-ring 3.2s ease-out infinite 1.07s; }
+            .pa-pulse-3 { animation: pa-ring 3.2s ease-out infinite 2.14s; }
+            @keyframes pa-ring {
+              0%   { r:28; opacity:.55; }
+              100% { r:90; opacity:0;  }
+            }
+
+            /* ── connector lines ── */
+            .pa-line { stroke-width:1; stroke-dasharray:3 6; opacity:.22; transition:opacity .25s, stroke-width .25s; }
+            .pa-line.act { opacity:1; stroke-width:1.8; stroke-dasharray:none; }
+
+            /* ── beam (animated dot on line) ── */
+            .pa-beam { opacity:.85; }
+
+            /* ── pillar card ── */
+            .pa-card { transition: opacity .25s; cursor:pointer; }
+            .pa-card-bg {
+              rx:5; fill:#0c1935; stroke-width:1;
+              transition: fill .25s, filter .25s;
+            }
+            .pa-card:hover .pa-card-bg { fill:#122047; }
+            .pa-card.act .pa-card-bg  { fill:#0f1e45; }
+            .pa-card-title { font-size:9px; font-weight:700; fill:#8ab4f8; transition:fill .2s; }
+            .pa-card.act .pa-card-title  { fill:inherit; }
+            .pa-card:hover .pa-card-title { fill:#fff; }
+            .pa-card-sub   { font-size:6.5px; font-weight:400; fill:rgba(138,180,248,.45); }
+            .pa-card.act .pa-card-sub { fill:rgba(255,255,255,.6); }
+            .pa-card-accent { opacity:.5; transition:opacity .25s; }
+            .pa-card.act .pa-card-accent { opacity:1; }
+            .pa-card-num { font-size:7px; font-weight:700; fill:rgba(138,180,248,.3); }
+            .pa-card.act .pa-card-num { fill:rgba(255,255,255,.5); }
+
+            /* hover lift */
+            .pa-card { transform:translateY(0); transition:transform .2s; }
+            .pa-card:hover { transform:translateY(-2px); }
+            .pa-card:active { transform:scale(.97); }
+
+            /* ── status chip that appears on hover ── */
+            .pa-chip { opacity:0; transition:opacity .2s; pointer-events:none; }
+            .pa-card:hover .pa-chip { opacity:1; }
+
+            /* ── core circle ── */
+            .pa-core-ring {
+              fill:none; stroke:#4d8eff; stroke-width:1.2;
+              animation: pa-core-breath 2.6s ease-in-out infinite;
+              transform-origin:180px 150px;
+            }
+            @keyframes pa-core-breath {
+              0%,100% { r:28; stroke-opacity:.7; }
+              50%      { r:32; stroke-opacity:.25; }
+            }
+            .pa-core-bg { fill:#081428; stroke:#4d8eff; stroke-width:1.4; }
+            .pa-core-label { font-size:8px; font-weight:600; fill:#4d8eff; text-anchor:middle; }
+            .pa-core-sub   { font-size:5.5px; fill:rgba(77,142,255,.55); text-anchor:middle; }
+
+            /* ── small status orbs inside core ── */
+            .pa-orb { animation: pa-orb-blink 1.8s ease-in-out infinite; }
+            .pa-orb-1 { animation-delay:0s;    fill:#3dd68c; }
+            .pa-orb-2 { animation-delay:.6s;   fill:#4d8eff; }
+            .pa-orb-3 { animation-delay:1.2s;  fill:#f1c21b; }
+            @keyframes pa-orb-blink {
+              0%,100% { opacity:.25; r:2.5; }
+              50%      { opacity:1;   r:3.5; }
+            }
+
+            /* ── orbit traveller ── */
+            .pa-traveller { animation: pa-orbit-travel 7s linear infinite; }
+            @keyframes pa-orbit-travel { to { offset-distance:100%; } }
+
+            /* ── tick marks on outer orbit ── */
+            .pa-tick { stroke:#4d8eff; stroke-width:.8; opacity:.22; }
+
+            /* ── tooltip ── */
+            .pa-tip { pointer-events:none; }
+            .pa-tip-bg { fill:#0f1e3d; stroke:#4d8eff; stroke-width:.8; rx:3; opacity:0;
+                         transition:opacity .18s; }
+            .pa-tip-txt { font-size:6px; fill:#a8c8ff; opacity:0; transition:opacity .18s; }
+            .pa-card:hover ~ .pa-tip .pa-tip-bg,
+            .pa-card:hover ~ .pa-tip .pa-tip-txt { opacity:1; }
+          </style>
+
+          <!-- background -->
+          <rect width="360" height="300" fill="#06101f"/>
+          <!-- subtle radial -->
+          <radialGradient id="rbg" cx="50%" cy="50%" r="55%">
+            <stop offset="0%" stop-color="#0c1a3a"/>
+            <stop offset="100%" stop-color="#06101f"/>
+          </radialGradient>
+          <rect width="360" height="300" fill="url(#rbg)"/>
+
+          <!-- tick marks around outer orbit -->
+          <g id="pa-ticks">
+            <!-- generated 12 ticks at 30° each on r=130 -->
+            <line class="pa-tick" x1="180" y1="21"  x2="180" y2="14"  transform="rotate(0   180 150)"/>
+            <line class="pa-tick" x1="180" y1="21"  x2="180" y2="14"  transform="rotate(30  180 150)"/>
+            <line class="pa-tick" x1="180" y1="21"  x2="180" y2="14"  transform="rotate(60  180 150)"/>
+            <line class="pa-tick" x1="180" y1="21"  x2="180" y2="14"  transform="rotate(90  180 150)"/>
+            <line class="pa-tick" x1="180" y1="21"  x2="180" y2="14"  transform="rotate(120 180 150)"/>
+            <line class="pa-tick" x1="180" y1="21"  x2="180" y2="14"  transform="rotate(150 180 150)"/>
+            <line class="pa-tick" x1="180" y1="21"  x2="180" y2="14"  transform="rotate(180 180 150)"/>
+            <line class="pa-tick" x1="180" y1="21"  x2="180" y2="14"  transform="rotate(210 180 150)"/>
+            <line class="pa-tick" x1="180" y1="21"  x2="180" y2="14"  transform="rotate(240 180 150)"/>
+            <line class="pa-tick" x1="180" y1="21"  x2="180" y2="14"  transform="rotate(270 180 150)"/>
+            <line class="pa-tick" x1="180" y1="21"  x2="180" y2="14"  transform="rotate(300 180 150)"/>
+            <line class="pa-tick" x1="180" y1="21"  x2="180" y2="14"  transform="rotate(330 180 150)"/>
+          </g>
+
+          <!-- outer dashed orbit ring (spinning via CSS) -->
+          <circle class="pa-orbit" cx="180" cy="150" r="130"/>
+          <!-- inner dashed orbit ring -->
+          <circle class="pa-orbit-inner" cx="180" cy="150" r="80"/>
+
+          <!-- pulse rings -->
+          <circle class="pa-pulse pa-pulse-1" cx="180" cy="150" r="28"/>
+          <circle class="pa-pulse pa-pulse-2" cx="180" cy="150" r="28"/>
+          <circle class="pa-pulse pa-pulse-3" cx="180" cy="150" r="28"/>
+
+          <!-- connector lines (JS adds/removes .act) -->
+          <line id="pa-line-sc" class="pa-line" stroke="#4d8eff" x1="180" y1="122" x2="180" y2="68"/>
+          <line id="pa-line-tr" class="pa-line" stroke="#3dd68c" x1="152" y1="150" x2="92"  y2="150"/>
+          <line id="pa-line-ch" class="pa-line" stroke="#f1c21b" x1="180" y1="178" x2="180" y2="232"/>
+          <line id="pa-line-id" class="pa-line" stroke="#a56eff" x1="208" y1="150" x2="268" y2="150"/>
+
+          <!-- animated beam dots (CSS animateMotion path) -->
+          <!-- sc: top -->
+          <circle class="pa-beam" r="3" fill="#4d8eff">
+            <animateMotion dur="1.8s" repeatCount="indefinite" begin="0s">
+              <mpath href="#pa-path-sc"/>
+            </animateMotion>
+          </circle>
+          <circle class="pa-beam" r="2" fill="#4d8eff" opacity=".5">
+            <animateMotion dur="1.8s" repeatCount="indefinite" begin="0.6s">
+              <mpath href="#pa-path-sc"/>
+            </animateMotion>
+          </circle>
+          <!-- tr: left -->
+          <circle class="pa-beam" r="3" fill="#3dd68c">
+            <animateMotion dur="2s" repeatCount="indefinite" begin="0.4s">
+              <mpath href="#pa-path-tr"/>
+            </animateMotion>
+          </circle>
+          <circle class="pa-beam" r="2" fill="#3dd68c" opacity=".5">
+            <animateMotion dur="2s" repeatCount="indefinite" begin="1.1s">
+              <mpath href="#pa-path-tr"/>
+            </animateMotion>
+          </circle>
+          <!-- ch: bottom -->
+          <circle class="pa-beam" r="3" fill="#f1c21b">
+            <animateMotion dur="1.9s" repeatCount="indefinite" begin="0.2s">
+              <mpath href="#pa-path-ch"/>
+            </animateMotion>
+          </circle>
+          <circle class="pa-beam" r="2" fill="#f1c21b" opacity=".5">
+            <animateMotion dur="1.9s" repeatCount="indefinite" begin="0.9s">
+              <mpath href="#pa-path-ch"/>
+            </animateMotion>
+          </circle>
+          <!-- id: right -->
+          <circle class="pa-beam" r="3" fill="#a56eff">
+            <animateMotion dur="2.1s" repeatCount="indefinite" begin="0.7s">
+              <mpath href="#pa-path-id"/>
+            </animateMotion>
+          </circle>
+          <circle class="pa-beam" r="2" fill="#a56eff" opacity=".5">
+            <animateMotion dur="2.1s" repeatCount="indefinite" begin="1.4s">
+              <mpath href="#pa-path-id"/>
+            </animateMotion>
+          </circle>
+
+          <!-- motion paths (hidden) -->
+          <path id="pa-path-sc" d="M180,122 L180,68"  fill="none"/>
+          <path id="pa-path-tr" d="M152,150 L92,150"  fill="none"/>
+          <path id="pa-path-ch" d="M180,178 L180,232" fill="none"/>
+          <path id="pa-path-id" d="M208,150 L268,150" fill="none"/>
+
+          <!-- ══ PILLAR CARDS ══ -->
+
+          <!-- 1. Scope & Policy — top (hover tooltip: "Controls what agent can do") -->
+          <g id="pa-sc" class="pa-card act" data-p="sc" onclick="paSelect(this)"
+             style="--c:#4d8eff">
+            <rect class="pa-card-bg" x="138" y="18" width="84" height="44" stroke="#4d8eff"/>
+            <!-- accent top bar -->
+            <rect class="pa-card-accent" x="144" y="18" width="72" height="3" rx="1.5" fill="#4d8eff"/>
+            <!-- number -->
+            <text class="pa-card-num" x="148" y="32">01</text>
+            <!-- title -->
+            <text class="pa-card-title" x="180" y="34" text-anchor="middle" fill="#4d8eff">Scope &amp; Policy</text>
+            <text class="pa-card-sub"   x="180" y="44" text-anchor="middle">Goals · Guardrails</text>
+            <!-- status chip (shows on hover) -->
+            <g class="pa-chip">
+              <rect x="154" y="52" width="52" height="9" rx="2" fill="#4d8eff" fill-opacity=".18" stroke="#4d8eff" stroke-width=".6"/>
+              <text x="180" y="58.5" text-anchor="middle" font-size="5.5" fill="#4d8eff" font-weight="600">ACTIVE · POLICY v3</text>
+            </g>
+          </g>
+
+          <!-- 2. Trace View — left -->
+          <g id="pa-tr" class="pa-card" data-p="tr" onclick="paSelect(this)"
+             style="--c:#3dd68c">
+            <rect class="pa-card-bg" x="18" y="121" width="84" height="44" stroke="#3dd68c"/>
+            <rect class="pa-card-accent" x="18" y="121" width="3" height="40" rx="1.5" fill="#3dd68c"/>
+            <text class="pa-card-num" x="28" y="135">02</text>
+            <text class="pa-card-title" x="62" y="137" text-anchor="middle" fill="#3dd68c">Trace View</text>
+            <text class="pa-card-sub"   x="62" y="147" text-anchor="middle">Steps · Confidence</text>
+            <g class="pa-chip">
+              <rect x="22" y="155" width="76" height="9" rx="2" fill="#3dd68c" fill-opacity=".18" stroke="#3dd68c" stroke-width=".6"/>
+              <text x="60" y="161.5" text-anchor="middle" font-size="5.5" fill="#3dd68c" font-weight="600">87% CONFIDENCE</text>
+            </g>
+          </g>
+
+          <!-- 3. Contextual Chat — bottom -->
+          <g id="pa-ch" class="pa-card" data-p="ch" onclick="paSelect(this)"
+             style="--c:#f1c21b">
+            <rect class="pa-card-bg" x="138" y="238" width="84" height="44" stroke="#f1c21b"/>
+            <rect class="pa-card-accent" x="144" y="279" width="72" height="3" rx="1.5" fill="#f1c21b"/>
+            <text class="pa-card-num" x="148" y="252">03</text>
+            <text class="pa-card-title" x="180" y="254" text-anchor="middle" fill="#f1c21b">Contextual Chat</text>
+            <text class="pa-card-sub"   x="180" y="264" text-anchor="middle">Escalation · Redirect</text>
+            <g class="pa-chip">
+              <rect x="146" y="268" width="68" height="9" rx="2" fill="#f1c21b" fill-opacity=".18" stroke="#f1c21b" stroke-width=".6"/>
+              <text x="180" y="274.5" text-anchor="middle" font-size="5.5" fill="#f1c21b" font-weight="600">AWAITING HUMAN</text>
+            </g>
+          </g>
+
+          <!-- 4. Agent Identity — right -->
+          <g id="pa-id" class="pa-card" data-p="id" onclick="paSelect(this)"
+             style="--c:#a56eff">
+            <rect class="pa-card-bg" x="258" y="121" width="84" height="44" stroke="#a56eff"/>
+            <rect class="pa-card-accent" x="339" y="121" width="3" height="40" rx="1.5" fill="#a56eff"/>
+            <text class="pa-card-num" x="268" y="135">04</text>
+            <text class="pa-card-title" x="298" y="137" text-anchor="middle" fill="#a56eff">Agent Identity</text>
+            <text class="pa-card-sub"   x="298" y="147" text-anchor="middle">Audit · Auth</text>
+            <g class="pa-chip">
+              <rect x="262" y="155" width="76" height="9" rx="2" fill="#a56eff" fill-opacity=".18" stroke="#a56eff" stroke-width=".6"/>
+              <text x="300" y="161.5" text-anchor="middle" font-size="5.5" fill="#a56eff" font-weight="600">v2.4.1 · VERIFIED</text>
+            </g>
+          </g>
+
+          <!-- ══ CORE NODE ══ -->
+          <g id="pa-core">
+            <!-- breathing outer ring -->
+            <circle class="pa-core-ring" cx="180" cy="150" r="28"/>
+            <!-- solid bg -->
+            <circle class="pa-core-bg" cx="180" cy="150" r="26"/>
+            <!-- status orbs -->
+            <circle class="pa-orb pa-orb-1" cx="170" cy="158" r="2.5"/>
+            <circle class="pa-orb pa-orb-2" cx="180" cy="158" r="2.5"/>
+            <circle class="pa-orb pa-orb-3" cx="190" cy="158" r="2.5"/>
+            <!-- label -->
+            <text class="pa-core-label" x="180" y="146">Headless</text>
+            <text class="pa-core-label" x="180" y="156">AI Agent</text>
+            <!-- hover ring (scale up on hover via JS) -->
+            <circle id="pa-core-hover-ring" cx="180" cy="150" r="28"
+                    fill="none" stroke="#4d8eff" stroke-width="0" opacity="0"
+                    style="transition:stroke-width .2s,opacity .2s,r .2s"/>
+          </g>
+
+          <!-- footer label -->
+          <text x="180" y="294" text-anchor="middle"
+                font-size="5" fill="#2a4a7a" font-family="'IBM Plex Sans',system-ui"
+                letter-spacing=".08em">HEADLESS AI · FOUR PILLARS · ALWAYS ACTIVE</text>
+
+        </svg>
+      </div>
+
+      <!-- ── Pillar-synced mock cards ── -->
+
+      <!-- Scope & Policy -->
+      <div id="rail-sc">
+        <div class="pillar-mock-card">
+          <div class="pmc-header">
+            <div class="pmc-icon" style="background:rgba(15,98,254,.1);">
+              <svg width="13" height="13" viewBox="0 0 32 32" fill="var(--blue)"><path d="M16 2L2 9v13c0 6.25 5.89 9.27 14 11 8.11-1.73 14-4.75 14-11V9zm0 2.18L28 10v12c0 4.6-4.5 7.19-12 8.87C8.5 29.19 4 26.6 4 22V10z"/></svg>
+            </div>
+            <span class="pmc-title">Scope &amp; Policy</span>
+            <span class="pmc-sub">network-agent v2.4.1</span>
+          </div>
+          <div class="pmc-body">
+            <div class="pmc-row">
+              <div class="pmc-row-icon"><svg width="12" height="12" viewBox="0 0 32 32" fill="var(--blue)"><path d="M13 24l-9-9 1.414-1.414L13 21.171 26.586 7.586 28 9z"/></svg></div>
+              <span class="pmc-row-label">Read telemetry</span>
+              <span class="pmc-row-desc">Instana · Prometheus</span>
+              <span class="pmc-badge pmb-auto">Auto</span>
+            </div>
+            <div class="pmc-row">
+              <div class="pmc-row-icon"><svg width="12" height="12" viewBox="0 0 32 32" fill="var(--blue)"><path d="M13 24l-9-9 1.414-1.414L13 21.171 26.586 7.586 28 9z"/></svg></div>
+              <span class="pmc-row-label">Read CMDB</span>
+              <span class="pmc-row-desc">Asset inventory</span>
+              <span class="pmc-badge pmb-auto">Auto</span>
+            </div>
+            <div class="pmc-row">
+              <div class="pmc-row-icon"><svg width="12" height="12" viewBox="0 0 32 32" fill="var(--blue)"><path d="M16 2a14 14 0 1014 14A14 14 0 0016 2zm1 21h-2v-2h2zm0-4h-2V9h2z"/></svg></div>
+              <span class="pmc-row-label">Restart pods</span>
+              <span class="pmc-row-desc">Non-protected only</span>
+              <span class="pmc-badge pmb-ask">Ask</span>
+            </div>
+            <div class="pmc-row">
+              <div class="pmc-row-icon"><svg width="12" height="12" viewBox="0 0 32 32" fill="var(--red)"><path d="M16 2a14 14 0 1014 14A14 14 0 0016 2zm1 21h-2v-2h2zm0-4h-2V9h2z"/></svg></div>
+              <span class="pmc-row-label">Modify BGP policy</span>
+              <span class="pmc-row-desc">Route changes</span>
+              <span class="pmc-badge pmb-appr">Approval</span>
+            </div>
+            <div class="pmc-row">
+              <div class="pmc-row-icon"><svg width="12" height="12" viewBox="0 0 32 32" fill="var(--red)"><path d="M16 2a14 14 0 1014 14A14 14 0 0016 2zm1 21h-2v-2h2zm0-4h-2V9h2z"/></svg></div>
+              <span class="pmc-row-label">Cross-tenant QoS</span>
+              <span class="pmc-row-desc">Bandwidth shaping</span>
+              <span class="pmc-badge pmb-appr">Approval</span>
+            </div>
+          </div>
+        </div>
+        <div class="pillar-concept"><strong>Design principle:</strong> The permission matrix IS the product spec. Build this before any screen. Every row is a design decision about trust.</div>
+      </div>
+
+      <!-- Trace View -->
+      <div id="rail-tr" style="display:none;">
+        <div class="pillar-mock-card">
+          <div class="pmc-header">
+            <div class="pmc-icon" style="background:rgba(36,161,72,.1);">
+              <svg width="13" height="13" viewBox="0 0 32 32" fill="var(--green)"><path d="M16 2a14 14 0 1014 14A14 14 0 0016 2zm0 26a12 12 0 1112-12 12 12 0 01-12 12zm1-14V9h-2v6H9v2h8z"/></svg>
+            </div>
+            <span class="pmc-title">Live Trace</span>
+            <span class="pmc-sub">invoice-processor · run #0091</span>
+          </div>
+          <div class="pmc-body">
+            <div class="pmc-row">
+              <div class="pmc-row-icon"><svg width="12" height="12" viewBox="0 0 32 32" fill="var(--green)"><path d="M13 24l-9-9 1.414-1.414L13 21.171 26.586 7.586 28 9z"/></svg></div>
+              <span class="pmc-row-label">Received invoice PDF</span>
+              <span class="pmc-row-desc">09:41:02</span>
+              <span class="pmc-badge pmb-ok">Done</span>
+            </div>
+            <div class="pmc-row">
+              <div class="pmc-row-icon"><svg width="12" height="12" viewBox="0 0 32 32" fill="var(--green)"><path d="M13 24l-9-9 1.414-1.414L13 21.171 26.586 7.586 28 9z"/></svg></div>
+              <span class="pmc-row-label">Extracted vendor + amount</span>
+              <span class="pmc-row-desc">09:41:04</span>
+              <span class="pmc-badge pmb-ok">Done</span>
+            </div>
+            <div class="pmc-row">
+              <div class="pmc-row-icon"><svg width="12" height="12" viewBox="0 0 32 32" fill="#d9a800"><path d="M11.03 2L4 18h9v12l13-18h-9z"/></svg></div>
+              <span class="pmc-row-label">Auto-approve or escalate?</span>
+              <span class="pmc-row-desc">Decision node</span>
+              <span class="pmc-badge pmb-warn">Node</span>
+            </div>
+            <div class="pmc-row">
+              <div class="pmc-row-icon"><svg width="12" height="12" viewBox="0 0 32 32" fill="var(--red)"><path d="M16 2a14 14 0 1014 14A14 14 0 0016 2zm1 21h-2v-2h2zm0-4h-2V9h2z"/></svg></div>
+              <span class="pmc-row-label">Paused — awaiting input</span>
+              <span class="pmc-row-desc">09:41:07</span>
+              <span class="pmc-badge pmb-err">Blocked</span>
+            </div>
+          </div>
+        </div>
+        <div class="pillar-concept"><strong>Design principle:</strong> Each step is a design surface. Show the timestamp, the outcome, and the confidence — not just "it ran". Traces are the UI for invisible work.</div>
+      </div>
+
+      <!-- Contextual Chat -->
+      <div id="rail-ch" style="display:none;">
+        <div class="pillar-mock-card">
+          <div class="pmc-header">
+            <div class="pmc-icon" style="background:rgba(241,194,27,.15);">
+              <svg width="13" height="13" viewBox="0 0 32 32" fill="#9a6e00"><path d="M28 6H4a2 2 0 00-2 2v14a2 2 0 002 2h4v6l8-6h12a2 2 0 002-2V8a2 2 0 00-2-2zm0 16H15.33L8 27.2V22H4V8h24z"/></svg>
+            </div>
+            <span class="pmc-title">Contextual Chat</span>
+            <span class="pmc-sub">Triggered at node · step 3</span>
+          </div>
+          <div class="pmc-body" style="gap:.55rem;padding-top:.8rem;padding-bottom:.8rem;">
+            <div style="background:var(--blue);color:#fff;border-radius:6px 6px 6px 0;padding:.5rem .75rem;font-size:.75rem;max-width:88%;line-height:1.5;">
+              Found anomalous vendor ID #4821. Amount $94,200 exceeds auto-approve threshold. Flag for review or reject outright?
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px 6px 0 6px;padding:.5rem .75rem;font-size:.75rem;max-width:88%;margin-left:auto;line-height:1.5;">
+              Flag for review. Continue processing the other 31 invoices.
+            </div>
+            <div style="background:rgba(36,161,72,.08);border-radius:3px;padding:.35rem .65rem;font-size:.72rem;color:var(--green);display:flex;align-items:center;gap:.4rem;">
+              <svg width="11" height="11" viewBox="0 0 32 32" fill="var(--green)"><path d="M13 24l-9-9 1.414-1.414L13 21.171 26.586 7.586 28 9z"/></svg>
+              Resumed · #4821 flagged · 31 invoices processing
+            </div>
+          </div>
+        </div>
+        <div class="pillar-concept"><strong>Design principle:</strong> Chat is not the product. It's an emergency hatch — activated only when the agent is blocked. Design it to resolve the moment, then disappear.</div>
+      </div>
+
+      <!-- Agent Identity -->
+      <div id="rail-id" style="display:none;">
+        <div class="pillar-mock-card">
+          <div class="pmc-header">
+            <div class="pmc-icon" style="background:rgba(138,63,252,.1);">
+              <svg width="13" height="13" viewBox="0 0 32 32" fill="#6929c4"><path d="M16 16a7 7 0 10-7-7 7 7 0 007 7zm0-12a5 5 0 11-5 5 5 5 0 015-5zm10 28H6a2 2 0 01-2-2v-1a9 9 0 0118 0v1a2 2 0 01-2 2z"/></svg>
+            </div>
+            <span class="pmc-title">Agent Identity Card</span>
+            <span class="pmc-sub">compliance-monitor</span>
+          </div>
+          <div class="pmc-body">
+            <div class="pmc-row">
+              <div class="pmc-row-icon"><svg width="12" height="12" viewBox="0 0 32 32" fill="#6929c4"><path d="M16 16a7 7 0 10-7-7 7 7 0 007 7zm0-12a5 5 0 11-5 5 5 5 0 015-5zm10 28H6a2 2 0 01-2-2v-1a9 9 0 0118 0v1a2 2 0 01-2 2z"/></svg></div>
+              <span class="pmc-row-label">compliance-monitor v2.4.1</span>
+              <span class="pmc-row-desc">Policy: corp-access-v3</span>
+              <span class="pmc-badge pmb-id">Verified</span>
+            </div>
+            <div class="pmc-row">
+              <div class="pmc-row-icon"><svg width="12" height="12" viewBox="0 0 32 32" fill="var(--blue)"><path d="M26 28H6a2 2 0 01-2-2V6a2 2 0 012-2h10v2H6v20h20V16h2v10a2 2 0 01-2 2z"/><path d="M21 2v2h5.59L18 12.59 19.41 14 28 5.41V11h2V2z"/></svg></div>
+              <span class="pmc-row-label">Auth: admin@corp.co</span>
+              <span class="pmc-row-desc">2025-07-10 · security-admin</span>
+              <span class="pmc-badge pmb-ask">Traced</span>
+            </div>
+            <div class="pmc-row">
+              <div class="pmc-row-icon"><svg width="12" height="12" viewBox="0 0 32 32" fill="var(--green)"><path d="M12 10H6.78A11 11 0 0116 5a11 11 0 0111 11h2A13 13 0 0016 3a13 13 0 00-10 4.68V5H4v7h7z"/><path d="M20 22h5.22A11 11 0 0116 27a11 11 0 01-11-11H3a13 13 0 0013 13 13 13 0 0010-4.68V27h2v-7h-7v2z"/></svg></div>
+              <span class="pmc-row-label">Watching 52 sessions</span>
+              <span class="pmc-row-desc">Active since 09:00</span>
+              <span class="pmc-badge pmb-auto">Running</span>
+            </div>
+            <div class="pmc-row">
+              <div class="pmc-row-icon"><svg width="12" height="12" viewBox="0 0 32 32" fill="var(--muted)"><path d="M28 6H4a2 2 0 00-2 2v16a2 2 0 002 2h24a2 2 0 002-2V8a2 2 0 00-2-2zm0 18H4V8h24z"/><path d="M8 12h16v2H8zm0 4h10v2H8z"/></svg></div>
+              <span class="pmc-row-label">Audit log: 247 entries</span>
+              <span class="pmc-row-desc">Exportable · Immutable</span>
+              <span class="pmc-badge pmb-appr">Sealed</span>
+            </div>
+          </div>
+        </div>
+        <div class="pillar-concept"><strong>Design principle:</strong> Every agent action must be traceable to a named human who authorised it. Identity is not metadata — it is accountability made visible.</div>
+      </div>
+
+   
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PANEL 4 — DIRECTIONS
+═══════════════════════════════════════════ -->
+<div class="panel" id="panel-4">
+  <div class="split">
+    <div class="main-col">
+      <div class="condition-pill">Evidence in work · Design Directions</div>
+      <h1 class="panel-title">Five Design<br>Directions</h1>
+      <p class="panel-body">These are not rules — they are orientations. Each describes a shift in how designers should think when working with headless AI agents. Click any card to reveal the real-world example.</p>
+
+      <div class="dir-grid">
+        <div class="dir-card" onclick="this.classList.toggle('exp')">
+          <div class="dir-num">01</div>
+          <h3>Design Logic, Not Layout</h3>
+          <p>Focus on the rules that govern agent behaviour — goals, constraints, permissions, and escalation paths — rather than the arrangement of UI elements.</p>
+          <div class="dir-hint">See example</div>
+          <div class="ex-slide"><div class="ex-inner"><div class="el">Example</div><p>If the agent flags an anomaly, it must pause and render an "explain reasoning" view before taking action — rather than running in the dark.</p></div></div>
+        </div>
+        <div class="dir-card" onclick="this.classList.toggle('exp')">
+          <div class="dir-num">02</div>
+          <h3>Build Interfaces That Flex and Deform</h3>
+          <p>Most of the time, only ambient indicators are visible. When something needs attention, detailed diagnostics surface automatically.</p>
+          <div class="dir-hint">See example</div>
+          <div class="ex-slide"><div class="ex-inner"><div class="el">Example</div><p>The agent runs quietly; when a disruption occurs, it spins up a focused, temporary view — then dismisses it once the moment passes.</p></div></div>
+        </div>
+        <div class="dir-card" onclick="this.classList.toggle('exp')">
+          <div class="dir-num">03</div>
+          <h3>Proactive by Default, Verify at the Edges</h3>
+          <p>Let agents handle routine tasks autonomously. Involve humans only when decisions carry significant or irreversible impact.</p>
+          <div class="dir-hint">See example</div>
+          <div class="ex-slide"><div class="ex-inner"><div class="el">Example</div><p>Instead of a form, the agent prepares the change, summarizes impact, and asks for a single approval — <em>"reroute via R2, approve?"</em></p></div></div>
+        </div>
+        <div class="dir-card" onclick="this.classList.toggle('exp')">
+          <div class="dir-num">04</div>
+          <h3>Make "Presence" the New Aesthetic</h3>
+          <p>Subtle signals provide confidence the system is functioning. You notice them only when something needs your attention.</p>
+          <div class="dir-hint">See example</div>
+          <div class="ex-slide"><div class="ex-inner"><div class="el">Example</div><p>A quiet status pulse, or a single changing line — <em>"analyzing options…"</em> — signals the agent is working without cluttering the screen.</p></div></div>
+        </div>
+        <div class="dir-card" onclick="this.classList.toggle('exp')">
+          <div class="dir-num">05</div>
+          <h3>Test for Trust, Not Just Usability</h3>
+          <p>AI-era metrics must reveal how much users trust the system, feel in control, and choose to delegate to it.</p>
+          <div class="dir-hint">See example</div>
+          <div class="ex-slide"><div class="ex-inner"><div class="el">Example Questions</div><p>How often do users increase the agent's autonomy level? Do users understand why the agent made a particular decision?</p></div></div>
+        </div>
+        <div class="dir-card" style="background:var(--blue-lt);border-left:3px solid var(--blue);cursor:default;">
+          <div class="dir-num" style="color:var(--blue);">The Paradigm</div>
+          <h3 style="font-weight:300;font-size:1rem;color:var(--text);">The designer's job is no longer to arrange elements — it is to orchestrate trust, transparency, and control.</h3>
+          <p style="margin-top:.65rem;font-size:.8rem;color:var(--blue);">IBM Design Research · 2025</p>
+        </div>
+      </div>
+      <!-- ── Design Gallery ── -->
+      <div class="gallery-section">
+        <div class="gallery-header">
+          <span class="gallery-header-label">Design Gallery · IBM Network Intelligence</span>
+          <span class="gallery-header-count">4 screens</span>
+        </div>
+
+        <div class="gallery-grid-4">
+
+          <!-- Tile 1 — ini1 -->
+          <div class="gallery-tile" onclick="openLightbox(0)">
+            <img src="ini1.png" alt="Canvas — Main Dashboard" loading="lazy" />
+            <div class="gallery-tile-overlay"></div>
+            <span class="gallery-tile-tag">Invisible UI</span>
+            <span class="gallery-tile-num">1</span>
+            <div class="gallery-tile-meta">
+              <div class="gallery-tile-title">Canvas — Main Dashboard</div>
+              <div class="gallery-tile-desc">Ambient confidence · fleet health · activity timeline</div>
+            </div>
+          </div>
+
+          <!-- Tile 2 — ini2 -->
+          <div class="gallery-tile" onclick="openLightbox(1)">
+            <img src="ini2.png" alt="Agentic Trace — Escalation View" loading="lazy" />
+            <div class="gallery-tile-overlay"></div>
+            <span class="gallery-tile-tag">Trace View</span>
+            <span class="gallery-tile-num">2</span>
+            <div class="gallery-tile-meta">
+              <div class="gallery-tile-title">Agentic Trace — Escalation View</div>
+              <div class="gallery-tile-desc">Decision reasoning · confidence trajectory · approval gates</div>
+            </div>
+          </div>
+
+          <!-- Tile 3 — ini3 -->
+          <div class="gallery-tile" onclick="openLightbox(2)">
+            <img src="ini3.png" alt="Policy &amp; Permissions — Studio" loading="lazy" />
+            <div class="gallery-tile-overlay"></div>
+            <span class="gallery-tile-tag">Scope &amp; Policy</span>
+            <span class="gallery-tile-num">3</span>
+            <div class="gallery-tile-meta">
+              <div class="gallery-tile-title">Policy &amp; Permissions — Studio</div>
+              <div class="gallery-tile-desc">Composite score · permission matrix · posture radar</div>
+            </div>
+          </div>
+
+          <!-- Tile 4 — ini4 -->
+          <div class="gallery-tile" onclick="openLightbox(3)">
+            <img src="ini4.png" alt="Policy &amp; Permissions — Full Scroll" loading="lazy" />
+            <div class="gallery-tile-overlay"></div>
+            <span class="gallery-tile-tag">Scope &amp; Policy</span>
+            <span class="gallery-tile-num">4</span>
+            <div class="gallery-tile-meta">
+              <div class="gallery-tile-title">Policy &amp; Permissions — Full Scroll</div>
+              <div class="gallery-tile-desc">Extended categories · model knobs · posture projection</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!-- Team -->
+      <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:2.5rem 0 .5rem;">The Team</div>
+      <div class="team-grid">
+        <div class="tm"><div class="av" style="background:linear-gradient(135deg,#0f62fe,#8a3ffc)">JK</div><div><h4>Jayakrishna Kaimal</h4><span>Design Manager</span></div></div>
+        <div class="tm"><div class="av" style="background:linear-gradient(135deg,#24a148,#0f62fe)">DA</div><div><h4>Divine Antony</h4><span>Design Lead</span></div></div>
+        <div class="tm"><div class="av" style="background:linear-gradient(135deg,#f1c21b,#da1e28)">DS</div><div><h4>Drron Sharma</h4><span>UX Designer</span></div></div>
+        <div class="tm"><div class="av" style="background:linear-gradient(135deg,#8a3ffc,#24a148)">AC</div><div><h4>Abhiram CS</h4><span>UX Designer</span></div></div>
+        <div class="tm"><div class="av" style="background:linear-gradient(135deg,#da1e28,#f1c21b)">MS</div><div><h4>Mahima Shrivastava</h4><span>UX Designer</span></div></div>
+      </div>
+
+
+      <div class="cta-row" style="margin-top:2.5rem;">
+        <button class="btn-back" onclick="goToStep(3)">
+          <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M16 28l1.41-1.41L7.83 17H28v-2H7.83l9.58-9.59L16 4 4 16z"/></svg>
+          Go back
+        </button>
+      </div>
+    </div>
+    <div class="rail-col" id="dir-rail">
+      <span class="ready-badge">Condition restored</span>
+
+      <!-- Step number (top) -->
+      <div class="rail-step-num">
+        <div class="step-num-big">05</div>
+        <div class="step-num-label">Evidence in work</div>
+      </div>
+
+      <!-- Direction micro-interaction panel -->
+      <div class="dmi-wrap">
+        <div class="dmi-label">Live micro-interaction</div>
+        <div class="dmi-tabs" id="dmiTabs">
+          <button class="dmi-tab on" data-d="0">01</button>
+          <button class="dmi-tab" data-d="1">02</button>
+          <button class="dmi-tab" data-d="2">03</button>
+          <button class="dmi-tab" data-d="3">04</button>
+          <button class="dmi-tab" data-d="4">05</button>
+        </div>
+        <div class="dmi-name" id="dmiName">Design Logic, Not Layout</div>
+
+        <!-- ── D01: Rule engine ── -->
+        <div class="dmi-scene on" id="dmi-0">
+          <div class="dmi-rule-engine">
+            <div class="dre-label">Policy evaluation</div>
+            <div class="dre-rows" id="dreRows">
+              <div class="dre-row" data-state="idle"><span class="dre-icon">⬜</span><span class="dre-text">Check: anomaly score ≥ 0.80</span><span class="dre-badge">—</span></div>
+              <div class="dre-row" data-state="idle"><span class="dre-icon">⬜</span><span class="dre-text">Guardrail: cross-tenant scope?</span><span class="dre-badge">—</span></div>
+              <div class="dre-row" data-state="idle"><span class="dre-icon">⬜</span><span class="dre-text">Permission: reroute_traffic</span><span class="dre-badge">—</span></div>
+              <div class="dre-row" data-state="idle"><span class="dre-icon">⬜</span><span class="dre-text">Escalation: impact &gt; medium?</span><span class="dre-badge">—</span></div>
+              <div class="dre-row" data-state="idle"><span class="dre-icon">⬜</span><span class="dre-text">Schedule: run window active?</span><span class="dre-badge">—</span></div>
+            </div>
+            <div class="dre-verdict" id="dreVerdict"></div>
+          </div>
+          <div class="dmi-caption">Rules govern behaviour — not pixels. Click <em>Replay</em> to re-evaluate.</div>
+          <button class="dmi-replay" onclick="dmiReplay()">↺ Replay</button>
+        </div>
+
+        <!-- ── D02: Flex & deform ── -->
+        <div class="dmi-scene" id="dmi-1">
+          <div class="dfd-wrap" id="dfdWrap">
+            <div class="dfd-ambient" id="dfdAmbient">
+              <div class="dfd-pulse-dot"></div>
+              <div class="dfd-status-line">fleet healthy · 47 agents running</div>
+              <div class="dfd-kpis">
+                <span><strong>99.8%</strong> uptime</span>
+                <span><strong>0</strong> escalations</span>
+                <span><strong>41ms</strong> p99</span>
+              </div>
+            </div>
+            <div class="dfd-expanded" id="dfdExpanded">
+              <div class="dfd-exp-header">
+                <span class="dfd-alert-chip">⚠ Alert</span>
+                <span class="dfd-exp-title">prod-lb-07 · CPU 94%</span>
+                <button class="dfd-dismiss" onclick="dfdDismiss()">Dismiss ×</button>
+              </div>
+              <div class="dfd-exp-trace">
+                <div class="dfd-trace-row ok">✓ Context assembled — 3 sources</div>
+                <div class="dfd-trace-row ok">✓ Anomaly score: 0.94 (threshold 0.80)</div>
+                <div class="dfd-trace-row warn">⚑ Action: reroute_traffic → needs approval</div>
+              </div>
+              <div class="dfd-actions">
+                <button class="dfd-approve" onclick="dfdApprove()">Approve reroute</button>
+                <button class="dfd-reject" onclick="dfdDismiss()">Dismiss</button>
+              </div>
+            </div>
+          </div>
+          <div class="dmi-caption">Interface <em>deforms</em> when attention is needed, collapses when not.</div>
+        </div>
+
+        <!-- ── D03: Proactive / single approval ── -->
+        <div class="dmi-scene" id="dmi-2">
+          <div class="dpv-wrap" id="dpvWrap">
+            <div class="dpv-step" id="dpvStep0">
+              <div class="dpv-agent-thinking">
+                <div class="dpv-dot-row"><span></span><span></span><span></span></div>
+                <div class="dpv-think-label">Agent is preparing change…</div>
+              </div>
+            </div>
+            <div class="dpv-step hidden" id="dpvStep1">
+              <div class="dpv-summary-card">
+                <div class="dpv-summary-header">Proposed action ready</div>
+                <div class="dpv-summary-row"><span class="dpv-k">Action</span><span class="dpv-v">Reroute via R2</span></div>
+                <div class="dpv-summary-row"><span class="dpv-k">Impact</span><span class="dpv-v">~180ms blip · 0 dropped pkts</span></div>
+                <div class="dpv-summary-row"><span class="dpv-k">Rollback</span><span class="dpv-v">Auto in 10 min if latency rises</span></div>
+                <div class="dpv-approve-row">
+                  <button class="dpv-yes" onclick="dpvApprove()">✓ Approve</button>
+                  <button class="dpv-no"  onclick="dpvReject()">✕ Reject</button>
+                </div>
+              </div>
+            </div>
+            <div class="dpv-step hidden" id="dpvStep2">
+              <div class="dpv-done-card" id="dpvDoneCard">
+                <div class="dpv-done-icon">✓</div>
+                <div class="dpv-done-msg">Reroute complete</div>
+                <div class="dpv-done-sub">Agent resumed autonomously</div>
+                <button class="dmi-replay" onclick="dpvReset()" style="margin-top:.75rem;">↺ Replay</button>
+              </div>
+            </div>
+          </div>
+          <div class="dmi-caption">Agent prepares everything. You approve <em>once</em>.</div>
+        </div>
+
+        <!-- ── D04: Presence / ambient ── -->
+        <div class="dmi-scene" id="dmi-3">
+          <div class="dpr-wrap">
+            <div class="dpr-screen">
+              <div class="dpr-top-bar">
+                <span class="dpr-brand">network-intelligence</span>
+                <div class="dpr-pulse-container">
+                  <span class="dpr-pulse-ring"></span>
+                  <span class="dpr-pulse-core"></span>
+                </div>
+                <span class="dpr-live-label" id="dprLiveLabel">analyzing options…</span>
+              </div>
+              <div class="dpr-content">
+                <div class="dpr-kpi-row">
+                  <div class="dpr-kpi"><div class="dpr-kpi-val" id="dprUptime">99.8%</div><div class="dpr-kpi-key">uptime</div></div>
+                  <div class="dpr-kpi"><div class="dpr-kpi-val" id="dprAgents">47</div><div class="dpr-kpi-key">agents</div></div>
+                  <div class="dpr-kpi"><div class="dpr-kpi-val" id="dprEsc">0</div><div class="dpr-kpi-key">escalations</div></div>
+                </div>
+                <div class="dpr-timeline">
+                  <div class="dpr-tl-label">Agent activity</div>
+                  <div class="dpr-bars" id="dprBars"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="dmi-caption">Quiet confidence — subtle signals only. Presence <em>is</em> the aesthetic.</div>
+        </div>
+
+        <!-- ── D05: Trust meter ── -->
+        <div class="dmi-scene" id="dmi-4">
+          <div class="dtr-wrap">
+            <div class="dtr-label">Autonomy level</div>
+            <div class="dtr-levels">
+              <div class="dtr-lvl active" data-lv="0" onclick="dtrSet(0,this)">Supervised</div>
+              <div class="dtr-lvl" data-lv="1" onclick="dtrSet(1,this)">Assisted</div>
+              <div class="dtr-lvl" data-lv="2" onclick="dtrSet(2,this)">Delegated</div>
+              <div class="dtr-lvl" data-lv="3" onclick="dtrSet(3,this)">Collaborative</div>
+              <div class="dtr-lvl" data-lv="4" onclick="dtrSet(4,this)">Autonomous</div>
+            </div>
+            <div class="dtr-bar-wrap">
+              <div class="dtr-bar-track"><div class="dtr-bar-fill" id="dtrFill" style="width:10%"></div></div>
+              <div class="dtr-bar-labels"><span>Low trust</span><span>Full trust</span></div>
+            </div>
+            <div class="dtr-metrics" id="dtrMetrics">
+              <div class="dtr-metric"><span class="dtr-mkey">Delegation rate</span><span class="dtr-mval" id="dtrDel">12%</span></div>
+              <div class="dtr-metric"><span class="dtr-mkey">Overrides / day</span><span class="dtr-mval" id="dtrOvr">18</span></div>
+              <div class="dtr-metric"><span class="dtr-mkey">Comprehension</span><span class="dtr-mval" id="dtrCmp">Low</span></div>
+            </div>
+            <div class="dtr-insight" id="dtrInsight">User reviews every action — trust is not yet established.</div>
+          </div>
+          <div class="dmi-caption">Measure trust, not just task completion. Click a level to see AI-era metrics shift.</div>
+        </div>
+
+      </div><!-- .dmi-wrap -->
+
+      <div class="bq" style="margin-top:1.75rem;">
+        <p>"Designing for invisible UI is a paradigm shift. The designer's job is no longer to arrange elements — it is to orchestrate trust, transparency, and control."</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DESIGN GALLERY LIGHTBOX ═══ -->
+<div class="lightbox" id="gallery-lightbox" onclick="closeLightboxIfBackdrop(event)">
+  <div class="lb-inner">
+    <div class="lb-toolbar">
+      <span class="lb-title" id="lb-title"></span>
+      <span class="lb-tag" id="lb-tag"></span>
+      <button class="lb-close" onclick="closeLightbox()" title="Close">
+        <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor"><path d="M24 9.4L22.6 8 16 14.6 9.4 8 8 9.4 14.6 16 8 22.6 9.4 24 16 17.4 22.6 24 24 22.6 17.4 16z"/></svg>
+      </button>
+    </div>
+    <div class="lb-body">
+      <div id="lb-svg-wrap"></div>
+      <p class="lb-caption" id="lb-caption"></p>
+    </div>
+    <div class="lb-nav">
+      <button class="lb-nav-btn" id="lb-prev" onclick="lbNavigate(-1)">
+        <svg width="12" height="12" viewBox="0 0 32 32" fill="currentColor"><path d="M16 28l1.41-1.41L7.83 17H28v-2H7.83l9.58-9.59L16 4 4 16z"/></svg>
+        Previous
+      </button>
+      <span class="lb-counter" id="lb-counter"></span>
+      <button class="lb-nav-btn" id="lb-next" onclick="lbNavigate(1)">
+        Next
+        <svg width="12" height="12" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4l-1.41 1.41L24.17 15H4v2h20.17l-9.58 9.59L16 28l12-12z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DARK FOOTER ═══ -->
+<footer class="dark-footer">
+  <span class="df-brand">Headless AI</span>
+  <div class="df-flow">
+    Recognition <span>→</span> Words <span>→</span> Agreement <span>→</span> Evidence
+  </div>
+  <div class="df-credit">Designed &amp; developed by <strong>JK</strong> with <strong>Bob</strong></div>
+  <button class="df-restart" onclick="goToStep(0)">
+    <svg width="13" height="13" viewBox="0 0 32 32" fill="currentColor"><path d="M18 28A12 12 0 106 16v6H2l6 6 6-6H10v-6a8 8 0 118 8z"/></svg>
+    Start again
+  </button>
+</footer>
+
+<script>
+const STEP_TITLES = ['Overview','What & Why','Characteristics','Four Pillars','Directions'];
+const STEP_BC     = ['Overview','What & Why','Characteristics','Four Pillars','Design Directions'];
+
+function goToStep(n) {
+  // hide all panels
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + n).classList.add('active');
+
+  // update stepper
+  document.querySelectorAll('.step-item').forEach((s,i) => {
+    s.classList.remove('active','done');
+    if (i < n)  s.classList.add('done');
+    if (i === n) s.classList.add('active');
+  });
+
+  // breadcrumb
+  document.getElementById('bc-current').textContent = STEP_BC[n];
+
+  // reset char tabs + start/stop agent demo
+  if (n === 2) {
+    document.getElementById('panel-2').querySelectorAll('.ctab').forEach((t,i) => t.classList.toggle('on', i===0));
+    document.getElementById('panel-2').querySelectorAll('.ctab-panel').forEach((p,i) => p.classList.toggle('on', i===0));
+    if (typeof agentStart === 'function') setTimeout(agentStart, 200);
+  }
+
+  // scroll to top of panel
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── ROLE SELECT ── */
+const roleSelectEl = document.getElementById('role-select');
+if (roleSelectEl) roleSelectEl.addEventListener('change', function() {
+  document.querySelectorAll('.role-display').forEach(el => el.textContent = this.value);
+});
+
+/* ── VS TOGGLE ── */
+function toggleVS(sw) {
+  sw.classList.toggle('r');
+  const ai = sw.classList.contains('r');
+  document.querySelectorAll('.c-trad').forEach(e => e.classList.toggle('show', !ai));
+  document.querySelectorAll('.c-ai').forEach(e => e.classList.toggle('show', ai));
+  document.getElementById('l-trad').classList.toggle('on', !ai);
+  document.getElementById('l-ai').classList.toggle('on', ai);
+}
+
+/* ── CHAR TABS ── */
+const charTabsEl   = document.getElementById('panel-2').querySelector('.char-tabs');
+const charPanelsEl = document.getElementById('panel-2');
+charTabsEl.querySelectorAll('.ctab').forEach(b => b.addEventListener('click', () => {
+  charTabsEl.querySelectorAll('.ctab').forEach(x => x.classList.remove('on'));
+  charPanelsEl.querySelectorAll('.ctab-panel').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  document.getElementById('ct-' + b.dataset.c).classList.add('on');
+}));
+
+/* ── AUTONOMY SPECTRUM ── */
+const AUTO_DATA = [
+  {
+    title: 'Supervised',
+    body:  'Every action requires explicit human approval before it executes. The agent presents options and waits. Nothing happens without a "go" from the operator.',
+    impl:  'Design approval-first UIs — clear "Approve / Reject" prompts with full context of the proposed action. Latency is expected and acceptable.'
+  },
+  {
+    title: 'Assisted',
+    body:  'The agent proposes actions and pre-fills forms, but a human confirms each step. It narrows choices rather than making them. The operator stays in the decision seat.',
+    impl:  'Design suggestion surfaces — pre-populated cards the user can accept with one click, modify, or dismiss. Make the diff visible, not just the result.'
+  },
+  {
+    title: 'Delegated',
+    body:  'The agent handles entire workflows end-to-end without step-by-step approval. It flags edge cases and surfaces a summary of actions taken. Most common mode for production agents.',
+    impl:  'Design a post-action log UI — not a prompt UI. Users review what happened, not what\'s about to happen. Focus on clarity of the action record, reversibility cues, and confidence signals.'
+  },
+  {
+    title: 'Collaborative',
+    body:  'Agent and human work in parallel on the same task. The agent handles the mechanical steps; the human handles judgement calls. Roles are explicitly divided and surface clearly.',
+    impl:  'Design handoff moments — clear visual boundaries between what the agent did and what it is requesting the human to decide. Avoid blurring ownership.'
+  },
+  {
+    title: 'Fully Autonomous',
+    body:  'The agent operates entirely without human involvement — even for edge cases. It has full authority within its permission scope. Intervention is system-initiated, not human-initiated.',
+    impl:  'Design for visibility and auditability only. You are not designing a control surface — you are designing a flight recorder. The UI exists to explain history, not to drive the future.'
+  }
+];
+function setAutoLevel(n) {
+  document.querySelectorAll('.auto-lvl').forEach((el, i) => el.classList.toggle('active', i === n));
+  const d = AUTO_DATA[n];
+  document.getElementById('auto-lvl-title').textContent = d.title;
+  document.getElementById('auto-lvl-body').textContent  = d.body;
+  document.getElementById('auto-lvl-impl').textContent  = d.impl;
+  const det = document.getElementById('auto-detail');
+  det.style.animation = 'none'; det.offsetHeight; det.style.animation = '';
+}
+
+/* ── ACTION TYPES ── */
+const ACTION_DATA = {
+  read: {
+    title: 'Read Actions — Design Considerations',
+    items: [
+      { cls: 'c-read', text: 'Read actions are low-risk but must be scoped — define exactly which data sources the agent can query and which are off-limits.' },
+      { cls: 'c-read', text: 'Surface the "freshness" of data read — a staleness indicator tells users whether they can trust the context the agent built.' },
+      { cls: 'c-read', text: 'Design read receipts in the audit log — even passive reads should be traceable for compliance and debugging.' },
+      { cls: 'c-read', text: 'Consider rate-limit exposure: an agent reading continuously can hit API quotas. Design fallback states for when reads fail.' }
+    ]
+  },
+  write: {
+    title: 'Write Actions — Design Considerations',
+    items: [
+      { cls: 'c-write', text: 'Write actions are irreversible or hard-to-reverse — always design a "dry run" mode that previews what would change before committing.' },
+      { cls: 'c-write', text: 'Show before/after diffs in the action log, not just the final state. Users need to understand the delta, not just the result.' },
+      { cls: 'c-write', text: 'Design rollback affordances where technically possible — a "undo this action" surface should appear within a defined window.' },
+      { cls: 'c-write', text: 'Require explicit permission scope for write targets — the agent should not write to any system it hasn\'t been explicitly authorized for.' }
+    ]
+  },
+  notify: {
+    title: 'Notify Actions — Design Considerations',
+    items: [
+      { cls: 'c-notify', text: 'Notifications are the agent\'s only voice when it has no UI — design them with the care of a first-class product surface, not an afterthought.' },
+      { cls: 'c-notify', text: 'Include actionable context in every notification: what happened, why it matters, and what action is expected from the recipient.' },
+      { cls: 'c-notify', text: 'Design notification fatigue controls — agents that run continuously can flood channels. Build in throttle rules and digest modes.' },
+      { cls: 'c-notify', text: 'Ensure notifications carry a trace ID so recipients can look up the full reasoning chain that triggered the alert.' }
+    ]
+  },
+  escalate: {
+    title: 'Escalate Actions — Design Considerations',
+    items: [
+      { cls: 'c-esc', text: 'Escalation is the agent admitting it doesn\'t have the authority or confidence to act — design this as a first-class, dignified moment, not a failure state.' },
+      { cls: 'c-esc', text: 'The escalation surface must include: what triggered it, what the agent was trying to do, what options are available, and what happens if the human doesn\'t respond.' },
+      { cls: 'c-esc', text: 'Design timeout behavior explicitly — if the human doesn\'t respond within N minutes, does the agent retry, abort, or default? Make this transparent.' },
+      { cls: 'c-esc', text: 'Track escalation rate as a product health metric. Frequent escalations signal that autonomy thresholds or training data need revisiting.' }
+    ]
+  }
+};
+function selectAction(type, el) {
+  document.querySelectorAll('.action-card').forEach(c => c.classList.remove('ac-active'));
+  el.classList.add('ac-active');
+  const d = ACTION_DATA[type];
+  document.getElementById('act-title').textContent = d.title;
+  const ul = document.getElementById('act-checklist');
+  ul.innerHTML = d.items.map(i => `<li class="${i.cls}">${i.text}</li>`).join('');
+  const box = document.getElementById('action-detail');
+  box.classList.add('show');
+  box.style.animation = 'none'; box.offsetHeight; box.style.animation = '';
+}
+
+/* ── CONTEXT SOURCES ── */
+const CTX_DATA = {
+  api: {
+    title: 'External APIs',
+    body:  'The agent calls third-party or internal REST/GraphQL endpoints to retrieve live data — pricing, user profiles, system status. Each call constructs part of the invocation context. APIs are the most common source for real-time data.',
+    chips: ['Salesforce CRM', 'GitHub Issues', 'Jira', 'Weather / Maps', 'LinkedIn', 'Crunchbase', 'Stripe Billing', 'PagerDuty'],
+    note:  'Design implication: Expose API health in the agent\'s context panel. If an API is unreachable, the agent\'s context is incomplete — users should know which sources succeeded and which failed.'
+  },
+  db: {
+    title: 'Databases',
+    body:  'The agent queries structured stores — relational, document, or vector databases — to pull business records, user history, product data, or embedding-based semantic search results. Vector DBs are increasingly used for similarity-based retrieval.',
+    chips: ['PostgreSQL', 'MongoDB', 'Redis cache', 'Pinecone (vector)', 'Elasticsearch', 'BigQuery', 'Snowflake', 'Firestore'],
+    note:  'Design implication: Show data freshness — when was this record last updated? Agents acting on stale data can produce harmful results. Surface a "last synced" timestamp in any read-from-DB confirmation.'
+  },
+  kg: {
+    title: 'Knowledge Graphs',
+    body:  'Entities (people, products, organizations) and the relationships between them are stored as graph structures. The agent traverses these to reason about connected data — e.g., which customers are impacted by a supplier change.',
+    chips: ['Neo4j', 'AWS Neptune', 'IBM Knowledge Catalog', 'Wikidata', 'CMDB / asset graph', 'Product ontology', 'Organization hierarchy'],
+    note:  'Design implication: Make graph traversal depth visible. If the agent followed 4 relationship hops to reach a conclusion, surface that reasoning path — otherwise the output appears as a magical black box.'
+  },
+  events: {
+    title: 'Event Streams',
+    body:  'Kafka topics, webhook payloads, or message queue entries trigger the agent and carry the initial context payload. The triggering event is often the most important context item — it defines what the agent is responding to.',
+    chips: ['Apache Kafka', 'AWS SQS / SNS', 'Webhooks (GitHub, Stripe)', 'Cron schedules', 'Database change streams', 'IoT sensor feeds', 'Alerting platforms'],
+    note:  'Design implication: The event payload is the agent\'s "first input" — design event schemas with the agent in mind. Poorly structured events lead to missing context, failed runs, and confusing escalations.'
+  }
+};
+function selectCtx(type, el) {
+  document.querySelectorAll('.ctx-node').forEach(n => n.classList.remove('cn-active'));
+  el.classList.add('cn-active');
+  const d = CTX_DATA[type];
+  document.getElementById('ctx-title').textContent = d.title;
+  document.getElementById('ctx-body').textContent  = d.body;
+  document.getElementById('ctx-chips').innerHTML   = d.chips.map(c => `<span class="ctx-chip">${c}</span>`).join('');
+  document.getElementById('ctx-note').textContent  = d.note;
+  const box = document.getElementById('ctx-detail');
+  box.classList.add('show');
+  box.style.animation = 'none'; box.offsetHeight; box.style.animation = '';
+}
+
+/* ── LIVE AGENT DEMO ── */
+(function() {
+  const ts = () => {
+    const now = new Date();
+    return `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}.${String(now.getMilliseconds()).padStart(3,'0').slice(0,2)}`;
+  };
+
+  const SEQUENCES = [
+    // ── Run A: Network anomaly ──────────────────────────────────────
+    [
+      { delay:400,  tag:'ev',  cls:'ad-hl',   msg:'EVENT  webhook.pagerduty → alert_id=PDX-9182' },
+      { delay:320,  tag:'ev',  cls:'ad-dim',  msg:'       severity=critical  host=prod-lb-07' },
+      { delay:600,  tag:'ctx', cls:'ad-msg',  msg:'FETCH  instana.metrics   cpu=91%  mem=78%' },
+      { delay:400,  tag:'ctx', cls:'ad-msg',  msg:'FETCH  prometheus.query  p99_latency=2340ms' },
+      { delay:350,  tag:'ctx', cls:'ad-dim',  msg:'FETCH  cmdb.topology      upstream=3  downstream=7' },
+      { delay:500,  tag:'ctx', cls:'ad-ok',   msg:'CTX    assembled  sources=3  tokens=1,842' },
+      { delay:700,  tag:'dec', cls:'ad-msg',  msg:'EVAL   anomaly score → 0.94  threshold=0.80' },
+      { delay:400,  tag:'dec', cls:'ad-warn', msg:'EVAL   high-traffic shift  BGP-route candidate found' },
+      { delay:500,  tag:'dec', cls:'ad-msg',  msg:'PLAN   action=reroute_traffic  risk=medium' },
+      { delay:450,  tag:'dec', cls:'ad-hl',   msg:'CHECK  permission:reroute_traffic → APPROVED (auto)' },
+      { delay:600,  tag:'act', cls:'ad-msg',  msg:'EXEC   ibm.network.reroute  src=prod-lb-07  dst=prod-lb-12' },
+      { delay:380,  tag:'act', cls:'ad-dim',  msg:'       estimated_impact: <200ms blip, 0 dropped pkts' },
+      { delay:800,  tag:'act', cls:'ad-ok',   msg:'DONE   reroute confirmed  latency=43ms  ✓' },
+      { delay:400,  tag:'log', cls:'ad-msg',  msg:'AUDIT  action_id=ACT-00412  operator=network-agent' },
+      { delay:300,  tag:'log', cls:'ad-dim',  msg:'       written → audit-log · slack #ops-alerts' },
+      { delay:500,  tag:'ok',  cls:'ad-ok',   msg:'RUN COMPLETE  duration=4.2s  actions=1  escalations=0' },
+    ],
+    // ── Run B: Permission outside scope → escalation ────────────────
+    [
+      { delay:300,  tag:'ev',  cls:'ad-hl',   msg:'EVENT  kafka.topic=compliance_scan_due' },
+      { delay:280,  tag:'ev',  cls:'ad-dim',  msg:'       tenant=acme-corp  scope=iam_audit' },
+      { delay:550,  tag:'ctx', cls:'ad-msg',  msg:'FETCH  okta.users         active=1,203' },
+      { delay:400,  tag:'ctx', cls:'ad-msg',  msg:'FETCH  okta.roles         stale_>90d=47' },
+      { delay:350,  tag:'ctx', cls:'ad-ok',   msg:'CTX    assembled  sources=2  tokens=984' },
+      { delay:600,  tag:'dec', cls:'ad-msg',  msg:'EVAL   47 stale role assignments found' },
+      { delay:400,  tag:'dec', cls:'ad-msg',  msg:'PLAN   action=revoke_stale_roles  count=47' },
+      { delay:450,  tag:'dec', cls:'ad-hl',   msg:'CHECK  permission:revoke_roles → APPROVED (auto)' },
+      { delay:500,  tag:'act', cls:'ad-msg',  msg:'EXEC   revoke_roles  batch=47  dry_run=false' },
+      { delay:380,  tag:'act', cls:'ad-ok',   msg:'DONE   47 roles revoked  ✓' },
+      { delay:320,  tag:'dec', cls:'ad-msg',  msg:'PLAN   action=modify_bgp_policy  detected drift' },
+      { delay:400,  tag:'dec', cls:'ad-warn', msg:'CHECK  permission:modify_bgp_policy → REQUIRES APPROVAL' },
+      { delay:500,  tag:'esc', cls:'ad-warn', msg:'PAUSE  escalation raised → slack @netops-oncall' },
+      { delay:350,  tag:'esc', cls:'ad-dim',  msg:'       waiting for human decision  timeout=15min' },
+      { delay:400,  tag:'log', cls:'ad-msg',  msg:'AUDIT  partial run logged  actions=1  pending=1' },
+      { delay:500,  tag:'ok',  cls:'ad-warn', msg:'RUN PAUSED  awaiting approval  escalation_id=ESC-0094' },
+    ],
+    // ── Run C: Context failure graceful degradation ──────────────────
+    [
+      { delay:350,  tag:'ev',  cls:'ad-hl',   msg:'EVENT  cron  0 */6 * * *  → lead_enrichment' },
+      { delay:280,  tag:'ev',  cls:'ad-dim',  msg:'       batch=34 new leads  source=salesforce' },
+      { delay:500,  tag:'ctx', cls:'ad-msg',  msg:'FETCH  salesforce.leads    ok  count=34' },
+      { delay:400,  tag:'ctx', cls:'ad-msg',  msg:'FETCH  linkedin.company    ok  enriched=31' },
+      { delay:350,  tag:'ctx', cls:'ad-err',  msg:'FETCH  crunchbase.funding  ✗  429 rate-limited' },
+      { delay:300,  tag:'ctx', cls:'ad-warn', msg:'WARN   partial context  missing: funding_stage' },
+      { delay:450,  tag:'ctx', cls:'ad-msg',  msg:'FETCH  vector.similar_deals  ok  p=0.87' },
+      { delay:400,  tag:'ctx', cls:'ad-warn', msg:'CTX    assembled (partial)  confidence=0.71' },
+      { delay:600,  tag:'dec', cls:'ad-msg',  msg:'EVAL   scoring with reduced confidence flag' },
+      { delay:400,  tag:'dec', cls:'ad-msg',  msg:'PLAN   action=score_leads  note=low_confidence' },
+      { delay:500,  tag:'act', cls:'ad-msg',  msg:'EXEC   crm.score_leads  count=34  flag=needs_review' },
+      { delay:380,  tag:'act', cls:'ad-ok',   msg:'DONE   leads scored  ✓  review_flag_set=34' },
+      { delay:350,  tag:'log', cls:'ad-msg',  msg:'AUDIT  context_health: linkedin=✓ crunchbase=✗' },
+      { delay:300,  tag:'log', cls:'ad-dim',  msg:'       retry crunchbase scheduled in 1h' },
+      { delay:500,  tag:'ok',  cls:'ad-warn', msg:'RUN COMPLETE  degraded  actions=1  confidence=0.71' },
+    ]
+  ];
+
+  let seqIdx = 0, lineIdx = 0, paused = false, timer = null;
+
+  function setStatus(txt, pulse) {
+    document.getElementById('ad-status-text').textContent = txt;
+    const p = document.getElementById('ad-pulse');
+    p.className = 'ad-pulse' + (pulse ? ' ' + pulse : '');
+  }
+
+  function addLine(entry) {
+    const log = document.getElementById('ad-log');
+    if (!log) return;
+    const row = document.createElement('div');
+    row.className = 'ad-line';
+    row.innerHTML =
+      `<span class="ad-ts">${ts()}</span>` +
+      `<span class="ad-tag tag-${entry.tag}">${entry.tag.toUpperCase().padEnd(7)}</span>` +
+      `<span class="${entry.cls}">${entry.msg}</span>`;
+    log.appendChild(row);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function runNext() {
+    const seq = SEQUENCES[seqIdx];
+    if (paused || lineIdx >= seq.length) {
+      if (lineIdx >= seq.length) {
+        setStatus('Run complete. Replaying in 4s…', 'idle');
+        timer = setTimeout(() => {
+          seqIdx = (seqIdx + 1) % SEQUENCES.length;
+          agentReplay(true);
+        }, 4000);
+      }
+      return;
+    }
+    const entry = seq[lineIdx++];
+
+    // update status bar
+    if (entry.tag === 'ev')  setStatus('Event received — assembling context…', 'active');
+    if (entry.tag === 'ctx') setStatus('Building context…', 'active');
+    if (entry.tag === 'dec') setStatus('Evaluating decision…', 'active');
+    if (entry.tag === 'act') setStatus('Executing action…', 'warn');
+    if (entry.tag === 'esc') setStatus('Escalation raised — waiting for human…', 'warn');
+    if (entry.tag === 'log') setStatus('Writing audit log…', '');
+    if (entry.tag === 'ok')  setStatus(entry.msg, 'idle');
+
+    addLine(entry);
+    timer = setTimeout(runNext, entry.delay);
+  }
+
+  window.agentPause = function() {
+    paused = !paused;
+    const btn = document.getElementById('ad-pause');
+    if (paused) {
+      clearTimeout(timer);
+      setStatus('Paused', 'idle');
+      btn.innerHTML = '<svg width="10" height="10" viewBox="0 0 32 32" fill="currentColor"><path d="M7 28l18-12L7 4v24z"/></svg>';
+    } else {
+      btn.innerHTML = '<svg width="10" height="10" viewBox="0 0 32 32" fill="currentColor"><path d="M12 6H8v20h4zm12 0h-4v20h4z"/></svg>';
+      runNext();
+    }
+  };
+
+  window.agentReplay = function(auto) {
+    clearTimeout(timer);
+    paused = false;
+    lineIdx = 0;
+    if (!auto) seqIdx = (seqIdx + 1) % SEQUENCES.length;
+    const log = document.getElementById('ad-log');
+    if (log) log.innerHTML = '';
+    const btn = document.getElementById('ad-pause');
+    if (btn) btn.innerHTML = '<svg width="10" height="10" viewBox="0 0 32 32" fill="currentColor"><path d="M12 6H8v20h4zm12 0h-4v20h4z"/></svg>';
+    setStatus('Starting new run…', 'active');
+    timer = setTimeout(runNext, 600);
+  };
+
+  window.agentStart = function() {
+    clearTimeout(timer);
+    paused = false;
+    lineIdx = 0;
+    const log = document.getElementById('ad-log');
+    if (log) log.innerHTML = '';
+    setStatus('Waiting for trigger…', 'idle');
+    timer = setTimeout(runNext, 800);
+  };
+})();
+
+/* ── PILLAR NAV ── */
+const railMocks = { sc:'rail-sc', tr:'rail-tr', ch:'rail-ch', id:'rail-id' };
+document.querySelectorAll('.p-btn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.p-btn').forEach(x => x.classList.remove('on'));
+  document.querySelectorAll('.p-panel').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  document.getElementById('pp-' + b.dataset.p).classList.add('on');
+  // swap rail mock
+  Object.values(railMocks).forEach(id => { const el = document.getElementById(id); if(el) el.style.display='none'; });
+  const rm = document.getElementById(railMocks[b.dataset.p]);
+  if (rm) rm.style.display = 'block';
+}));
+
+/* ── GALLERY LIGHTBOX ── */
+const GALLERY_DATA = [
+  {
+    title:   'Canvas — Main Dashboard',
+    tag:     'Invisible UI',
+    caption: 'The Canvas view is the ambient heartbeat of the headless agent system. Confidence score, fleet health, and the activity timeline surface only what matters. The greeting and query chips invite contextual conversation without forcing it — this is presence as an aesthetic.',
+    src:     'ini1.png'
+  },
+  {
+    title:   'Agentic Trace — Escalation View',
+    tag:     'Trace View',
+    caption: 'The Agentic Trace screen surfaces the full decision reasoning chain: what the agent detected, investigated, and why it escalated. The confidence trajectory chart and approval gates panel show the agent\'s work — not just the outcome. The escalation card with Approve/Deny gives the human a single, time-boxed decision.',
+    src:     'ini2.png'
+  },
+  {
+    title:   'Policy & Permissions — Studio',
+    tag:     'Scope & Policy',
+    caption: 'The Policy & Permissions screen is where the agent\'s operating mode is set. The composite score tracks the balance between autonomy and compliance. The permission matrix rows (Auto / Ask / Approval) are the product spec. The posture radar shows how the current configuration compares to a baseline and a compliance-heavy profile.',
+    src:     'ini3.png'
+  },
+  {
+    title:   'Policy & Permissions — Full Scroll',
+    tag:     'Scope & Policy',
+    caption: 'The same Policy & Permissions screen scrolled further, revealing extended permission categories, model & remediation knobs, and the full posture projection view with Balanced, Baseline, and Reversibility overlays on the radar chart.',
+    src:     'ini4.png'
+  }
+];
+let lbCurrent = 0;
+
+function openLightbox(idx) {
+  lbCurrent = idx;
+  renderLightbox();
+  document.getElementById('gallery-lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('gallery-lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeLightboxIfBackdrop(e) {
+  if (e.target === document.getElementById('gallery-lightbox')) closeLightbox();
+}
+
+function lbNavigate(dir) {
+  lbCurrent = (lbCurrent + dir + GALLERY_DATA.length) % GALLERY_DATA.length;
+  renderLightbox();
+}
+
+function renderLightbox() {
+  const d = GALLERY_DATA[lbCurrent];
+  document.getElementById('lb-title').textContent   = d.title;
+  document.getElementById('lb-tag').textContent     = d.tag;
+  document.getElementById('lb-caption').textContent = d.caption;
+  document.getElementById('lb-counter').textContent = `${lbCurrent + 1} / ${GALLERY_DATA.length}`;
+  // Show the real screenshot in the lightbox
+  const wrap = document.getElementById('lb-svg-wrap');
+  wrap.innerHTML = '';
+  const img = document.createElement('img');
+  img.src = d.src;
+  img.alt = d.title;
+  img.draggable = false;
+  wrap.appendChild(img);
+  document.getElementById('lb-prev').style.visibility = lbCurrent === 0 ? 'hidden' : 'visible';
+  document.getElementById('lb-next').style.visibility = lbCurrent === GALLERY_DATA.length - 1 ? 'hidden' : 'visible';
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('gallery-lightbox').classList.contains('open')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowRight') lbNavigate(1);
+  if (e.key === 'ArrowLeft')  lbNavigate(-1);
+});
+
+/* ── PILLAR ARCHITECTURE — interactive SVG micro-interactions ── */
+(function () {
+  var COLORS = { sc:'#4d8eff', tr:'#3dd68c', ch:'#f1c21b', id:'#a56eff' };
+  var active = 'sc';
+
+  function paSelect(el) {
+    var key = el.dataset.p;
+    if (!key) return;
+    active = key;
+
+    /* update all cards */
+    document.querySelectorAll('.pa-card').forEach(function(c) {
+      c.classList.toggle('act', c.dataset.p === key);
+    });
+    /* update connector lines */
+    ['sc','tr','ch','id'].forEach(function(k) {
+      var line = document.getElementById('pa-line-'+k);
+      if (line) line.classList.toggle('act', k === key);
+    });
+    /* pulse the core hover ring */
+    var ring = document.getElementById('pa-core-hover-ring');
+    if (ring) {
+      ring.setAttribute('stroke', COLORS[key]);
+      ring.setAttribute('stroke-width', '2.5');
+      ring.setAttribute('opacity', '0.6');
+      setTimeout(function() {
+        ring.setAttribute('stroke-width', '0');
+        ring.setAttribute('opacity', '0');
+      }, 500);
+    }
+    /* sync pillar nav buttons */
+    document.querySelectorAll('.p-btn').forEach(function(b) {
+      if (b.dataset.p === key) b.click();
+    });
+  }
+  window.paSelect = paSelect;
+
+  /* core — hover expand ring */
+  var core = document.getElementById('pa-core');
+  if (core) {
+    var ring = document.getElementById('pa-core-hover-ring');
+    core.addEventListener('mouseenter', function() {
+      if (ring) {
+        ring.setAttribute('stroke', COLORS[active]);
+        ring.setAttribute('stroke-width', '2');
+        ring.setAttribute('opacity', '0.5');
+        ring.setAttribute('r', '32');
+      }
+    });
+    core.addEventListener('mouseleave', function() {
+      if (ring) {
+        ring.setAttribute('stroke-width', '0');
+        ring.setAttribute('opacity', '0');
+        ring.setAttribute('r', '28');
+      }
+    });
+  }
+
+  /* sync pillar nav → SVG */
+  document.querySelectorAll('.p-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var k = btn.dataset.p;
+      if (!k) return;
+      active = k;
+      document.querySelectorAll('.pa-card').forEach(function(c) {
+        c.classList.toggle('act', c.dataset.p === k);
+      });
+      ['sc','tr','ch','id'].forEach(function(id) {
+        var l = document.getElementById('pa-line-'+id);
+        if (l) l.classList.toggle('act', id === k);
+      });
+    });
+  });
+
+  /* init — make sc active line */
+  var initLine = document.getElementById('pa-line-sc');
+  if (initLine) initLine.classList.add('act');
+}());
+
+/* ═══════════════════════════════════════════════════════
+   DIRECTION MICRO-INTERACTIONS — Panel 4 right rail
+═══════════════════════════════════════════════════════ */
+
+/* ── Tab switcher ── */
+const DMI_NAMES = [
+  'Design Logic, Not Layout',
+  'Build Interfaces That Flex and Deform',
+  'Proactive by Default, Verify at the Edges',
+  'Make "Presence" the New Aesthetic',
+  'Test for Trust, Not Just Usability'
+];
+document.getElementById('dmiTabs').querySelectorAll('.dmi-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    const d = parseInt(btn.dataset.d);
+    document.querySelectorAll('.dmi-tab').forEach(t => t.classList.remove('on'));
+    document.querySelectorAll('.dmi-scene').forEach(s => s.classList.remove('on'));
+    btn.classList.add('on');
+    document.getElementById('dmi-' + d).classList.add('on');
+    document.getElementById('dmiName').textContent = DMI_NAMES[d];
+    if (d === 0) dmiRunRules();
+    if (d === 1) dfdTriggerAlert();
+    if (d === 2) dpvReset();
+    if (d === 3) dprInit();
+  });
+});
+
+/* ── D01: Rule engine ── */
+const DRE_RULES = [
+  { pass: true,  icon: '✓', badge: 'PASS',     ms: 420 },
+  { pass: false, icon: '✗', badge: 'NO',        ms: 380 },
+  { pass: true,  icon: '✓', badge: 'APPROVED',  ms: 500 },
+  { pass: false, icon: '—', badge: 'NO',        ms: 340 },
+  { pass: true,  icon: '✓', badge: 'ACTIVE',    ms: 360 }
+];
+let dreTimer = null;
+function dmiRunRules() {
+  const rows = document.querySelectorAll('#dreRows .dre-row');
+  const verdict = document.getElementById('dreVerdict');
+  verdict.textContent = '';
+  rows.forEach(function(r) {
+    r.dataset.state = 'idle';
+    r.querySelector('.dre-icon').textContent = '⬜';
+    r.querySelector('.dre-badge').textContent = '—';
+  });
+  if (dreTimer) clearTimeout(dreTimer);
+  let elapsed = 0;
+  rows.forEach(function(row, i) {
+    const rule = DRE_RULES[i];
+    elapsed += (i === 0 ? 280 : rule.ms);
+    setTimeout(function() {
+      row.dataset.state = 'run';
+      row.querySelector('.dre-icon').textContent = '…';
+      row.querySelector('.dre-badge').textContent = '…';
+    }, elapsed);
+    elapsed += rule.ms;
+    setTimeout(function() {
+      row.dataset.state = rule.pass ? 'pass' : 'fail';
+      row.querySelector('.dre-icon').textContent = rule.icon;
+      row.querySelector('.dre-badge').textContent = rule.badge;
+      if (i === rows.length - 1) {
+        const failCount = [...rows].filter(r => r.dataset.state === 'fail').length;
+        verdict.textContent = failCount > 0
+          ? '⛔  Policy blocked — 2 guardrails failed. Escalating.'
+          : '✓  All rules passed — action authorised.';
+        verdict.style.color = failCount > 0 ? 'var(--red)' : 'var(--green)';
+      }
+    }, elapsed);
+  });
+}
+function dmiReplay() { dmiRunRules(); }
+dmiRunRules();
+
+/* ── D02: Flex & deform ── */
+let dfdAlertTimer = null;
+function dfdTriggerAlert() {
+  const ambient  = document.getElementById('dfdAmbient');
+  const expanded = document.getElementById('dfdExpanded');
+  ambient.style.display = 'flex';
+  expanded.classList.remove('show');
+  if (dfdAlertTimer) clearTimeout(dfdAlertTimer);
+  dfdAlertTimer = setTimeout(function() {
+    ambient.style.display = 'none';
+    expanded.classList.add('show');
+  }, 1800);
+}
+function dfdApprove() {
+  const expanded = document.getElementById('dfdExpanded');
+  expanded.querySelector('.dfd-exp-title').textContent = 'prod-lb-07 · rerouting…';
+  expanded.querySelector('.dfd-trace-row.warn').textContent = '✓ Action approved — reroute executing';
+  expanded.querySelector('.dfd-trace-row.warn').className = 'dfd-trace-row ok';
+  setTimeout(function() {
+    expanded.classList.remove('show');
+    document.getElementById('dfdAmbient').style.display = 'flex';
+    document.getElementById('dfdAmbient').querySelector('.dfd-status-line').textContent = 'fleet healthy · reroute complete';
+  }, 1400);
+}
+function dfdDismiss() {
+  document.getElementById('dfdExpanded').classList.remove('show');
+  document.getElementById('dfdAmbient').style.display = 'flex';
+  document.getElementById('dfdAmbient').querySelector('.dfd-status-line').textContent = 'fleet healthy · 47 agents running';
+}
+
+/* ── D03: Proactive / verify ── */
+let dpvThinkTimer = null;
+function dpvReset() {
+  ['dpvStep0','dpvStep1','dpvStep2'].forEach(function(id, i) {
+    document.getElementById(id).classList.toggle('hidden', i !== 0);
+  });
+  if (dpvThinkTimer) clearTimeout(dpvThinkTimer);
+  dpvThinkTimer = setTimeout(function() {
+    document.getElementById('dpvStep0').classList.add('hidden');
+    document.getElementById('dpvStep1').classList.remove('hidden');
+  }, 2200);
+}
+function dpvApprove() {
+  document.getElementById('dpvStep1').classList.add('hidden');
+  document.getElementById('dpvStep2').classList.remove('hidden');
+}
+function dpvReject() {
+  document.getElementById('dpvStep1').classList.add('hidden');
+  document.getElementById('dpvStep0').classList.remove('hidden');
+  dpvThinkTimer = setTimeout(function() {
+    document.getElementById('dpvStep0').classList.add('hidden');
+    document.getElementById('dpvStep1').classList.remove('hidden');
+  }, 2200);
+}
+dpvReset();
+
+/* ── D04: Presence / ambient ── */
+const DPR_LABELS = [
+  'analyzing options…', 'monitoring 47 agents…', 'cross-checking sources…',
+  'rerouting traffic…', 'verifying rollback policy…', 'writing audit log…',
+  'fleet healthy…', 'next check in 30s…'
+];
+let dprLabelIdx = 0, dprBarTimer = null, dprLabelTimer = null;
+function dprInit() {
+  const barsEl = document.getElementById('dprBars');
+  barsEl.innerHTML = '';
+  const counts = 22;
+  const heights = Array.from({length: counts}, () => Math.floor(Math.random() * 80) + 10);
+  heights.forEach(function(h) {
+    const bar = document.createElement('div');
+    bar.className = 'dpr-bar';
+    bar.style.height = h + '%';
+    barsEl.appendChild(bar);
+  });
+  if (dprBarTimer) clearInterval(dprBarTimer);
+  dprBarTimer = setInterval(function() {
+    const bars = barsEl.querySelectorAll('.dpr-bar');
+    bars.forEach(function(b) { b.style.height = (Math.floor(Math.random() * 80) + 10) + '%'; });
+  }, 1800);
+  if (dprLabelTimer) clearInterval(dprLabelTimer);
+  dprLabelTimer = setInterval(function() {
+    dprLabelIdx = (dprLabelIdx + 1) % DPR_LABELS.length;
+    document.getElementById('dprLiveLabel').textContent = DPR_LABELS[dprLabelIdx];
+  }, 2400);
+}
+dprInit();
+
+/* ── D05: Trust meter ── */
+const DTR_DATA = [
+  { fill: 10,  del: '12%', ovr: '18',  cmp: 'Low',         insight: 'User reviews every action — trust is not yet established.' },
+  { fill: 30,  del: '34%', ovr: '11',  cmp: 'Developing',   insight: 'User accepts agent suggestions but still validates each step.' },
+  { fill: 58,  del: '67%', ovr: '4',   cmp: 'Moderate',     insight: 'Agent handles full workflows. User audits the summary after completion.' },
+  { fill: 74,  del: '79%', ovr: '2',   cmp: 'High',         insight: 'Human handles judgement calls; agent owns mechanical execution.' },
+  { fill: 96,  del: '97%', ovr: '0',   cmp: 'Full',         insight: 'Full autonomy granted. UI serves as flight recorder — not control surface.' }
+];
+function dtrSet(lv, el) {
+  document.querySelectorAll('.dtr-lvl').forEach(function(l) { l.classList.remove('active'); });
+  el.classList.add('active');
+  const d = DTR_DATA[lv];
+  document.getElementById('dtrFill').style.width  = d.fill + '%';
+  document.getElementById('dtrDel').textContent   = d.del;
+  document.getElementById('dtrOvr').textContent   = d.ovr;
+  document.getElementById('dtrCmp').textContent   = d.cmp;
+  document.getElementById('dtrInsight').textContent = d.insight;
+}
+
+/* init D02 alert cycle when panel 4 becomes visible */
+(function() {
+  const _orig = goToStep;
+  goToStep = function(n) {
+    _orig(n);
+    if (n === 4) setTimeout(dfdTriggerAlert, 600);
+  };
+}());
+</script>
+</body>
+</html>
