@@ -1,6 +1,6 @@
 # Designing for Invisible UI
 
-> A design research interactive guide for **headless AI agents** — AI systems that operate autonomously without a user-facing interface. Built as a **5-panel interactive stepper** (`index.html`) using the IBM Predictable Delivery design language.
+> A design research interactive guide for **headless AI agents** — AI systems that operate autonomously without a user-facing interface. Built as a **5-panel interactive stepper** (`index.html`) using the IBM Predictable Delivery design language, with a companion **UXR concept testing plan** (`uxr_plan.html`).
 
 ---
 
@@ -8,13 +8,14 @@
 
 | Property | Value |
 |---|---|
-| **Format** | 5-panel interactive stepper (`index.html`) |
+| **Format** | 5-panel interactive stepper (`index.html`) + UXR plan (`uxr_plan.html`) |
 | **Theme** | IBM Predictable Delivery — white + light blue-grey, IBM Plex Sans 300, `#0f62fe` accent |
 | **Panels** | 0 Overview · 1 What & Why · 2 Characteristics · 3 Four Pillars · 4 Directions & Gallery |
 | **Pillars explored** | 4 (Scope & Policy · Trace View · Contextual Chat · Agent Identity) |
 | **Design directions** | 5 (derived from the four pillars) |
 | **Navigation** | Fixed top nav + stepper progress bar; `goToStep(n)` JS-driven panel switching |
 | **Flow label** | Recognition → Words → Agreement → Evidence |
+| **Live URL** | https://jayakrishnakaimal.github.io/JK_Demo/ |
 
 ---
 
@@ -48,9 +49,9 @@ Every panel uses a **two-column split**:
 - **Right column (`.rail-col`)** — persistent illustration, demo, or diagram
 
 ### Navigation
-- **Top nav** — fixed 48px bar; IBM logo · step tabs · "View as" role selector · step counter badge
-- **Stepper bar** — 5 dots with connecting line; active dot filled blue, completed dots outlined
-- **Back / Next buttons** — `btn-back` / `btn-next` at bottom of each panel calling `goToStep(n)`
+- **Top nav** — fixed 48px bar; brand label · "Today" tab
+- **Stepper bar** — 5 step items with labels; active step filled blue, completed steps outlined
+- **Back / Next buttons** — `btn-back` / `btn-forward` at bottom of each panel calling `goToStep(n)`
 
 ---
 
@@ -177,10 +178,10 @@ Every panel uses a **two-column split**:
 
 | Tab | Title | Real-world Example |
 |---|---|---|
-| `event` | Event Driven | Network agent triggers on CPU > 85%, reroutes load, logs action |
-| `autonomous` | Autonomous | Security agent monitors 50+ apps, revokes stale permissions 24/7 |
-| `action` | Action Oriented | Invoice agent extracts PDF data, writes to DB, schedules payment |
-| `context` | Context Building | Lead enrichment agent queries LinkedIn + Crunchbase from scratch |
+| `ev` | Event Driven | Network agent triggers on CPU > 85%, reroutes load, logs action |
+| `au` | Autonomous | Security agent monitors 50+ apps, revokes stale permissions 24/7 |
+| `ac` | Action Oriented | Invoice agent extracts PDF data, writes to DB, schedules payment |
+| `co` | Context Building | Lead enrichment agent queries LinkedIn + Crunchbase from scratch |
 
 Each tab reveals traits and a real-world example box.
 
@@ -396,6 +397,69 @@ Background: `#161616`
 
 ---
 
+## UXR Plan — `uxr_plan.html`
+
+A companion **concept testing plan** for validating the three novel UI surfaces (Canvas, Agentic Trace, Policy & Permissions) with 12 participants across three segments. Styled with IBM Carbon Design System tokens (`--cds-*`) and BEM class naming (`bx--`).
+
+### Header navigation
+
+| Link | Destination |
+|---|---|
+| IBM Network Intelligence (brand) | `#top` — scrolls to page header |
+| Research | `#top` — current active page |
+| Headless *(right corner)* | `index.html` — navigates to the main interactive guide |
+
+### Sections (11 total)
+
+| # | Section | Component pattern |
+|---|---|---|
+| 01 | Background & context | Screen card grid (5 screens) |
+| 02 | Research objectives | 6-card grid — RO-1 through RO-6 |
+| 03 | Key research questions | 2-col KRQ grid — 4 clusters, ordered lists |
+| 04 | Participant criteria | Structured list — 3 segments + screener |
+| 05 | Tasks & discussion guide | Interactive accordion — 5 tasks with scenario / task / probes |
+| 06 | Success metrics | 6-cell metric card grid with large value display |
+| 07 | Study timeline | Progress steps — 5 weeks, green ✓ complete, blue ◉ in-progress |
+| 08 | Analysis framework | Dark-header code table — 6 analysis phases |
+| 09 | Discussion guide outline | Guide outline — 7 time-keyed rows |
+| 10 | Risks & mitigations | Code table — 6 risks with likelihood/impact/mitigation |
+| 11 | Deliverables | Structured list — 7 deliverables with status tags |
+
+### Study at a glance
+
+| Property | Value |
+|---|---|
+| Study type | Moderated concept test, remote |
+| Session length | 60 min + 10 min debrief |
+| Participants | n = 12 (3 segments) |
+| Timeline | 6 weeks |
+| Screens tested | 5 (Canvas · Agentic Trace × 2 · Policy Studio · Digital Twin) |
+| Primary tool | Zoom + Maze hi-fi prototype |
+
+### Research objectives summary
+
+| ID | Objective | Primary tag |
+|---|---|---|
+| RO-1 | Mental model alignment | Mental model |
+| RO-2 | Trust & confidence signals | Trust |
+| RO-3 | Oversight & control | Control |
+| RO-4 | Transparency of reasoning | Transparency |
+| RO-5 | Permission & policy usability | Policy |
+| RO-6 | Pre-flight & digital twin value | Simulation |
+
+### Success metrics
+
+| Metric | Threshold |
+|---|---|
+| Task completion rate | ≥ 80% |
+| SEQ score (trust tasks) | ≥ 5.5 / 7 |
+| Mental model alignment | ≥ 70% |
+| Policy configuration accuracy | ≥ 75% |
+| Transparency legibility | ≥ 65% |
+| Pre-flight approval intent | ≥ 60% |
+
+---
+
 ## Design System — Token Reference
 
 | Token | Value | Usage |
@@ -415,6 +479,18 @@ Background: `#161616`
 | `--surface` | `#f4f4f4` | Section backgrounds, example boxes |
 | `--rail` | `#f0f4f8` | Light blue-grey right rail surface |
 | `--signal` | `#e8f5d0` | Soft green signal / success tint |
+
+### Carbon Design Tokens (`uxr_plan.html`)
+
+| Token | Value | Usage |
+|---|---|---|
+| `--cds-background` | `#ffffff` | Page background |
+| `--cds-background-inverse` | `#161616` | Header, footer, dark surfaces |
+| `--cds-layer-01` | `#f4f4f4` | Section layer backgrounds |
+| `--cds-interactive` | `#0f62fe` | Links, active states, eyebrow labels |
+| `--cds-text-primary` | `#161616` | Primary text |
+| `--cds-text-secondary` | `#525252` | Body copy, table cells |
+| `--cds-border-subtle-01` | `#e0e0e0` | Card and table borders |
 
 ### Typography
 - **Font:** IBM Plex Sans (300 · 400 · 600 · 700) via Google Fonts
@@ -488,23 +564,25 @@ Background: `#161616`
 ```
 /Users/jayakrishnakaimal/Desktop/JK_demo/
 │
-├── index.html                          ← MAIN FILE (~3400 lines)
+├── index.html                          ← MAIN SITE (~3400 lines)
 │   Key sections:
-│   ├── CSS (lines 7–880)
+│   ├── CSS (lines 8–1050)
 │   │   ├── Panel/split layout           ~118–145
-│   │   ├── MacBook SVG keyframes        ~1211–1215 (inline <style>)
+│   │   ├── MacBook SVG keyframes        ~1212–1216 (inline <style>)
 │   │   ├── Char tabs CSS                ~338–400
 │   │   ├── Pillar arch CSS              ~604–620
 │   │   ├── Direction micro-interaction  ~688–880
 │   │   └── Gallery / Lightbox CSS       ~880–960
-│   ├── Panel 0 — Overview              ~1099–1436
-│   │   └── MacBook SVG                 ~1217–1386
-│   ├── Panel 1 — What & Why            ~1441–1566
-│   ├── Panel 2 — Characteristics       ~1572–1819
-│   │   └── Live agent terminal demo    ~1790–1815
-│   ├── Panel 3 — Four Pillars          ~1824–2385
+│   ├── Top nav                          ~1053–1064
+│   ├── Stepper bar                      ~1066–1095
+│   ├── Panel 0 — Overview              ~1099–1437
+│   │   └── MacBook SVG                 ~1218–1387
+│   ├── Panel 1 — What & Why            ~1442–1568
+│   ├── Panel 2 — Characteristics       ~1573–1820
+│   │   └── Live agent terminal demo    ~1793–1816
+│   ├── Panel 3 — Four Pillars          ~1825–1900
 │   │   └── Interactive SVG diagram     ~1900–2200
-│   ├── Panel 4 — Directions & Gallery  ~2390–2679
+│   ├── Panel 4 — Directions & Gallery  ~2390–2680
 │   │   ├── Direction cards             ~2395–2455
 │   │   ├── Team grid                   ~2458–2468
 │   │   ├── Gallery 4-tile              ~2470–2525
@@ -512,21 +590,60 @@ Background: `#161616`
 │   ├── Gallery Lightbox HTML           ~2682–2712
 │   ├── Dark footer                     ~2714–2726
 │   └── <script> block                  ~2728–end
-│       ├── goToStep / stepper          ~2728–2750
+│       ├── goToStep / stepper          ~2728–2751
 │       ├── VS toggle                   ~2760
-│       ├── Char tabs                   ~2770–2780
+│       ├── Char tabs                   ~2770–2778
 │       ├── Gallery lightbox JS         ~3060–3135
 │       ├── Pillar architecture JS      ~3137–3214
 │       └── Direction micro-interactions ~3215–3410
 │
+├── uxr_plan.html                       ← UXR CONCEPT TESTING PLAN (~1460 lines)
+│   ├── Carbon CSS tokens + component styles  lines 10–625
+│   ├── UI Shell header (Research · Headless) lines 628–641
+│   ├── Page header (dark, IBM style)         lines 643–648
+│   ├── Key metric tiles (4-col)              lines 650–670
+│   ├── Section 01 — Background & screens     lines 671–740
+│   ├── Section 02 — Research objectives      lines 742–804
+│   ├── Section 03 — Key research questions   lines 805–855
+│   ├── Section 04 — Participant criteria     lines 856–906
+│   ├── Section 05 — Tasks & discussion guide lines 907–1075
+│   ├── Section 06 — Success metrics          lines 1076–1125
+│   ├── Section 07 — Study timeline           lines 1126–1178
+│   ├── Section 08 — Analysis framework       lines 1179–1238
+│   ├── Section 09 — Discussion guide outline lines 1239–1300
+│   ├── Section 10 — Risks & mitigations      lines 1301–1368
+│   ├── Section 11 — Deliverables             lines 1369–1430
+│   └── Page footer                           lines 1432–1454
+│
 ├── designing-for-invisible-ui.md       ← This file
 │
-├── ini1.png    ← Gallery: Canvas dashboard
-├── ini2.png    ← Gallery: Agentic Trace
-├── ini3.png    ← Gallery: Policy & Permissions Studio
-├── ini4.png    ← Gallery: Policy & Permissions Full Scroll
+├── ibm-content-design-review-designing-for-invisible-ui.html
+│                                       ← IBM content design heuristic review
 │
-├── desgin-for-invisible-ui (1).pptx   ← Source presentation (25 slides)
+├── SKILL.md                            ← IBM content design skill reference
 │
-└── Screenshot 2026-09-03 at *.png     ← Backup screenshots (not used in gallery)
+├── ini1.png    ← Gallery: Canvas — Main Dashboard
+├── ini2.png    ← Gallery: Agentic Trace — Escalation View
+├── ini3.png    ← Gallery: Policy & Permissions — Studio
+├── ini4.png    ← Gallery: Policy & Permissions — Full Scroll
+│
+├── 01.png      ← UXR stimulus: Canvas dashboard
+├── 02.png      ← UXR stimulus: Agentic trace list
+├── 03.png      ← UXR stimulus: Agentic trace detail
+├── 04.png      ← UXR stimulus: Policy Studio
+├── 05.png      ← UXR stimulus: Digital twin
+│
+└── desgin-for-invisible-ui (1).pptx   ← Source presentation (25 slides)
 ```
+
+---
+
+## GitHub
+
+| Property | Value |
+|---|---|
+| Remote | `git@github.com:jayakrishnakaimal/JK_Demo.git` |
+| Branch | `main` |
+| Pages | https://jayakrishnakaimal.github.io/JK_Demo/ |
+| Main site | https://jayakrishnakaimal.github.io/JK_Demo/index.html |
+| UXR Plan | https://jayakrishnakaimal.github.io/JK_Demo/uxr_plan.html |

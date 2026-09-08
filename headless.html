@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Headless AI exploration_Dashboard</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+  }
+
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    background: linear-gradient(160deg, #f8fafd 0%, #f3f6fb 25%, #ddeaf5 55%, #b8d4e8 75%, #9ec8e0 100%);
+    background-attachment: fixed;
+  }
+
+  /* ── outer chrome (no border/header) ── */
+  .outer-chrome {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .chrome-title {
+    display: none;
+  }
+
+  /* ── main dashboard ── */
+  .dashboard {
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── top nav ── */
+  .topnav {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    height: 56px;
+    border-bottom: 1px solid #e5e7eb;
+    background: transparent;
+    flex-shrink: 0;
+    gap: 0;
+  }
+
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 24px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1.5px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .logo-icon svg { width: 22px; height: 22px; }
+
+  .region-selector {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #3b82f6;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 6px;
+    background: none;
+    border: none;
+    transition: opacity 0.15s;
+  }
+  .region-selector:hover { opacity: 0.75; }
+  .region-selector svg { width: 14px; height: 14px; }
+
+  .nav-tabs {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: #f3f4f6;
+    border-radius: 6px;
+    padding: 3px;
+    margin: 0 auto;
+  }
+
+  .nav-tab {
+    padding: 6px 20px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 400;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: #374151;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .nav-tab:hover { color: #111827; }
+  .nav-tab.active {
+    background: #2563eb;
+    color: #ffffff;
+    font-weight: 500;
+  }
+
+  .nav-sep {
+    width: 1px;
+    height: 20px;
+    background: #d1d5db;
+    margin: 0 2px;
+  }
+
+  .nav-icons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 24px;
+  }
+
+  .nav-icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.15s;
+  }
+  .nav-icon-btn:hover { background: #f3f4f6; color: #111827; }
+  .nav-icon-btn svg { width: 16px; height: 16px; }
+
+  /* ── body layout ── */
+  .body-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  /* ── canvas area ── */
+  .canvas-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .canvas-area.canvas-tab-content.active-tab {
+    background: transparent;
+  }
+
+  /* ── stats bar ── */
+  .stats-bar {
+    display: flex;
+    align-items: flex-start;
+    padding: 14px 24px 10px;
+    gap: 48px;
+    border-bottom: 1px solid #e5e7eb;
+    background: transparent;
+    flex-shrink: 0;
+  }
+
+  .stat-block {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .stat-icon {
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    font-weight: 400;
+    color: #6b7280;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .badge-good {
+    background: #dcfce7;
+    color: #16a34a;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 3px;
+    border: 1px solid #bbf7d0;
+  }
+
+  .stat-value {
+    font-size: 30px;
+    font-weight: 300;
+    color: #1a6334;
+    line-height: 1.1;
+    margin-bottom: 3px;
+    letter-spacing: -0.5px;
+  }
+
+  .stat-sub {
+    font-size: 12px;
+    font-weight: 400;
+    color: #6b7280;
+  }
+
+  .stat-sub .highlight { color: #ef4444; font-weight: 400; }
+
+  .stat-sep { width: 1px; background: #e5e7eb; align-self: stretch; margin: 0 4px; }
+
+  /* agent health sparkline */
+  .health-sparkline {
+    width: 60px;
+    height: 36px;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .badge-soft {
+    background: #fef9c3;
+    color: #854d0e;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 3px;
+    border: 1px solid #fde68a;
+  }
+
+  .badge-hard {
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 3px;
+    border: 1px solid #fecaca;
+  }
+
+  .breach-badges {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  /* ── canvas viewport ── */
+  .canvas-viewport {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    background: transparent;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* greeting overlay */
+  .greeting {
+    position: absolute;
+    bottom: 90px;
+    left: 28px;
+    right: 28px;
+  }
+
+  .greeting h1 {
+    font-size: 26px;
+    font-weight: 400;
+    color: #1f2937;
+    margin-bottom: 6px;
+  }
+
+  .greeting p {
+    font-size: 13px;
+    font-weight: 400;
+    color: #4b5563;
+    margin-bottom: 18px;
+  }
+
+  .quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .quick-btn {
+    background: rgba(255,255,255,0.80);
+    border: 1px solid #d1d5db;
+    color: #374151;
+    font-size: 12px;
+    font-weight: 400;
+    padding: 6px 13px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    backdrop-filter: blur(6px);
+  }
+  .quick-btn:hover {
+    background: #ffffff;
+    border-color: #3b82f6;
+    color: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(59,130,246,0.15);
+  }
+
+  /* agentic canvas nodes (removed) */
+  .canvas-nodes { display: none; }
+
+  /* ── background micro-interactions ── */
+  .bg-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+
+  /* floating orbs */
+  .bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0;
+    animation: orb-drift 18s ease-in-out infinite;
+  }
+  .bg-orb-1 {
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(147,197,253,0.45) 0%, transparent 70%);
+    top: -80px; left: 10%;
+    animation-delay: 0s; animation-duration: 20s;
+    opacity: 0.7;
+  }
+  .bg-orb-2 {
+    width: 260px; height: 260px;
+    background: radial-gradient(circle, rgba(110,231,183,0.35) 0%, transparent 70%);
+    top: 30%; left: 40%;
+    animation-delay: -7s; animation-duration: 24s;
+    opacity: 0.55;
+  }
+  .bg-orb-3 {
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(165,180,252,0.4) 0%, transparent 70%);
+    bottom: 60px; left: 20%;
+    animation-delay: -13s; animation-duration: 22s;
+    opacity: 0.5;
+  }
+  @keyframes orb-drift {
+    0%   { transform: translate(0px, 0px) scale(1); }
+    25%  { transform: translate(30px, -20px) scale(1.06); }
+    50%  { transform: translate(-20px, 30px) scale(0.95); }
+    75%  { transform: translate(20px, 20px) scale(1.04); }
+    100% { transform: translate(0px, 0px) scale(1); }
+  }
+
+  /* dot grid canvas */
+  .bg-dots {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    opacity: 0.45;
+  }
+
+  /* mouse-follow glow */
+  .bg-glow {
+    position: absolute;
+    width: 380px; height: 380px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(96,165,250,0.18) 0%, transparent 65%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    transition: left 0.12s ease-out, top 0.12s ease-out;
+    filter: blur(8px);
+    left: 50%; top: 50%;
+    z-index: 1;
+  }
+
+  /* ensure greeting sits above bg-layer */
+  .greeting { z-index: 2; }
+
+  /* ── right panel ── */
+  .right-panel {
+    width: 360px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: transparent;
+  }
+
+  /* scrollbar */
+  .right-panel::-webkit-scrollbar { width: 4px; }
+  .right-panel::-webkit-scrollbar-track { background: transparent; }
+  .right-panel::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+
+  /* ── action card ── */
+  .action-card {
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid #e9ecf0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    padding: 18px 18px 16px;
+    margin: 12px 12px 0;
+    transition: box-shadow 0.15s;
+  }
+  .action-card:last-of-type { margin-bottom: 12px; }
+  .action-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4px;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    flex: 1;
+    margin-right: 8px;
+    line-height: 1.3;
+  }
+
+  .card-meta {
+    font-size: 12px;
+    font-weight: 400;
+    color: #9ca3af;
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .card-device {
+    font-size: 13px;
+    font-weight: 400;
+    color: #6b7280;
+    margin-bottom: 14px;
+  }
+
+  .card-divider {
+    height: 1px;
+    background: #f0f2f5;
+    margin: 0 0 14px;
+  }
+
+  .card-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .card-stat-item .stat-name {
+    font-size: 11px;
+    font-weight: 400;
+    color: #6b7280;
+    margin-bottom: 3px;
+  }
+
+  .card-stat-item .stat-val {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.1;
+  }
+  .card-stat-item .stat-val.blue { color: #2563eb; }
+  .card-stat-item .stat-val.red { color: #dc2626; }
+  .card-stat-item .stat-val.green { color: #166534; }
+  .card-stat-item .stat-val span { font-size: 11px; font-weight: 400; color: #9ca3af; margin-left: 2px; }
+
+  .card-stat-item .stat-note {
+    font-size: 11px;
+    font-weight: 400;
+    color: #6b7280;
+    margin-top: 2px;
+  }
+
+  .card-links {
+    padding: 12px 0 14px;
+    border-top: 1px solid #f0f2f5;
+    border-bottom: 1px solid #f0f2f5;
+    margin-bottom: 14px;
+  }
+  .card-links a {
+    font-size: 13px;
+    font-weight: 400;
+    color: #2563eb;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .card-links a:hover { text-decoration: underline; }
+  .card-links .dot-sep { color: #9ca3af; margin: 0 6px; font-size: 13px; }
+
+  .card-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn-approve {
+    flex: 1;
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 0;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-approve:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 3px 8px rgba(37,99,235,0.3); }
+  .btn-approve:active { transform: translateY(0); }
+
+  .btn-escalate {
+    flex: 1;
+    background: #ffffff;
+    color: #b45309;
+    border: 1.5px solid #d97706;
+    border-radius: 6px;
+    padding: 6px 0;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-escalate:hover { background: #fffbeb; transform: translateY(-1px); box-shadow: 0 3px 8px rgba(217,119,6,0.2); }
+  .btn-escalate:active { transform: translateY(0); }
+
+  /* chronic card */
+  .chronic-desc {
+    font-size: 14px;
+    font-weight: 400;
+    color: #111827;
+    margin-bottom: 0;
+    line-height: 1.5;
+  }
+  .chronic-desc strong { font-weight: 700; }
+
+  /* ── activity timeline ── */
+  .timeline-section {
+    padding: 16px;
+  }
+
+  .timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .timeline-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #111827;
+  }
+
+  .time-tabs {
+    display: flex;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .time-tab {
+    padding: 3px 9px;
+    font-size: 11px;
+    background: #ffffff;
+    color: #6b7280;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-right: 1px solid #e5e7eb;
+  }
+  .time-tab:last-child { border-right: none; }
+  .time-tab.active { background: #2563eb; color: #ffffff; }
+  .time-tab:hover:not(.active) { background: #f3f4f6; }
+
+  .timeline-note {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-bottom: 12px;
+  }
+
+  .chart-area {
+    position: relative;
+    height: 140px;
+    margin-bottom: 8px;
+  }
+
+  .chart-svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .y-axis {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #9ca3af;
+    padding-bottom: 0;
+    pointer-events: none;
+  }
+
+  .timeline-legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: #6b7280;
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── toast notifications ── */
+  .toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+  }
+
+  .toast {
+    background: #1f2937;
+    color: #f9fafb;
+    padding: 12px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    transform: translateX(120%);
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    pointer-events: all;
+    max-width: 300px;
+  }
+  .toast.show { transform: translateX(0); }
+  .toast.green { border-left: 3px solid #22c55e; }
+  .toast.orange { border-left: 3px solid #f59e0b; }
+  .toast.blue { border-left: 3px solid #3b82f6; }
+
+  /* ── dropdown ── */
+  .dropdown-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: none;
+  }
+  .dropdown-overlay.open { display: block; }
+
+  .dropdown-menu {
+    position: absolute;
+    top: 50px;
+    left: 60px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    z-index: 100;
+    min-width: 160px;
+    overflow: hidden;
+    display: none;
+  }
+  .dropdown-menu.open { display: block; }
+
+  .dropdown-item {
+    padding: 9px 16px;
+    font-size: 13px;
+    color: #374151;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .dropdown-item:hover { background: #f3f4f6; }
+  .dropdown-item.active { color: #2563eb; font-weight: 500; background: #eff6ff; }
+
+  /* ── pulse dot on canvas ── */
+  @keyframes pulse-ring {
+    0% { transform: scale(0.8); opacity: 0.8; }
+    100% { transform: scale(2); opacity: 0; }
+  }
+
+  .pulse-wrapper {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pulse-ring {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #3b82f6;
+    animation: pulse-ring 1.6s infinite;
+  }
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #3b82f6;
+    z-index: 1;
+  }
+
+  /* ── modal ── */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-backdrop.open { display: flex; }
+
+  .modal {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 24px;
+    max-width: 440px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    animation: modal-in 0.25s ease;
+  }
+  @keyframes modal-in {
+    from { transform: scale(0.93); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 6px;
+  }
+
+  .modal-device {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 14px;
+  }
+
+  .modal-body {
+    font-size: 13px;
+    color: #374151;
+    line-height: 1.6;
+    margin-bottom: 18px;
+  }
+
+  .modal-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+
+  .modal-trace {
+    background: #f3f4f6;
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 12px;
+    font-family: "SF Mono", "Fira Code", monospace;
+    color: #374151;
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .modal-btn-cancel {
+    padding: 8px 18px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #374151;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .modal-btn-cancel:hover { background: #f3f4f6; }
+
+  .modal-btn-confirm {
+    padding: 8px 18px;
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .modal-btn-confirm:hover { background: #1d4ed8; }
+
+  /* ── agent trace panel ── */
+  .trace-panel {
+    display: none;
+  }
+  .trace-panel.active-tab {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px 24px;
+    overflow-y: auto;
+  }
+
+  .trace-step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .trace-line-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 28px;
+  }
+  .trace-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .trace-circle.done { background: #dcfce7; color: #16a34a; }
+  .trace-circle.active { background: #dbeafe; color: #2563eb; }
+  .trace-circle.pending { background: #f3f4f6; color: #9ca3af; }
+  .trace-connector { width: 2px; height: 24px; background: #e5e7eb; margin-top: 2px; }
+  .trace-content { flex: 1; padding-top: 4px; }
+  .trace-name { font-size: 13px; font-weight: 600; color: #111827; }
+  .trace-detail { font-size: 12px; color: #6b7280; margin-top: 2px; }
+
+  /* permissions panel */
+  .permissions-panel {
+    display: none;
+  }
+  .permissions-panel.active-tab {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 20px 24px;
+    overflow-y: auto;
+  }
+  .perm-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .perm-name { font-size: 13px; color: #374151; font-weight: 500; }
+  .perm-scope { font-size: 11px; color: #9ca3af; }
+  .toggle-wrap { position: relative; cursor: pointer; }
+  .toggle-input { display: none; }
+  .toggle-slider {
+    width: 36px; height: 20px;
+    background: #d1d5db;
+    border-radius: 10px;
+    transition: background 0.2s;
+    position: relative;
+    display: block;
+  }
+  .toggle-slider::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    background: #ffffff;
+    border-radius: 50%;
+    top: 3px; left: 3px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .toggle-input:checked + .toggle-slider { background: #2563eb; }
+  .toggle-input:checked + .toggle-slider::after { transform: translateX(16px); }
+
+  /* canvas tab content */
+  .canvas-tab-content { display: none; }
+  .canvas-tab-content.active-tab { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+</style>
+</head>
+<body>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Dropdown -->
+<div class="dropdown-overlay" id="dropdownOverlay" onclick="closeDropdown()"></div>
+<div class="dropdown-menu" id="regionDropdown">
+  <div class="dropdown-item active" onclick="selectRegion('Japan')">Japan</div>
+  <div class="dropdown-item" onclick="selectRegion('Singapore')">Singapore</div>
+  <div class="dropdown-item" onclick="selectRegion('US East')">US East</div>
+  <div class="dropdown-item" onclick="selectRegion('EU West')">EU West</div>
+  <div class="dropdown-item" onclick="selectRegion('AU Sydney')">AU Sydney</div>
+</div>
+
+<!-- Approve Modal -->
+<div class="modal-backdrop" id="approveModal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Restart line card on</div>
+    <div class="modal-device" id="modalDevice">TVM - EDGE-04</div>
+    <div class="modal-label">Reasoning Trace</div>
+    <div class="modal-trace" id="modalTrace">
+→ Detected line card failure at 14:32 UTC<br>
+→ Cross-referenced 14 similar historical cases<br>
+→ Confidence: 87% · Blast radius: 1200 subs (no drop)<br>
+→ Recommended action: Restart sequence A→B→C<br>
+→ Estimated recovery: &lt; 8 minutes
+    </div>
+    <div class="modal-body" id="modalBody">Approving will trigger an automated restart sequence on TVM-EDGE-04. This action is reversible within 60 seconds.</div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeModal('approveModal')">Cancel</button>
+      <button class="modal-btn-confirm" onclick="confirmApprove()">Confirm Approve</button>
+    </div>
+  </div>
+</div>
+
+<!-- Escalate Modal -->
+<div class="modal-backdrop" id="escalateModal">
+  <div class="modal">
+    <div class="modal-title">Escalate to Human Operator</div>
+    <div class="modal-device" id="escModalDevice">TVM - EDGE-04</div>
+    <div class="modal-label">Escalation Reason</div>
+    <textarea style="width:100%;border:1px solid #e5e7eb;border-radius:4px;padding:8px 10px;font-size:13px;color:#374151;resize:vertical;min-height:70px;font-family:inherit;outline:none;margin-bottom:14px;" placeholder="Add optional context for the operator..."></textarea>
+    <div class="modal-body">This will page the on-call operator and pause automated actions for this device.</div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeModal('escalateModal')">Cancel</button>
+      <button class="modal-btn-confirm" style="background:#d97706;" onclick="confirmEscalate()">Confirm Escalate</button>
+    </div>
+  </div>
+</div>
+
+<!-- outer chrome -->
+<div class="outer-chrome">
+  <div class="chrome-title">Headless AI exploration_Dashboard</div>
+
+  <div class="dashboard">
+    <!-- TOP NAV -->
+    <div class="topnav">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <!-- Hub-and-spoke network graph inside blue circle border — exact match to icons.png -->
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- outer circle border, blue -->
+            <circle cx="20" cy="20" r="18" stroke="#2563eb" stroke-width="2.2" fill="white"/>
+            <!-- spoke lines from centre hub to outer nodes -->
+            <line x1="20" y1="20" x2="20" y2="9"  stroke="#1e3a5f" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="20" y1="20" x2="10" y2="26" stroke="#1e3a5f" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="20" y1="20" x2="30" y2="26" stroke="#1e3a5f" stroke-width="1.8" stroke-linecap="round"/>
+            <!-- connector between bottom two nodes -->
+            <line x1="10" y1="26" x2="30" y2="26" stroke="#1e3a5f" stroke-width="1.5" stroke-linecap="round"/>
+            <!-- centre hub node -->
+            <circle cx="20" cy="20" r="3.2" fill="#1e3a5f"/>
+            <!-- top node -->
+            <circle cx="20" cy="9"  r="2.4" fill="#2563eb"/>
+            <!-- bottom-left node -->
+            <circle cx="10" cy="26" r="2.4" fill="#2563eb"/>
+            <!-- bottom-right node -->
+            <circle cx="30" cy="26" r="2.4" fill="#2563eb"/>
+          </svg>
+        </div>
+        <button class="region-selector" onclick="toggleDropdown()" id="regionBtn">
+          <span id="regionLabel">Japan</span>
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 6l4 4 4-4"/></svg>
+        </button>
+      </div>
+
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('canvas', this)">Canvas</button>
+        <div class="nav-sep"></div>
+        <button class="nav-tab" onclick="switchTab('agentic', this)">Agentic trace</button>
+        <div class="nav-sep"></div>
+        <button class="nav-tab" onclick="switchTab('policy', this)">Policy &amp; Permissions</button>
+      </div>
+
+      <div class="nav-icons">
+        <button class="nav-icon-btn" title="User profile" onclick="showToast('Profile panel coming soon', 'blue')">
+          <!-- clean person silhouette, thin stroke, #374151 -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="7.5" r="3.5"/>
+            <path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/>
+          </svg>
+        </button>
+        <button class="nav-icon-btn" title="Global settings" onclick="showToast('Settings panel coming soon', 'blue')">
+          <!-- clean globe with horizontal bands + vertical meridian -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 3 C9 7 9 17 12 21 M12 3 C15 7 15 17 12 21"/>
+            <path d="M3 12 Q7 9 12 9 Q17 9 21 12"/>
+            <path d="M3 12 Q7 15 12 15 Q17 15 21 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="body-layout">
+
+      <!-- CANVAS TAB -->
+      <div class="canvas-area canvas-tab-content active-tab" id="tab-canvas">
+        <!-- Stats bar -->
+        <div class="stats-bar">
+          <div class="stat-block">
+            <!-- person SVG icon -->
+            <div class="stat-icon">
+              <!-- stick figure: circle head, diagonal body-arm to bottom-left, small circle node at end — exact icons.png -->
+              <svg width="36" height="52" viewBox="0 0 36 52" fill="none">
+                <!-- head -->
+                <circle cx="20" cy="8" r="6" stroke="#b0b7c3" stroke-width="1.6" fill="none"/>
+                <!-- body line going diagonally down-left -->
+                <line x1="20" y1="14" x2="8" y2="36" stroke="#b0b7c3" stroke-width="1.6" stroke-linecap="round"/>
+                <!-- short horizontal arm / shoulder line -->
+                <line x1="12" y1="24" x2="28" y2="20" stroke="#b0b7c3" stroke-width="1.6" stroke-linecap="round"/>
+                <!-- small agent node circle at bottom of body -->
+                <circle cx="8" cy="40" r="4.5" stroke="#b0b7c3" stroke-width="1.5" fill="none"/>
+              </svg>
+            </div>
+            <div>
+              <div class="stat-label">Confidence Score <span class="badge-good">Good</span></div>
+              <div class="stat-value">95%</div>
+              <div class="stat-sub">13 agents | 95% &nbsp;<span class="highlight">1 agent | 40%</span></div>
+            </div>
+          </div>
+
+          <div class="stat-sep"></div>
+
+          <div class="stat-block">
+            <div class="health-sparkline">
+              <!-- sharp angular ECG-style waveform — flat, spike up, valley down, flat — exact icons.png -->
+              <svg viewBox="0 0 70 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polyline points="0,24 14,24 20,24 26,4 32,36 38,24 55,24 70,24"
+                  stroke="#94a3b8" stroke-width="1.6" fill="none" stroke-linejoin="miter" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div>
+              <div class="stat-label">Agent fleet health</div>
+              <div class="stat-value">94%</div>
+              <div class="breach-badges">
+                <span class="badge-soft">01 soft breach</span>
+                <span class="badge-hard">1 hard breach</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Canvas viewport -->
+        <div class="canvas-viewport">
+
+          <!-- ── Background micro-interactions ── -->
+          <div class="bg-layer" id="bgLayer" aria-hidden="true">
+            <!-- soft floating orbs -->
+            <div class="bg-orb bg-orb-1"></div>
+            <div class="bg-orb bg-orb-2"></div>
+            <div class="bg-orb bg-orb-3"></div>
+            <!-- animated grid dots -->
+            <canvas class="bg-dots" id="bgDots"></canvas>
+            <!-- mouse-follow glow -->
+            <div class="bg-glow" id="bgGlow"></div>
+          </div>
+
+          <!-- greeting -->
+          <div class="greeting">
+            <h1>Hello Fiona, Good morning</h1>
+            <p>FYI: 3 resolved cases await their 24h fix-holding check.</p>
+            <div class="quick-actions">
+              <button class="quick-btn" onclick="handleQuickAction('latency')">What's causing the latency spike?</button>
+              <button class="quick-btn" onclick="handleQuickAction('c4')">Show me cluster C4 status</button>
+              <button class="quick-btn" onclick="handleQuickAction('rca')">Run root cause analysis</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- AGENTIC TRACE TAB -->
+      <div class="canvas-area trace-panel canvas-tab-content" id="tab-agentic" style="background:#fafafa;">
+        <div class="trace-panel active-tab" style="display:flex;">
+          <div style="padding:0 0 16px;border-bottom:1px solid #e5e7eb;margin-bottom:4px;">
+            <div style="font-size:15px;font-weight:700;color:#111827;">Agentic Trace — TVM-EDGE-04</div>
+            <div style="font-size:12px;color:#6b7280;margin-top:3px;">Last run: 4 minutes ago · 5 steps completed</div>
+          </div>
+          <div class="trace-step">
+            <div class="trace-line-wrap">
+              <div class="trace-circle done">✓</div>
+              <div class="trace-connector"></div>
+            </div>
+            <div class="trace-content">
+              <div class="trace-name">Anomaly Detection</div>
+              <div class="trace-detail">Line card failure detected on port 4/2. Signal loss at 14:31 UTC.</div>
+            </div>
+          </div>
+          <div class="trace-step">
+            <div class="trace-line-wrap">
+              <div class="trace-circle done">✓</div>
+              <div class="trace-connector"></div>
+            </div>
+            <div class="trace-content">
+              <div class="trace-name">Historical Pattern Matching</div>
+              <div class="trace-detail">14 similar cases found. Avg recovery time: 6.2 min. Confidence: 87%.</div>
+            </div>
+          </div>
+          <div class="trace-step">
+            <div class="trace-line-wrap">
+              <div class="trace-circle done">✓</div>
+              <div class="trace-connector"></div>
+            </div>
+            <div class="trace-content">
+              <div class="trace-name">Blast Radius Assessment</div>
+              <div class="trace-detail">1200 subscribers affected. No drop predicted with restart sequence.</div>
+            </div>
+          </div>
+          <div class="trace-step">
+            <div class="trace-line-wrap">
+              <div class="trace-circle active">→</div>
+              <div class="trace-connector"></div>
+            </div>
+            <div class="trace-content">
+              <div class="trace-name">Awaiting Human Approval</div>
+              <div class="trace-detail">Approve restart sequence to proceed. SLA breach risk in ~12 minutes.</div>
+            </div>
+          </div>
+          <div class="trace-step">
+            <div class="trace-line-wrap">
+              <div class="trace-circle pending">5</div>
+            </div>
+            <div class="trace-content">
+              <div class="trace-name">Execute Remediation</div>
+              <div class="trace-detail">Pending approval. Will run restart A→B→C sequence.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POLICY & PERMISSIONS TAB -->
+      <div class="canvas-area permissions-panel canvas-tab-content" id="tab-policy" style="background:#fafafa;">
+        <div class="permissions-panel active-tab" style="display:flex;">
+          <div style="padding:0 0 16px;border-bottom:1px solid #e5e7eb;margin-bottom:4px;">
+            <div style="font-size:15px;font-weight:700;color:#111827;">Policy &amp; Permissions</div>
+            <div style="font-size:12px;color:#6b7280;margin-top:3px;">Configure what agents are allowed to do autonomously</div>
+          </div>
+          <div class="perm-row">
+            <div><div class="perm-name">Auto-restart line cards</div><div class="perm-scope">Scope: TVM nodes · Japan region</div></div>
+            <label class="toggle-wrap"><input class="toggle-input" type="checkbox" checked onchange="permToggle(this,'Auto-restart line cards')"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="perm-row">
+            <div><div class="perm-name">Traffic rerouting</div><div class="perm-scope">Scope: All nodes · Global</div></div>
+            <label class="toggle-wrap"><input class="toggle-input" type="checkbox" checked onchange="permToggle(this,'Traffic rerouting')"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="perm-row">
+            <div><div class="perm-name">Escalate to NOC</div><div class="perm-scope">Scope: Hard breaches only</div></div>
+            <label class="toggle-wrap"><input class="toggle-input" type="checkbox" checked onchange="permToggle(this,'Escalate to NOC')"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="perm-row">
+            <div><div class="perm-name">Firmware rollback</div><div class="perm-scope">Scope: Requires dual approval</div></div>
+            <label class="toggle-wrap"><input class="toggle-input" type="checkbox" onchange="permToggle(this,'Firmware rollback')"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="perm-row">
+            <div><div class="perm-name">Policy auto-update</div><div class="perm-scope">Scope: Minor patches only</div></div>
+            <label class="toggle-wrap"><input class="toggle-input" type="checkbox" onchange="permToggle(this,'Policy auto-update')"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="perm-row">
+            <div><div class="perm-name">Subscriber notification</div><div class="perm-scope">Scope: All regions</div></div>
+            <label class="toggle-wrap"><input class="toggle-input" type="checkbox" checked onchange="permToggle(this,'Subscriber notification')"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL (always visible) -->
+      <div class="right-panel" id="rightPanel">
+
+        <!-- Card 1: Restart line card -->
+        <div class="action-card">
+          <div class="card-header">
+            <div class="card-title">Restart line card on</div>
+            <div class="card-meta">4m ago</div>
+          </div>
+          <div class="card-device">TVM - EDGE-04</div>
+          <div class="card-divider"></div>
+          <div class="card-stats">
+            <div class="card-stat-item">
+              <div class="stat-name">Blast Radius</div>
+              <div class="stat-val blue">1200 <span>subs</span></div>
+              <div class="stat-note">no drop</div>
+            </div>
+            <div class="card-stat-item">
+              <div class="stat-name">Confidence</div>
+              <div class="stat-val green">87%</div>
+              <div class="stat-note">14 similar cases</div>
+            </div>
+            <div class="card-stat-item">
+              <div class="stat-name">No action</div>
+              <div class="stat-val red">2.1% <span>loss</span></div>
+              <div class="stat-note">within 40 mins</div>
+            </div>
+          </div>
+          <div class="card-links">
+            <a onclick="openReasoningTrace('restart')">View reasoning trace</a>
+            <span class="dot-sep">•</span>
+            <a onclick="showToast('Rollback plan loaded', 'blue')">Rollback plan</a>
+          </div>
+          <div class="card-actions">
+            <button class="btn-approve" onclick="openApproveModal('Restart line card on','TVM - EDGE-04','restart')">Approve</button>
+            <button class="btn-escalate" onclick="openEscalateModal('TVM - EDGE-04')">Escalate</button>
+          </div>
+        </div>
+
+        <!-- Card 2: Chronic TVM -->
+        <div class="action-card">
+          <div class="card-header">
+            <div class="card-device" style="margin-bottom:0;">TVM - EDGE-04</div>
+            <div class="card-meta">4m ago</div>
+          </div>
+          <div class="chronic-desc" style="margin: 8px 0 0;"><strong>CHRONIC TVM-EDGE-04</strong> — 4th failed fix this week on the same optic.</div>
+          <div class="card-links" style="margin-top:14px;">
+            <a onclick="openReasoningTrace('chronic')">View reasoning trace</a>
+            <span class="dot-sep">•</span>
+            <a onclick="showToast('Rollback plan loaded', 'blue')">Rollback plan</a>
+          </div>
+          <div class="card-actions">
+            <button class="btn-approve" onclick="openApproveModal('CHRONIC TVM-EDGE-04','TVM - EDGE-04','chronic')">Approve</button>
+            <button class="btn-escalate" onclick="openEscalateModal('TVM - EDGE-04')">Escalate</button>
+          </div>
+        </div>
+
+        <!-- Activity Timeline -->
+        <div class="action-card" style="margin-bottom:12px;">
+        <div class="timeline-section" style="padding:0;">
+          <div class="timeline-header">
+            <div class="timeline-title">Activity Timeline</div>
+            <div class="time-tabs">
+              <button class="time-tab active" onclick="switchTimeline('6h', this)">6h</button>
+              <button class="time-tab" onclick="switchTimeline('24h', this)">24h</button>
+              <button class="time-tab" onclick="switchTimeline('7d', this)">7d</button>
+            </div>
+          </div>
+          <div class="timeline-note">The markers denotes notable events only</div>
+
+          <div class="chart-area">
+            <!-- Y axis labels -->
+            <div class="y-axis" style="left:0;width:20px;">
+              <span>25</span>
+              <span>20</span>
+              <span>15</span>
+              <span>10</span>
+              <span>05</span>
+            </div>
+            <svg class="chart-svg" id="timelineChart" style="padding-left:24px;" viewBox="0 0 260 120" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25"/>
+                  <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.02"/>
+                </linearGradient>
+              </defs>
+
+              <!-- grid lines -->
+              <g stroke="#f3f4f6" stroke-width="1">
+                <line x1="0" y1="24" x2="260" y2="24"/>
+                <line x1="0" y1="48" x2="260" y2="48"/>
+                <line x1="0" y1="72" x2="260" y2="72"/>
+                <line x1="0" y1="96" x2="260" y2="96"/>
+              </g>
+
+              <!-- area fill -->
+              <path id="chartArea"
+                d="M0,72 C20,65 30,50 50,38 C70,26 80,30 100,38 C120,46 130,68 150,72 C170,76 190,52 210,40 C230,28 245,35 260,30 L260,96 L0,96 Z"
+                fill="url(#areaGrad)"/>
+
+              <!-- line -->
+              <path id="chartLine"
+                d="M0,72 C20,65 30,50 50,38 C70,26 80,30 100,38 C120,46 130,68 150,72 C170,76 190,52 210,40 C230,28 245,35 260,30"
+                stroke="#3b82f6" stroke-width="2" fill="none" stroke-linejoin="round"/>
+
+              <!-- event markers -->
+              <circle cx="100" cy="38" r="5" fill="#f59e0b" stroke="white" stroke-width="1.5"/>
+              <circle cx="150" cy="72" r="5" fill="#ef4444" stroke="white" stroke-width="1.5"/>
+              <circle cx="260" cy="30" r="5" fill="#8b5cf6" stroke="white" stroke-width="1.5"/>
+
+              <!-- x-axis labels -->
+              <text x="0" y="112" font-size="9" fill="#9ca3af" text-anchor="middle">12:00</text>
+              <text x="52" y="112" font-size="9" fill="#9ca3af" text-anchor="middle">13:00</text>
+              <text x="104" y="112" font-size="9" fill="#9ca3af" text-anchor="middle">14:00</text>
+              <text x="156" y="112" font-size="9" fill="#9ca3af" text-anchor="middle">15:00</text>
+              <text x="208" y="112" font-size="9" fill="#9ca3af" text-anchor="middle">16:00</text>
+              <text x="260" y="112" font-size="9" fill="#9ca3af" text-anchor="middle">17:00</text>
+            </svg>
+          </div>
+
+          <div class="timeline-legend">
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#f59e0b;"></div>
+              <span>Escalation</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#ef4444;"></div>
+              <span>Failed fix</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#8b5cf6;"></div>
+              <span>Policy change</span>
+            </div>
+          </div>
+        </div>
+        </div>
+
+      </div><!-- /right-panel -->
+    </div><!-- /body-layout -->
+  </div><!-- /dashboard -->
+</div><!-- /outer-chrome -->
+
+<script>
+  /* ────────────────────────────────────────────
+     TAB SWITCHING
+  ──────────────────────────────────────────── */
+  function switchTab(tabId, btn) {
+    // deactivate all nav tabs
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+
+    // hide all canvas tab contents
+    document.querySelectorAll('.canvas-tab-content').forEach(el => el.classList.remove('active-tab'));
+
+    // show the selected one
+    const panel = document.getElementById('tab-' + tabId);
+    if (panel) panel.classList.add('active-tab');
+  }
+
+  /* ────────────────────────────────────────────
+     REGION DROPDOWN
+  ──────────────────────────────────────────── */
+  function toggleDropdown() {
+    const menu = document.getElementById('regionDropdown');
+    const overlay = document.getElementById('dropdownOverlay');
+    const isOpen = menu.classList.contains('open');
+    if (isOpen) {
+      menu.classList.remove('open');
+      overlay.classList.remove('open');
+    } else {
+      menu.classList.add('open');
+      overlay.classList.add('open');
+    }
+  }
+
+  function closeDropdown() {
+    document.getElementById('regionDropdown').classList.remove('open');
+    document.getElementById('dropdownOverlay').classList.remove('open');
+  }
+
+  function selectRegion(name) {
+    document.getElementById('regionLabel').textContent = name;
+    closeDropdown();
+    showToast('Region switched to ' + name, 'blue');
+  }
+
+  /* ────────────────────────────────────────────
+     MODALS
+  ──────────────────────────────────────────── */
+  let currentCard = null;
+
+  const traces = {
+    restart: `→ Detected line card failure at 14:32 UTC\n→ Cross-referenced 14 similar historical cases\n→ Confidence: 87% · Blast radius: 1200 subs (no drop)\n→ Recommended action: Restart sequence A→B→C\n→ Estimated recovery: < 8 minutes`,
+    chronic: `→ 4th failure this week on same optic (port 4/2)\n→ Pattern: intermittent signal loss, avg 3.1h apart\n→ Root cause hypothesis: hardware degradation\n→ Confidence: 91% · Recommended: Replace optic\n→ Escalation to Level-2 NOC recommended`
+  };
+
+  function openApproveModal(title, device, cardId) {
+    currentCard = cardId;
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalDevice').textContent = device;
+    document.querySelector('#approveModal .modal-trace').innerHTML = (traces[cardId] || traces.restart)
+      .split('\n').join('<br>');
+    document.getElementById('approveModal').classList.add('open');
+  }
+
+  function openEscalateModal(device) {
+    document.getElementById('escModalDevice').textContent = device;
+    document.getElementById('escalateModal').classList.add('open');
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+
+  function confirmApprove() {
+    closeModal('approveModal');
+    showToast('✓ Action approved — executing restart sequence on ' + (currentCard === 'chronic' ? 'TVM-EDGE-04 optic' : 'TVM-EDGE-04'), 'green');
+    // animate the relevant card away
+    setTimeout(() => showToast('Remediation complete. All 1200 subscribers restored.', 'green'), 3200);
+  }
+
+  function confirmEscalate() {
+    closeModal('escalateModal');
+    showToast('🔔 Escalated — on-call operator has been paged', 'orange');
+  }
+
+  // close modal on backdrop click
+  document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+    backdrop.addEventListener('click', function(e) {
+      if (e.target === this) this.classList.remove('open');
+    });
+  });
+
+  /* ────────────────────────────────────────────
+     REASONING TRACE MODAL
+  ──────────────────────────────────────────── */
+  function openReasoningTrace(cardId) {
+    currentCard = cardId;
+    document.getElementById('modalTitle').textContent = cardId === 'chronic' ? 'CHRONIC TVM-EDGE-04' : 'Restart line card on';
+    document.getElementById('modalDevice').textContent = 'TVM - EDGE-04';
+    document.querySelector('#approveModal .modal-trace').innerHTML = (traces[cardId] || traces.restart)
+      .split('\n').join('<br>');
+    document.getElementById('approveModal').classList.add('open');
+  }
+
+  /* ────────────────────────────────────────────
+     TIMELINE
+  ──────────────────────────────────────────── */
+  const timelineData = {
+    '6h': {
+      line: "M0,72 C20,65 30,50 50,38 C70,26 80,30 100,38 C120,46 130,68 150,72 C170,76 190,52 210,40 C230,28 245,35 260,30",
+      area: "M0,72 C20,65 30,50 50,38 C70,26 80,30 100,38 C120,46 130,68 150,72 C170,76 190,52 210,40 C230,28 245,35 260,30 L260,96 L0,96 Z",
+      labels: ['12:00','13:00','14:00','15:00','16:00','17:00']
+    },
+    '24h': {
+      line: "M0,60 C15,55 30,40 60,30 C90,20 100,45 130,50 C160,55 180,35 210,28 C230,22 250,40 260,45",
+      area: "M0,60 C15,55 30,40 60,30 C90,20 100,45 130,50 C160,55 180,35 210,28 C230,22 250,40 260,45 L260,96 L0,96 Z",
+      labels: ['06:00','10:00','14:00','18:00','22:00','02:00']
+    },
+    '7d': {
+      line: "M0,50 C30,45 50,30 80,35 C110,40 130,60 160,55 C190,50 210,30 230,25 C245,22 255,30 260,28",
+      area: "M0,50 C30,45 50,30 80,35 C110,40 130,60 160,55 C190,50 210,30 230,25 C245,22 255,30 260,28 L260,96 L0,96 Z",
+      labels: ['Mon','Tue','Wed','Thu','Fri','Sat']
+    }
+  };
+
+  function switchTimeline(period, btn) {
+    document.querySelectorAll('.time-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+
+    const data = timelineData[period];
+    const svg = document.getElementById('timelineChart');
+
+    document.getElementById('chartLine').setAttribute('d', data.line);
+    document.getElementById('chartArea').setAttribute('d', data.area);
+
+    const labels = svg.querySelectorAll('text');
+    const xPositions = [0, 52, 104, 156, 208, 260];
+    data.labels.forEach((lbl, i) => {
+      if (labels[i]) labels[i].textContent = lbl;
+    });
+
+    showToast('Timeline updated: ' + period + ' view', 'blue');
+  }
+
+  /* ────────────────────────────────────────────
+     QUICK ACTIONS
+  ──────────────────────────────────────────── */
+  const quickResponses = {
+    latency: 'Latency spike on TVM-EDGE-04 caused by port 4/2 signal loss. Recommended: line card restart.',
+    c4: 'Cluster C4: 12/13 nodes healthy. Agent-06 showing soft breach — monitoring in progress.',
+    rca: 'Root cause analysis initiated. Scanning last 72h of telemetry data across 13 agents…'
+  };
+
+  function handleQuickAction(action) {
+    showToast('🤖 ' + quickResponses[action], 'blue');
+  }
+
+  /* ────────────────────────────────────────────
+     PERMISSIONS TOGGLE
+  ──────────────────────────────────────────── */
+  function permToggle(input, name) {
+    const state = input.checked ? 'enabled' : 'disabled';
+    showToast((input.checked ? '✓' : '✕') + ' "' + name + '" ' + state, input.checked ? 'green' : 'orange');
+  }
+
+  /* ────────────────────────────────────────────
+     TOAST
+  ──────────────────────────────────────────── */
+  function showToast(message, type = 'blue') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => toast.classList.add('show'));
+    });
+
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 350);
+    }, 3500);
+  }
+
+  /* ────────────────────────────────────────────
+     KEYBOARD SHORTCUTS
+  ──────────────────────────────────────────── */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('open'));
+      closeDropdown();
+    }
+  });
+</script>
+</body>
+</html>
