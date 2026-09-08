@@ -118,6 +118,18 @@ body {
   padding-right: var(--s-05); gap: var(--s-02);
   font-size: .7rem; color: rgba(255,255,255,.5);
 }
+.bx--header__headless-link {
+  margin-left: auto;
+  padding: 0 var(--s-05);
+  height: 100%; display: flex; align-items: center;
+  font-size: .75rem; font-weight: 600;
+  color: var(--cds-text-inverse);
+  text-decoration: none;
+  border-left: 1px solid #393939;
+  white-space: nowrap;
+  transition: background .1s;
+}
+.bx--header__headless-link:hover { background: rgba(255,255,255,.08); }
 
 /* ── PAGE LAYOUT ── */
 .bx--grid {
@@ -620,10 +632,12 @@ h4.bx--label--group {
     <span class="bx--header__name--prefix">IBM</span> Network Intelligence
   </a>
   <nav class="bx--header__nav">
-  
+    <a class="bx--header__menu-item" href="#section-canvas">Canvas</a>
+    <a class="bx--header__menu-item" href="#section-agentic-trace">Agentic trace</a>
+    <a class="bx--header__menu-item" href="#section-policy">Policy &amp; Permissions</a>
     <a class="bx--header__menu-item bx--header__menu-item--current" href="#top">Research</a>
   </nav>
-  <div class="bx--header__global">IBM Design Research · 2025</div>
+  <a class="bx--header__menu-item bx--header__headless-link" href="index.html">Headless</a>
 </header>
 
 <!-- ── PAGE HEADER ── -->
