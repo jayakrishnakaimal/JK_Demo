@@ -68,6 +68,10 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* smooth anchor scroll, offset for sticky header */
+html { scroll-behavior: smooth; }
+[id] { scroll-margin-top: 3.5rem; }
+
 html { font-size: 16px; }
 body {
   font-family: var(--font-sans);
@@ -611,21 +615,19 @@ h4.bx--label--group {
 
 <!-- ── UI SHELL HEADER ── -->
 <header class="bx--header">
-  <a class="bx--header__name" href="#">
+  <a class="bx--header__name" href="#top">
     <svg width="20" height="20" viewBox="0 0 32 32" fill="#fff"><rect x="6" y="6" width="20" height="20" rx="2" fill="none" stroke="#fff" stroke-width="2"/><rect x="11" y="11" width="4" height="4" fill="#fff" rx="1"/><rect x="17" y="11" width="4" height="4" fill="#fff" rx="1" opacity=".5"/><rect x="11" y="17" width="4" height="4" fill="#fff" rx="1" opacity=".5"/><rect x="17" y="17" width="4" height="4" fill="#fff" rx="1"/></svg>
     <span class="bx--header__name--prefix">IBM</span> Network Intelligence
   </a>
   <nav class="bx--header__nav">
-    <a class="bx--header__menu-item" href="#">Canvas</a>
-    <a class="bx--header__menu-item" href="#">Agentic trace</a>
-    <a class="bx--header__menu-item" href="#">Policy &amp; Permissions</a>
-    <a class="bx--header__menu-item bx--header__menu-item--current" href="#">Research</a>
+  
+    <a class="bx--header__menu-item bx--header__menu-item--current" href="#top">Research</a>
   </nav>
   <div class="bx--header__global">IBM Design Research · 2025</div>
 </header>
 
 <!-- ── PAGE HEADER ── -->
-<div class="bx--page-header">
+<div id="top" class="bx--page-header">
   <div class="bx--page-header__inner">
     <span class="bx--label">User research plan · Concept testing</span>
     <h1 class="bx--page-header__title">Headless AI Agent Interface<br>Concept Validation Study</h1>
@@ -667,7 +669,7 @@ h4.bx--label--group {
   </div>
 
   <!-- ── 1. BACKGROUND ── -->
-  <div class="bx--section">
+  <div id="section-canvas" class="bx--section">
     <span class="bx--section__eyebrow">Section 01</span>
     <h2 class="bx--section__heading"><span class="bx--section__num">1</span> Background &amp; context</h2>
   </div>
@@ -804,7 +806,7 @@ h4.bx--label--group {
 <!-- ══════════════════════════════════════════════════════════
      SECTION 3 · KEY RESEARCH QUESTIONS
 ════════════════════════════════════════════════════════════ -->
-<div class="bx--section bx--section--layer">
+<div id="section-agentic-trace" class="bx--section bx--section--layer">
   <div class="bx--section__header">
     <span class="bx--section__eyebrow">03</span>
     <h2 class="bx--section__title">Key research questions</h2>
@@ -902,7 +904,7 @@ h4.bx--label--group {
 <!-- ══════════════════════════════════════════════════════════
      SECTION 5 · TASKS & DISCUSSION GUIDE
 ════════════════════════════════════════════════════════════ -->
-<div class="bx--section bx--section--layer">
+<div id="section-policy" class="bx--section bx--section--layer">
   <div class="bx--section__header">
     <span class="bx--section__eyebrow">05</span>
     <h2 class="bx--section__title">Tasks &amp; discussion guide</h2>
