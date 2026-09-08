@@ -1358,34 +1358,43 @@
     width: 340px; flex-shrink: 0; overflow-y: auto;
     border-left: 1px solid #e5e7eb;
     background: #ffffff;
-    padding: 28px 28px 32px;
+    padding: 32px 32px 36px;
   }
   .pp-right::-webkit-scrollbar { width: 4px; }
   .pp-right::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
 
   /* Knobs title */
   .pp-knobs-title {
-    font-size: 26px; font-weight: 300; color: #111827;
-    margin-bottom: 20px; line-height: 1.2; letter-spacing: -0.5px;
+    font-size: 28px; font-weight: 300; color: #111827;
+    margin-bottom: 24px; line-height: 1.2; letter-spacing: -0.3px;
   }
   /* Knob rows */
   .pp-knob-row {
     display: flex; justify-content: space-between; align-items: baseline;
-    padding: 4px 0;
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
   }
-  .pp-knob-label { color: #374151; font-size: 13px; font-weight: 400; }
+  .pp-knob-row:last-of-type { border-bottom: none; }
+  .pp-knob-label { color: #374151; font-size: 14px; font-weight: 400; }
+  /* Value group: big number + unit side by side */
   .pp-knob-val {
-    display: flex; align-items: baseline; gap: 2px;
-    font-size: 44px; font-weight: 300; color: #166534;
-    letter-spacing: -1px; line-height: 1;
+    display: flex; align-items: baseline; gap: 4px;
+    color: #166534; line-height: 1;
   }
-  .pp-knob-val small {
+  .pp-knob-num {
+    font-size: 40px; font-weight: 300; letter-spacing: -1px;
+  }
+  .pp-knob-unit {
+    font-size: 40px; font-weight: 300; letter-spacing: -1px;
+  }
+  /* units that are words (acts/min, level) are smaller and grey */
+  .pp-knob-unit-word {
     font-size: 13px; color: #6b7280; font-weight: 400;
-    letter-spacing: 0; line-height: 1; padding-bottom: 6px;
+    letter-spacing: 0; padding-bottom: 7px;
   }
   .pp-knob-divider {
-    border: none; border-top: 1px solid #f3f4f6;
-    margin: 10px 0 18px;
+    border: none; border-top: 1px solid #f0f1f3;
+    margin: 14px 0 22px;
   }
 
   /* Posture section */
@@ -1933,15 +1942,21 @@
 
               <div class="pp-knob-row">
                 <span class="pp-knob-label">Model confidence gate</span>
-                <span class="pp-knob-val">80<small>%</small></span>
+                <span class="pp-knob-val">
+                  <span class="pp-knob-num">80</span><span class="pp-knob-unit">%</span>
+                </span>
               </div>
               <div class="pp-knob-row">
                 <span class="pp-knob-label">Action rate limit</span>
-                <span class="pp-knob-val">12<small>&nbsp;acts/min</small></span>
+                <span class="pp-knob-val">
+                  <span class="pp-knob-num">12</span><span class="pp-knob-unit-word">acts/min</span>
+                </span>
               </div>
               <div class="pp-knob-row">
                 <span class="pp-knob-label">Blast radius cap</span>
-                <span class="pp-knob-val">2<small>&nbsp;level</small></span>
+                <span class="pp-knob-val">
+                  <span class="pp-knob-num">2</span><span class="pp-knob-unit-word">level</span>
+                </span>
               </div>
 
               <hr class="pp-knob-divider"/>
