@@ -2661,7 +2661,11 @@
         </div>
 
         <!-- Activity Timeline -->
-        <div class="action-card" style="margin-bottom:12px;">
+        <div class="action-card" draggable="true" data-card="timeline" style="margin-bottom:12px;">
+          <div class="drag-hint">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="2.5" cy="2.5" r="1" fill="#ccc"/><circle cx="7.5" cy="2.5" r="1" fill="#ccc"/><circle cx="2.5" cy="7.5" r="1" fill="#ccc"/><circle cx="7.5" cy="7.5" r="1" fill="#ccc"/></svg>
+            Drag to canvas for full details
+          </div>
         <div class="timeline-section" style="padding:0;">
           <div class="timeline-header">
             <div class="timeline-title">Activity Timeline</div>
@@ -3198,6 +3202,42 @@
       approveLabel: 'Approve replace',
       escalateLabel: 'Page on-call',
       approveCardId: 'chronic'
+    },
+    timeline: {
+      title: 'Activity Timeline',
+      device: 'Last 6 hours · 40 events',
+      severity: 'INFO',
+      severityClass: 'p2',
+      kpis: [
+        { label: 'Total Events', val: '40', unit: '', cls: 'blue' },
+        { label: 'Auto-resolved', val: '33', unit: '', cls: 'green' },
+        { label: 'Escalations', val: '4', unit: '', cls: 'amber' },
+        { label: 'Active incidents', val: '3', unit: '', cls: 'red' }
+      ],
+      trace: [
+        { label: '14:32 UTC', detail: 'Line-card signal loss on TVM-EDGE-04 port 4/2 — restart initiated by Agent-04' },
+        { label: '13:58 UTC', detail: 'BGP-flap detected on Core-R2 — Route Guard Agent applied dampening; resolved in 2m' },
+        { label: '13:21 UTC', detail: 'Memory leak on svc-worker-07 — Memory Sentinel contained, no restart needed' },
+        { label: '12:44 UTC', detail: 'Cert expiry pre-empted on lb-proxy-01 — Cert Watcher auto-renewed 48h ahead' },
+        { label: '11:30 UTC', detail: 'Disk saturation on log-store-03 at 91% — Storage Agent rotated logs, escalated to L2' }
+      ],
+      confidence: [
+        { label: 'Auto-resolve rate', pct: 83, color: '#16a34a' },
+        { label: 'Detection accuracy', pct: 97, color: '#2563eb' },
+        { label: 'Escalation precision', pct: 74, color: '#d97706' },
+        { label: 'MTTR improvement', pct: 68, color: '#7c3aed' }
+      ],
+      tags: [
+        { label: '6h window', cls: 'blue' },
+        { label: 'Line card', cls: 'amber' },
+        { label: 'BGP flap', cls: '' },
+        { label: 'Memory leak', cls: '' },
+        { label: 'Cert expiry', cls: 'green' },
+        { label: 'Disk saturation', cls: 'red' }
+      ],
+      approveLabel: 'Export report',
+      escalateLabel: 'Page on-call',
+      approveCardId: 'timeline'
     }
   };
 
@@ -3316,8 +3356,12 @@
   function confirmDropApprove(cardId) {
     closeDropPanel();
     const d = dropCardData[cardId];
-    showToast('✓ ' + d.approveLabel + ' approved on ' + d.device, 'green');
-    setTimeout(() => showToast('Remediation complete — ' + d.device + ' restored', 'green'), 3000);
+    if (cardId === 'timeline') {
+      showToast('✓ Timeline report exported — 40 events · 6h window', 'green');
+    } else {
+      showToast('✓ ' + d.approveLabel + ' approved on ' + d.device, 'green');
+      setTimeout(() => showToast('Remediation complete — ' + d.device + ' restored', 'green'), 3000);
+    }
   }
 
   function confirmDropEscalate() {
