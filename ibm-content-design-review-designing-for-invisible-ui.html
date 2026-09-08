@@ -1,0 +1,433 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>IBM Content Design Review</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue:   #3b82d4;
+    --green:  #24a148;
+    --red:    #da1e28;
+    --amber:  #c87400;
+    --muted:  #57606a;
+    --border: #e5e7eb;
+    --bg:     #ffffff;
+    --surf:   #f7f8fa;
+    --text:   #1f2328;
+  }
+  body { font-family: -apple-system,"Segoe UI",system-ui,sans-serif; font-size: 14px; line-height: 1.6; background: var(--bg); color: var(--text); padding: 2.5rem 1.5rem 4rem; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  h1 { font-size: 1.35rem; font-weight: 700; margin-bottom: .25rem; }
+  .meta { font-size: .8rem; color: var(--muted); margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+
+  h2 { font-size: 1rem; font-weight: 700; margin: 2rem 0 .6rem; padding-bottom: .35rem; border-bottom: 1px solid var(--border); }
+  h3 { font-size: .875rem; font-weight: 700; margin: 1.25rem 0 .4rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+
+  /* verdict banner */
+  .verdict { display: flex; align-items: center; gap: .75rem; background: #fff8e1; border: 1px solid #f1c21b; border-radius: 5px; padding: .75rem 1rem; margin-bottom: 2rem; }
+  .verdict-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .verdict-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; color: var(--amber); }
+  .verdict-text  { font-size: .875rem; font-weight: 600; color: var(--text); }
+
+  /* score row */
+  .scores { display: grid; grid-template-columns: repeat(5,1fr); gap: .5rem; margin-bottom: 2rem; }
+  .score-card { background: var(--surf); border: 1px solid var(--border); border-radius: 4px; padding: .6rem .65rem; }
+  .score-num  { font-size: 1.5rem; font-weight: 700; line-height: 1; }
+  .score-num.lvl2 { color: var(--blue); }
+  .score-num.lvl1 { color: var(--amber); }
+  .score-label { font-size: .62rem; color: var(--muted); margin-top: .2rem; text-transform: uppercase; letter-spacing: .05em; }
+
+  /* findings table */
+  table { width: 100%; border-collapse: collapse; font-size: .78rem; margin-bottom: 1.25rem; }
+  th { background: var(--surf); text-align: left; padding: .45rem .6rem; font-weight: 700; border: 1px solid var(--border); font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  td { padding: .45rem .6rem; border: 1px solid var(--border); vertical-align: top; }
+  tr:nth-child(even) td { background: #fafbfc; }
+
+  .badge { display: inline-block; font-size: .62rem; font-weight: 700; padding: .1rem .38rem; border-radius: 2px; text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+  .b-block  { background: #fde8e8; color: var(--red); }
+  .b-high   { background: #fff0db; color: var(--amber); }
+  .b-medium { background: #e8f0fe; color: #1a56c4; }
+  .b-low    { background: #f0f4f4; color: var(--muted); }
+
+  code { font-family: "SF Mono","Fira Code",monospace; font-size: .8em; background: #f0f4f8; padding: .05em .3em; border-radius: 2px; }
+
+  .pass-section { background: var(--surf); border-left: 3px solid var(--green); border-radius: 0 4px 4px 0; padding: .6rem .9rem; margin-bottom: 1rem; font-size: .82rem; }
+  .pass-section strong { color: var(--green); }
+
+  .copy-block { background: #f6fff8; border: 1px solid #c3e6cb; border-radius: 4px; padding: .65rem .85rem; margin-bottom: .75rem; font-size: .8rem; }
+  .copy-block .copy-label { font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--green); margin-bottom: .35rem; }
+  .copy-block .copy-old  { color: var(--muted); text-decoration: line-through; margin-bottom: .2rem; }
+  .copy-block .copy-new  { font-weight: 600; color: var(--text); }
+
+  .footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: .72rem; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>IBM Content Design Review</h1>
+  <div class="meta">Site: <strong>Designing for Invisible UI</strong>  ·  Scope: All 5 panels, navigation, footer  ·  Skill applied: <strong>ibm-content-design (SKILL.md)</strong>  ·  Date: 2025</div>
+
+  
+  <div class="verdict">
+    <div class="verdict-icon">⚠</div>
+    <div>
+      <div class="verdict-label">Overall verdict</div>
+      <div class="verdict-text">Minor edits — Experience is clear and usable. No blocking issues. Targeted fixes to spelling, action labels, and tone will elevate to Level 3.</div>
+    </div>
+  </div>
+
+  
+  <div class="scores">
+    <div class="score-card"><div class="score-num lvl2">2</div><div class="score-label">Content hierarchy</div></div>
+    <div class="score-card"><div class="score-num lvl2">2</div><div class="score-label">Terminology</div></div>
+    <div class="score-card"><div class="score-num lvl2">2</div><div class="score-label">Content that guides</div></div>
+    <div class="score-card"><div class="score-num lvl1">1</div><div class="score-label">Helps when stuck</div></div>
+    <div class="score-card"><div class="score-num lvl1">1</div><div class="score-label">Formatting &amp; style</div></div>
+  </div>
+  <p style="font-size:.75rem;color:var(--muted);margin-bottom:2rem">0 Inadequate · 1 Minimal · 2 Good · 3 Excellent. Scores apply to the full flow, not individual strings.</p>
+
+  
+  <h2>Findings</h2>
+
+  <h3>Blocking</h3>
+  <p style="font-size:.8rem;color:var(--muted);margin-bottom:.75rem;font-style:italic">No blocking findings — no issue prevents task completion or creates a critical accessibility barrier.</p>
+
+  
+  <h3>High priority</h3>
+  <table>
+    <tr>
+      <th>Priority</th><th>Panel / Element</th><th>Current text</th><th>Finding</th><th>Suggested text</th>
+    </tr>
+    <tr>
+      <td><span class="badge b-high">High</span></td>
+      <td>All panels<br /><em>CTA buttons</em></td>
+      <td><code>Move forward</code><br /><code>Go back</code></td>
+      <td><strong>Non-standard action labels.</strong> Carbon standard for stepped flows is <strong>Next</strong> (advance) and <strong>Back</strong> (return). "Move forward" is colloquial and not verb-first. "Go back" adds an unnecessary word.</td>
+      <td><code>Next</code> / <code>Back</code></td>
+    </tr>
+    <tr>
+      <td><span class="badge b-high">High</span></td>
+      <td>Panel 0 — Overview<br /><em>Condition pill</em></td>
+      <td><code>Likely condition · Designing for Invisible UI</code></td>
+      <td><strong>Inconsistent label pattern.</strong> Other pills use <em>state · topic</em> (e.g. "Pattern named · What &amp; Why"). "Likely condition" reads as a diagnostic qualifier, not a state label. It creates a false impression the content is tentative or provisional, which undermines confidence.</td>
+      <td><code>Overview · Designing for Invisible UI</code></td>
+    </tr>
+    <tr>
+      <td><span class="badge b-high">High</span></td>
+      <td>Footer<br /><em>Restart button</em></td>
+      <td><code>Start again</code></td>
+      <td><strong>Non-standard action label.</strong> Carbon standard for restarting a flow is <strong>Start over</strong> or simply <strong>Start</strong>. "Start again" is informal and inconsistent with product conventions.</td>
+      <td><code>Start over</code></td>
+    </tr>
+    <tr>
+      <td><span class="badge b-high">High</span></td>
+      <td>Panel 2 — Characteristics<br /><em>Heading</em></td>
+      <td><code>Four Defining Behaviours</code></td>
+      <td><strong>UK English spelling.</strong> IBM Content Standard requires US English. "Behaviours" → "Behaviors". Same issue exists in body copy throughout: "behaviour" appears in Panel 0 UX shifts, Panel 3 pillar text, Panel 4 direction cards, and the blockquote.</td>
+      <td><code>Four Defining Behaviors</code></td>
+    </tr>
+    <tr>
+      <td><span class="badge b-high">High</span></td>
+      <td>All panels<br /><em>Body copy (multiple)</em></td>
+      <td><code>behaviour / behaviours</code>, <code>artefact</code>, <code>authorise</code></td>
+      <td><strong>UK English throughout.</strong> IBM standard requires US English. All three spellings appear in the site. <code>artefact</code> → <code>artifact</code>, <code>authorise</code> → <code>authorize</code>. See Replacement Copy section for all occurrences.</td>
+      <td><code>behavior / behaviors</code>, <code>artifact</code>, <code>authorize</code></td>
+    </tr>
+  </table>
+
+  
+  <h3>Medium priority</h3>
+  <table>
+    <tr>
+      <th>Priority</th><th>Panel / Element</th><th>Current text</th><th>Finding</th><th>Suggested text</th>
+    </tr>
+    <tr>
+      <td><span class="badge b-medium">Medium</span></td>
+      <td>Panel 3 — Four Pillars<br /><em>Agent Identity quote</em></td>
+      <td><code>"Trust and accountability must surface. This answers the W's — who acted, what was the policy, when did it run, why was permission granted."</code></td>
+      <td><strong>Ambiguous label "the W's".</strong> This is informal jargon and opaque to non-native English readers. IBM voice is direct and factual — name the questions explicitly.</td>
+      <td><code>"Trust and accountability must be visible — every agent action should be traceable to who acted, what policy applied, when it ran, and why permission was granted."</code></td>
+    </tr>
+    <tr>
+      <td><span class="badge b-medium">Medium</span></td>
+      <td>Panel 4 — Directions<br /><em>Direction 05 example label</em></td>
+      <td><code>Example Questions</code></td>
+      <td><strong>Inconsistent label across 5 cards.</strong> Directions 01–04 use <code>Example</code>; Direction 05 uses <code>Example Questions</code>. Inconsistency increases cognitive load. Use the same label throughout or reframe the content as an example.</td>
+      <td><code>Example</code></td>
+    </tr>
+    <tr>
+      <td><span class="badge b-medium">Medium</span></td>
+      <td>Panel 4 — Directions<br /><em>Direction card body text</em></td>
+      <td><code>These are not rules — they are orientations.</code></td>
+      <td><strong>Weak framing.</strong> Defining by what something is not ("not rules") weakens the opening. IBM voice leads with a positive, confident point of view.</td>
+      <td><code>Five shifts in how designers think when working with headless AI agents. Click any card to reveal the example.</code></td>
+    </tr>
+    <tr>
+      <td><span class="badge b-medium">Medium</span></td>
+      <td>Top nav<br /><em>Step sub-labels</em></td>
+      <td><code>Canvas view</code>, <code>Pattern named</code>, <code>Useful words</code>, <code>Owner + follow-up</code>, <code>Evidence in work</code></td>
+      <td><strong>Sub-labels are opaque to first-time users.</strong> These appear to be internal design-process stage names, not descriptors of what a user will find in each step. They offer no wayfinding value. Consider either removing them or replacing with user-task-oriented labels.</td>
+      <td>Remove, or replace with: <code>Introduction</code>, <code>Definition</code>, <code>Characteristics</code>, <code>Framework</code>, <code>Directions</code></td>
+    </tr>
+    <tr>
+      <td><span class="badge b-medium">Medium</span></td>
+      <td>Panel 3 — Rail<br /><em>SVG diagram footer label</em></td>
+      <td><code>HEADLESS AI · FOUR PILLARS · ALWAYS ACTIVE</code></td>
+      <td><strong>ALL CAPS in body content.</strong> IBM Content Standard requires sentence case for all UI text. ALL CAPS implies shouting and reduces accessibility for screen readers. Decorative diagram labels are an exception only when clearly ornamental — here it reads as content.</td>
+      <td><code>Headless AI · Four pillars · Always active</code></td>
+    </tr>
+    <tr>
+      <td><span class="badge b-medium">Medium</span></td>
+      <td>Panel 2 — Rail<br /><em>Agent demo status</em></td>
+      <td><code>Waiting for trigger…</code></td>
+      <td><strong>Ellipsis implies the agent is stuck or loading.</strong> In an ambient/presence context, the status should signal readiness, not uncertainty.</td>
+      <td><code>Ready · Waiting for event</code></td>
+    </tr>
+    <tr>
+      <td><span class="badge b-medium">Medium</span></td>
+      <td>Panel 3 — Rail mock<br /><em>Trace View principle</em></td>
+      <td><code>Traces are the UI for invisible work.</code></td>
+      <td><strong>Strong line — but "the UI" is an overstatement.</strong> Traces are one primary surface, not the only one. A more precise claim is stronger.</td>
+      <td><code>The trace is the primary interface for invisible work.</code></td>
+    </tr>
+    <tr>
+      <td><span class="badge b-medium">Medium</span></td>
+      <td>Panel 1 — Rail<br /><em>Competitor card: ServiceNow</em></td>
+      <td><code>no ticket required</code></td>
+      <td><strong>Informal, product-jargon phrasing.</strong> "Ticket" is ITSM-specific slang in this context. The phrase reads as product marketing, not neutral comparison. Also note the "no ticket required" parenthetical is inconsistent with the other three card structures.</td>
+      <td>Remove the parenthetical: <code>Background agents that auto-triage incidents, resolve known issues, and escalate only when policy thresholds are breached.</code></td>
+    </tr>
+  </table>
+
+  
+  <h3>Low priority (editorial polish)</h3>
+  <table>
+    <tr>
+      <th>Priority</th><th>Panel / Element</th><th>Current text</th><th>Finding</th><th>Suggested text</th>
+    </tr>
+    <tr>
+      <td><span class="badge b-low">Low</span></td>
+      <td>Panel 0 — Rail<br /><em>Core Principles section label</em></td>
+      <td><code>Core Principles</code></td>
+      <td>Title case. IBM sentence case: <code>Core principles</code>.</td>
+      <td><code>Core principles</code></td>
+    </tr>
+    <tr>
+      <td><span class="badge b-low">Low</span></td>
+      <td>Panel 1 — Main<br /><em>Analogy section label</em></td>
+      <td><code>The Immune System Analogy</code></td>
+      <td>Title case. Sentence case: <code>The immune system analogy</code>.</td>
+      <td><code>The immune system analogy</code></td>
+    </tr>
+    <tr>
+      <td><span class="badge b-low">Low</span></td>
+      <td>Panel 1 — Main<br /><em>VS section label</em></td>
+      <td><code>Headless vs. Traditional Chat AI</code></td>
+      <td>Title case. Sentence case: <code>Headless vs. traditional chat AI</code>.</td>
+      <td><code>Headless vs. traditional chat AI</code></td>
+    </tr>
+    <tr>
+      <td><span class="badge b-low">Low</span></td>
+      <td>Panel 1 — Rail<br /><em>Competitor section label</em></td>
+      <td><code>Who's building headless AI</code></td>
+      <td>Conversational framing is fine, but lacks a period/question mark. Consider adding a sentence-ending period or slightly rephrasing to a noun-phrase label for scanning. Minor; retain if design intent is conversational.</td>
+      <td><code>Who's building headless AI?</code> or <code>Products in this space</code></td>
+    </tr>
+    <tr>
+      <td><span class="badge b-low">Low</span></td>
+      <td>Panel 4 — Main<br /><em>Direction 03 example</em></td>
+      <td><code>summarizes</code></td>
+      <td>US spelling is correct here — no change needed. ✓</td>
+      <td>No change</td>
+    </tr>
+    <tr>
+      <td><span class="badge b-low">Low</span></td>
+      <td>Panel 4 — Rail Scene 03<br /><em>Completion state</em></td>
+      <td><code>Agent resumed autonomously</code></td>
+      <td>Passive construction. Active is clearer for status messages: <code>Agent running — reroute confirmed</code>.</td>
+      <td><code>Agent running — reroute confirmed</code></td>
+    </tr>
+    <tr>
+      <td><span class="badge b-low">Low</span></td>
+      <td>Panel 4 — Rail Scene 01<br /><em>Caption</em></td>
+      <td><code>Rules govern behaviour — not pixels. Click Replay to re-evaluate.</code></td>
+      <td>UK spelling ("behaviour"). Fix to US English. Second sentence is instructional — good.</td>
+      <td><code>Rules govern behavior — not pixels. Click Replay to re-evaluate.</code></td>
+    </tr>
+    <tr>
+      <td><span class="badge b-low">Low</span></td>
+      <td>Panel 3 — Pillar 3<br /><em>Bullet label</em></td>
+      <td><code>Mid-run policy changes</code></td>
+      <td>Noun label is fine for scanning but the description <code>Adjust rules for this run only</code> uses "rules" while the heading uses "policy". Same concept — use one term. "Policy" is the established term in this product.</td>
+      <td>Description: <code>Adjust policy for this run only</code></td>
+    </tr>
+    <tr>
+      <td><span class="badge b-low">Low</span></td>
+      <td>Footer<br /><em>Flow breadcrumb</em></td>
+      <td><code>Recognition → Words → Agreement → Evidence</code></td>
+      <td>Internal design-process stage names — not user-facing wayfinding. If this is intentionally meta/behind-the-scenes, that's a design decision. Flag for team awareness only.</td>
+      <td>Design decision — no text change required</td>
+    </tr>
+  </table>
+
+  
+  <h2>Cross-screen issues</h2>
+
+  <h3>1. UK English spellings — systematic</h3>
+  <p style="font-size:.82rem;margin-bottom:.75rem">The following UK spellings appear across multiple panels. All should be replaced with US English per IBM Content Standard.</p>
+  <table>
+    <tr><th>UK (current)</th><th>US (required)</th><th>Panels affected</th></tr>
+    <tr><td><code>behaviour / behaviours</code></td><td><code>behavior / behaviors</code></td><td>0, 2, 3, 4, rail scenes</td></tr>
+    <tr><td><code>artefact</code></td><td><code>artifact</code></td><td>0 (UX shifts body)</td></tr>
+    <tr><td><code>authorisation</code></td><td><code>authorization</code></td><td>3 (Pillar 4 bullet)</td></tr>
+    <tr><td><code>authorised</code></td><td><code>authorized</code></td><td>2 (Action Oriented trait)</td></tr>
+  </table>
+
+  <h3>2. Title case — systematic</h3>
+  <p style="font-size:.82rem;margin-bottom:.75rem">IBM sentence case applies to all section labels. The following use title case.</p>
+  <table>
+    <tr><th>Current (title case)</th><th>Corrected (sentence case)</th></tr>
+    <tr><td><code>Core Principles</code></td><td><code>Core principles</code></td></tr>
+    <tr><td><code>The Immune System Analogy</code></td><td><code>The immune system analogy</code></td></tr>
+    <tr><td><code>Headless vs. Traditional Chat AI</code></td><td><code>Headless vs. traditional chat AI</code></td></tr>
+    <tr><td><code>The Team</code></td><td><code>The team</code></td></tr>
+    <tr><td><code>Live Trace</code> (mock card)</td><td><code>Live trace</code></td></tr>
+    <tr><td><code>Proposed action ready</code></td><td>Already correct ✓</td></tr>
+  </table>
+
+  <h3>3. Action label consistency</h3>
+  <p style="font-size:.82rem;margin-bottom:.75rem">Navigation CTAs mix Carbon-standard and non-standard labels in the same flow.</p>
+  <table>
+    <tr><th>Current</th><th>Carbon standard</th><th>Rationale</th></tr>
+    <tr><td><code>Move forward</code></td><td><code>Next</code></td><td>Carbon stepped-flow standard; verb-first, 1 word</td></tr>
+    <tr><td><code>Go back</code></td><td><code>Back</code></td><td>Carbon standard; removes unnecessary "go"</td></tr>
+    <tr><td><code>Start again</code></td><td><code>Start over</code></td><td>More natural US English; common convention</td></tr>
+    <tr><td><code>Dismiss ×</code> (alert)</td><td><code>Dismiss</code></td><td>Remove inline × — use an icon button with aria-label instead</td></tr>
+  </table>
+
+  <h3>4. Terminology consistency — "rules" vs. "policy"</h3>
+  <p style="font-size:.82rem;margin-bottom:.75rem">The established product term is <strong>policy</strong> (Scope &amp; Policy pillar, Policy Layer, policy matrix). In two places the UI reverts to "rules" for the same concept. One term, one concept.</p>
+  <table>
+    <tr><th>Location</th><th>Current</th><th>Correct</th></tr>
+    <tr><td>Panel 3 — Pillar 3 bullet description</td><td><code>Adjust rules for this run only</code></td><td><code>Adjust policy for this run only</code></td></tr>
+    <tr><td>Panel 4 — Scene 01 caption</td><td><code>Rules govern behaviour — not pixels</code></td><td><code>Policy governs behavior — not pixels</code></td></tr>
+  </table>
+
+  
+  <h2>What's working well</h2>
+  <div class="pass-section"><strong>IBM voice is strong throughout.</strong> The body copy is confident, factual, and point-of-view-led. Phrases like "Design the event payload, not the UI form" and "Chat is not the product — it's an emergency hatch" are direct, purposeful, and intellectually ambitious — hallmarks of Level 3 IBM voice.</div>
+  <div class="pass-section"><strong>Analogy use is effective.</strong> The immune system analogy in Panel 1 is clear, grounded, and memorable. IBM voice guidelines endorse figurative language for emphasis — this lands well.</div>
+  <div class="pass-section"><strong>Design principles are action-oriented.</strong> The rail mock card principles ("The permission matrix IS the product spec", "Identity is not metadata — it is accountability made visible") are confident and instructional. Retain this pattern.</div>
+  <div class="pass-section"><strong>Descriptions are appropriately technical without being jargon-heavy.</strong> The Panel 2 characteristics tabs provide the right depth for a design-team audience. Context, examples, and implications are all present.</div>
+  <div class="pass-section"><strong>Error/alert content in micro-interactions is well-formed.</strong> The Scene 02 alert trace rows state what happened, the confidence score, and the required approval — factual and economical.</div>
+
+  
+  <h2>Replacement copy — ready to paste</h2>
+
+  <div class="copy-block">
+    <div class="copy-label">Panel 0 — Condition pill</div>
+    <div class="copy-old">"Likely condition · Designing for Invisible UI"</div>
+    <div class="copy-new">"Overview · Designing for Invisible UI"</div>
+  </div>
+
+  <div class="copy-block">
+    <div class="copy-label">All panels — CTA: advance</div>
+    <div class="copy-old">"Move forward"</div>
+    <div class="copy-new">"Next"</div>
+  </div>
+
+  <div class="copy-block">
+    <div class="copy-label">All panels — CTA: return</div>
+    <div class="copy-old">"Go back"</div>
+    <div class="copy-new">"Back"</div>
+  </div>
+
+  <div class="copy-block">
+    <div class="copy-label">Footer — restart</div>
+    <div class="copy-old">"Start again"</div>
+    <div class="copy-new">"Start over"</div>
+  </div>
+
+  <div class="copy-block">
+    <div class="copy-label">Panel 2 — Characteristics heading</div>
+    <div class="copy-old">"Four Defining Behaviours"</div>
+    <div class="copy-new">"Four Defining Behaviors"</div>
+  </div>
+
+  <div class="copy-block">
+    <div class="copy-label">Panel 0 — UX shift: Design Focus body</div>
+    <div class="copy-old">"Designers compose screens. The output is a visual artefact."</div>
+    <div class="copy-new">"Designers compose screens. The output is a visual artifact."</div>
+  </div>
+
+  <div class="copy-block">
+    <div class="copy-label">Panel 2 — Action Oriented trait: Reversibility</div>
+    <div class="copy-old">"Every action the agent takes should carry a reversibility signal: can this be undone, and by whom? Design undo affordances, rollback windows, and clear before/after diffs in the action record."</div>
+    <div class="copy-new">"Every action the agent takes should carry a reversibility signal: can it be undone, and by whom? Design undo affordances, rollback windows, and clear before/after diffs in the action record."</div>
+  </div>
+
+  <div class="copy-block">
+    <div class="copy-label">Panel 2 — Action Oriented trait: Authorisation</div>
+    <div class="copy-old">"Destructive or cross-system actions require explicit authorisation."</div>
+    <div class="copy-new">"Destructive or cross-system actions require explicit authorization."</div>
+  </div>
+
+  <div class="copy-block">
+    <div class="copy-label">Panel 3 — Agent Identity pillar quote</div>
+    <div class="copy-old">"Trust and accountability must surface. This answers the W's — who acted, what was the policy, when did it run, why was permission granted."</div>
+    <div class="copy-new">"Trust and accountability must be visible — every agent action should be traceable to who acted, what policy applied, when it ran, and why permission was granted."</div>
+  </div>
+
+  <div class="copy-block">
+    <div class="copy-label">Panel 3 — Pillar 3 bullet description (Mid-run policy changes)</div>
+    <div class="copy-old">"Adjust rules for this run only"</div>
+    <div class="copy-new">"Adjust policy for this run only"</div>
+  </div>
+
+  <div class="copy-block">
+    <div class="copy-label">Panel 4 — Directions body</div>
+    <div class="copy-old">"These are not rules — they are orientations. Each describes a shift in how designers should think when working with headless AI agents. Click any card to reveal the real-world example."</div>
+    <div class="copy-new">"Five shifts in how designers think when working with headless AI agents. Click any card to reveal the example."</div>
+  </div>
+
+  <div class="copy-block">
+    <div class="copy-label">Panel 4 — Direction 05 example label</div>
+    <div class="copy-old">"Example Questions"</div>
+    <div class="copy-new">"Example"</div>
+  </div>
+
+  <div class="copy-block">
+    <div class="copy-label">Panel 4 — Rail Scene 01 caption</div>
+    <div class="copy-old">"Rules govern behaviour — not pixels. Click Replay to re-evaluate."</div>
+    <div class="copy-new">"Policy governs behavior — not pixels. Click Replay to re-evaluate."</div>
+  </div>
+
+  <div class="copy-block">
+    <div class="copy-label">Panel 4 — Rail Scene 03 completion state</div>
+    <div class="copy-old">"Agent resumed autonomously"</div>
+    <div class="copy-new">"Agent running — reroute confirmed"</div>
+  </div>
+
+  <div class="copy-block">
+    <div class="copy-label">Panel 2 — Rail agent demo status</div>
+    <div class="copy-old">"Waiting for trigger…"</div>
+    <div class="copy-new">"Ready · Waiting for event"</div>
+  </div>
+
+  
+  <h2>Coverage gaps</h2>
+  <ul style="font-size:.82rem;padding-left:1.2rem;line-height:2">
+    <li>MacBook SVG text strings (<code>Hello Fiona, Good morning</code>, chart labels) are decorative/illustrative — not reviewed for content standards.</li>
+    <li>Live agent terminal log lines (streamed JS content) were not reviewed — they are demo/simulation content rather than product UI strings.</li>
+    <li>Hover and focus states, screen-reader accessible names on icon buttons (Pause, Replay, gallery expand) are implementation concerns outside the scope of this content review.</li>
+    <li>The <code>Dismiss ×</code> button pattern merges a label with an icon glyph — flagged as medium; ARIA implementation not inspected.</li>
+  </ul>
+
+  <div class="footer">Made with IBM Bob</div>
+</div>
+</body>
+</html>
