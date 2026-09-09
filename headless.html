@@ -498,6 +498,35 @@
     background: transparent;
     flex-shrink: 0;
   }
+  .stats-bar-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    align-self: center;
+  }
+  .sb-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 11px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #374151;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.13s, border-color 0.13s, color 0.13s, box-shadow 0.13s;
+    white-space: nowrap;
+  }
+  .sb-btn:hover { background: #f3f4f6; border-color: #d1d5db; }
+  .sb-btn svg { flex-shrink: 0; }
+  .sb-btn-reset:hover { background: #fef2f2; border-color: #fca5a5; color: #b91c1c; }
+  .sb-btn-reset:hover svg { stroke: #b91c1c; }
+  .sb-btn-refresh:hover { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
+  .sb-btn-refresh:hover svg { stroke: #1d4ed8; }
+  /* spinning state on refresh */
+  .sb-btn-refresh.refreshing svg { animation: sbSpin 0.7s linear infinite; }
+  @keyframes sbSpin { to { transform: rotate(360deg); } }
 
   .stat-block {
     display: flex;
@@ -3777,6 +3806,22 @@
               </div>
             </div>
           </div>
+
+          <!-- stats bar action buttons — right end -->
+          <div class="stats-bar-actions">
+            <button class="sb-btn sb-btn-refresh" id="sbRefreshBtn" onclick="canvasRefresh()" title="Refresh all canvas tiles">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12a9 9 0 11-9-9"/><path d="M21 3v5h-5"/>
+              </svg>
+              Refresh
+            </button>
+            <button class="sb-btn sb-btn-reset" id="sbResetBtn" onclick="canvasReset()" title="Remove all canvas tiles">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+              </svg>
+              Reset
+            </button>
+          </div>
         </div>
 
         <!-- Canvas viewport -->
@@ -5424,6 +5469,86 @@
       const grid = document.getElementById('canvasTilesGrid');
       if (!grid.querySelector('.canvas-tile')) grid.classList.remove('has-tiles');
     }, 220);
+  }
+
+  /* ── stats-bar Refresh & Reset ── */
+  function canvasRefresh() {
+    const btn = document.getElementById('sbRefreshBtn');
+    const grid = document.getElementById('canvasTilesGrid');
+    if (!grid) return;
+
+    // spin the icon
+    if (btn) btn.classList.add('refreshing');
+
+    // collect all current tiles and their stored data
+    const canvasTiles   = [...grid.querySelectorAll('.canvas-tile')];
+    const anomalyTiles  = [...grid.querySelectorAll('.anomaly-canvas-tile')];
+
+    // fade them all out
+    [...canvasTiles, ...anomalyTiles].forEach(t => {
+      t.style.transition = 'opacity 0.18s, transform 0.18s';
+      t.style.opacity = '0';
+      t.style.transform = 'scale(0.95)';
+    });
+
+    setTimeout(() => {
+      // rebuild each canvas-tile with fresh seeded values (same text/theme, new seed suffix)
+      canvasTiles.forEach(tile => {
+        const text  = tile.dataset.ctText;
+        const theme = JSON.parse(tile.dataset.ctTheme || '{}');
+        if (!text) return;
+        const suffix = '_r' + Date.now();
+        const vals  = _tileSeeded(text + suffix, theme.base || 60, theme.variance || 25, 10);
+        const last  = vals[vals.length - 1];
+        const peak  = Math.max(...vals);
+        const svg   = _buildTileSVG(vals, theme);
+        // update stored vals and regenerate inner content preserving the tile element
+        tile.dataset.ctVals = JSON.stringify(vals);
+        tile.querySelector('.canvas-tile-kpi').innerHTML =
+          `${last}<span style="font-size:11px;color:#9ca3af;margin-left:2px">${theme.label || ''}</span>`;
+        tile.querySelector('.canvas-tile-sub').textContent =
+          `peak ${peak} ${theme.label || ''} · 10 steps`;
+        tile.querySelector('.canvas-tile-chart').innerHTML = svg;
+        tile.style.transition = 'opacity 0.25s, transform 0.25s';
+        tile.style.opacity = '1';
+        tile.style.transform = '';
+      });
+
+      // re-render anomaly tiles: remove and re-add from ANOMALY_DETAIL
+      anomalyTiles.forEach(tile => {
+        const id = tile.dataset.anomalyId;
+        const anomaly = ALL_ANOMALIES.find(a => a.id === id);
+        if (!anomaly) { tile.remove(); return; }
+        tile.remove();
+        addAnomalyCanvasTile(anomaly);
+      });
+
+      if (btn) btn.classList.remove('refreshing');
+      showToast('Canvas refreshed', 'blue');
+    }, 300);
+  }
+
+  function canvasReset() {
+    const grid = document.getElementById('canvasTilesGrid');
+    if (!grid) return;
+    const tiles = [...grid.querySelectorAll('.canvas-tile, .anomaly-canvas-tile')];
+    if (!tiles.length) { showToast('Canvas is already empty', 'blue'); return; }
+
+    // close any open maximize overlay first
+    if (document.querySelector('.canvas-tile.ct-maximized'))   ctCloseMaximized();
+    if (document.querySelector('.anomaly-canvas-tile.act-maximized')) actCloseMaximized();
+
+    // staggered fade-out then remove
+    tiles.forEach((t, i) => {
+      t.style.transition = `opacity 0.18s ${i * 0.04}s, transform 0.18s ${i * 0.04}s`;
+      t.style.opacity = '0';
+      t.style.transform = 'scale(0.92)';
+    });
+    setTimeout(() => {
+      tiles.forEach(t => t.remove());
+      grid.classList.remove('has-tiles');
+      showToast('Canvas cleared', 'blue');
+    }, 180 + tiles.length * 40);
   }
 
   /* ── canvas-tile maximize / restore ── */
