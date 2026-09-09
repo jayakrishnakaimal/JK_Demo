@@ -798,6 +798,40 @@
     background: #eff6ff; border-color: #2563eb; color: #1d4ed8;
   }
 
+  /* ── QA chart skeleton loader ── */
+  @keyframes skeletonPulse {
+    0%, 100% { opacity: 0.55; }
+    50%       { opacity: 1;    }
+  }
+  .qa-skeleton {
+    position: absolute; inset: 0;
+    display: flex; align-items: flex-end; justify-content: space-around;
+    padding: 20px 16px 28px;
+    background: #fff; border-radius: 6px;
+    z-index: 5;
+    transition: opacity 0.3s ease;
+  }
+  .qa-skeleton-bar {
+    border-radius: 4px 4px 0 0;
+    background: linear-gradient(180deg, #e5e7eb 0%, #d1d5db 100%);
+    animation: skeletonPulse 1.1s ease-in-out infinite;
+    width: 14px;
+  }
+  .qa-skeleton-spinner {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 28px; height: 28px;
+  }
+  .qa-skeleton-spinner circle {
+    fill: none; stroke: #d1d5db; stroke-width: 3;
+    stroke-dasharray: 60; stroke-linecap: round;
+    animation: spinnerRot 0.8s linear infinite;
+    transform-origin: 14px 14px;
+  }
+  @keyframes spinnerRot {
+    to { stroke-dashoffset: -80; }
+  }
+
   /* ── background micro-interactions ── */
   .bg-layer {
     position: absolute;
@@ -1499,10 +1533,12 @@
     font-weight: 500;
     cursor: pointer;
     font-family: inherit;
-    transition: background 0.15s;
+    transition: background 0.15s, transform 0.1s;
     text-align: center;
+    position: relative; overflow: hidden;
   }
-  .cd-btn-approve:hover { background: #1d4ed8; }
+  .cd-btn-approve:hover:not(:disabled) { background: #1d4ed8; }
+  .cd-btn-approve:active:not(:disabled) { transform: scale(0.97); }
   .cd-btn-deny {
     flex: 1;
     background: #ffffff;
@@ -1514,10 +1550,56 @@
     font-weight: 500;
     cursor: pointer;
     font-family: inherit;
-    transition: background 0.15s, border-color 0.15s;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
     text-align: center;
+    position: relative; overflow: hidden;
   }
-  .cd-btn-deny:hover { background: #fef2f2; border-color: #fca5a5; }
+  .cd-btn-deny:hover:not(:disabled) { background: #fef2f2; border-color: #fca5a5; }
+  .cd-btn-deny:active:not(:disabled) { transform: scale(0.97); }
+
+  /* ripple */
+  @keyframes cdRipple {
+    to { transform: scale(4); opacity: 0; }
+  }
+  .cd-ripple {
+    position: absolute; border-radius: 50%;
+    width: 40px; height: 40px;
+    margin-top: -20px; margin-left: -20px;
+    background: rgba(255,255,255,0.45);
+    pointer-events: none;
+    animation: cdRipple 0.55s ease-out forwards;
+  }
+
+  /* button loading spinner */
+  @keyframes btnSpinRot { to { transform: rotate(360deg); } }
+  .cd-btn-spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: btnSpinRot 0.7s linear infinite;
+    vertical-align: middle; margin-right: 6px;
+  }
+  .cd-btn-approve .cd-btn-spinner { border-top-color: #fff; }
+  .cd-btn-deny .cd-btn-spinner {
+    border-color: rgba(220,38,38,0.3);
+    border-top-color: #dc2626;
+  }
+
+  /* success checkmark pulse */
+  @keyframes successPulse {
+    0%   { transform: scale(0.7); opacity: 0; }
+    60%  { transform: scale(1.15); }
+    100% { transform: scale(1);   opacity: 1; }
+  }
+  .cd-btn-approve.success {
+    background: #16a34a; cursor: default;
+    animation: successPulse 0.35s cubic-bezier(.4,0,.2,1) both;
+  }
+  .cd-btn-deny.dismissed {
+    background: #f9fafb; color: #6b7280; border-color: #e5e7eb;
+    cursor: default;
+  }
 
   /* ── sidebar inline chat ── */
   .cd-chat-box {
@@ -3285,8 +3367,8 @@
               <div class="cd-side-card-name" id="cdSideName">Recurring CRC error - TVM Edge</div>
               <div class="cd-side-card-sub"  id="cdSideSub">expires in 26 min · Tier 2 · confidence 87%</div>
               <div class="cd-side-btns" id="cdSideBtns">
-                <button class="cd-btn-approve" onclick="cdApprove()">Approve</button>
-                <button class="cd-btn-deny"    onclick="cdDeny()">Deny</button>
+                <button class="cd-btn-approve" onclick="cdApprove(event)">Approve</button>
+                <button class="cd-btn-deny"    onclick="cdDeny(event)">Deny</button>
               </div>
             </div>
 
@@ -4916,21 +4998,65 @@
     new ResizeObserver(() => initTrailCanvas()).observe(wrap);
   }
 
+  // ── 6. Skeleton loader for chart area ──
+  const _SKEL_HEIGHTS = [55, 80, 42, 90, 65, 35, 78, 48, 85, 60, 72, 50, 88, 40, 68, 55, 76, 44, 92, 58];
+  function qaShowSkeleton() {
+    const wrap = document.getElementById('qaChartWrap');
+    if (!wrap) return;
+    // remove any existing skeleton
+    const old = wrap.querySelector('.qa-skeleton');
+    if (old) old.remove();
+    const skel = document.createElement('div');
+    skel.className = 'qa-skeleton';
+    // generate bars at staggered heights
+    _SKEL_HEIGHTS.forEach((h, i) => {
+      const bar = document.createElement('div');
+      bar.className = 'qa-skeleton-bar';
+      bar.style.height = h + '%';
+      bar.style.animationDelay = `${(i % 5) * 0.12}s`;
+      skel.appendChild(bar);
+    });
+    // add spinner SVG in centre
+    const spinner = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    spinner.setAttribute('viewBox', '0 0 28 28');
+    spinner.classList.add('qa-skeleton-spinner');
+    const circ = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circ.setAttribute('cx', '14'); circ.setAttribute('cy', '14'); circ.setAttribute('r', '10');
+    circ.setAttribute('stroke-dasharray', '45 20');
+    spinner.appendChild(circ);
+    skel.appendChild(spinner);
+    wrap.appendChild(skel);
+    return skel;
+  }
+
+  function qaHideSkeleton() {
+    const skel = document.querySelector('#qaChartWrap .qa-skeleton');
+    if (!skel) return;
+    skel.style.opacity = '0';
+    setTimeout(() => skel.remove(), 320);
+  }
+
   // ── master hook: run all micro-interactions after chart draws ──
   const _origHandleQuickAction = handleQuickAction;
   handleQuickAction = function(action, btn) {
-    _origHandleQuickAction(action, btn);
-    // small delay so chart is rendered first
+    // show skeleton BEFORE chart renders
+    qaShowSkeleton();
+    // render actual chart ~620ms later (skeleton stays visible first)
     setTimeout(() => {
-      qaRunShimmer();
-      qaAnimateKpis();
-      qaBindChartInteractions();
-      // add pulse rings for latency chart (3 agents, last data point highlighted)
-      if (action === 'latency') {
-        const svg = document.querySelector('#qaChartWrap svg');
-        if (svg) qaAddPulseRings(svg, [[svg.clientWidth - 20, 80], [svg.clientWidth - 20, 100], [svg.clientWidth - 20, 60]], '#3b82f6');
-      }
-    }, 180);
+      _origHandleQuickAction(action, btn);
+      // hide skeleton after chart is in DOM
+      setTimeout(qaHideSkeleton, 80);
+      // run other micro-interactions
+      setTimeout(() => {
+        qaRunShimmer();
+        qaAnimateKpis();
+        qaBindChartInteractions();
+        if (action === 'latency') {
+          const svg = document.querySelector('#qaChartWrap svg');
+          if (svg) qaAddPulseRings(svg, [[svg.clientWidth - 20, 80], [svg.clientWidth - 20, 100], [svg.clientWidth - 20, 60]], '#3b82f6');
+        }
+      }, 200);
+    }, 620);
   };
 
   /* ────────────────────────────────────────────
@@ -5142,13 +5268,28 @@
 
     document.getElementById('cdImpact').textContent = '~1200 users';
 
-    // sidebar
+    // sidebar — buttons always visible with context-aware labels
     document.getElementById('cdSideTitle').textContent = cd.sideTitle;
     document.getElementById('cdSideTime').textContent  = cd.sideTime;
     document.getElementById('cdSideId').textContent    = c.id;
     document.getElementById('cdSideName').textContent  = c.name;
     document.getElementById('cdSideSub').textContent   = cd.sideSub;
-    document.getElementById('cdSideBtns').style.display = cd.showApprove ? 'flex' : 'none';
+    document.getElementById('cdSideBtns').style.display = 'flex';
+    // set context labels
+    const btnA = document.querySelector('#cdSideBtns .cd-btn-approve');
+    const btnD = document.querySelector('#cdSideBtns .cd-btn-deny');
+    if (cd.showApprove) {
+      btnA.textContent = 'Approve'; btnD.textContent = 'Deny';
+    } else if (c.outcome === 'Auto resolved') {
+      btnA.textContent = 'Mark reviewed'; btnD.textContent = 'Reopen';
+    } else if (c.outcome === 'Fix failed') {
+      btnA.textContent = 'Retry fix'; btnD.textContent = 'Escalate';
+    } else {
+      btnA.textContent = 'Approve'; btnD.textContent = 'Dismiss';
+    }
+    // reset button states
+    btnA.disabled = false; btnA.style.cssText = '';
+    btnD.disabled = false; btnD.style.cssText = '';
 
     // gates
     document.getElementById('cdGatesPassed').textContent = cd.gatesPassed;
@@ -5206,16 +5347,58 @@
     _currentCaseIdx = null;
   }
 
-  function cdApprove() {
-    const c = _currentCaseIdx !== null ? casesData[_currentCaseIdx] : null;
-    closeCaseDetail();
-    showToast('✓ Approved — executing remediation on ' + (c ? c.name : 'case'), 'green');
-    setTimeout(()=>showToast('Remediation complete. All subscribers restored.','green'), 2800);
+  // ── ripple helper ──
+  function _cdRipple(btn, e) {
+    const ripple = document.createElement('span');
+    ripple.className = 'cd-ripple';
+    const rect = btn.getBoundingClientRect();
+    ripple.style.left = (e.clientX - rect.left) + 'px';
+    ripple.style.top  = (e.clientY - rect.top)  + 'px';
+    btn.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove());
   }
 
-  function cdDeny() {
-    closeCaseDetail();
-    showToast('✕ Denied — case escalated back to queue', 'orange');
+  function cdApprove(e) {
+    const btn = document.querySelector('#cdSideBtns .cd-btn-approve');
+    if (!btn || btn.disabled) return;
+    // ripple
+    if (e) _cdRipple(btn, e);
+    // spinner state
+    const origText = btn.textContent;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="cd-btn-spinner"></span>Processing…';
+    // deny button also disabled
+    const btnD = document.querySelector('#cdSideBtns .cd-btn-deny');
+    if (btnD) { btnD.disabled = true; btnD.style.opacity = '0.4'; }
+    setTimeout(() => {
+      // success state
+      btn.innerHTML = '✓ ' + origText + 'd';
+      btn.classList.add('success');
+      const c = _currentCaseIdx !== null ? casesData[_currentCaseIdx] : null;
+      showToast('✓ Approved — executing remediation on ' + (c ? c.name : 'case'), 'green');
+      setTimeout(() => {
+        closeCaseDetail();
+        showToast('Remediation complete. All subscribers restored.', 'green');
+      }, 1000);
+    }, 1400);
+  }
+
+  function cdDeny(e) {
+    const btn = document.querySelector('#cdSideBtns .cd-btn-deny');
+    if (!btn || btn.disabled) return;
+    if (e) _cdRipple(btn, e);
+    const origText = btn.textContent;
+    btn.disabled = true;
+    btn.style.color = '#dc2626';
+    btn.innerHTML = '<span class="cd-btn-spinner" style="border-color:rgba(220,38,38,0.25);border-top-color:#dc2626"></span>Processing…';
+    const btnA = document.querySelector('#cdSideBtns .cd-btn-approve');
+    if (btnA) { btnA.disabled = true; btnA.style.opacity = '0.4'; }
+    setTimeout(() => {
+      btn.innerHTML = origText + 'd';
+      btn.classList.add('dismissed');
+      showToast('✕ ' + origText + ' — case returned to queue', 'orange');
+      setTimeout(closeCaseDetail, 900);
+    }, 1100);
   }
 
   /* ────────────────────────────────────────────
