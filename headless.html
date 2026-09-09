@@ -680,6 +680,21 @@
   }
   .greeting-notice strong { font-weight: 600; color: #0043ce; }
   .greeting-notice svg { flex-shrink: 0; }
+  .greeting-notice-close {
+    margin-left: 10px;
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #525252;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    line-height: 1;
+    border-radius: 2px;
+    transition: background 0.12s, color 0.12s;
+  }
+  .greeting-notice-close:hover { background: #d0e2ff; color: #0043ce; }
 
   .quick-actions {
     display: flex;
@@ -3877,6 +3892,12 @@
                <path d="M16 30a14 14 0 1 1 14-14 14 14 0 0 1-14 14zm0-26a12 12 0 1 0 12 12A12 12 0 0 0 16 4z"/>
              </svg>
              <span>FYI: <strong>3 resolved cases</strong> await their 24h fix-holding check.</span>
+             <button class="greeting-notice-close" onclick="this.closest('.greeting-notice').remove()" title="Dismiss">
+               <!-- IBM Carbon "Close" icon (16px) -->
+               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 32 32" fill="currentColor">
+                 <path d="M17.414 16L24 9.414 22.586 8 16 14.586 9.414 8 8 9.414 14.586 16 8 22.586 9.414 24 16 17.414 22.586 24 24 22.586z"/>
+               </svg>
+             </button>
            </div>
            <div class="quick-actions">
              <button class="quick-btn" id="qbLatency" onclick="handleQuickAction('latency',this)">What's causing the latency spike?</button>
