@@ -181,6 +181,35 @@
   .settings-panel.open {
     width: 500px;
   }
+
+  /* ── settings panel maximize ── */
+  .settings-panel.sp-maximized {
+    width: 100% !important;
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    z-index: 40;
+    border-left: none;
+    border-right: 1px solid #e5e7eb;
+  }
+  .settings-panel.sp-maximized .settings-panel-inner {
+    width: 100%;
+  }
+  /* map canvas fills remaining panel height when maximized */
+  .settings-panel.sp-maximized .settings-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .settings-panel.sp-maximized .gmap-wrap {
+    flex: 1;
+    min-height: 0;
+  }
+  .settings-panel.sp-maximized .gmap-wrap canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
   .settings-panel-inner {
     width: 500px;
     flex-shrink: 0;
@@ -298,6 +327,68 @@
   .gmap-tooltip.visible { display: block; }
   .gmap-tooltip-title { font-weight: 600; margin-bottom: 1px; }
   .gmap-tooltip-sub { font-size: 10px; color: #94a3b8; }
+
+  /* map view title bar */
+  .gmap-map-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
+    background: rgba(15,23,42,0.82);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(148,163,184,0.12);
+    z-index: 15;
+    opacity: 0;
+    transition: opacity 0.18s;
+  }
+  .gmap-wrap:hover .gmap-map-bar { opacity: 1; }
+  .gmap-map-bar-title {
+    font-size: 10px;
+    color: #94a3b8;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .gmap-map-bar-btns { display: flex; align-items: center; gap: 4px; }
+  .gmap-win-btn {
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: filter 0.15s;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .gmap-win-btn:hover { filter: brightness(1.25); }
+  .gmap-win-btn svg { opacity: 0; transition: opacity 0.12s; }
+  .gmap-win-btn:hover svg { opacity: 1; }
+  .gmap-win-btn-close  { background: #ef4444; }
+  .gmap-win-btn-min    { background: #f59e0b; }
+  .gmap-win-btn-max    { background: #22c55e; }
+
+  /* minimized map — collapsed to just the bar */
+  .gmap-wrap.gmap-minimized { height: 28px !important; overflow: hidden; flex-shrink: 0; cursor: default; }
+  .gmap-wrap.gmap-minimized canvas { visibility: hidden; }
+  .gmap-wrap.gmap-minimized .gmap-map-bar { opacity: 1; border-bottom-color: rgba(148,163,184,0.2); }
+  .gmap-wrap.gmap-minimized .gmap-controls,
+  .gmap-wrap.gmap-minimized .gmap-zoom-badge,
+  .gmap-wrap.gmap-minimized .gmap-tooltip { display: none !important; }
+
+  /* maximized map — full-screen float over panel */
+  .gmap-wrap.gmap-maximized {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important;
+    width: 100vw !important; height: 100vh !important;
+    z-index: 1000;
+    border-radius: 0;
+    flex-shrink: 0;
+  }
+  .gmap-wrap.gmap-maximized .gmap-map-bar { opacity: 1; height: 36px; }
+  .gmap-wrap.gmap-maximized canvas { width: 100% !important; height: 100% !important; }
 
   /* map legend */
   .gmap-legend {
@@ -605,6 +696,108 @@
     transition: background 0.1s, color 0.1s;
   }
   .canvas-tile-close:hover { background: #fee2e2; color: #ef4444; }
+  .canvas-tile-max-btn {
+    width: 16px; height: 16px;
+    border: none; background: none;
+    cursor: pointer; color: #9ca3af;
+    padding: 0; flex-shrink: 0;
+    border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.1s, color 0.1s;
+  }
+  .canvas-tile-max-btn:hover { background: #eff6ff; color: #6366f1; }
+  .canvas-tile-max-btn svg { pointer-events: none; }
+
+  /* canvas-tile full-screen maximize overlay */
+  .canvas-tile.ct-maximized {
+    position: fixed !important;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100vw !important; height: 100vh !important;
+    z-index: 2000;
+    border-radius: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    background: #ffffff;
+    box-shadow: none;
+    animation: none;
+  }
+  .ct-max-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px 14px;
+    border-bottom: 1px solid #f0f2f5;
+    flex-shrink: 0;
+  }
+  .ct-max-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    flex: 1; min-height: 0;
+    overflow: hidden;
+  }
+  .ct-max-left {
+    padding: 24px;
+    border-right: 1px solid #f0f2f5;
+    overflow-y: auto;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .ct-max-right {
+    padding: 24px;
+    overflow-y: auto;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .ct-max-section-title {
+    font-size: 10px; font-weight: 700; color: #9ca3af;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .ct-max-kpi-row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .ct-max-kpi-card {
+    flex: 1; min-width: 90px;
+    background: #f8fafc; border: 1px solid #e5e7eb;
+    border-radius: 8px; padding: 12px 14px;
+  }
+  .ct-max-kpi-val {
+    font-size: 26px; font-weight: 300;
+    letter-spacing: -0.5px; line-height: 1;
+    margin-bottom: 3px;
+  }
+  .ct-max-kpi-lbl { font-size: 11px; color: #9ca3af; }
+  .ct-max-chart-wrap {
+    border-radius: 8px; overflow: hidden;
+    background: #f8fafc; border: 1px solid #e5e7eb;
+    height: 180px;
+  }
+  .ct-max-chart-wrap svg { width: 100% !important; height: 100% !important; display: block; }
+  .ct-max-stat-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 0; border-bottom: 1px solid #f3f4f6;
+    font-size: 12px;
+  }
+  .ct-max-stat-row:last-child { border-bottom: none; }
+  .ct-max-stat-label { color: #6b7280; }
+  .ct-max-stat-val   { font-weight: 600; color: #111827; }
+  .ct-max-diagnosis {
+    background: linear-gradient(135deg,#f5f3ff,#eff6ff);
+    border: 1px solid #e0e7ff; border-radius: 10px;
+    padding: 16px;
+  }
+  .ct-max-diagnosis-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10px; font-weight: 700; color: #6366f1;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .ct-max-diagnosis-text { font-size: 13px; color: #374151; line-height: 1.7; }
+  .ct-max-sparkrow {
+    display: flex; gap: 3px; align-items: flex-end;
+    height: 28px; margin-top: 8px;
+  }
+  .ct-max-sparkbar {
+    flex: 1; border-radius: 2px 2px 0 0;
+    transition: opacity 0.1s;
+  }
+  .ct-max-sparkbar:hover { opacity: 0.7; }
   .canvas-tile-kpi {
     font-size: 20px;
     font-weight: 300;
@@ -948,22 +1141,152 @@
 
   /* anomaly canvas tile */
   .anomaly-canvas-tile {
-    background: rgba(255,255,255,0.95);
+    background: rgba(255,255,255,0.88);
     backdrop-filter: blur(12px);
-    border: 1px solid #e5e7eb;
+    border: 1px solid rgba(255,255,255,0.7);
     border-radius: 10px;
-    padding: 12px 14px;
-    animation: tileSlideIn 0.35s cubic-bezier(.4,0,.2,1) both;
-    position: relative;
+    padding: 12px 14px 10px;
     display: flex;
     flex-direction: column;
     min-height: 0;
+    box-shadow: 0 2px 12px rgba(59,130,246,0.08);
+    animation: tileSlideIn 0.35s cubic-bezier(.4,0,.2,1) both;
+    position: relative;
     overflow-y: auto;
     overflow-x: hidden;
-    box-shadow: 0 2px 12px rgba(99,102,241,0.10);
+    transition: grid-column 0.2s, grid-row 0.2s, box-shadow 0.15s;
   }
+  /* maximized: full-screen fixed overlay */
+  .anomaly-canvas-tile.act-maximized {
+    position: fixed !important;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100vw !important; height: 100vh !important;
+    z-index: 2000;
+    border-radius: 0;
+    grid-column: unset; grid-row: unset;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    background: #ffffff;
+    box-shadow: none;
+    animation: none;
+  }
+  /* overlay backdrop */
+  .act-maximized-backdrop {
+    display: none;
+    position: fixed; top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1999;
+    backdrop-filter: blur(3px);
+  }
+  .act-maximized-backdrop.visible { display: block; }
+
+  /* inner layout of maximized tile */
+  .act-max-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px 14px;
+    border-bottom: 1px solid #f0f2f5;
+    flex-shrink: 0;
+  }
+  .act-max-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    flex: 1; min-height: 0;
+    overflow: hidden;
+  }
+  .act-max-left {
+    padding: 24px;
+    border-right: 1px solid #f0f2f5;
+    overflow-y: auto;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .act-max-right {
+    padding: 24px;
+    overflow-y: auto;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .act-max-section-title {
+    font-size: 10px; font-weight: 700; color: #9ca3af;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .act-max-kpi-row {
+    display: flex; gap: 20px; flex-wrap: wrap;
+  }
+  .act-max-kpi-card {
+    flex: 1; min-width: 100px;
+    background: #f8fafc; border: 1px solid #e5e7eb;
+    border-radius: 8px; padding: 12px 14px;
+  }
+  .act-max-kpi-val {
+    font-size: 28px; font-weight: 300; letter-spacing: -0.5px; line-height: 1;
+    margin-bottom: 3px;
+  }
+  .act-max-kpi-lbl { font-size: 11px; color: #9ca3af; }
+  .act-max-chart-wrap {
+    border-radius: 8px; overflow: hidden;
+    background: #f8fafc; border: 1px solid #e5e7eb;
+  }
+  .act-max-chart-wrap svg { width: 100% !important; display: block; }
+  .act-max-metric-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 0; border-bottom: 1px solid #f3f4f6;
+  }
+  .act-max-metric-row:last-child { border-bottom: none; }
+  .act-max-metric-label { font-size: 12px; color: #6b7280; }
+  .act-max-metric-val   { font-size: 12px; font-weight: 600; color: #111827; }
+  .act-max-metric-bar   { margin-top: 4px; }
+  .act-max-timeline { display: flex; flex-direction: column; gap: 0; }
+  .act-max-timeline-item {
+    display: flex; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 12px;
+  }
+  .act-max-timeline-item:last-child { border-bottom: none; }
+  .act-max-tl-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0; margin-top: 3px;
+  }
+  .act-max-tl-time { font-size: 10px; color: #9ca3af; width: 52px; flex-shrink: 0; }
+  .act-max-tl-text { color: #374151; line-height: 1.5; }
+  .act-max-ai-box {
+    background: linear-gradient(135deg,#f5f3ff,#eff6ff);
+    border: 1px solid #e0e7ff; border-radius: 10px;
+    padding: 16px;
+  }
+  .act-max-ai-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10px; font-weight: 700; color: #6366f1;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .act-max-ai-text { font-size: 13px; color: #374151; line-height: 1.7; }
+  .act-max-action-btn {
+    width: 100%; padding: 10px 0; border-radius: 8px;
+    border: 1px solid #6366f1; background: none;
+    color: #6366f1; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: background 0.15s, color 0.15s;
+    margin-top: 4px;
+  }
+  .act-max-action-btn:hover { background: #6366f1; color: #fff; }
+
   .anomaly-canvas-tile::-webkit-scrollbar { width: 3px; }
-  .anomaly-canvas-tile::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+  .anomaly-canvas-tile::-webkit-scrollbar-thumb { background: rgba(209,213,219,0.6); border-radius: 2px; }
+
+  /* maximize / restore buttons inside tile header */
+  .act-max-btn {
+    width: 18px; height: 18px;
+    border: none; background: none; cursor: pointer;
+    color: #9ca3af; padding: 0; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 3px;
+    transition: background 0.12s, color 0.12s;
+  }
+  .act-max-btn:hover { background: #eff6ff; color: #6366f1; }
+  .act-max-btn svg { pointer-events: none; }
+
   .act-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
   .act-id { font-size: 10px; font-weight: 700; color: #6366f1; letter-spacing: 0.5px; }
   .act-title { font-size: 12px; font-weight: 600; color: #111827; margin-top: 2px; line-height: 1.4; }
@@ -2146,16 +2469,75 @@
     width: 360px;
     flex-shrink: 0;
     display: flex;
+    flex-direction: row;
+    overflow: visible;
+    background: transparent;
+    position: relative;
+    transition: width 0.28s cubic-bezier(.4,0,.2,1);
+  }
+  .right-panel.rp-collapsed {
+    width: 0;
+  }
+
+  /* inner scroll container */
+  .right-panel-inner {
+    width: 360px;
+    flex-shrink: 0;
+    display: flex;
     flex-direction: column;
     overflow-y: auto;
     overflow-x: hidden;
     background: transparent;
+    transition: opacity 0.2s, visibility 0.2s;
+  }
+  .right-panel.rp-collapsed .right-panel-inner {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  /* collapse / expand toggle tab */
+  .rp-toggle {
+    position: absolute;
+    left: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 48px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-right: none;
+    border-radius: 6px 0 0 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 30;
+    box-shadow: -2px 0 6px rgba(0,0,0,0.06);
+    transition: background 0.15s, box-shadow 0.15s;
+    flex-shrink: 0;
+  }
+  .rp-toggle:hover {
+    background: #f0f4ff;
+    box-shadow: -3px 0 10px rgba(99,102,241,0.15);
+  }
+  .rp-toggle svg {
+    transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+    color: #9ca3af;
+  }
+  .rp-toggle:hover svg { color: #6366f1; }
+  .right-panel.rp-collapsed .rp-toggle {
+    left: -14px;
+    border-radius: 6px 0 0 6px;
+  }
+  .right-panel.rp-collapsed .rp-toggle svg {
+    transform: rotate(180deg);
   }
 
   /* scrollbar */
-  .right-panel::-webkit-scrollbar { width: 4px; }
-  .right-panel::-webkit-scrollbar-track { background: transparent; }
-  .right-panel::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+  .right-panel-inner::-webkit-scrollbar { width: 4px; }
+  .right-panel-inner::-webkit-scrollbar-track { background: transparent; }
+  .right-panel-inner::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
 
   /* ── action card ── */
   .action-card {
@@ -3450,7 +3832,7 @@
                  Drop anomaly to analyse
                </span>
                <button class="ai-send-btn" onclick="canvasInputSubmit()" title="Send">
-                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 8l12-6-4 6 4 6-12-6z" fill="white"/></svg>
+                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                </button>
              </div>
              <button class="ai-voice-btn" onclick="canvasVoiceClick()" title="Voice input">
@@ -3531,7 +3913,7 @@
                   Drop anomaly to analyse on canvas
                 </span>
                 <button class="ai-send-btn" onclick="aiSendText()" title="Send">
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 8l12-6-4 6 4 6-12-6z" fill="white"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
               </div>
               <button class="ai-voice-btn" id="aiVoiceBtn" onclick="toggleAiListen()" title="Voice input">
@@ -4125,6 +4507,13 @@
 
       <!-- RIGHT PANEL (always visible) -->
       <div class="right-panel" id="rightPanel">
+        <!-- collapse/expand toggle tab -->
+        <button class="rp-toggle" id="rpToggleBtn" onclick="toggleRightPanel()" title="Collapse panel">
+          <svg width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 1L2 6l4 5"/>
+          </svg>
+        </button>
+        <div class="right-panel-inner" id="rightPanelInner">
 
         <!-- Card 1: Restart line card -->
         <div class="action-card" draggable="true" data-card="restart">
@@ -4290,6 +4679,7 @@
         </div>
         </div>
 
+        </div><!-- /right-panel-inner -->
       </div><!-- /right-panel -->
 
       <!-- GLOBAL SETTINGS PANEL -->
@@ -4303,11 +4693,22 @@
                 <path d="M3 12 Q7 9 12 9 Q17 9 21 12"/>
                 <path d="M3 12 Q7 15 12 15 Q17 15 21 12"/>
               </svg>
-              Global Settings
+             Global Network Map
             </div>
-            <button class="settings-close-btn" onclick="closeSettingsPanel()" title="Close">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-            </button>
+            <div style="display:flex;align-items:center;gap:4px;">
+              <!-- Maximize panel -->
+              <button class="settings-close-btn" id="settingsMaximizeBtn" onclick="settingsPanelMaximize()" title="Maximize">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+              </button>
+              <!-- Restore panel (shown when maximized) -->
+              <button class="settings-close-btn" id="settingsRestoreBtn" onclick="settingsPanelRestore()" title="Restore" style="display:none;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+              </button>
+              <!-- Close panel -->
+              <button class="settings-close-btn" onclick="closeSettingsPanel()" title="Close">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
           </div>
           <div class="settings-body">
 
@@ -4323,6 +4724,27 @@
 
             <!-- World map canvas -->
             <div class="gmap-wrap" id="gmapWrap">
+              <!-- map view window controls bar -->
+              <div class="gmap-map-bar">
+                <div class="gmap-map-bar-title">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3C9 7 9 17 12 21M12 3C15 7 15 17 12 21"/><path d="M3 12Q7 9 12 9Q17 9 21 12"/><path d="M3 12Q7 15 12 15Q17 15 21 12"/></svg>
+                  Map View
+                </div>
+                <div class="gmap-map-bar-btns">
+                  <!-- close -->
+                  <button class="gmap-win-btn gmap-win-btn-close" onclick="gmapViewClose()" title="Close map">
+                    <svg width="7" height="7" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 2l6 6M8 2l-6 6"/></svg>
+                  </button>
+                  <!-- minimize -->
+                  <button class="gmap-win-btn gmap-win-btn-min" id="gmapWinMinBtn" onclick="gmapViewMinimize()" title="Minimize map">
+                    <svg width="7" height="7" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 5h6"/></svg>
+                  </button>
+                  <!-- maximize / restore -->
+                  <button class="gmap-win-btn gmap-win-btn-max" id="gmapWinMaxBtn" onclick="gmapViewToggleMax()" title="Maximize map">
+                    <svg id="gmapWinMaxIcon" width="7" height="7" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2h6v6H2z"/></svg>
+                  </button>
+                </div>
+              </div>
               <canvas id="gmapCanvas" height="240"></canvas>
               <!-- zoom controls -->
               <div class="gmap-controls">
@@ -4384,12 +4806,27 @@
 
     // hide right panel on agentic + policy tabs
     const rightPanel = document.getElementById('rightPanel');
-    if (rightPanel) rightPanel.style.display = (tabId === 'agentic' || tabId === 'policy') ? 'none' : '';
+    if (rightPanel) {
+      rightPanel.style.display = (tabId === 'agentic' || tabId === 'policy') ? 'none' : '';
+      // restore collapsed state when re-showing
+      if (rightPanel.style.display !== 'none' && window._rpCollapsed) {
+        rightPanel.classList.add('rp-collapsed');
+      }
+    }
 
     // trigger donut + trend animations when policy tab opens
     if (tabId === 'policy') { animateDonut(); initTrend(); }
     // trigger agentic stat animations
     if (tabId === 'agentic') initAtStats();
+  }
+
+  /* ── right panel collapse / expand ── */
+  function toggleRightPanel() {
+    const panel = document.getElementById('rightPanel');
+    const btn   = document.getElementById('rpToggleBtn');
+    const isCollapsed = panel.classList.toggle('rp-collapsed');
+    window._rpCollapsed = isCollapsed;
+    if (btn) btn.title = isCollapsed ? 'Expand panel' : 'Collapse panel';
   }
 
   function animateDonut() {
@@ -4960,20 +5397,19 @@
     const peak  = Math.max(...vals);
     const svg   = _buildTileSVG(vals, theme);
 
-    // chart-type badge label
-    const typeBadge = {
-      line:'Line', area:'Area', bar:'Bar',
-      scatter:'Scatter', donut:'Donut', multiline:'Multi-line'
-    }[theme.type];
-
     const tile = document.createElement('div');
     tile.className = 'canvas-tile';
     tile.style.animationDelay = (tiles.length * 0.05) + 's';
+    tile.dataset.ctText  = text;
+    tile.dataset.ctTheme = JSON.stringify(theme);
+    tile.dataset.ctVals  = JSON.stringify(vals);
     tile.innerHTML = `
       <div class="canvas-tile-header">
         <div class="canvas-tile-title">${text.charAt(0).toUpperCase() + text.slice(0, 38)}</div>
         <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
-          <span style="font-size:9px;font-weight:500;color:#9ca3af;background:#f3f4f6;border-radius:3px;padding:1px 5px;white-space:nowrap">${typeBadge}</span>
+          <button class="canvas-tile-max-btn" onclick="ctToggleMaximize(this)" title="Maximize">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          </button>
           <button class="canvas-tile-close" onclick="removeCanvasTile(this)" title="Remove">✕</button>
         </div>
       </div>
@@ -4990,6 +5426,8 @@
   function removeCanvasTile(btn) {
     const tile = btn.closest('.canvas-tile');
     if (!tile) return;
+    // if maximized, close overlay first
+    if (tile.classList.contains('ct-maximized')) ctCloseMaximized();
     tile.style.transition = 'opacity 0.2s, transform 0.2s';
     tile.style.opacity = '0';
     tile.style.transform = 'scale(0.92)';
@@ -4998,6 +5436,194 @@
       const grid = document.getElementById('canvasTilesGrid');
       if (!grid.querySelector('.canvas-tile')) grid.classList.remove('has-tiles');
     }, 220);
+  }
+
+  /* ── canvas-tile maximize / restore ── */
+  function ctToggleMaximize(btn) {
+    const tile = btn.closest('.canvas-tile');
+    if (tile.classList.contains('ct-maximized')) {
+      ctCloseMaximized();
+    } else {
+      ctOpenMaximized(tile);
+    }
+  }
+
+  function ctCloseMaximized() {
+    const tile = document.querySelector('.canvas-tile.ct-maximized');
+    if (!tile) return;
+    if (tile._ctCompactHtml !== undefined) tile.innerHTML = tile._ctCompactHtml;
+    tile.classList.remove('ct-maximized');
+    document.getElementById('actMaxBackdrop').classList.remove('visible');
+    document.body.style.overflow = '';
+  }
+
+  function ctOpenMaximized(tile) {
+    const text  = tile.dataset.ctText  || 'metric';
+    const theme = JSON.parse(tile.dataset.ctTheme || '{}');
+    const compactVals = JSON.parse(tile.dataset.ctVals || '[]');
+
+    // generate a longer 24-point series for the detail chart
+    const vals24 = _tileSeeded(text + '_max', theme.base || 60, theme.variance || 25, 24);
+    const allVals = compactVals.concat(vals24);
+
+    const last = vals24[vals24.length - 1];
+    const peak = Math.max(...vals24);
+    const min  = Math.min(...vals24);
+    const avg  = Math.round(vals24.reduce((s, v) => s + v, 0) / vals24.length);
+    const first = vals24[0];
+    const trend = last > first ? '↑ Rising' : last < first ? '↓ Falling' : '→ Stable';
+    const trendCol = last > first ? '#ef4444' : last < first ? '#22c55e' : '#6b7280';
+    const label = theme.label || 'val';
+    const col   = theme.color || '#6366f1';
+
+    // large chart SVG
+    const chartSvg = _buildTileSVG(vals24, theme);
+
+    // mini spark bars from all 24 points
+    const sparkMax = Math.max(...vals24);
+    const sparkBars = vals24.map(v => {
+      const h = Math.max(3, Math.round((v / sparkMax) * 28));
+      return `<div class="ct-max-sparkbar" style="height:${h}px;background:${col};opacity:0.7;"></div>`;
+    }).join('');
+
+    // contextual diagnosis based on keyword in text
+    const diagnosis = _ctDiagnosis(text, theme, last, peak, avg, min, trend);
+
+    // stat table rows
+    const stats = [
+      { label: 'Current',    val: `${last} ${label}` },
+      { label: 'Peak',       val: `${peak} ${label}` },
+      { label: 'Min',        val: `${min} ${label}`  },
+      { label: 'Average',    val: `${avg} ${label}`  },
+      { label: 'Trend',      val: trend, col: trendCol },
+      { label: 'Intervals',  val: '24 samples'        },
+      { label: 'Chart type', val: theme.type || 'line' },
+    ];
+    const statsHtml = stats.map(s =>
+      `<div class="ct-max-stat-row">
+        <span class="ct-max-stat-label">${s.label}</span>
+        <span class="ct-max-stat-val" style="${s.col ? 'color:' + s.col : ''}">${s.val}</span>
+      </div>`).join('');
+
+    tile._ctCompactHtml = tile.innerHTML;
+    tile.classList.add('ct-maximized');
+    document.getElementById('actMaxBackdrop').classList.add('visible');
+    document.body.style.overflow = 'hidden';
+
+    tile.innerHTML = `
+      <div class="ct-max-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:9px;height:9px;border-radius:50%;background:${col};flex-shrink:0;"></div>
+          <div>
+            <div style="font-size:11px;color:#9ca3af;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;">${theme.type || 'metric'} · ${label}</div>
+            <div style="font-size:16px;font-weight:600;color:#111827;margin-top:1px;">${text.charAt(0).toUpperCase() + text.slice(1)}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button class="canvas-tile-max-btn" onclick="ctCloseMaximized()" title="Restore"
+            style="width:20px;height:20px;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+          </button>
+          <button class="canvas-tile-close" onclick="(function(b){ ctCloseMaximized(); removeCanvasTile(b); })(this)" title="Remove" style="width:20px;height:20px;font-size:15px;">✕</button>
+        </div>
+      </div>
+
+      <div class="ct-max-body">
+        <!-- LEFT: KPI cards + chart + spark mini-bars -->
+        <div class="ct-max-left">
+          <div>
+            <div class="ct-max-section-title">Live Metrics</div>
+            <div class="ct-max-kpi-row">
+              <div class="ct-max-kpi-card">
+                <div class="ct-max-kpi-val" style="color:${col}">${last}</div>
+                <div class="ct-max-kpi-lbl">current · ${label}</div>
+              </div>
+              <div class="ct-max-kpi-card">
+                <div class="ct-max-kpi-val" style="color:#374151">${peak}</div>
+                <div class="ct-max-kpi-lbl">peak · ${label}</div>
+              </div>
+              <div class="ct-max-kpi-card">
+                <div class="ct-max-kpi-val" style="color:#374151">${avg}</div>
+                <div class="ct-max-kpi-lbl">avg · ${label}</div>
+              </div>
+              <div class="ct-max-kpi-card">
+                <div class="ct-max-kpi-val" style="color:${trendCol}">${trend.split(' ')[0]}</div>
+                <div class="ct-max-kpi-lbl">trend</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="ct-max-section-title">24-Interval Trend</div>
+            <div class="ct-max-chart-wrap">${chartSvg}</div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;margin-top:6px;">
+              <span>Start: <strong style="color:#374151">${first} ${label}</strong></span>
+              <span>Now: <strong style="color:${col}">${last} ${label}</strong></span>
+              <span>Peak: <strong style="color:#374151">${peak} ${label}</strong></span>
+            </div>
+          </div>
+
+          <div>
+            <div class="ct-max-section-title">Distribution</div>
+            <div class="ct-max-sparkrow">${sparkBars}</div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;margin-top:4px;">
+              <span>min ${min}</span><span>avg ${avg}</span><span>max ${peak}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: diagnosis + stats table -->
+        <div class="ct-max-right">
+          <div class="ct-max-diagnosis">
+            <div class="ct-max-diagnosis-label">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2 2"/></svg>
+              Agent Insight
+            </div>
+            <div class="ct-max-diagnosis-text">${diagnosis}</div>
+          </div>
+
+          <div>
+            <div class="ct-max-section-title">Statistics</div>
+            ${statsHtml}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  /* generate a contextual diagnosis string from the metric name + values */
+  function _ctDiagnosis(text, theme, last, peak, avg, min, trend) {
+    const t = text.toLowerCase();
+    const label = theme.label || 'val';
+    const col = theme.color || '#6366f1';
+    const deviation = peak - min;
+    const pctAboveAvg = avg > 0 ? Math.round(((last - avg) / avg) * 100) : 0;
+    const sign = pctAboveAvg >= 0 ? '+' : '';
+
+    if (t.includes('latency') || label === 'ms') {
+      const status = last > 300 ? 'critically elevated' : last > 150 ? 'moderately elevated' : 'within normal range';
+      return `Latency is currently ${last}ms — ${status}. Peak observed was ${peak}ms with a spread of ${deviation}ms across 24 intervals. Current reading is ${sign}${pctAboveAvg}% vs the average (${avg}ms). ${trend === '↑ Rising' ? 'Trend is rising — investigate upstream congestion or routing changes.' : trend === '↓ Falling' ? 'Trend is falling — conditions appear to be improving.' : 'Trend is stable — no immediate action required.'}`;
+    }
+    if (t.includes('cpu') || t.includes('memory') || t.includes('disk') || label === '%') {
+      const status = last > 85 ? 'high — throttling risk' : last > 65 ? 'moderate — monitor closely' : 'healthy';
+      return `Utilisation is at ${last}% — currently ${status}. Peaked at ${peak}% over the observed window. The ${deviation}% range between min (${min}%) and max suggests ${deviation > 30 ? 'significant volatility — check for burst workloads' : 'stable load patterns'}. Current is ${sign}${pctAboveAvg}% vs the 24-interval average of ${avg}%.`;
+    }
+    if (t.includes('error') || label === 'err/s') {
+      const status = last > 50 ? 'high error rate — immediate investigation recommended' : last > 10 ? 'elevated — review logs' : 'low — within acceptable bounds';
+      return `Error rate is ${last} err/s — ${status}. Peak burst reached ${peak} err/s. The average of ${avg} err/s over 24 intervals ${avg > 20 ? 'indicates a persistent issue' : 'suggests this is intermittent'}. ${trend === '↑ Rising' ? 'Rising trend warrants immediate attention.' : 'Monitor for recurrence.'}`;
+    }
+    if (t.includes('throughput') || t.includes('network') || label === 'Mbps') {
+      const status = last < avg * 0.7 ? 'below expected — possible congestion or link degradation' : last > avg * 1.4 ? 'above average — traffic burst in progress' : 'nominal';
+      return `Throughput at ${last} ${label} — ${status}. Observed range: ${min}–${peak} ${label} across 24 intervals. Average is ${avg} ${label}. ${trend === '↓ Falling' ? 'Declining trend — check for interface errors or upstream saturation.' : trend === '↑ Rising' ? 'Rising trend — traffic increase detected, confirm capacity headroom.' : 'Stable throughput. No action required.'}`;
+    }
+    if (t.includes('packet') || label === 'pps') {
+      return `Packet rate is ${last} ${label}. Observed peak of ${peak} ${label} and minimum of ${min} ${label} across 24 samples. Average flow is ${avg} ${label}. ${trend === '↑ Rising' ? 'Increasing packet rate — verify no DDoS or broadcast storm conditions.' : 'Flow appears normal. Continue monitoring.'}`;
+    }
+    if (t.includes('health') || t.includes('sla') || t.includes('policy') || label === 'score' || (label === '%' && theme.type === 'donut')) {
+      const status = last > 90 ? 'excellent' : last > 75 ? 'acceptable' : last > 50 ? 'degraded — review SLA commitments' : 'critical — SLA breach likely';
+      return `Score is at ${last}${label === '%' ? '%' : ` ${label}`} — ${status}. The 24-interval average is ${avg} with a best of ${peak}. ${trend === '↓ Falling' ? 'Declining trend — identify contributing factors before SLA breach.' : trend === '↑ Rising' ? 'Improving trend — remediation appears effective.' : 'Stable score — maintain current configuration.'}`;
+    }
+    // generic fallback
+    return `Current reading is ${last} ${label}, compared to a 24-interval average of ${avg} ${label} (${sign}${pctAboveAvg}% deviation). The observed range of ${min}–${peak} ${label} reflects a spread of ${deviation} ${label}. ${trend === '↑ Rising' ? 'The upward trend warrants closer monitoring.' : trend === '↓ Falling' ? 'The downward trend may indicate improvement or degradation depending on context.' : 'Values appear stable over the observed window.'}`;
   }
 
   /* ────────────────────────────────────────────
@@ -6017,6 +6643,97 @@
   function gmapZoomOut() { if (!gmapCanvas) return; const dpr=window.devicePixelRatio||1; const W=gmapCanvas.width/dpr,H=gmapCanvas.height/dpr; gmapZoomTo(1/(1+GMAP_ZOOM_STEP), W/2, H/2); }
   function gmapReset()   { gmapZoom=1; gmapPanX=0; gmapPanY=0; gmapUpdateBadge(); }
 
+  /* ── settings panel window controls ── */
+  function settingsPanelMaximize() {
+    const panel = document.getElementById('settingsPanel');
+    panel.classList.add('sp-maximized');
+    document.getElementById('settingsMaximizeBtn').style.display = 'none';
+    document.getElementById('settingsRestoreBtn').style.display  = '';
+    setTimeout(gmapInit, 50);
+  }
+
+  function settingsPanelRestore() {
+    const panel = document.getElementById('settingsPanel');
+    panel.classList.remove('sp-maximized');
+    document.getElementById('settingsMaximizeBtn').style.display = '';
+    document.getElementById('settingsRestoreBtn').style.display  = 'none';
+    setTimeout(gmapInit, 50);
+  }
+
+  /* ── map view window controls ── */
+  let _gmapViewState = 'normal'; // 'normal' | 'minimized' | 'maximized' | 'closed'
+  let _gmapWrapNaturalHeight = null;
+
+  function gmapViewClose() {
+    const wrap = document.getElementById('gmapWrap');
+    if (!wrap) return;
+    // save natural height if not yet saved
+    if (!_gmapWrapNaturalHeight) _gmapWrapNaturalHeight = wrap.offsetHeight;
+    wrap.classList.remove('gmap-minimized', 'gmap-maximized');
+    wrap.style.height = '0';
+    wrap.style.overflow = 'hidden';
+    wrap.style.borderBottom = 'none';
+    _gmapViewState = 'closed';
+  }
+
+  function gmapViewMinimize() {
+    const wrap = document.getElementById('gmapWrap');
+    const minBtn = document.getElementById('gmapWinMinBtn');
+    if (!wrap) return;
+    if (_gmapViewState === 'closed') {
+      // re-open first
+      wrap.style.height = '';
+      wrap.style.overflow = '';
+      wrap.style.borderBottom = '';
+    }
+    if (_gmapViewState === 'minimized') {
+      // restore
+      wrap.classList.remove('gmap-minimized');
+      wrap.style.height = '';
+      if (minBtn) minBtn.title = 'Minimize map';
+      _gmapViewState = 'normal';
+      setTimeout(gmapInit, 50);
+    } else {
+      // minimize
+      if (!_gmapWrapNaturalHeight) _gmapWrapNaturalHeight = wrap.offsetHeight;
+      wrap.classList.remove('gmap-maximized');
+      wrap.classList.add('gmap-minimized');
+      if (minBtn) minBtn.title = 'Restore map';
+      _gmapViewState = 'minimized';
+    }
+  }
+
+  function gmapViewToggleMax() {
+    const wrap = document.getElementById('gmapWrap');
+    const maxBtn = document.getElementById('gmapWinMaxBtn');
+    if (!wrap) return;
+    if (_gmapViewState === 'closed') {
+      wrap.style.height = '';
+      wrap.style.overflow = '';
+      wrap.style.borderBottom = '';
+    }
+    if (_gmapViewState === 'maximized') {
+      // restore — expand icon
+      wrap.classList.remove('gmap-maximized');
+      if (maxBtn) {
+        maxBtn.title = 'Maximize map';
+        maxBtn.innerHTML = '<svg width="7" height="7" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2h6v6H2z"/></svg>';
+      }
+      _gmapViewState = 'normal';
+      setTimeout(gmapInit, 50);
+    } else {
+      // maximize — compress icon
+      wrap.classList.remove('gmap-minimized');
+      wrap.classList.add('gmap-maximized');
+      if (maxBtn) {
+        maxBtn.title = 'Restore map';
+        maxBtn.innerHTML = '<svg width="7" height="7" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4h3V1M9 4H6V1M1 6h3v3M9 6H6v3"/></svg>';
+      }
+      _gmapViewState = 'maximized';
+      setTimeout(gmapInit, 80);
+    }
+  }
+
   /* ── Detailed continent coastlines (lon/lat arrays) ── */
   const COAST_POLYS = [
     /* ── North America ── */
@@ -6432,6 +7149,235 @@
   /* init on load so canvas drop zone is ready immediately */
   document.addEventListener('DOMContentLoaded', initAnomalyDropZone);
 
+  /* ── Anomaly tile maximize / minimize ── */
+  /* ── per-anomaly event timeline (for maximize view) ── */
+  const ANOMALY_TIMELINE = {
+    'AN-091': [
+      { time:'14:31', col:'#ef4444', text:'BGP flap detected on TK-01 ↔ HK-01 link. 23% packet loss.' },
+      { time:'14:32', col:'#f59e0b', text:'Route Guard Agent activated. Alternate path via SG-01 computed.' },
+      { time:'14:35', col:'#3b82f6', text:'4 of 6 BGP sessions confirmed degraded. Auto-reroute queued.' },
+      { time:'14:38', col:'#f59e0b', text:'Awaiting operator approval to execute reroute.' },
+    ],
+    'AN-090': [
+      { time:'09:14', col:'#ef4444', text:'CRC burst on NY-01 uplink port 7/4 — rate 847 err/s.' },
+      { time:'09:15', col:'#f59e0b', text:'Hardware degradation pattern matched. 4th incident this week.' },
+      { time:'09:16', col:'#ef4444', text:'Auto-remediation blocked by port-replace policy.' },
+      { time:'09:18', col:'#ef4444', text:'Escalated to ops team — manual intervention required.' },
+    ],
+    'AN-089': [
+      { time:'11:02', col:'#f59e0b', text:'p99 latency crossed 300ms on LD-01 → FR-01 link.' },
+      { time:'11:07', col:'#f59e0b', text:'Latency reached 420ms — 210% above baseline.' },
+      { time:'11:09', col:'#3b82f6', text:'Agent began 30s sampling interval. Escalation at 500ms.' },
+      { time:'11:15', col:'#22c55e', text:'No further increase. Congestion being monitored.' },
+    ],
+    'AN-088': [
+      { time:'10:00', col:'#f59e0b', text:'CPU on OS-01 crossed 85% — BGP prefix churn suspected.' },
+      { time:'10:08', col:'#f59e0b', text:'15-minute avg sustained at 91%. Throttle risk flagged.' },
+      { time:'10:12', col:'#3b82f6', text:'Agent recommends dampening timer adjustment.' },
+      { time:'10:20', col:'#22c55e', text:'No packet drop observed. Monitoring active.' },
+    ],
+    'AN-087': [
+      { time:'08:45', col:'#f59e0b', text:'Asymmetric routing detected on HK-01 return path.' },
+      { time:'08:47', col:'#f59e0b', text:'Return path traced via MU-01 instead of SG-01.' },
+      { time:'08:50', col:'#3b82f6', text:'RTT delta measured at +38ms. Config correction prepared.' },
+      { time:'08:55', col:'#22c55e', text:'Monitoring. Correction pending maintenance window.' },
+    ],
+    'AN-086': [
+      { time:'07:30', col:'#3b82f6', text:'MTU mismatch found on SG-01 peering interface.' },
+      { time:'07:31', col:'#f59e0b', text:'Local MTU 1480 vs peer 1500. Fragmentation at 0.3%.' },
+      { time:'07:33', col:'#22c55e', text:'Impact is low. Fix scheduled for next maintenance window.' },
+    ],
+    'AN-085': [
+      { time:'06:00', col:'#f59e0b', text:'TLS cert expiry alert — DU-01 API gateway, 6 days remaining.' },
+      { time:'06:01', col:'#ef4444', text:'Auto-renew not configured. 3 downstream services at risk.' },
+      { time:'06:03', col:'#3b82f6', text:'Agent prepared renewal CSR. Awaiting human approval.' },
+    ],
+    'AN-084': [
+      { time:'13:10', col:'#3b82f6', text:'Packet drop observed on SP-01 → NY-01 MPLS circuit at 0.8%.' },
+      { time:'13:11', col:'#22c55e', text:'Drop below 1.0% SLA threshold. Flagged for awareness.' },
+      { time:'13:15', col:'#22c55e', text:'Agent monitoring. Auto-escalate if SLA threshold breached.' },
+    ],
+  };
+
+  function actToggleMaximize(btn) {
+    const tile = btn.closest('.anomaly-canvas-tile');
+    const isMax = tile.classList.contains('act-maximized');
+    if (isMax) {
+      actCloseMaximized();
+    } else {
+      actOpenMaximized(tile);
+    }
+  }
+
+  function actCloseMaximized() {
+    const tile = document.querySelector('.anomaly-canvas-tile.act-maximized');
+    if (!tile) return;
+    // restore compact content
+    const savedHtml = tile._compactHtml;
+    if (savedHtml !== undefined) tile.innerHTML = savedHtml;
+    tile.classList.remove('act-maximized');
+    tile.style.overflow = '';
+    document.getElementById('actMaxBackdrop').classList.remove('visible');
+    document.body.style.overflow = '';
+  }
+
+  function actOpenMaximized(tile) {
+    const anomalyId = tile.dataset.anomalyId;
+    if (!anomalyId) return;
+
+    // find anomaly base data
+    const anomaly = ALL_ANOMALIES.find(a => a.id === anomalyId) || { id: anomalyId, title: anomalyId, region: '', ago: '', severity: 'info', location: '', meta: '' };
+    const d = ANOMALY_DETAIL[anomalyId] || {
+      theme: { color:'#6366f1', color2:'#a78bfa', label:'val', type:'area', base:60, variance:25 },
+      kpi: '—', kpiLabel: anomaly.meta, kpiCls: 'blue',
+      metrics: [], chips: [], analysis: '', action: 'View details'
+    };
+    const timeline = ANOMALY_TIMELINE[anomalyId] || [];
+    const sevCol = { critical:'#ef4444', warning:'#f59e0b', info:'#3b82f6' }[anomaly.severity] || '#6366f1';
+    const kpiColStyle = { red:'color:#ef4444', amber:'color:#f59e0b', blue:'color:#3b82f6', green:'color:#22c55e' }[d.kpiCls] || '';
+
+    // build 24-point chart (wider for full view)
+    const vals24 = _tileSeeded(anomalyId + '_max', d.theme.base, d.theme.variance, 24);
+    const last   = vals24[vals24.length - 1];
+    const peak   = Math.max(...vals24);
+    const avg    = Math.round(vals24.reduce((s,v)=>s+v,0)/vals24.length);
+    const chartSvg = _buildTileSVG(vals24, d.theme);
+
+    const metricsHtml = d.metrics.map(m => `
+      <div class="act-max-metric-row">
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span class="act-max-metric-label">${m.label}</span>
+            <span class="act-max-metric-val">${m.value}</span>
+          </div>
+          <div class="act-max-metric-bar">${_metricBar(m.pct, m.cls)}</div>
+        </div>
+      </div>`).join('');
+
+    const chipsHtml = d.chips.map(c =>
+      `<span class="act-chip ${c.cls}">${c.label}</span>`).join('');
+
+    const timelineHtml = timeline.map(e => `
+      <div class="act-max-timeline-item">
+        <div class="act-max-tl-time">${e.time}</div>
+        <div class="act-max-tl-dot" style="background:${e.col}"></div>
+        <div class="act-max-tl-text">${e.text}</div>
+      </div>`).join('');
+
+    // save compact content for restore
+    tile._compactHtml = tile.innerHTML;
+    tile.classList.add('act-maximized');
+    document.getElementById('actMaxBackdrop').classList.add('visible');
+    document.body.style.overflow = 'hidden';
+
+    tile.innerHTML = `
+      <!-- maximized header -->
+      <div class="act-max-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="width:9px;height:9px;border-radius:50%;background:${sevCol};flex-shrink:0;display:inline-block;"></span>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#6366f1;letter-spacing:0.5px;">${anomalyId} · ${anomaly.region} · ${anomaly.ago}</div>
+            <div style="font-size:15px;font-weight:600;color:#111827;margin-top:1px;">${anomaly.title}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="display:flex;gap:5px;flex-wrap:wrap;">${chipsHtml}</div>
+          <button class="act-max-btn" onclick="actCloseMaximized()" title="Restore"
+            style="margin-left:8px;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+          </button>
+          <button class="act-close" onclick="(function(btn){
+            actCloseMaximized();
+            const t=btn.closest('.anomaly-canvas-tile'); t.style.transition='opacity 0.2s,transform 0.2s'; t.style.opacity='0'; t.style.transform='scale(0.93)';
+            setTimeout(()=>{ t.remove(); const g=document.getElementById('canvasTilesGrid'); if(!g.querySelector('.canvas-tile,.anomaly-canvas-tile')) g.classList.remove('has-tiles'); },210);
+          })(this)" title="Close" style="font-size:16px;">✕</button>
+        </div>
+      </div>
+
+      <!-- maximized body: 2-column layout -->
+      <div class="act-max-body">
+
+        <!-- LEFT: KPI + chart + metrics -->
+        <div class="act-max-left">
+          <div>
+            <div class="act-max-section-title">Key Metrics</div>
+            <div class="act-max-kpi-row">
+              <div class="act-max-kpi-card">
+                <div class="act-max-kpi-val" style="${kpiColStyle}">${d.kpi}</div>
+                <div class="act-max-kpi-lbl">${d.kpiLabel}</div>
+              </div>
+              <div class="act-max-kpi-card">
+                <div class="act-max-kpi-val" style="color:#374151;">${peak}</div>
+                <div class="act-max-kpi-lbl">peak · ${d.theme.label}</div>
+              </div>
+              <div class="act-max-kpi-card">
+                <div class="act-max-kpi-val" style="color:#374151;">${avg}</div>
+                <div class="act-max-kpi-lbl">avg · ${d.theme.label}</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="act-max-section-title">Trend — 24 intervals</div>
+            <div class="act-max-chart-wrap" style="height:160px;">${chartSvg}</div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;margin-top:6px;">
+              <span>Now: <strong style="color:#374151;">${last} ${d.theme.label}</strong></span>
+              <span>Peak: <strong style="color:#374151;">${peak} ${d.theme.label}</strong></span>
+              <span>Avg: <strong style="color:#374151;">${avg} ${d.theme.label}</strong></span>
+            </div>
+          </div>
+
+          ${d.metrics.length ? `<div>
+            <div class="act-max-section-title">Metric Breakdown</div>
+            <div>${metricsHtml}</div>
+          </div>` : ''}
+        </div>
+
+        <!-- RIGHT: AI analysis + timeline -->
+        <div class="act-max-right">
+          <div class="act-max-ai-box">
+            <div class="act-max-ai-label">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2 2"/></svg>
+              AI Analysis
+            </div>
+            <div class="act-max-ai-text">${d.analysis}</div>
+            <button class="act-max-action-btn" onclick="showToast('${d.action} initiated for ${anomalyId}','blue')">${d.action} →</button>
+          </div>
+
+          ${timeline.length ? `<div>
+            <div class="act-max-section-title">Event Timeline</div>
+            <div class="act-max-timeline">${timelineHtml}</div>
+          </div>` : ''}
+
+          <div>
+            <div class="act-max-section-title">Anomaly Details</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f4f6;">
+                <span style="font-size:12px;color:#6b7280;">Anomaly ID</span>
+                <span style="font-size:12px;font-weight:600;color:#111827;">${anomalyId}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f4f6;">
+                <span style="font-size:12px;color:#6b7280;">Region</span>
+                <span style="font-size:12px;font-weight:600;color:#111827;">${anomaly.region}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f4f6;">
+                <span style="font-size:12px;color:#6b7280;">Location</span>
+                <span style="font-size:12px;font-weight:600;color:#111827;">${anomaly.location || '—'}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f4f6;">
+                <span style="font-size:12px;color:#6b7280;">Severity</span>
+                <span style="font-size:12px;font-weight:600;" style="color:${sevCol}">${anomaly.severity || '—'}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;">
+                <span style="font-size:12px;color:#6b7280;">Detected</span>
+                <span style="font-size:12px;font-weight:600;color:#111827;">${anomaly.ago}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
   /* ── Anomaly-specific canvas tile ── */
   /* ── Per-anomaly detail data ── */
   const ANOMALY_DETAIL = {
@@ -6589,6 +7535,7 @@
 
     const tile = document.createElement('div');
     tile.className = 'anomaly-canvas-tile';
+    tile.dataset.anomalyId = anomaly.id;
     tile.innerHTML = `
       <!-- header -->
       <div class="act-header">
@@ -6599,10 +7546,17 @@
           </div>
           <div class="act-title">${anomaly.title}</div>
         </div>
-        <button class="act-close" onclick="(function(btn){
-          const t=btn.closest('.anomaly-canvas-tile'); t.style.transition='opacity 0.2s,transform 0.2s'; t.style.opacity='0'; t.style.transform='scale(0.93)';
-          setTimeout(()=>{ t.remove(); const g=document.getElementById('canvasTilesGrid'); if(!g.querySelector('.canvas-tile,.anomaly-canvas-tile')) g.classList.remove('has-tiles'); },210);
-        })(this)" title="Remove">✕</button>
+        <div style="display:flex;align-items:center;gap:3px;flex-shrink:0;">
+          <!-- maximize / restore -->
+          <button class="act-max-btn" onclick="actToggleMaximize(this)" title="Maximize">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          </button>
+          <!-- close -->
+          <button class="act-close" onclick="(function(btn){
+            const t=btn.closest('.anomaly-canvas-tile'); t.style.transition='opacity 0.2s,transform 0.2s'; t.style.opacity='0'; t.style.transform='scale(0.93)';
+            setTimeout(()=>{ t.remove(); const g=document.getElementById('canvasTilesGrid'); if(!g.querySelector('.canvas-tile,.anomaly-canvas-tile')) g.classList.remove('has-tiles'); },210);
+          })(this)" title="Remove">✕</button>
+        </div>
       </div>
 
       <!-- KPI row -->
@@ -6680,9 +7634,31 @@
   }
 
   function closeSettingsPanel() {
-    document.getElementById('settingsPanel').classList.remove('open');
+    const panel = document.getElementById('settingsPanel');
+    panel.classList.remove('open', 'sp-maximized');
     document.getElementById('settingsBtn').classList.remove('settings-active');
+    // reset maximize/restore buttons to default state
+    const maxBtn = document.getElementById('settingsMaximizeBtn');
+    const resBtn = document.getElementById('settingsRestoreBtn');
+    if (maxBtn) maxBtn.style.display = '';
+    if (resBtn) resBtn.style.display = 'none';
     if (gmapAnimFrame) { cancelAnimationFrame(gmapAnimFrame); gmapAnimFrame = null; }
+    // reset map view state so it reopens fresh
+    _gmapViewState = 'normal';
+    const gmapWrap = document.getElementById('gmapWrap');
+    if (gmapWrap) {
+      gmapWrap.classList.remove('gmap-minimized', 'gmap-maximized');
+      gmapWrap.style.height = '';
+      gmapWrap.style.overflow = '';
+      gmapWrap.style.borderBottom = '';
+    }
+    const gmapMaxBtn = document.getElementById('gmapWinMaxBtn');
+    if (gmapMaxBtn) {
+      gmapMaxBtn.title = 'Maximize map';
+      gmapMaxBtn.innerHTML = '<svg width="7" height="7" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2h6v6H2z"/></svg>';
+    }
+    const gmapMinBtn = document.getElementById('gmapWinMinBtn');
+    if (gmapMinBtn) gmapMinBtn.title = 'Minimize map';
   }
 
   /* ────────────────────────────────────────────
@@ -7873,5 +8849,7 @@
     });
   }
 </script>
+<!-- anomaly tile maximize backdrop -->
+<div class="act-maximized-backdrop" id="actMaxBackdrop" onclick="actCloseMaximized()"></div>
 </body>
 </html>
