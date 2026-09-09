@@ -504,6 +504,13 @@
     align-items: center;
     gap: 6px;
     align-self: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .stats-bar-actions.visible {
+    opacity: 1;
+    pointer-events: all;
   }
   .sb-btn {
     display: flex; align-items: center; gap: 5px;
@@ -5452,6 +5459,7 @@
 
     grid.appendChild(tile);
     grid.classList.add('has-tiles');
+    _syncCanvasBarBtns();
     input.value = '';
     input.focus();
   }
@@ -5468,7 +5476,17 @@
       tile.remove();
       const grid = document.getElementById('canvasTilesGrid');
       if (!grid.querySelector('.canvas-tile')) grid.classList.remove('has-tiles');
+      _syncCanvasBarBtns();
     }, 220);
+  }
+
+  /* ── sync stats-bar action buttons visibility with canvas content ── */
+  function _syncCanvasBarBtns() {
+    const grid = document.getElementById('canvasTilesGrid');
+    const bar  = document.querySelector('.stats-bar-actions');
+    if (!bar) return;
+    const hasTiles = grid && grid.querySelector('.canvas-tile, .anomaly-canvas-tile');
+    bar.classList.toggle('visible', !!hasTiles);
   }
 
   /* ── stats-bar Refresh & Reset ── */
@@ -5547,6 +5565,7 @@
     setTimeout(() => {
       tiles.forEach(t => t.remove());
       grid.classList.remove('has-tiles');
+      _syncCanvasBarBtns();
       showToast('Canvas cleared', 'blue');
     }, 180 + tiles.length * 40);
   }
@@ -7400,7 +7419,7 @@
           <button class="act-close" onclick="(function(btn){
             actCloseMaximized();
             const t=btn.closest('.anomaly-canvas-tile'); t.style.transition='opacity 0.2s,transform 0.2s'; t.style.opacity='0'; t.style.transform='scale(0.93)';
-            setTimeout(()=>{ t.remove(); const g=document.getElementById('canvasTilesGrid'); if(!g.querySelector('.canvas-tile,.anomaly-canvas-tile')) g.classList.remove('has-tiles'); },210);
+            setTimeout(()=>{ t.remove(); const g=document.getElementById('canvasTilesGrid'); if(!g.querySelector('.canvas-tile,.anomaly-canvas-tile')){ g.classList.remove('has-tiles'); _syncCanvasBarBtns(); } },210);
           })(this)" title="Close" style="font-size:16px;">✕</button>
         </div>
       </div>
@@ -7665,7 +7684,7 @@
           <!-- close -->
           <button class="act-close" onclick="(function(btn){
             const t=btn.closest('.anomaly-canvas-tile'); t.style.transition='opacity 0.2s,transform 0.2s'; t.style.opacity='0'; t.style.transform='scale(0.93)';
-            setTimeout(()=>{ t.remove(); const g=document.getElementById('canvasTilesGrid'); if(!g.querySelector('.canvas-tile,.anomaly-canvas-tile')) g.classList.remove('has-tiles'); },210);
+            setTimeout(()=>{ t.remove(); const g=document.getElementById('canvasTilesGrid'); if(!g.querySelector('.canvas-tile,.anomaly-canvas-tile')){ g.classList.remove('has-tiles'); _syncCanvasBarBtns(); } },210);
           })(this)" title="Remove">✕</button>
         </div>
       </div>
@@ -7705,6 +7724,7 @@
 
     grid.appendChild(tile);
     grid.classList.add('has-tiles');
+    _syncCanvasBarBtns();
 
     /* entry flash */
     requestAnimationFrame(() => {
