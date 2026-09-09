@@ -1104,8 +1104,26 @@
 <!-- ═══ TOP NAV ═══ -->
 <!-- Fixed rail toggle button -->
 <button id="rail-toggle-fixed" onclick="toggleRailPanel()" title="Collapse panel" style="display:none"></button>
-<button class="rail-toggle-btn-fixed" onclick="toggleRailPanel()" title="Collapse / expand panel">
-  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3l-5 5 5 5"/></svg>
+<button id="rtb" onclick="toggleRailPanel()" title="Collapse / expand panel" style="
+  position:fixed !important;
+  top:50vh !important;
+  transform:translateY(-50%) !important;
+  right:380px !important;
+  width:28px !important;
+  height:56px !important;
+  background:#0f62fe !important;
+  border:none !important;
+  border-radius:6px 0 0 6px !important;
+  box-shadow:-4px 0 16px rgba(0,0,0,0.25) !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  cursor:pointer !important;
+  z-index:99999 !important;
+  padding:0 !important;
+  outline:none !important;
+">
+  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3l-5 5 5 5"/></svg>
 </button>
 
 <nav class="top-nav">
@@ -3204,10 +3222,17 @@
 </footer>
 
 <script>
+let _rc = false;
 function toggleRailPanel() {
-  const collapsed = document.body.classList.toggle('rail-collapsed');
-  // apply to every split so state is consistent across steps
-  document.querySelectorAll('.split').forEach(s => s.classList.toggle('rail-collapsed', collapsed));
+  _rc = !_rc;
+  // move button
+  const btn = document.getElementById('rtb');
+  if (btn) btn.style.right = _rc ? '0px' : '380px';
+  // flip chevron
+  const svg = btn && btn.querySelector('svg');
+  if (svg) svg.style.transform = _rc ? 'rotate(180deg)' : '';
+  // collapse every split
+  document.querySelectorAll('.split').forEach(s => s.classList.toggle('rail-collapsed', _rc));
 }
 
 const STEP_TITLES = ['Overview','What & Why','Characteristics','Four Pillars','Directions'];
