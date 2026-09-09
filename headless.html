@@ -1200,9 +1200,10 @@
 
   /* right sidebar */
   .cd-sidebar {
-    width: 300px; flex-shrink: 0;
-    padding: 20px 20px 20px 0;
-    display: flex; flex-direction: column; gap: 16px;
+    width: 310px; flex-shrink: 0;
+    padding: 20px 16px 20px 0;
+    display: flex; flex-direction: column; gap: 14px;
+    overflow-y: auto;
   }
 
   /* back link */
@@ -1361,49 +1362,152 @@
   }
 
   /* sidebar card */
+  /* ── escalation card — matches 12.png ── */
   .cd-side-card {
-    background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
-    padding: 14px 16px;
+    background: #fffdf5;
+    border: 1.5px solid #f59e0b;
+    border-radius: 12px;
+    padding: 16px 18px;
   }
-  .cd-side-card.escalation { border-color: #fcd34d; }
   .cd-side-card-header {
-    display: flex; justify-content: space-between; align-items: flex-start;
-    margin-bottom: 6px;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 4px;
   }
-  .cd-side-card-title { font-size: 13px; font-weight: 500; color: #111827; }
-  .cd-side-card-time  { font-size: 11px; color: #9ca3af; }
-  .cd-side-card-id    { font-size: 12px; color: #6b7280; margin-bottom: 10px; }
-  .cd-side-card-name  { font-size: 13px; color: #111827; margin-bottom: 4px; }
-  .cd-side-card-sub   {
-    font-size: 12px; color: #d97706; margin-bottom: 14px; line-height: 1.5;
+  .cd-side-card-title {
+    font-size: 14px; font-weight: 600; color: #111827;
   }
-  .cd-side-btns {
-    display: flex; gap: 8px;
+  .cd-side-card-time {
+    font-size: 12px; color: #9ca3af; white-space: nowrap; margin-left: 8px;
   }
+  .cd-side-card-id {
+    font-size: 12px; color: #6b7280; margin-bottom: 12px;
+  }
+  /* thin divider below id */
+  .cd-side-divider {
+    border: none; border-top: 1px solid #f3e9c8; margin: 10px 0 14px;
+  }
+  .cd-side-card-name {
+    font-size: 16px; font-weight: 500; color: #111827; margin-bottom: 5px;
+    line-height: 1.35;
+  }
+  .cd-side-card-sub {
+    font-size: 12px; color: #d97706; margin-bottom: 16px; line-height: 1.5;
+  }
+  .cd-side-btns { display: flex; gap: 10px; }
   .cd-btn-approve {
     flex: 1; background: #2563eb; color: #fff; border: none;
-    border-radius: 6px; padding: 8px 0; font-size: 13px; font-weight: 500;
+    border-radius: 7px; padding: 9px 0; font-size: 13px; font-weight: 500;
     cursor: pointer; transition: background 0.15s;
+    font-family: inherit;
   }
   .cd-btn-approve:hover { background: #1d4ed8; }
   .cd-btn-deny {
-    flex: 1; background: #fff; color: #374151;
-    border: 1px solid #d1d5db; border-radius: 6px;
-    padding: 8px 0; font-size: 13px; font-weight: 500;
-    cursor: pointer; transition: background 0.15s;
+    flex: 1; background: #fff; color: #dc2626;
+    border: 1.5px solid #e5e7eb; border-radius: 7px;
+    padding: 9px 0; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: background 0.15s, border-color 0.15s;
+    font-family: inherit;
   }
-  .cd-btn-deny:hover { background: #f3f4f6; }
+  .cd-btn-deny:hover { background: #fef2f2; border-color: #fca5a5; }
 
-  /* AI sidebar chat prompt */
-  .cd-ai-prompt {
-    background: linear-gradient(160deg, #eef4fb 0%, #ddeaf5 100%);
-    border: 1px solid #c7d2fe; border-radius: 10px;
-    padding: 18px 16px;
-    cursor: pointer; transition: box-shadow 0.15s;
+  /* ── sidebar inline chat ── */
+  .cd-chat-box {
+    flex: 1; display: flex; flex-direction: column;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+    overflow: hidden; min-height: 0;
   }
-  .cd-ai-prompt:hover { box-shadow: 0 3px 12px rgba(99,102,241,0.18); }
-  .cd-ai-hello  { font-size: 18px; font-weight: 300; color: #1e3a5f; }
-  .cd-ai-sub    { font-size: 13px; color: #6b7280; margin-top: 2px; }
+  .cd-chat-header {
+    padding: 12px 14px 10px;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .cd-chat-orb {
+    width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg,#a5b4fc,#818cf8);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; color: #fff;
+  }
+  .cd-chat-header-title {
+    font-size: 13px; font-weight: 500; color: #111827;
+  }
+  .cd-chat-header-sub {
+    font-size: 11px; color: #9ca3af; margin-left: auto;
+  }
+  .cd-chat-msgs {
+    flex: 1; overflow-y: auto; padding: 12px 12px 8px;
+    display: flex; flex-direction: column; gap: 10px;
+    min-height: 120px; max-height: 260px;
+  }
+  .cd-chat-msg {
+    display: flex; gap: 7px; align-items: flex-start;
+    animation: msgIn 0.2s ease forwards;
+  }
+  .cd-chat-msg.user { flex-direction: row-reverse; }
+  .cd-chat-avatar {
+    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700;
+  }
+  .cd-chat-msg.user  .cd-chat-avatar { background: #dbeafe; color: #1d4ed8; }
+  .cd-chat-msg.agent .cd-chat-avatar { background: linear-gradient(135deg,#a5b4fc,#818cf8); color:#fff; }
+  .cd-chat-bubble {
+    max-width: 82%; padding: 8px 11px; border-radius: 10px;
+    font-size: 12px; line-height: 1.55; color: #1f2937;
+  }
+  .cd-chat-msg.user  .cd-chat-bubble {
+    background: #eff6ff; border: 1px solid #bfdbfe;
+    border-top-right-radius: 3px;
+  }
+  .cd-chat-msg.agent .cd-chat-bubble {
+    background: #f9fafb; border: 1px solid #e5e7eb;
+    border-top-left-radius: 3px;
+  }
+  .cd-chat-typing {
+    display: flex; gap: 4px; align-items: center; padding: 8px 11px;
+    background: #f9fafb; border: 1px solid #e5e7eb;
+    border-radius: 10px; border-top-left-radius: 3px;
+    width: fit-content;
+  }
+  .cd-typing-dot {
+    width: 5px; height: 5px; border-radius: 50%; background: #a5b4fc;
+  }
+  .cd-typing-dot:nth-child(1){animation:typeDot 1.2s infinite 0s;}
+  .cd-typing-dot:nth-child(2){animation:typeDot 1.2s infinite 0.2s;}
+  .cd-typing-dot:nth-child(3){animation:typeDot 1.2s infinite 0.4s;}
+  .cd-chat-chips {
+    display: flex; flex-wrap: wrap; gap: 5px;
+    padding: 0 12px 8px;
+  }
+  .cd-chat-chip {
+    font-size: 11px; color: #374151;
+    background: #f3f4f6; border: 1px solid #e5e7eb;
+    border-radius: 12px; padding: 4px 10px;
+    cursor: pointer; transition: background 0.12s, border-color 0.12s, color 0.12s;
+    white-space: nowrap;
+  }
+  .cd-chat-chip:hover {
+    background: #eff6ff; border-color: #93c5fd; color: #1d4ed8;
+  }
+  .cd-chat-input-row {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 10px; border-top: 1px solid #f3f4f6; flex-shrink: 0;
+  }
+  .cd-chat-input {
+    flex: 1; border: 1px solid #e5e7eb; border-radius: 16px;
+    padding: 6px 12px; font-size: 12px; color: #111827;
+    font-family: inherit; outline: none; background: #fff;
+    transition: border-color 0.15s;
+  }
+  .cd-chat-input:focus { border-color: #818cf8; }
+  .cd-chat-input::placeholder { color: #9ca3af; }
+  .cd-chat-send {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg,#818cf8,#60a5fa);
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.12s;
+  }
+  .cd-chat-send:hover { transform: scale(1.1); }
 
   /* ── right panel ── */
   .right-panel {
@@ -3059,26 +3163,49 @@
 
           <!-- SIDEBAR -->
           <div class="cd-sidebar">
-            <!-- Escalation card -->
-            <div class="cd-side-card escalation" id="cdSideCard">
+
+            <!-- Escalation card — exact 12.png design -->
+            <div class="cd-side-card" id="cdSideCard">
               <div class="cd-side-card-header">
                 <div class="cd-side-card-title" id="cdSideTitle">Escalation on this case</div>
-                <div class="cd-side-card-time" id="cdSideTime">4m ago</div>
+                <div class="cd-side-card-time"  id="cdSideTime">4m ago</div>
               </div>
               <div class="cd-side-card-id" id="cdSideId">C-2837</div>
+              <hr class="cd-side-divider">
               <div class="cd-side-card-name" id="cdSideName">Recurring CRC error - TVM Edge</div>
-              <div class="cd-side-card-sub" id="cdSideSub">expires in 26 min · Tier 2 · confidence 87%</div>
-              <div class="cd-side-btns">
-                <button class="cd-btn-approve" id="cdSideBtnA" onclick="cdApprove()">Approve</button>
-                <button class="cd-btn-deny"    id="cdSideBtnD" onclick="cdDeny()">Deny</button>
+              <div class="cd-side-card-sub"  id="cdSideSub">expires in 26 min · Tier 2 · confidence 87%</div>
+              <div class="cd-side-btns" id="cdSideBtns">
+                <button class="cd-btn-approve" onclick="cdApprove()">Approve</button>
+                <button class="cd-btn-deny"    onclick="cdDeny()">Deny</button>
               </div>
             </div>
 
-            <!-- AI chat prompt -->
-            <div class="cd-ai-prompt" onclick="openAiPanel()">
-              <div class="cd-ai-hello">Hello Fiona,</div>
-              <div class="cd-ai-sub">Ask anything about this case</div>
+            <!-- Inline AI chat -->
+            <div class="cd-chat-box">
+              <div class="cd-chat-header">
+                <div class="cd-chat-orb">AI</div>
+                <div class="cd-chat-header-title">Ask about this case</div>
+                <div class="cd-chat-header-sub" id="cdChatSub">online</div>
+              </div>
+              <div class="cd-chat-msgs" id="cdChatMsgs"></div>
+              <div class="cd-chat-chips" id="cdChatChips">
+                <span class="cd-chat-chip" onclick="cdChatChip(this)">What caused this?</span>
+                <span class="cd-chat-chip" onclick="cdChatChip(this)">How confident is the agent?</span>
+                <span class="cd-chat-chip" onclick="cdChatChip(this)">What happens if I deny?</span>
+                <span class="cd-chat-chip" onclick="cdChatChip(this)">Show similar cases</span>
+              </div>
+              <div class="cd-chat-input-row">
+                <input class="cd-chat-input" id="cdChatInput" type="text"
+                  placeholder="Ask anything about this case…"
+                  onkeydown="if(event.key==='Enter') cdChatSend()" />
+                <button class="cd-chat-send" onclick="cdChatSend()">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                    <path d="M2 8l12-6-4 6 4 6-12-6z" fill="white"/>
+                  </svg>
+                </button>
+              </div>
             </div>
+
           </div>
 
         </div><!-- /cd-scroll -->
@@ -4735,7 +4862,7 @@
     document.getElementById('cdSideId').textContent    = c.id;
     document.getElementById('cdSideName').textContent  = c.name;
     document.getElementById('cdSideSub').textContent   = cd.sideSub;
-    document.querySelector('.cd-side-btns').style.display = cd.showApprove ? 'flex' : 'none';
+    document.getElementById('cdSideBtns').style.display = cd.showApprove ? 'flex' : 'none';
 
     // gates
     document.getElementById('cdGatesPassed').textContent = cd.gatesPassed;
@@ -4804,6 +4931,88 @@
     closeCaseDetail();
     showToast('✕ Denied — case escalated back to queue', 'orange');
   }
+
+  /* ────────────────────────────────────────────
+     SIDEBAR INLINE CHAT
+  ──────────────────────────────────────────── */
+  const cdChatResponses = {
+    'what caused this':     { text: 'CRC error rate on port 3/0/1 crossed 3σ above baseline — 412 raw events collapsed into one. Root cause: software counter leak on line card 3. Optics are nominal.' },
+    'how confident':        { text: 'The agent matched this pattern against <strong>14 similar historical cases</strong> with 87% confidence. Blast radius is confirmed below 5% — within the guardrail threshold.' },
+    'what happens if i deny': { text: 'Denying will return the case to the manual queue and pause automated actions for this device. The approval card expires in 26 min; after that a new escalation will be issued.' },
+    'show similar cases':   { text: 'Found 14 similar cases this month: C-2801 (resolved), C-2788 (resolved), C-2771 (escalated). All involved line-card counter leaks on TVM-EDGE devices. Avg resolution time: 4.2 min.' },
+    default:                { text: 'Based on the current case data, the agent has high confidence in a software counter leak on line card 3. Would you like me to show the full reasoning trace or similar historical cases?' }
+  };
+
+  function cdChatSend() {
+    const input = document.getElementById('cdChatInput');
+    const text  = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    _cdChatAddUser(text);
+    document.getElementById('cdChatChips').style.display = 'none';
+    _cdChatTyping();
+    setTimeout(() => _cdChatAddAgent(_cdGetResponse(text)), 1200);
+  }
+
+  function cdChatChip(chip) {
+    const text = chip.textContent.trim();
+    _cdChatAddUser(text);
+    document.getElementById('cdChatChips').style.display = 'none';
+    _cdChatTyping();
+    setTimeout(() => _cdChatAddAgent(_cdGetResponse(text)), 1200);
+  }
+
+  function _cdGetResponse(text) {
+    const t = text.toLowerCase();
+    for (const key of Object.keys(cdChatResponses)) {
+      if (key !== 'default' && t.includes(key)) return cdChatResponses[key];
+    }
+    return cdChatResponses.default;
+  }
+
+  function _cdChatAddUser(text) {
+    const msgs = document.getElementById('cdChatMsgs');
+    const div = document.createElement('div');
+    div.className = 'cd-chat-msg user';
+    div.innerHTML = `<div class="cd-chat-avatar">F</div><div class="cd-chat-bubble">${text}</div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function _cdChatTyping() {
+    const msgs = document.getElementById('cdChatMsgs');
+    const div = document.createElement('div');
+    div.className = 'cd-chat-msg agent'; div.id = 'cdChatTyping';
+    div.innerHTML = `<div class="cd-chat-avatar">AI</div>
+      <div class="cd-chat-typing">
+        <div class="cd-typing-dot"></div><div class="cd-typing-dot"></div><div class="cd-typing-dot"></div>
+      </div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function _cdChatAddAgent(resp) {
+    const msgs = document.getElementById('cdChatMsgs');
+    const typing = document.getElementById('cdChatTyping');
+    if (typing) typing.remove();
+    const div = document.createElement('div');
+    div.className = 'cd-chat-msg agent';
+    div.innerHTML = `<div class="cd-chat-avatar">AI</div><div class="cd-chat-bubble">${resp.text}</div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  // reset chat when case detail opens
+  const _origOpenCaseDetail = openCaseDetail;
+  openCaseDetail = function(idx) {
+    _origOpenCaseDetail(idx);
+    const msgs = document.getElementById('cdChatMsgs');
+    if (msgs) msgs.innerHTML = '';
+    const chips = document.getElementById('cdChatChips');
+    if (chips) chips.style.display = '';
+    const inp = document.getElementById('cdChatInput');
+    if (inp) inp.value = '';
+  };
 
   document.addEventListener('DOMContentLoaded', () => {
     renderCases(casesData);
