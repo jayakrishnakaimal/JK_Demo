@@ -1104,27 +1104,6 @@
 <!-- ═══ TOP NAV ═══ -->
 <!-- Fixed rail toggle button -->
 <button id="rail-toggle-fixed" onclick="toggleRailPanel()" title="Collapse panel" style="display:none"></button>
-<button id="rtb" onclick="toggleRailPanel()" title="Collapse / expand panel" style="
-  position:fixed !important;
-  top:50vh !important;
-  transform:translateY(-50%) !important;
-  right:380px !important;
-  width:28px !important;
-  height:56px !important;
-  background:#0f62fe !important;
-  border:none !important;
-  border-radius:6px 0 0 6px !important;
-  box-shadow:-4px 0 16px rgba(0,0,0,0.25) !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  cursor:pointer !important;
-  z-index:99999 !important;
-  padding:0 !important;
-  outline:none !important;
-">
-  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3l-5 5 5 5"/></svg>
-</button>
 
 <nav class="top-nav">
   <div class="tn-brand">
@@ -3225,13 +3204,6 @@
 let _rc = false;
 function toggleRailPanel() {
   _rc = !_rc;
-  // move button
-  const btn = document.getElementById('rtb');
-  if (btn) btn.style.right = _rc ? '0px' : '380px';
-  // flip chevron
-  const svg = btn && btn.querySelector('svg');
-  if (svg) svg.style.transform = _rc ? 'rotate(180deg)' : '';
-  // collapse every split
   document.querySelectorAll('.split').forEach(s => s.classList.toggle('rail-collapsed', _rc));
 }
 
