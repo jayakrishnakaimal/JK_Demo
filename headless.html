@@ -4612,37 +4612,51 @@
     </svg>`;
   }
 
+  // The 6 chart types rotate by slot position so every tile looks different
+  const _SLOT_TYPES = ['line', 'area', 'bar', 'scatter', 'donut', 'multiline'];
+
   function addCanvasTile() {
     const input = document.getElementById('canvasScenarioInput');
     const text  = input.value.trim();
     if (!text) { input.focus(); return; }
 
-    const grid = document.getElementById('canvasTilesGrid');
+    const grid  = document.getElementById('canvasTilesGrid');
     const tiles = grid.querySelectorAll('.canvas-tile');
     if (tiles.length >= 6) {
-      // show full message
       const msg = document.getElementById('canvasTilesFull');
       msg.classList.add('visible');
       setTimeout(() => msg.classList.remove('visible'), 2500);
       return;
     }
 
-    const theme = _tileTheme(text);
+    // keyword match gives colour/label/base; slot position gives chart type
+    const theme    = Object.assign({}, _tileTheme(text));
+    theme.type     = _SLOT_TYPES[tiles.length % 6];
+
     const vals  = _tileSeeded(text, theme.base, theme.variance, 10);
-    const last  = vals[vals.length-1];
+    const last  = vals[vals.length - 1];
     const peak  = Math.max(...vals);
     const svg   = _buildTileSVG(vals, theme);
+
+    // chart-type badge label
+    const typeBadge = {
+      line:'Line', area:'Area', bar:'Bar',
+      scatter:'Scatter', donut:'Donut', multiline:'Multi-line'
+    }[theme.type];
 
     const tile = document.createElement('div');
     tile.className = 'canvas-tile';
     tile.style.animationDelay = (tiles.length * 0.05) + 's';
     tile.innerHTML = `
       <div class="canvas-tile-header">
-        <div class="canvas-tile-title">${text.charAt(0).toUpperCase()+text.slice(0,38)}</div>
-        <button class="canvas-tile-close" onclick="removeCanvasTile(this)" title="Remove">✕</button>
+        <div class="canvas-tile-title">${text.charAt(0).toUpperCase() + text.slice(0, 38)}</div>
+        <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
+          <span style="font-size:9px;font-weight:500;color:#9ca3af;background:#f3f4f6;border-radius:3px;padding:1px 5px;white-space:nowrap">${typeBadge}</span>
+          <button class="canvas-tile-close" onclick="removeCanvasTile(this)" title="Remove">✕</button>
+        </div>
       </div>
       <div class="canvas-tile-kpi">${last}<span style="font-size:11px;color:#9ca3af;margin-left:2px">${theme.label}</span></div>
-      <div class="canvas-tile-sub">peak ${peak} ${theme.label} · ${10} steps</div>
+      <div class="canvas-tile-sub">peak ${peak} ${theme.label} · 10 steps</div>
       <div class="canvas-tile-chart">${svg}</div>`;
 
     grid.appendChild(tile);
