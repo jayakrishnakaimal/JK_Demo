@@ -1172,6 +1172,239 @@
   /* canvas area needs to be relative for drawer */
   #tab-agentic { position: relative; overflow: hidden; background: transparent; }
 
+  /* ══════════════════════════════════════════
+     CASE DETAIL PAGE — matches 11.png
+  ══════════════════════════════════════════ */
+  .cd-page {
+    position: absolute; inset: 0;
+    background: #f8fafd;
+    z-index: 20;
+    display: flex; flex-direction: column;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease;
+    overflow: hidden;
+  }
+  .cd-page.visible { opacity: 1; pointer-events: all; }
+
+  /* scrollable body */
+  .cd-scroll {
+    flex: 1; overflow-y: auto; display: flex; gap: 0;
+    min-height: 0;
+  }
+
+  /* main column */
+  .cd-main {
+    flex: 1; padding: 28px 32px 40px; min-width: 0;
+    overflow-y: auto;
+  }
+
+  /* right sidebar */
+  .cd-sidebar {
+    width: 300px; flex-shrink: 0;
+    padding: 20px 20px 20px 0;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+
+  /* back link */
+  .cd-back {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 13px; color: #2563eb; cursor: pointer;
+    margin-bottom: 18px; background: none; border: none;
+    padding: 0; font-family: inherit;
+    transition: color 0.15s;
+  }
+  .cd-back:hover { color: #1d4ed8; }
+  .cd-back svg { flex-shrink: 0; }
+
+  /* title row */
+  .cd-title-row {
+    display: flex; align-items: center; gap: 12px;
+    flex-wrap: wrap; margin-bottom: 6px;
+  }
+  .cd-title {
+    font-size: 26px; font-weight: 400; color: #111827;
+    letter-spacing: -0.3px; line-height: 1.2;
+  }
+  .cd-escalation-badge {
+    font-size: 11px; font-weight: 500;
+    background: #fffbeb; color: #92400e;
+    border: 1px solid #fcd34d;
+    padding: 3px 10px; border-radius: 4px;
+    white-space: nowrap; margin-top: 4px;
+  }
+  .cd-meta-row {
+    display: flex; align-items: center; gap: 0;
+    font-size: 13px; color: #6b7280; margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .cd-meta-row .cd-sep { margin: 0 8px; color: #d1d5db; }
+  .cd-meta-red   { color: #dc2626; font-weight: 500; }
+  .cd-meta-orange { color: #d97706; font-weight: 500; }
+  .cd-priority-agent {
+    display: flex; align-items: center; gap: 0;
+    font-size: 13px; color: #374151;
+    border-left: 1px solid #e5e7eb; padding-left: 16px; margin-left: 16px;
+    flex-wrap: wrap; gap: 16px;
+  }
+  .cd-priority-agent span { white-space: nowrap; }
+  .cd-impact {
+    font-size: 13px; color: #6b7280; margin-bottom: 20px;
+  }
+
+  /* two-column chart+gates row */
+  .cd-charts-row {
+    display: flex; gap: 16px; margin-bottom: 20px;
+  }
+  .cd-confidence-card {
+    flex: 1; background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 10px; padding: 18px 18px 12px;
+    min-width: 0;
+  }
+  .cd-card-title {
+    font-size: 12px; color: #374151; font-weight: 500; margin-bottom: 12px;
+  }
+  .cd-approval-card {
+    width: 260px; flex-shrink: 0; background: #fff;
+    border: 1px solid #e5e7eb; border-radius: 10px;
+    padding: 18px 18px 14px;
+  }
+  .cd-gates-big {
+    font-size: 38px; font-weight: 300; color: #111827; line-height: 1;
+    letter-spacing: -1px; display: inline;
+  }
+  .cd-gates-of {
+    font-size: 13px; color: #6b7280; margin-left: 4px;
+  }
+  .cd-gates-bar {
+    height: 6px; border-radius: 3px; background: #e5e7eb;
+    margin: 10px 0 8px; overflow: hidden;
+  }
+  .cd-gates-bar-fill {
+    height: 100%; border-radius: 3px; background: #22c55e;
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+  }
+  .cd-gates-legend {
+    display: flex; gap: 12px; font-size: 11px; color: #6b7280; margin-bottom: 10px;
+  }
+  .cd-gl-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 2px;
+  }
+  .cd-gates-cleared {
+    border-top: 1px solid #f3f4f6; padding-top: 10px; margin-top: 4px;
+    font-size: 12px; color: #6b7280;
+  }
+  .cd-gates-cleared strong { color: #111827; font-size: 13px; display: block; margin-top: 2px; }
+  .cd-gates-cleared span { font-size: 11px; color: #9ca3af; }
+
+  /* gate ledger */
+  .cd-gate-ledger { margin-bottom: 20px; }
+  .cd-section-title {
+    font-size: 14px; font-weight: 500; color: #111827; margin-bottom: 10px;
+  }
+  .cd-ledger-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #f0fdf4; border: 1px solid #bbf7d0;
+    border-radius: 8px; padding: 12px 16px;
+    font-size: 13px; gap: 10px;
+  }
+  .cd-ledger-row.failed {
+    background: #fef2f2; border-color: #fecaca;
+  }
+  .cd-ledger-left { display: flex; align-items: center; gap: 10px; }
+  .cd-ledger-icon {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #22c55e; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0;
+  }
+  .cd-ledger-icon.fail { background: #ef4444; }
+  .cd-ledger-name { font-weight: 500; color: #166534; }
+  .cd-ledger-name.fail { color: #b91c1c; }
+  .cd-ledger-sub  { font-size: 11px; color: #9ca3af; }
+  .cd-ledger-yes  { font-size: 12px; color: #16a34a; font-weight: 500; }
+
+  /* decision reasoning */
+  .cd-reasoning { margin-bottom: 24px; }
+  .cd-reason-step {
+    display: flex; gap: 14px; padding: 16px 0;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .cd-reason-step:last-child { border-bottom: none; }
+  .cd-reason-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 5px;
+  }
+  .cd-reason-dot.done    { background: #60a5fa; }
+  .cd-reason-dot.warn    { background: #f59e0b; }
+  .cd-reason-dot.fail    { background: #ef4444; }
+  .cd-reason-right { flex: 1; min-width: 0; }
+  .cd-reason-header {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+  .cd-reason-header.warn { color: #d97706; }
+  .cd-reason-time  { font-size: 12px; color: #9ca3af; font-weight: 400; }
+  .cd-reason-agent { font-size: 12px; color: #6b7280; font-weight: 400; }
+  .cd-reason-conf  {
+    font-size: 11px; background: #eff6ff; color: #1d4ed8;
+    border: 1px solid #bfdbfe; border-radius: 10px; padding: 1px 8px;
+    font-weight: 400;
+  }
+  .cd-reason-body {
+    font-size: 13px; color: #374151; line-height: 1.6; margin-bottom: 8px;
+  }
+  .cd-evidence {
+    background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px;
+    padding: 8px 12px; font-size: 11px; color: #6b7280;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    line-height: 1.5;
+  }
+
+  /* sidebar card */
+  .cd-side-card {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .cd-side-card.escalation { border-color: #fcd34d; }
+  .cd-side-card-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 6px;
+  }
+  .cd-side-card-title { font-size: 13px; font-weight: 500; color: #111827; }
+  .cd-side-card-time  { font-size: 11px; color: #9ca3af; }
+  .cd-side-card-id    { font-size: 12px; color: #6b7280; margin-bottom: 10px; }
+  .cd-side-card-name  { font-size: 13px; color: #111827; margin-bottom: 4px; }
+  .cd-side-card-sub   {
+    font-size: 12px; color: #d97706; margin-bottom: 14px; line-height: 1.5;
+  }
+  .cd-side-btns {
+    display: flex; gap: 8px;
+  }
+  .cd-btn-approve {
+    flex: 1; background: #2563eb; color: #fff; border: none;
+    border-radius: 6px; padding: 8px 0; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .cd-btn-approve:hover { background: #1d4ed8; }
+  .cd-btn-deny {
+    flex: 1; background: #fff; color: #374151;
+    border: 1px solid #d1d5db; border-radius: 6px;
+    padding: 8px 0; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .cd-btn-deny:hover { background: #f3f4f6; }
+
+  /* AI sidebar chat prompt */
+  .cd-ai-prompt {
+    background: linear-gradient(160deg, #eef4fb 0%, #ddeaf5 100%);
+    border: 1px solid #c7d2fe; border-radius: 10px;
+    padding: 18px 16px;
+    cursor: pointer; transition: box-shadow 0.15s;
+  }
+  .cd-ai-prompt:hover { box-shadow: 0 3px 12px rgba(99,102,241,0.18); }
+  .cd-ai-hello  { font-size: 18px; font-weight: 300; color: #1e3a5f; }
+  .cd-ai-sub    { font-size: 13px; color: #6b7280; margin-top: 2px; }
+
   /* ── right panel ── */
   .right-panel {
     width: 360px;
@@ -2697,18 +2930,159 @@
 
         </div>
 
-        <!-- Case detail drawer -->
-        <div class="at-drawer" id="caseDrawer">
-          <div class="at-drawer-header">
-            <div>
-              <div class="at-drawer-title" id="drawerTitle">BGP-flap dampened - Core RTR</div>
-              <div class="at-drawer-meta" id="drawerMeta">C-2840 · Route Guard Agent · 46m ago</div>
-            </div>
-            <button class="at-drawer-close" onclick="closeDrawer()">✕</button>
-          </div>
-          <div class="at-drawer-body" id="drawerBody"></div>
-        </div>
+        <!-- Case detail drawer (kept for keyboard esc compat) -->
+        <div class="at-drawer" id="caseDrawer" style="display:none;"></div>
       </div>
+
+      <!-- ═══ CASE DETAIL FULL PAGE ═══ -->
+      <div class="cd-page" id="caseDetailPage">
+        <div class="cd-scroll">
+
+          <!-- MAIN COLUMN -->
+          <div class="cd-main">
+
+            <!-- Back link -->
+            <button class="cd-back" onclick="closeCaseDetail()">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Back to trace
+            </button>
+
+            <!-- Title + badges + meta -->
+            <div class="cd-title-row">
+              <div class="cd-title" id="cdTitle">Recurring CRC error - TVM Edge</div>
+              <span class="cd-escalation-badge" id="cdBadge">Escalation</span>
+            </div>
+            <div style="display:flex;align-items:center;margin-bottom:8px;gap:0;flex-wrap:wrap;">
+              <div class="cd-meta-row" id="cdMeta">
+                <span id="cdId">C-2837</span>
+                <span class="cd-sep">|</span>
+                <span class="cd-meta-red" id="cdTag">4th this week</span>
+                <span class="cd-sep">|</span>
+                <span id="cdDuration">46m open</span>
+                <span class="cd-sep">|</span>
+                <span class="cd-meta-orange" id="cdFollowup">Awaiting human</span>
+              </div>
+              <div class="cd-priority-agent">
+                <span id="cdPriority">Priority 1</span>
+                <span id="cdAgent">Agent: Remediation</span>
+              </div>
+            </div>
+            <div class="cd-impact" id="cdImpact">Impact: ~1200 users</div>
+
+            <!-- Charts row: Confidence trajectory + Approval gates -->
+            <div class="cd-charts-row">
+              <div class="cd-confidence-card">
+                <div class="cd-card-title">Confidence trajectory</div>
+                <svg id="cdConfChart" width="100%" height="140" viewBox="0 0 420 140" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="cdGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.32"/>
+                      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.03"/>
+                    </linearGradient>
+                    <clipPath id="cdClip"><rect id="cdClipRect" x="0" y="0" width="0" height="140"/></clipPath>
+                  </defs>
+                  <!-- y-axis labels -->
+                  <text x="0" y="14"  font-size="9" fill="#9ca3af">100%</text>
+                  <text x="0" y="46"  font-size="9" fill="#9ca3af">50%</text>
+                  <text x="0" y="72"  font-size="9" fill="#9ca3af">25%</text>
+                  <text x="0" y="96"  font-size="9" fill="#9ca3af">15%</text>
+                  <text x="0" y="120" font-size="9" fill="#9ca3af">0</text>
+                  <!-- grid -->
+                  <line x1="30" y1="10"  x2="420" y2="10"  stroke="#f3f4f6" stroke-width="1"/>
+                  <line x1="30" y1="42"  x2="420" y2="42"  stroke="#f3f4f6" stroke-width="1"/>
+                  <line x1="30" y1="68"  x2="420" y2="68"  stroke="#f3f4f6" stroke-width="1"/>
+                  <line x1="30" y1="92"  x2="420" y2="92"  stroke="#f3f4f6" stroke-width="1"/>
+                  <line x1="30" y1="118" x2="420" y2="118" stroke="#f3f4f6" stroke-width="1"/>
+                  <!-- area + line drawn by JS -->
+                  <path id="cdConfArea" clip-path="url(#cdClip)" fill="url(#cdGrad)"/>
+                  <path id="cdConfLine" clip-path="url(#cdClip)" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linejoin="round"/>
+                  <!-- x-axis labels -->
+                  <text x="30"  y="136" font-size="9" fill="#9ca3af" text-anchor="middle">01</text>
+                  <text x="82"  y="136" font-size="9" fill="#9ca3af" text-anchor="middle">02</text>
+                  <text x="134" y="136" font-size="9" fill="#9ca3af" text-anchor="middle">03</text>
+                  <text x="186" y="136" font-size="9" fill="#9ca3af" text-anchor="middle">04</text>
+                  <text x="238" y="136" font-size="9" fill="#9ca3af" text-anchor="middle">05</text>
+                  <text x="290" y="136" font-size="9" fill="#9ca3af" text-anchor="middle">06</text>
+                  <text x="342" y="136" font-size="9" fill="#9ca3af" text-anchor="middle">07</text>
+                  <text x="394" y="136" font-size="9" fill="#9ca3af" text-anchor="middle">08</text>
+                </svg>
+              </div>
+
+              <div class="cd-approval-card">
+                <div class="cd-card-title">Approval gates</div>
+                <div>
+                  <span class="cd-gates-big" id="cdGatesPassed">1</span>
+                  <span class="cd-gates-of">of 1 cleared</span>
+                </div>
+                <div class="cd-gates-bar"><div class="cd-gates-bar-fill" id="cdGatesBar" style="width:0%"></div></div>
+                <div class="cd-gates-legend">
+                  <div style="display:flex;align-items:center;gap:4px;">
+                    <div class="cd-gl-dot" style="background:#22c55e"></div>1 passed
+                  </div>
+                  <div style="display:flex;align-items:center;gap:4px;">
+                    <div class="cd-gl-dot" style="background:#f59e0b"></div>0 pending
+                  </div>
+                  <div style="display:flex;align-items:center;gap:4px;">
+                    <div class="cd-gl-dot" style="background:#ef4444"></div>0 blocked
+                  </div>
+                </div>
+                <div class="cd-gates-cleared">
+                  Cleared by
+                  <strong id="cdGateRule">Blast cap &lt; 5%</strong>
+                  <span id="cdGateRuleId">guardrail:blast-radius</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gate Ledger -->
+            <div class="cd-gate-ledger">
+              <div class="cd-section-title">Gate Ledger</div>
+              <div class="cd-ledger-row" id="cdLedgerRow">
+                <div class="cd-ledger-left">
+                  <div class="cd-ledger-icon" id="cdLedgerIcon">✓</div>
+                  <div>
+                    <div class="cd-ledger-name" id="cdLedgerName">Blast cap &lt; 5%</div>
+                    <div class="cd-ledger-sub" id="cdLedgerSub">guardrail:blast-radius</div>
+                  </div>
+                </div>
+                <div class="cd-ledger-yes" id="cdLedgerResult">Yes</div>
+              </div>
+            </div>
+
+            <!-- Decision Reasoning -->
+            <div class="cd-reasoning">
+              <div class="cd-section-title">Decision Reasoning</div>
+              <div id="cdReasoningSteps"></div>
+            </div>
+
+          </div><!-- /cd-main -->
+
+          <!-- SIDEBAR -->
+          <div class="cd-sidebar">
+            <!-- Escalation card -->
+            <div class="cd-side-card escalation" id="cdSideCard">
+              <div class="cd-side-card-header">
+                <div class="cd-side-card-title" id="cdSideTitle">Escalation on this case</div>
+                <div class="cd-side-card-time" id="cdSideTime">4m ago</div>
+              </div>
+              <div class="cd-side-card-id" id="cdSideId">C-2837</div>
+              <div class="cd-side-card-name" id="cdSideName">Recurring CRC error - TVM Edge</div>
+              <div class="cd-side-card-sub" id="cdSideSub">expires in 26 min · Tier 2 · confidence 87%</div>
+              <div class="cd-side-btns">
+                <button class="cd-btn-approve" id="cdSideBtnA" onclick="cdApprove()">Approve</button>
+                <button class="cd-btn-deny"    id="cdSideBtnD" onclick="cdDeny()">Deny</button>
+              </div>
+            </div>
+
+            <!-- AI chat prompt -->
+            <div class="cd-ai-prompt" onclick="openAiPanel()">
+              <div class="cd-ai-hello">Hello Fiona,</div>
+              <div class="cd-ai-sub">Ask anything about this case</div>
+            </div>
+          </div>
+
+        </div><!-- /cd-scroll -->
+      </div><!-- /cd-page -->
 
       <!-- POLICY & PERMISSIONS TAB -->
       <div class="canvas-area canvas-tab-content" id="tab-policy">
@@ -4260,39 +4634,175 @@
     renderCases(filtered);
   }
 
-  function openDrawer(idx) {
-    selectedRow = idx;
-    const c = casesData[idx];
+  function openDrawer(idx) { openCaseDetail(idx); }
+  function closeDrawer()    { closeCaseDetail(); }
+
+  /* ────────────────────────────────────────────
+     CASE DETAIL PAGE — matches 11.png
+  ──────────────────────────────────────────── */
+  const caseDetailData = [
+    { confidence:[92,78,60,72,85,91,88,94], gatesPassed:1, gatesTotal:1, gateRule:'Blast cap < 5%', gateRuleId:'guardrail:blast-radius', ledgerPass:true,
+      reasoning:[
+        {s:'done',label:'Detected',time:'14:06:56',agent:'remediation agent',conf:null,body:'BGP flap on Core RTR port 3/0/1 detected — 3σ above baseline. 412 raw events collapsed into one.',evidence:'EVIDENCE · bgp_flap_delta +412/min · peer_state=Idle · baseline window 14d'},
+        {s:'done',label:'Investigated',time:'14:03:56',agent:'remediation agent',conf:'87% · from 14 similar cases',body:'Route dampening analysed — convergence expected within 4m. No subscriber impact projected.',evidence:'EVIDENCE · dampening_halflife=30s · peer_hold_timer=90s'},
+        {s:'done',label:'Auto-remediation',time:'14:05:10',agent:'remediation agent',conf:null,body:'Route dampening applied. BGP re-converged at 14:09 UTC.',evidence:null}
+      ], sideTitle:'Auto-resolved', sideTime:'2m ago', sideSub:'Confidence 92% · Blast cap < 5% · no impact', showApprove:false },
+    { confidence:[15,18,22,58,72,48,68,88], gatesPassed:1, gatesTotal:1, gateRule:'Blast cap < 5%', gateRuleId:'guardrail:blast-radius', ledgerPass:true,
+      reasoning:[
+        {s:'done',label:'Detected',time:'14:06:56',agent:'remediation agent',conf:null,body:'CRC error rate on port 3/0/1 crossed 3σ above baseline. Anomaly opened as a case (not an alert flood — 412 raw events collapsed into one).',evidence:'EVIDENCE · crc_err_delta +412/min · optic_rx −2.1 dBm (nominal) · baseline window 14d'},
+        {s:'done',label:'Investigated',time:'14:03:56',agent:'remediation agent',conf:'87% · from 14 similar cases',body:'Optics nominal + CRC rising → software counter leak on line card 3. Reroute rejected: would push AGG-SW-11 to 91% load.',evidence:'EVIDENCE · crc_err_delta +412/min · optic_rx −2.1 dBm (nominal) · baseline window 14d'},
+        {s:'warn',label:'Escalated to human que',time:'14:03:56',agent:'policy agent',conf:null,body:'Tier-2 action exceeds autonomy threshold under Balanced mode. Approval card issued — expires 26 min after receipt. This is the 4th case on this optic this week; chronic flag attached.',evidence:null}
+      ], sideTitle:'Escalation on this case', sideTime:'4m ago', sideSub:'expires in 26 min · Tier 2 · confidence 87%', showApprove:true },
+    { confidence:[20,35,50,42,38,30,25,22], gatesPassed:0, gatesTotal:1, gateRule:'Blast cap < 5%', gateRuleId:'guardrail:blast-radius', ledgerPass:false,
+      reasoning:[
+        {s:'done',label:'Detected',time:'13:41:00',agent:'fault detection agent',conf:null,body:'BGP flap on secondary path. Route dampening attempted but convergence failed after 21m.',evidence:'EVIDENCE · bgp_state=Idle · peer=10.0.0.2 · elapsed 21m'},
+        {s:'fail',label:'Fix failed',time:'14:02:00',agent:'fault detection agent',conf:null,body:'Attempted route refresh — no convergence. Escalating to NOC.',evidence:'EVIDENCE · convergence_attempts: 4 · last_error: hold_timer_expired'}
+      ], sideTitle:'Fix failed', sideTime:'21m ago', sideSub:'Manual NOC intervention required', showApprove:false },
+    { confidence:[10,20,30,25,28,22,18,15], gatesPassed:0, gatesTotal:1, gateRule:'Thermal gate', gateRuleId:'guardrail:thermal', ledgerPass:false,
+      reasoning:[
+        {s:'done',label:'Detected',time:'13:20:00',agent:'fault detection agent',conf:null,body:'GPU cluster H100 node 6 at 94°C — thermal threshold breached.',evidence:'EVIDENCE · temp_sensor_6: 94°C · threshold: 85°C'},
+        {s:'fail',label:'Cooling failed',time:'13:32:00',agent:'fault detection agent',conf:null,body:'Fan controller unresponsive. Thermal protection triggered — node cordoned.',evidence:null}
+      ], sideTitle:'Thermal alert', sideTime:'12m ago', sideSub:'Node cordoned · cooling unit offline', showApprove:false },
+    { confidence:[88,91,87,92,95,93,90,94], gatesPassed:1, gatesTotal:1, gateRule:'Blast cap < 5%', gateRuleId:'guardrail:blast-radius', ledgerPass:true,
+      reasoning:[
+        {s:'done',label:'Remediation drafted',time:'13:05:00',agent:'route guard agent',conf:null,body:'Cordon + reroute strategy generated for spine-03 port 14.',evidence:'EVIDENCE · affected_flows: 12 · alt_path_capacity: 78%'},
+        {s:'done',label:'Applied',time:'13:08:00',agent:'route guard agent',conf:null,body:'Traffic rerouted. No subscriber impact. Verified 24h hold set.',evidence:null}
+      ], sideTitle:'Auto-resolved', sideTime:'3m ago', sideSub:'Confidence 95% · no subscriber impact', showApprove:false },
+    { confidence:[30,40,50,55,45,38,32,28], gatesPassed:0, gatesTotal:1, gateRule:'Policy gate', gateRuleId:'guardrail:policy', ledgerPass:false,
+      reasoning:[
+        {s:'done',label:'Restart attempted',time:'12:50:00',agent:'fault detection agent',conf:null,body:'Auto-restart on protected workload — policy violation detected.',evidence:'EVIDENCE · workload: svc-billing-01 · policy: no-auto-restart'},
+        {s:'fail',label:'Blocked by policy',time:'12:50:05',agent:'policy agent',conf:null,body:'Requires manual override with reason code.',evidence:null}
+      ], sideTitle:'Policy blocked', sideTime:'18m ago', sideSub:'Manual override required', showApprove:false },
+    { confidence:[25,30,28,32,27,24,22,20], gatesPassed:0, gatesTotal:1, gateRule:'Blast cap', gateRuleId:'guardrail:blast-radius', ledgerPass:false,
+      reasoning:[
+        {s:'done',label:'BGP flap detected',time:'12:30:00',agent:'fault detection agent',conf:null,body:'Tertiary path instability on core-02.',evidence:'EVIDENCE · path: tertiary · state: flapping'},
+        {s:'fail',label:'Fix failed',time:'12:51:00',agent:'fault detection agent',conf:null,body:'Route dampening ineffective — escalating.',evidence:null}
+      ], sideTitle:'Fix failed', sideTime:'29m ago', sideSub:'Escalating to NOC', showApprove:false },
+    { confidence:[85,88,91,93,95,92,90,94], gatesPassed:1, gatesTotal:1, gateRule:'Blast cap < 5%', gateRuleId:'guardrail:blast-radius', ledgerPass:true,
+      reasoning:[
+        {s:'done',label:'Link flap detected',time:'11:40:00',agent:'route guard agent',conf:null,body:'Spine-03 port 14 intermittent — 3 flaps in 5 minutes.',evidence:'EVIDENCE · flap_count: 3 · interval: 5m'},
+        {s:'done',label:'Auto-resolved',time:'11:52:00',agent:'route guard agent',conf:null,body:'Port bounced and stabilised. Verified 24h hold.',evidence:null}
+      ], sideTitle:'Auto-resolved', sideTime:'12m ago', sideSub:'Confidence 94% · port stabilised', showApprove:false },
+    { confidence:[40,50,60,55,45,38,42,48], gatesPassed:1, gatesTotal:1, gateRule:'Escalation gate', gateRuleId:'guardrail:escalation', ledgerPass:true,
+      reasoning:[
+        {s:'done',label:'OSPF adjacency lost',time:'11:10:00',agent:'fault detection agent',conf:null,body:'DC-Edge-01 peer unreachable — OSPF adjacency down.',evidence:'EVIDENCE · peer: 192.168.1.1 · last_seen: 34m ago'},
+        {s:'warn',label:'Escalated',time:'11:44:00',agent:'fault detection agent',conf:null,body:'Cannot auto-resolve — requires NOC intervention.',evidence:null}
+      ], sideTitle:'Awaiting human', sideTime:'34m ago', sideSub:'NOC paged · ticket #NOC-4421', showApprove:true },
+    { confidence:[78,82,85,88,90,92,89,91], gatesPassed:1, gatesTotal:1, gateRule:'Blast cap < 5%', gateRuleId:'guardrail:blast-radius', ledgerPass:true,
+      reasoning:[
+        {s:'done',label:'Memory threshold exceeded',time:'10:52:00',agent:'fault detection agent',conf:null,body:'AGT-09 at 91% memory — threshold 85%.',evidence:'EVIDENCE · mem_used: 91% · threshold: 85% · gc_eligible: yes'},
+        {s:'done',label:'GC triggered',time:'11:00:00',agent:'fault detection agent',conf:null,body:'Garbage collection freed 14% memory. Pressure resolved.',evidence:null}
+      ], sideTitle:'Auto-resolved', sideTime:'8m ago', sideSub:'Confidence 91% · memory freed', showApprove:false }
+  ];
+
+  let _currentCaseIdx = null;
+
+  function openCaseDetail(idx) {
+    _currentCaseIdx = idx;
+    const c  = casesData[idx];
+    const cd = caseDetailData[idx] || caseDetailData[1];
     if (!c) return;
-    document.getElementById('drawerTitle').textContent = c.name;
-    document.getElementById('drawerMeta').textContent  = `${c.id} · ${c.agent} · ${c.duration}`;
-    document.getElementById('drawerBody').innerHTML = `
-      <div class="at-drawer-section">
-        <div class="at-drawer-section-title">Case details</div>
-        <div class="at-drawer-row"><span class="at-drawer-key">Case ID</span><span class="at-drawer-val">${c.id}</span></div>
-        <div class="at-drawer-row"><span class="at-drawer-key">Outcome</span><span class="at-drawer-val"><span class="at-outcome ${outcomeCls(c.outcome)}">${c.outcome}</span></span></div>
-        <div class="at-drawer-row"><span class="at-drawer-key">Priority</span><span class="at-drawer-val"><span class="at-priority ${priorityCls(c.priority)}">${c.priority}</span></span></div>
-        <div class="at-drawer-row"><span class="at-drawer-key">Agent</span><span class="at-drawer-val">${c.agent}</span></div>
-        <div class="at-drawer-row"><span class="at-drawer-key">Duration</span><span class="at-drawer-val">${c.duration}</span></div>
-        <div class="at-drawer-row"><span class="at-drawer-key">Follow-up</span><span class="at-drawer-val">${c.followup}</span></div>
-      </div>
-      <div class="at-drawer-section">
-        <div class="at-drawer-section-title">Agent trace</div>
-        <div class="at-trace-steps">${c.trace.map(t => `
-          <div class="at-trace-item">
-            <div class="at-trace-dot ${t.s}">${t.s === 'done' ? '✓' : t.s === 'fail' ? '✕' : '!'}</div>
-            <div class="at-trace-text"><strong>${t.t}</strong>${t.d}</div>
-          </div>`).join('')}
+
+    // header
+    document.getElementById('cdTitle').textContent    = c.name;
+    document.getElementById('cdId').textContent       = c.id;
+    document.getElementById('cdDuration').textContent = c.duration;
+    document.getElementById('cdPriority').textContent = c.priority;
+    document.getElementById('cdAgent').textContent    = 'Agent: ' + c.agent;
+    document.getElementById('cdFollowup').textContent = c.followup;
+
+    const tagEl = document.getElementById('cdTag');
+    tagEl.textContent = c.tag || '';
+    tagEl.style.display = c.tag ? '' : 'none';
+    const seps = document.querySelectorAll('#cdMeta .cd-sep');
+    if (seps[1]) seps[1].style.display = c.tag ? '' : 'none';
+
+    const badge = document.getElementById('cdBadge');
+    badge.textContent = c.outcome;
+    badge.className = 'cd-escalation-badge';
+    if (c.outcome === 'Auto resolved')
+      badge.style.cssText = 'background:#f0fdf4;color:#166534;border-color:#86efac;font-size:11px;font-weight:500;padding:3px 10px;border-radius:4px;border:1px solid;white-space:nowrap;margin-top:4px;';
+    else if (c.outcome === 'Fix failed')
+      badge.style.cssText = 'background:#fef2f2;color:#b91c1c;border-color:#fca5a5;font-size:11px;font-weight:500;padding:3px 10px;border-radius:4px;border:1px solid;white-space:nowrap;margin-top:4px;';
+    else
+      badge.style.cssText = '';
+
+    document.getElementById('cdImpact').textContent = '~1200 users';
+
+    // sidebar
+    document.getElementById('cdSideTitle').textContent = cd.sideTitle;
+    document.getElementById('cdSideTime').textContent  = cd.sideTime;
+    document.getElementById('cdSideId').textContent    = c.id;
+    document.getElementById('cdSideName').textContent  = c.name;
+    document.getElementById('cdSideSub').textContent   = cd.sideSub;
+    document.querySelector('.cd-side-btns').style.display = cd.showApprove ? 'flex' : 'none';
+
+    // gates
+    document.getElementById('cdGatesPassed').textContent = cd.gatesPassed;
+    document.getElementById('cdGateRule').textContent    = cd.gateRule;
+    document.getElementById('cdGateRuleId').textContent  = cd.gateRuleId;
+
+    // ledger
+    document.getElementById('cdLedgerRow').className  = 'cd-ledger-row' + (cd.ledgerPass ? '' : ' failed');
+    document.getElementById('cdLedgerIcon').className = 'cd-ledger-icon' + (cd.ledgerPass ? '' : ' fail');
+    document.getElementById('cdLedgerIcon').textContent = cd.ledgerPass ? '✓' : '✕';
+    document.getElementById('cdLedgerName').className = 'cd-ledger-name' + (cd.ledgerPass ? '' : ' fail');
+    document.getElementById('cdLedgerName').textContent = cd.gateRule;
+    document.getElementById('cdLedgerSub').textContent  = cd.gateRuleId;
+    document.getElementById('cdLedgerResult').textContent = cd.ledgerPass ? 'Yes' : 'No';
+
+    // reasoning steps
+    document.getElementById('cdReasoningSteps').innerHTML = cd.reasoning.map(r => `
+      <div class="cd-reason-step">
+        <div class="cd-reason-dot ${r.s}"></div>
+        <div class="cd-reason-right">
+          <div class="cd-reason-header ${r.s === 'warn' ? 'warn' : ''}">
+            <span>${r.label}</span>
+            <span class="cd-reason-time">· ${r.time}</span>
+            <span class="cd-reason-agent">· by ${r.agent}</span>
+            ${r.conf ? `<span class="cd-reason-conf">${r.conf}</span>` : ''}
+          </div>
+          <div class="cd-reason-body">${r.body}</div>
+          ${r.evidence ? `<div class="cd-evidence">${r.evidence}</div>` : ''}
         </div>
-      </div>`;
-    document.getElementById('caseDrawer').classList.add('open');
-    renderCases(casesData);
+      </div>`).join('');
+
+    // show page
+    document.getElementById('caseDetailPage').classList.add('visible');
+
+    // animate chart
+    const xs=[30,82,134,186,238,290,342,394], yMax=118, range=108;
+    const vy = v => yMax - (v/100)*range;
+    const pts = cd.confidence.map((v,i)=>[xs[i],vy(v)]);
+    const line = `M${pts.map(p=>p.join(',')).join(' L')}`;
+    const area = `${line} L${xs[cd.confidence.length-1]},${yMax} L${xs[0]},${yMax} Z`;
+    document.getElementById('cdConfArea').setAttribute('d', area);
+    document.getElementById('cdConfLine').setAttribute('d', line);
+    const clip = document.getElementById('cdClipRect');
+    clip.setAttribute('width','0');
+    clip.style.transition = 'none';
+    requestAnimationFrame(()=>{ clip.style.transition='width 0.9s cubic-bezier(.4,0,.2,1)'; clip.setAttribute('width','420'); });
+
+    // animate gates bar
+    document.getElementById('cdGatesBar').style.width = '0%';
+    setTimeout(()=>{ document.getElementById('cdGatesBar').style.width = (cd.gatesPassed/cd.gatesTotal*100)+'%'; }, 120);
   }
 
-  function closeDrawer() {
-    document.getElementById('caseDrawer').classList.remove('open');
-    selectedRow = null;
-    renderCases(casesData);
+  function closeCaseDetail() {
+    document.getElementById('caseDetailPage').classList.remove('visible');
+    _currentCaseIdx = null;
+  }
+
+  function cdApprove() {
+    const c = _currentCaseIdx !== null ? casesData[_currentCaseIdx] : null;
+    closeCaseDetail();
+    showToast('✓ Approved — executing remediation on ' + (c ? c.name : 'case'), 'green');
+    setTimeout(()=>showToast('Remediation complete. All subscribers restored.','green'), 2800);
+  }
+
+  function cdDeny() {
+    closeCaseDetail();
+    showToast('✕ Denied — case escalated back to queue', 'orange');
   }
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -4308,7 +4818,7 @@
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('open'));
-      closeDrawer();
+      closeCaseDetail();
       closeDropdown();
     }
   });
