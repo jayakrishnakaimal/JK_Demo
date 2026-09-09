@@ -695,9 +695,8 @@ Opened via the **gradient mic trigger button** (bottom-right corner of canvas, `
 | Search | Live filter by case name/ID |
 | Filters | 4 dropdowns: Status · Agent · Priority · Time range |
 | Cases table | 10 rows — name, case ID, tag, agent, priority badge, outcome badge, timestamp |
-| Row interaction | Click → slide-in detail drawer from right |
-| Drawer | Agent trace steps (Observe → Correlate → Plan → Act → Verify), meta, close button |
-| Keyboard | `Esc` closes drawer |
+| Row interaction | Click → opens full-page **Case Detail** view (replaces old drawer) |
+| `Esc` / back arrow | `closeCaseDetail()` returns to trace list |
 
 **Cases data** (10 rows):
 
@@ -713,6 +712,67 @@ Opened via the **gradient mic trigger button** (bottom-right corner of canvas, `
 | C-2833 | DNS resolution fixed | Net Agent | P3 | Auto resolved |
 | C-2832 | TLS handshake retried | Cert Watcher | P3 | Auto resolved |
 | C-2831 | CPU throttle adjusted | Perf Agent | P2 | Escalation |
+
+---
+
+### Case Detail Page (`#caseDetailPage`) — `11.png` · `12.png`
+
+Full-page overlay that slides over the Agentic Trace tab (`position:absolute; inset:0` inside `#tab-agentic`) so the top nav remains visible. Opened by `openCaseDetail(idx)`, closed by `closeCaseDetail()`.
+
+**Layout:** `#cdMain` (flex:1, scrollable) + `#cdSidebar` (340px fixed right)
+
+#### Main panel — left column
+
+| Section | Detail |
+|---|---|
+| **Back button** | `← Back to cases` — calls `closeCaseDetail()` |
+| **Case header** | Case name (h1, 22px/600) · outcome badge · case ID + timestamp |
+| **Confidence chart** | SVG with gradient area fill + animated line draw-in (0.9s cubic-bezier). Clip-path `<rect>` animates `width: 0 → 420` on open. Y-axis 50–100%, 10 data points per case |
+| **Approval gates bar** | `#cdGatesBar` animates width 0 → % of gates passed (120ms delay, 0.5s transition). Label shows "N / M gates passed" |
+| **Gate ledger row** | Single `cd-ledger-row` card: green (`#f0fdf4` / `#bbf7d0`) or red-tinted (`#fef2f2` / `#fecaca`) depending on `ledgerPass`. Icon circle: green `#22c55e` or red `#ef4444`. |
+| **Decision reasoning** | 3–5 numbered steps (`cd-reason-step`), each with icon, title, and narrative text drawn from `caseDetailData` |
+| **Impact badge** | Amber pill: "~1 200 users" or "~600 users" etc. |
+
+#### Sidebar — right column (340px)
+
+**Escalation / Action card** (`.cd-side-card`) — matches `12.png` exactly:
+
+| Property | Value |
+|---|---|
+| Background | `#fdfaf0` (warm cream) |
+| Border | `1px solid #dbb84a` (gold) |
+| Border radius | `8px` |
+| Title | `15px / 600`, `#1a1a1a` |
+| Time | `13px / #9ca3af`, right-aligned, baseline-aligned with title |
+| Case ID | `13px / #6b7280` below title row |
+| Divider | `<hr class="cd-side-divider">` — `1px solid #ebe3c0`, `margin:14px 0 16px` |
+| Name | `17px / 400 / #111827` (the case title) |
+| Sub-line | `13px / #d97706` amber — expires · tier · confidence |
+
+**Action buttons** (`.cd-side-btns`) — always visible, labels set by `openCaseDetail` based on case outcome:
+
+| Outcome | Approve button | Deny button |
+|---|---|---|
+| Escalation (`showApprove:true`) | **Approve** | **Deny** |
+| Auto resolved | **Mark reviewed** | **Reopen** |
+| Fix failed | **Retry fix** | **Escalate** |
+| Other | **Approve** | **Dismiss** |
+
+**Button micro-interactions** (ripple + spinner → success):
+- **Click** → `_cdRipple()` spawns a `.cd-ripple` span at click coordinates (`cdRipple` animation, 0.55s ease-out, scale × 4)
+- **Loading state** → spinner (`btnSpinRot` 0.7s) + "Processing…"; opposite button dims to `opacity:0.4` and disabled
+- **Approve success** → green `#16a34a` + "✓ Approvedd" + `successPulse` scale animation → toast → `closeCaseDetail()` 1s later
+- **Deny dismissed** → grey `#f9fafb / #6b7280` + "dismissed" text → toast → `closeCaseDetail()` 900ms later
+
+**Inline AI chat** (`.cd-chat-box`):
+- Compact chat widget below the action card; user `F` avatar + agent `AI` avatar
+- 4 suggestion chips (canned questions about the case)
+- Keyword-matched responses from `cdChatResponses` object (5 keys + default)
+- Typing indicator (`.cd-chat-typing`) with 3 bouncing dots before agent reply
+
+#### `caseDetailData` (10 entries, mirrors `casesData`)
+
+Each entry provides: `sideTitle`, `sideTime`, `sideSub`, `showApprove`, `confidence[]` (10 data-points), `reasoningSteps[]`, `gatesPassed`, `gatesTotal`, `gateRule`, `gateRuleId`, `ledgerPass`, `ledgerName`
 
 ---
 
@@ -813,6 +873,41 @@ Risk Exposure · Time to remediate · Tool calls / task · Autonomy · Human rev
 
 ---
 
+### QA Chart Micro-Interactions (5 effects + skeleton loader)
+
+All 6 layers are wired through the `handleQuickAction` wrapper pattern (overrides the original function via `_origHandleQuickAction`).
+
+#### Skeleton loader (effect 6 — fires first)
+When a quick-action button is clicked, a `.qa-skeleton` overlay is injected into `#qaChartWrap` **before** the chart renders:
+- 20 grey bars (`#e5e7eb → #d1d5db`) at staggered heights, with `skeletonPulse` (0.55 ↔ 1.0 opacity, 1.1s ease-in-out) and staggered `animation-delay` per group of 5
+- Centred SVG spinner (`stroke-dasharray:45 20`, `spinnerRot` 0.8s linear infinite) over the bars
+- Chart renders after **620ms**; skeleton fades out (`opacity:0`, 320ms) then is removed from DOM
+
+#### Effect 1 — Mouse trail canvas
+- `<canvas class="qa-trail-canvas" id="qaTrailCanvas">` sits `position:absolute; inset:0; z-index:2` over the SVG
+- `initTrailCanvas()` sizes it to `wrap.clientWidth × wrap.clientHeight`; `ResizeObserver` resizes on layout change
+- `_drawTrail()` RAF loop: each frame clears canvas, filters points by `a > 0.02`, draws circles with `rgba(rgb, a)`, decays `a *= 0.88` and `r *= 1.04`
+- 4-colour palette: indigo `99,102,241` · blue `59,130,246` · green `16,185,129` · amber `245,158,11`
+- Points capped at 60
+
+#### Effect 2 — Particle burst on click
+- `qaSpawnParticles(e)` spawns 7 `.qa-particle` divs at click coordinates inside `#qaChartWrap`
+- Each particle: random colour from 5-colour palette, angle spread `2π/7 * i`, distance 22–42px, `particleFly` animation (0.7s ease-out): `translate + scale(0.3) + opacity:0`, `--pfly` CSS var
+- Particles are `position:absolute; border-radius:50%; z-index:4` and self-remove after `animationend`
+
+#### Effect 3 — Shimmer sweep
+- `qaRunShimmer()` appends a `.qa-shimmer` div: 80px wide translucent strip (`rgba(255,255,255,0.5)` gradient), `animates shimmerSweep` (1s ease-in-out, left: -80px → calc(100% + 80px)), removed on `animationend`
+
+#### Effect 4 — KPI count-up pop-in
+- `qaAnimateKpis()` staggers `.qa-insight-kpi` pop-in: `kpiPop` (scale 0.8 → 1.06 → 1, opacity 0→1, 0.45s cubic-bezier), 80ms + 110ms × index delay
+- Each `.qa-insight-kpi-val` numeric value counts up from 0 over 700ms using `requestAnimationFrame` with `1 - (1-t)³` easing; decimal-aware; preserves unit suffix `<span>`
+
+#### Effect 5 — SVG pulse rings
+- `qaAddPulseRings(svg, points, color)` appends `<circle>` elements to the SVG at data-point coordinates
+- Each circle: `class="qa-pulse-ring"`, `pulseRing` animation (r: 5→14, stroke-opacity: 0.7→0, 1.4s ease-out infinite), random `animation-delay` 0–0.8s
+
+---
+
 ### JavaScript functions (`headless.html`)
 
 | Function | Purpose |
@@ -820,7 +915,8 @@ Risk Exposure · Time to remediate · Tool calls / task · Autonomy · Human rev
 | `switchTab(id, btn)` | Shows active tab panel; triggers `animateDonut()`, `initTrend()`, `initAtStats()` on respective tabs; hides right panel on `agentic`/`policy` tabs |
 | `switchPPTab(tab, btn)` | Switches Studio ↔ Configuration Testing sub-tabs; hides `pp-right` on config tab |
 | `cycleBadge(btn)` | Cycles permission badge: Auto → Ask → Approval → Auto |
-| `openDrawer(i)` / `closeDrawer()` | Opens/closes agentic trace detail drawer |
+| `openCaseDetail(idx)` | Opens full-page case detail overlay; populates confidence chart, gates bar, ledger, reasoning, sidebar card + buttons (context-aware labels) |
+| `closeCaseDetail()` | Removes `.visible` from `#caseDetailPage`; clears `_currentCaseIdx` |
 | `renderCases(data)` / `filterCases()` | Renders + live-filters cases table by search + 4 dropdowns |
 | `showToast(msg, type)` | Shows temporary toast notification (green/blue/orange) |
 | `initRadar()` | Draws 8-axis interactive SVG radar chart; polygon hover, legend toggle, floating tooltip |
@@ -829,7 +925,16 @@ Risk Exposure · Time to remediate · Tool calls / task · Autonomy · Human rev
 | `initTimeline()` | Draws activity timeline; draw-in animation; hover crosshair; marker click popovers; time-tab switching |
 | `initAtStats()` | Count-up pop-in on agentic tab open; staggered delay; red pulse glow; amber shimmer |
 | `initStatValues()` | Animates confidence + fleet health stats on load |
-| `handleQuickAction(action, btn)` | Shows `#qaPanel`; marks active button; populates KPI sidebar; draws SVG chart |
+| `handleQuickAction(action, btn)` | Wrapper: shows skeleton → renders chart after 620ms → hides skeleton → fires all 5 micro-interaction effects |
+| `qaShowSkeleton()` | Injects `.qa-skeleton` overlay (20 shimmer bars + SVG spinner) into `#qaChartWrap` |
+| `qaHideSkeleton()` | Fades out and removes `.qa-skeleton` (300ms opacity transition) |
+| `qaRunShimmer()` | Appends shimmer sweep div to `#qaChartWrap`; self-removes after 1s |
+| `qaAnimateKpis()` | Stagger-animates `.qa-insight-kpi` pop-in; count-up for all `.qa-insight-kpi-val` numerics |
+| `qaBindChartInteractions()` | One-time bind of mousemove (trail) + click (particles) + ResizeObserver to `#qaChartWrap` |
+| `qaShowSkeleton()` / `qaHideSkeleton()` | Skeleton loader: show before chart renders; fade-remove after |
+| `qaTrailMove(e)` | Pushes `{x,y,r,a,rgb}` point onto `_trailPoints`; capped at 60 |
+| `qaSpawnParticles(e)` | Spawns 7 animated particle divs at click coords in `#qaChartWrap` |
+| `qaAddPulseRings(svg, pts, color)` | Appends animated pulse-ring circles to SVG at given data-point coords |
 | `closeQaPanel()` | Hides panel; clears active button state |
 | `drawLatencyChart(wrap)` | Draws multi-line latency time-series SVG (30 data points × 3 agents) |
 | `drawC4Chart(wrap)` | Draws horizontal bar chart SVG (13 nodes, health %) |
@@ -859,6 +964,32 @@ Risk Exposure · Time to remediate · Tool calls / task · Autonomy · Human rev
 | `aiAddUserMsg(text)` | Appends user bubble; adds `has-chat` class to panel |
 | `aiShowTyping()` | Appends 3-dot typing indicator bubble (`#aiTypingMsg`) |
 | `aiAddAgentMsg(resp)` | Removes typing indicator; appends agent bubble with text + KPI chips |
+| `_cdRipple(btn, e)` | Spawns `.cd-ripple` span at click coords; removes self after `cdRipple` animation ends |
+| `cdApprove(e)` | Ripple → spinner/disabled → green success state → toast → `closeCaseDetail()` (1.4s + 1s) |
+| `cdDeny(e)` | Ripple → spinner/disabled → grey dismissed state → toast → `closeCaseDetail()` (1.1s + 0.9s) |
+| `cdChatSend()` | Reads sidebar chat input; adds user bubble, hides chips, shows typing, fires agent reply after 1.2s |
+| `cdChatChip(chip)` | Sidebar suggestion chip click — same flow as `cdChatSend` |
+| `_cdGetResponse(text)` | Keyword-matches sidebar chat input to `cdChatResponses` (5 keys + default) |
+| `_cdChatAddUser(text)` / `_cdChatAddAgent(resp)` | Appends user/agent bubbles to `.cd-chat-msgs` |
+| `_cdChatTyping()` | Shows typing indicator in sidebar chat; removed when agent reply arrives |
+
+---
+
+### CSS animations in `headless.html`
+
+| Keyframe | Used by | Effect |
+|---|---|---|
+| `skeletonPulse` | `.qa-skeleton-bar` | Opacity 0.55 ↔ 1, 1.1s ease-in-out — pulsing shimmer bars |
+| `spinnerRot` | `.qa-skeleton-spinner circle` | `stroke-dashoffset` → -80, 0.8s linear — rotating arc |
+| `shimmerSweep` | `.qa-shimmer` | left: -80px → 100%+80px, 1s ease-in-out |
+| `pulseRing` | `.qa-pulse-ring` | r: 5→14, stroke-opacity: 0.7→0, 1.4s ease-out infinite |
+| `drawLine` | `.qa-line-anim` | stroke-dashoffset 3000→0, 1.1s cubic-bezier |
+| `areaFadeIn` | `.qa-area-anim` | opacity 0→1, 0.7s ease, 0.7s delay |
+| `kpiPop` | `.qa-kpi-pop` | scale 0.8→1.06→1, opacity 0→1, 0.45s cubic-bezier |
+| `particleFly` | `.qa-particle` | translate + scale 0.3 + opacity 0, 0.7s ease-out |
+| `cdRipple` | `.cd-ripple` | scale 1→4, opacity 0, 0.55s ease-out |
+| `btnSpinRot` | `.cd-btn-spinner` | rotate 360°, 0.7s linear infinite |
+| `successPulse` | `.cd-btn-approve.success` | scale 0.7→1.15→1, opacity 0→1, 0.35s cubic-bezier |
 
 ---
 
@@ -927,8 +1058,8 @@ Risk Exposure · Time to remediate · Tool calls / task · Autonomy · Human rev
 │       ├── Pillar architecture JS      ~3137–3214
 │       └── Direction micro-interactions ~3215–3410
 │
-├── headless.html                       ← HEADLESS AI DASHBOARD (~4500 lines)
-│   ├── CSS (lines 8–2000)
+├── headless.html                       ← HEADLESS AI DASHBOARD (~6200 lines)
+│   ├── CSS (lines 8–2100)
 │   │   ├── Body gradient + base          ~8–42
 │   │   ├── Top nav                       ~44–165
 │   │   ├── Stats bar + badges            ~166–265
@@ -943,44 +1074,55 @@ Risk Exposure · Time to remediate · Tool calls / task · Autonomy · Human rev
 │   │   │   ├── .ai-input-row / wrap      ~612–660
 │   │   │   └── .ai-suggestions / chip    ~662–640
 │   │   ├── Quick-action panel (.qa-*)    ~640–730
-│   │   ├── Drag states + drop panel      ~730–1060
-│   │   │   ├── .action-card drag CSS     ~730–760
-│   │   │   ├── .drag-hint                ~762–770
-│   │   │   ├── .canvas-viewport.drag-over ~772–790
-│   │   │   └── .drop-panel + dp-*        ~792–1060
-│   │   ├── Agentic trace (.at-*)         ~1060–1350
-│   │   ├── Right panel + action cards    ~1350–1510
-│   │   ├── Timeline CSS                  ~1510–1600
-│   │   ├── Policy & Permissions (.pp-*)  ~1600–1850
-│   │   └── Config testing tab (.ct-*)    ~1850–2000
-│   ├── Top nav HTML                      ~2000–2060
-│   ├── Canvas tab HTML                   ~2060–2380
-│   │   ├── Greeting + quick buttons      ~2155–2195
-│   │   ├── #qaPanel (insight + chart)    ~2197–2220
-│   │   ├── AI mic trigger button         ~2222–2232
-│   │   ├── #aiPanel (orb + chat + input) ~2234–2310
-│   │   └── #dropPanel (drop detail)      ~2312–2340
-│   ├── Agentic trace tab HTML            ~2380–2500
-│   ├── Policy & Permissions tab HTML     ~2500–2700
-│   ├── Right panel (3 draggable cards)   ~2560–2760
-│   │   ├── Card 1: restart (data-card)   ~2565–2630
-│   │   ├── Card 2: chronic (data-card)   ~2632–2680
-│   │   └── Card 3: timeline (data-card)  ~2682–2760
-│   └── <script> block                    ~2760–end (~4500)
-│       ├── switchTab / initStatValues    ~2767–3000
-│       ├── animateDonut                  ~3000–3050
-│       ├── openDrawer / closeDrawer      ~3050–3110
-│       ├── renderCases / filterCases     ~3110–3240
-│       ├── showToast / region / modals   ~3250–3490
-│       ├── initTimeline                  ~3490–3700
-│       ├── initTrend                     ~3700–3800
-│       ├── initRadar (interactive SVG)   ~3800–3840
-│       ├── Config testing (CT_SCENARIOS) ~3840–3920
-│       ├── closeQaPanel / handleQuickAction ~3920–3990
-│       ├── drawLatencyChart / drawC4Chart / drawRcaChart ~3990–4130
-│       ├── hover helpers (qaLatHov etc.) ~4130–4150
-│       ├── AI panel (openAiPanel … aiAddAgentMsg) ~4150–4350
-│       └── initDragDrop + dropCardData + drop handlers ~4350–4500
+│   │   ├── QA chart micro-interaction CSS ~730–800
+│   │   │   ├── .qa-skeleton + bars       ~800–835
+│   │   │   ├── shimmerSweep / pulseRing  ~735–760
+│   │   │   ├── kpiPop / particleFly      ~770–790
+│   │   │   └── skeletonPulse / spinnerRot ~800–840
+│   │   ├── Drag states + drop panel      ~840–1095
+│   │   ├── Agentic trace (.at-*)         ~1095–1210
+│   │   ├── #tab-agentic (position:relative) ~1210–1215
+│   │   ├── Case detail (.cd-page, .cd-main, .cd-sidebar) ~1215–1530
+│   │   │   ├── .cd-side-card (12.png)    ~1430–1520
+│   │   │   ├── .cd-side-btns + buttons   ~1487–1610
+│   │   │   ├── Ripple + spinner CSS      ~1560–1615
+│   │   │   └── .cd-chat-box              ~1615–1700
+│   │   ├── Right panel + action cards    ~1700–1850
+│   │   ├── Timeline CSS                  ~1850–1940
+│   │   ├── Policy & Permissions (.pp-*)  ~1940–2070
+│   │   └── Config testing tab (.ct-*)    ~2070–2140
+│   ├── Top nav HTML                      ~2140–2200
+│   ├── Canvas tab HTML                   ~2580–2960
+│   │   ├── Greeting + quick buttons      ~2800–2930
+│   │   ├── #qaPanel (insight + chart + canvas) ~2932–2950
+│   │   ├── AI mic trigger button         ~2953–2965
+│   │   ├── #aiPanel (orb + chat + input) ~2965–3040
+│   │   └── #dropPanel (drop detail)      ~3040–3120
+│   ├── Agentic trace tab HTML            ~3120–3220
+│   ├── #caseDetailPage (inside #tab-agentic) ~3038–3400
+│   │   ├── #cdMain (confidence chart, gates, ledger, reasoning) ~3040–3270
+│   │   └── #cdSidebar (cd-side-card, cd-side-btns, cd-chat-box) ~3270–3400
+│   ├── Policy & Permissions tab HTML     ~3400–3600
+│   ├── Right panel (3 draggable cards)   ~3600–3800
+│   └── <script> block                    ~3800–end (~6215)
+│       ├── switchTab / initStatValues    ~3810–4000
+│       ├── animateDonut / initTrend      ~4000–4100
+│       ├── openCaseDetail / closeCaseDetail ~4100–4400
+│       │   ├── caseDetailData[10]        ~4100–4200
+│       │   └── confidence chart + gates animation ~4270–4310
+│       ├── _cdRipple / cdApprove / cdDeny ~4350–4420
+│       ├── cdChatSend / cdChatChip / responses ~4420–4510
+│       ├── renderCases / filterCases     ~4510–4640
+│       ├── showToast / region / modals   ~4650–4770
+│       ├── initTimeline / initTrend      ~4770–4850
+│       ├── initRadar (interactive SVG)   ~4850–4900
+│       ├── Config testing (CT_SCENARIOS) ~4900–4970
+│       ├── closeQaPanel / _origHandleQuickAction wrapper ~4970–5000
+│       ├── QA micro-interactions (trail, particles, shimmer, kpi, rings, skeleton) ~5000–5070
+│       ├── drawLatencyChart / drawC4Chart / drawRcaChart ~5070–5200
+│       ├── hover helpers (qaLatHov etc.) ~5200–5250
+│       ├── AI panel (openAiPanel … aiAddAgentMsg) ~5250–5450
+│       └── initDragDrop + dropCardData + drop handlers ~5450–5600
 │
 ├── uxr_plan.html                       ← UXR CONCEPT TESTING PLAN (~1460 lines)
 │   ├── Carbon CSS tokens + component styles  lines 10–625
@@ -1022,6 +1164,9 @@ Risk Exposure · Time to remediate · Tool calls / task · Autonomy · Human rev
 ├── 08.png      ← headless.html reference: pp-right knobs section
 ├── 09.png      ← headless.html reference: Configuration Testing tab
 ├── 10.png      ← headless.html reference: AI voice/chat panel orb design
+├── 11.png      ← headless.html reference: Case detail full page
+├── 12.png      ← headless.html reference: cd-side-card escalation card
+├── 13.png      ← headless.html reference: (reserved for next feature)
 │
 └── desgin-for-invisible-ui (1).pptx   ← Source presentation (25 slides)
 ```
