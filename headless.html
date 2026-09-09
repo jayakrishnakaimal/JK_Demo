@@ -5488,6 +5488,17 @@
     initRadar();
     initStatValues();
     initTimeline();
+
+    // ── personalise greeting from login ──
+    const storedName = localStorage.getItem('haiDashFirstName');
+    if (storedName) {
+      const greetH1 = document.querySelector('.greeting h1');
+      if (greetH1) {
+        const hour = new Date().getHours();
+        const tod  = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+        greetH1.textContent = 'Hello ' + storedName + ', ' + tod;
+      }
+    }
   });
 
   /* ────────────────────────────────────────────
