@@ -606,10 +606,11 @@ A companion **concept testing plan** for validating the three novel UI surfaces 
   - **"What's causing the latency spike?"** → `handleQuickAction('latency', this)`
   - **"Show me cluster C4 status"** → `handleQuickAction('c4', this)`
   - **"Run root cause analysis"** → `handleQuickAction('rca', this)`
-- **Right panel** (always visible on Canvas): two floating action cards + Activity Timeline
-  - Card 1: Restart line card — restart prompt with Approve/Dismiss
-  - Card 2: CHRONIC TVM-EDGE-04 — severity badge, confidence bar, agent chain
-  - Timeline: 4 timestamped events with colour-coded icons
+- **Right panel** (always visible on Canvas): three draggable action cards + Activity Timeline
+  - Card 1 (`data-card="restart"`): Restart line card — P1, approve/escalate
+  - Card 2 (`data-card="chronic"`): CHRONIC TVM-EDGE-04 — P2, 4th failure
+  - Card 3 (`data-card="timeline"`): Activity Timeline — draggable with 6h event summary
+  - All three cards have drag-hint label + 4-dot handle icon
 
 #### Quick-Action Panel (`#qaPanel`)
 
@@ -629,6 +630,60 @@ Slides up over the canvas viewport (`position:absolute; inset:15px` when `.visib
 - **C4 bar chart:** 13 horizontal bars with background track, red dashed minimum threshold at 80%, per-bar hover with name + health % + status
 - **RCA stacked area:** 3 stacked areas (Hardware red, Config Drift amber, Load Spike blue) over 13 × 6h steps, per-column hover with breakdown values
 - Close button (✕) calls `closeQaPanel()` — hides panel + clears active button state
+
+#### Drag-and-Drop Action Cards → Canvas (`#dropPanel`)
+
+All three right-panel cards (`restart`, `chronic`, `timeline`) are draggable onto the canvas viewport. While dragging, the canvas shows a **pulsing blue dashed border** ("Drop here to expand"). On drop, `#dropPanel` appears (`position:absolute; inset:15px`, scale-in transition) with four sections:
+
+| Section | Content |
+|---|---|
+| **Key Metrics** | 4 large thin-number KPI cards coloured by status |
+| **Classification** | Coloured pill tags (fault type, pattern, escalation path) |
+| **Agent Reasoning Trace** | 5 numbered steps with full narrative |
+| **Confidence Breakdown** | Animated bars fill from 0% on drop, colour-coded per factor |
+
+| Card | Severity | Metrics | Actions |
+|---|---|---|---|
+| `restart` | P1 | Blast radius 1 200 subs · Confidence 87% · Recovery < 8 min | Approve restart · Escalate to L2 |
+| `chronic` | P2 | 4 failures this week · Avg interval 3.1h · RCA confidence 91% | Approve replace · Page on-call |
+| `timeline` | INFO | 40 events · 33 auto-resolved · 4 escalated · 3 active | Export report · Page on-call |
+
+#### AI Voice / Chat Panel (`#aiPanel`) — `10.png`
+
+Opened via the **gradient mic trigger button** (bottom-right corner of canvas, `position:absolute; bottom:44px; right:28px`).
+
+**Idle state** (matches `10.png` exactly):
+- Blue-gradient background (`linear-gradient(160deg, #eef4fb, #ddeaf5, #c8dff0)`)
+- Centred blue-purple gradient sphere (`130px`) inside a white ring (`170px`) with ambient radial glow
+- *"Ask me anything"* (22px, weight 300) · *"Click on the mic to speak"* (13px muted)
+- 5 suggestion chips in **quick-btn style** (white frosted, `border-radius:4px`, blue hover lift)
+
+**Listening state** (`.listening` class on `#aiPanel`):
+- Orb shows two staggered ripple rings (CSS `@keyframes ripple`)
+- 5-bar waveform bounces below the orb (`@keyframes dotBounce`)
+- Ambient glow pulses faster (1.2s vs 3s idle)
+- Title → *"Listening…"* / subtitle → *"Speak now"*
+- Mic button pulses (`@keyframes voicePulse`)
+- Uses **Web Speech API** (`SpeechRecognition`) — falls back to demo simulation on unsupported browsers
+
+**Chat mode** (`.has-chat` class):
+- Orb compacts to top; chat messages fill centre (`flex:1`, `overflow-y:auto`)
+- Suggestion chips hidden
+- User bubbles: white frosted glass, right-aligned, `F` avatar (blue circle)
+- Agent bubbles: blue-tinted frosted glass, left-aligned, `AI` avatar (gradient circle)
+- Typing indicator: 3 bouncing dots (`@keyframes typeDot`) before response
+- Responses include coloured **KPI chips** (`green`/`amber`/`red`/default indigo)
+
+**5 canned responses (keyword-matched):**
+
+| Keyword | Response topic |
+|---|---|
+| `latency` | TVM-EDGE-04 port 4/2 spike — peak 284ms, confidence 87%, recovery < 8 min |
+| `c4` / `cluster` | Cluster C4 — 12/13 healthy, Agent-06 soft breach 61% |
+| `root cause` / `rca` | 72h analysis — hardware 47%, config drift 31%, load spike 22% |
+| `case` / `week` | 40 cases — 33 auto-resolved, 4 escalated, 3 active |
+| `confidence` / `score` / `health` | 95% confidence, 94% fleet health, SLA 80% threshold |
+| *(default)* | General telemetry status + TVM-EDGE-04 note |
 
 ---
 
@@ -787,6 +842,23 @@ Risk Exposure · Time to remediate · Tool calls / task · Autonomy · Human rev
 | `renderTopo()` | Draws animated network topology SVG (7 nodes) |
 | `closeDropdown()` / `selectRegion(name)` | Region dropdown open/close/select |
 | `openApproveModal` / `confirmApprove` / `confirmEscalate` | Action card modal flow |
+| `initDragDrop()` | Wires dragstart/dragend on all `[draggable]` cards; dragover/drop on canvas viewport |
+| `openDropPanel(cardId)` | Populates + shows `#dropPanel` with card-specific KPIs, trace, confidence bars, tags |
+| `closeDropPanel()` | Hides `#dropPanel` |
+| `confirmDropApprove(cardId)` | Approve action from drop panel — fires toast (timeline branch: export toast) |
+| `confirmDropEscalate()` | Escalate from drop panel — fires orange toast |
+| `openAiPanel()` | Shows `#aiPanel` with `.visible` class |
+| `closeAiPanel()` | Hides panel; removes `listening`/`has-chat`; resets orb labels; stops recognition |
+| `toggleAiListen()` | Toggles listening state; starts/stops Speech Recognition; updates orb title + sub |
+| `startRecognition()` | Starts Web Speech API; falls back to 2s demo simulation on unsupported browsers |
+| `stopRecognition()` | Stops recognition; clears fallback timer |
+| `stopListenState()` | Clears listening UI state and stops recognition |
+| `aiSendText()` | Reads text input; calls `aiAddUserMsg` + `aiShowTyping` + delayed `aiAddAgentMsg` |
+| `aiSuggest(chip)` | Suggestion chip click — same flow as `aiSendText` |
+| `getAiResponse(text)` | Keyword-matches input to canned response object (`text` + `chips[]`) |
+| `aiAddUserMsg(text)` | Appends user bubble; adds `has-chat` class to panel |
+| `aiShowTyping()` | Appends 3-dot typing indicator bubble (`#aiTypingMsg`) |
+| `aiAddAgentMsg(resp)` | Removes typing indicator; appends agent bubble with text + KPI chips |
 
 ---
 
@@ -795,7 +867,7 @@ Risk Exposure · Time to remediate · Tool calls / task · Autonomy · Human rev
 | Token | Value | Used for |
 |---|---|---|
 | Body gradient | `linear-gradient(160deg, #f8fafd → #f3f6fb → #ddeaf5 → #b8d4e8 → #9ec8e0)` fixed | Full-page background |
-| Accent blue | `#2563eb` | Tab active border, donut, quick-action buttons |
+| Accent blue | `#2563eb` | Tab active border, donut, quick-action + suggestion buttons |
 | Dark green | `#166534` | Knob values, stat percentages, chart KPI values |
 | Red alert | `#dc2626` | Agent-04 latency line, hardware RCA area, at-stat pulse |
 | Amber | `#d97706` | Agent-06 latency line, config-drift RCA area, at-stat shimmer |
@@ -805,8 +877,12 @@ Risk Exposure · Time to remediate · Tool calls / task · Autonomy · Human rev
 | Border | `#e5e7eb` | Panel dividers, chart grid lines |
 | Surface frosted | `rgba(255,255,255,0.72)` + `backdrop-filter:blur(12px)` | Policy panels (header, score row, tabs, studio) |
 | QA panel bg | `rgba(248,250,253,0.97)` + `backdrop-filter:blur(16px)` | Quick-action panel overlay |
+| Drop panel bg | `rgba(248,250,253,0.97)` + `backdrop-filter:blur(16px)` + scale-in | Drop detail panel |
+| AI panel bg | `linear-gradient(160deg, #eef4fb, #ddeaf5, #c8dff0)` | AI voice/chat panel background |
+| AI orb gradient | `#bfdbfe → #a5b4fc → #818cf8 → #60a5fa → #93c5fd` | Gradient sphere + mic trigger button |
+| AI indigo | `#818cf8` / `#6366f1` | Listening state, send button, voice button |
 | White solid | `#ffffff` | `.pp-right` panel |
-| QA panel inset | `inset:15px` when `.visible` | 15px floating margin from canvas edges |
+| Panel inset | `inset:15px` when `.visible` | 15px floating margin (qa-panel, drop-panel, ai-panel) |
 | Auto badge | `#dcfce7` / `#166534` | Green Auto permission |
 | Ask badge | `#dbeafe` / `#1d4ed8` | Blue Ask permission |
 | Approval badge | `#f3f4f6` / `#374151` | Grey Approval permission |
@@ -851,54 +927,60 @@ Risk Exposure · Time to remediate · Tool calls / task · Autonomy · Human rev
 │       ├── Pillar architecture JS      ~3137–3214
 │       └── Direction micro-interactions ~3215–3410
 │
-├── headless.html                       ← HEADLESS AI DASHBOARD (~3900 lines)
-│   ├── CSS (lines 8–1700)
+├── headless.html                       ← HEADLESS AI DASHBOARD (~4500 lines)
+│   ├── CSS (lines 8–2000)
 │   │   ├── Body gradient + base          ~8–42
 │   │   ├── Top nav                       ~44–165
 │   │   ├── Stats bar + badges            ~166–265
 │   │   ├── Canvas viewport + orbs        ~266–342
-│   │   ├── Quick-action panel (.qa-*)    ~343–430
-│   │   ├── Agentic trace (.at-*)         ~430–740
-│   │   ├── Right panel + action cards    ~740–900
-│   │   ├── Timeline CSS                  ~893–983
-│   │   ├── Policy & Permissions (.pp-*)  ~1293–1544
-│   │   │   ├── pp-header / pp-score-row  ~1295–1345
-│   │   │   ├── pp-tabs / pp-studio       ~1350–1390
-│   │   │   ├── pp-perm-row / badges      ~1390–1430
-│   │   │   └── pp-right / radar          ~1430–1490
-│   │   └── Config testing tab (.ct-*)    ~1544–1700
-│   ├── Top nav HTML                      ~1700–1750
-│   ├── Canvas tab HTML                   ~1750–2040
-│   │   ├── Greeting + quick buttons      ~1900–1960 (3 quick-action btns + #qaPanel)
-│   │   └── #qaPanel (insight + chart)    ~2020–2036
-│   ├── Agentic trace tab HTML            ~2042–2200
-│   │   ├── Stats row                     ~2044–2070
-│   │   ├── Search + 4 filters            ~2055–2090
-│   │   ├── Cases table                   ~2095–2110
-│   │   └── Detail drawer                 ~2140–2200
-│   ├── Policy & Permissions tab HTML     ~2057–2263
-│   │   ├── pp-header                     ~2060–2080
-│   │   ├── pp-score-row (donut + trend)  ~2083–2120
-│   │   ├── pp-left (Studio + Config tab) ~2125–2240
-│   │   └── pp-right (knobs + radar)      ~2245–2263
-│   ├── Right panel (action cards)        ~1700–1840
-│   └── <script> block                    ~2263–end (~3900)
-│       ├── switchTab / initStatValues    ~2267–2510
-│       ├── animateDonut                  ~2510–2560
-│       ├── openDrawer / closeDrawer      ~2560–2620
-│       ├── renderCases / filterCases     ~2620–2750
-│       ├── showToast                     ~2760
-│       ├── Region dropdown               ~2820–2832
-│       ├── Modals (approve/escalate)     ~2833–2890
-│       ├── initTimeline                  ~3037–3250
-│       ├── initTrend                     ~3252–3346
-│       ├── initRadar (interactive SVG)   ~3346–3370
-│       ├── Config testing (CT_SCENARIOS) ~3370–end (runConfigTest / renderTopo)
-│       ├── handleQuickAction + closeQaPanel ~2932–3000
-│       ├── drawLatencyChart              ~3000–3050
-│       ├── drawC4Chart                   ~3055–3100
-│       ├── drawRcaChart                  ~3105–3160
-│       └── hover helpers (qaLatHov etc.) ~3160–3180
+│   │   ├── AI mic trigger + AI panel     ~342–640
+│   │   │   ├── .ai-mic-trigger           ~342–356
+│   │   │   ├── .ai-panel + close         ~358–390
+│   │   │   ├── .ai-orb-area / glow / ring/ sphere ~392–490
+│   │   │   ├── .ai-listen-dots           ~492–514
+│   │   │   ├── .ai-chat-area / messages  ~516–590
+│   │   │   ├── .ai-typing                ~592–610
+│   │   │   ├── .ai-input-row / wrap      ~612–660
+│   │   │   └── .ai-suggestions / chip    ~662–640
+│   │   ├── Quick-action panel (.qa-*)    ~640–730
+│   │   ├── Drag states + drop panel      ~730–1060
+│   │   │   ├── .action-card drag CSS     ~730–760
+│   │   │   ├── .drag-hint                ~762–770
+│   │   │   ├── .canvas-viewport.drag-over ~772–790
+│   │   │   └── .drop-panel + dp-*        ~792–1060
+│   │   ├── Agentic trace (.at-*)         ~1060–1350
+│   │   ├── Right panel + action cards    ~1350–1510
+│   │   ├── Timeline CSS                  ~1510–1600
+│   │   ├── Policy & Permissions (.pp-*)  ~1600–1850
+│   │   └── Config testing tab (.ct-*)    ~1850–2000
+│   ├── Top nav HTML                      ~2000–2060
+│   ├── Canvas tab HTML                   ~2060–2380
+│   │   ├── Greeting + quick buttons      ~2155–2195
+│   │   ├── #qaPanel (insight + chart)    ~2197–2220
+│   │   ├── AI mic trigger button         ~2222–2232
+│   │   ├── #aiPanel (orb + chat + input) ~2234–2310
+│   │   └── #dropPanel (drop detail)      ~2312–2340
+│   ├── Agentic trace tab HTML            ~2380–2500
+│   ├── Policy & Permissions tab HTML     ~2500–2700
+│   ├── Right panel (3 draggable cards)   ~2560–2760
+│   │   ├── Card 1: restart (data-card)   ~2565–2630
+│   │   ├── Card 2: chronic (data-card)   ~2632–2680
+│   │   └── Card 3: timeline (data-card)  ~2682–2760
+│   └── <script> block                    ~2760–end (~4500)
+│       ├── switchTab / initStatValues    ~2767–3000
+│       ├── animateDonut                  ~3000–3050
+│       ├── openDrawer / closeDrawer      ~3050–3110
+│       ├── renderCases / filterCases     ~3110–3240
+│       ├── showToast / region / modals   ~3250–3490
+│       ├── initTimeline                  ~3490–3700
+│       ├── initTrend                     ~3700–3800
+│       ├── initRadar (interactive SVG)   ~3800–3840
+│       ├── Config testing (CT_SCENARIOS) ~3840–3920
+│       ├── closeQaPanel / handleQuickAction ~3920–3990
+│       ├── drawLatencyChart / drawC4Chart / drawRcaChart ~3990–4130
+│       ├── hover helpers (qaLatHov etc.) ~4130–4150
+│       ├── AI panel (openAiPanel … aiAddAgentMsg) ~4150–4350
+│       └── initDragDrop + dropCardData + drop handlers ~4350–4500
 │
 ├── uxr_plan.html                       ← UXR CONCEPT TESTING PLAN (~1460 lines)
 │   ├── Carbon CSS tokens + component styles  lines 10–625
@@ -938,6 +1020,8 @@ Risk Exposure · Time to remediate · Tool calls / task · Autonomy · Human rev
 ├── 06.png      ← headless.html reference: Policy Studio flat layout
 ├── 07.png      ← headless.html reference: pp-right radar full view
 ├── 08.png      ← headless.html reference: pp-right knobs section
+├── 09.png      ← headless.html reference: Configuration Testing tab
+├── 10.png      ← headless.html reference: AI voice/chat panel orb design
 │
 └── desgin-for-invisible-ui (1).pptx   ← Source presentation (25 slides)
 ```
