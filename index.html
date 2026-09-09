@@ -30,10 +30,10 @@
     }
 
     html { scroll-behavior: smooth; }
+    html { overflow-x: hidden; }
     body {
       background: var(--bg); color: var(--text);
       font-family: var(--font); font-size: 16px; line-height: 1.6;
-      overflow-x: hidden;
     }
     a { color: var(--blue); text-decoration: none; }
     ::-webkit-scrollbar { width: 3px; }
@@ -156,31 +156,31 @@
       padding-left: 0; padding-right: 0;
     }
 
-    /* ── Rail toggle button (fixed, CSS-driven position) ── */
+    /* ── Rail toggle button (fixed) ── */
     .rail-toggle-btn-fixed {
       position: fixed;
-      top: 50%;
+      top: 50vh;
       transform: translateY(-50%);
       right: 380px;
-      width: 20px; height: 48px;
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 4px 0 0 4px;
-      box-shadow: -2px 0 8px rgba(0,0,0,0.10);
+      width: 22px; height: 52px;
+      background: #0f62fe;
+      border: none;
+      border-radius: 6px 0 0 6px;
+      box-shadow: -3px 0 12px rgba(0,0,0,0.18);
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
-      z-index: 200;
-      color: var(--muted);
-      transition: right 0.3s cubic-bezier(.4,0,.2,1), background 0.15s, color 0.15s;
+      z-index: 9999;
+      color: #fff;
+      padding: 0;
+      transition: right 0.3s cubic-bezier(.4,0,.2,1), background 0.15s;
     }
-    .rail-toggle-btn-fixed:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+    .rail-toggle-btn-fixed:hover { background: #0353e9; }
     .rail-toggle-btn-fixed svg {
       transition: transform 0.3s cubic-bezier(.4,0,.2,1);
       flex-shrink: 0;
     }
     body.rail-collapsed .rail-toggle-btn-fixed {
       right: 0px;
-      border-radius: 4px 0 0 4px;
     }
     body.rail-collapsed .rail-toggle-btn-fixed svg {
       transform: rotate(180deg);
