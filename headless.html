@@ -1116,19 +1116,7 @@
   .ai-input-wrap:focus-within {
     border-color: #818cf8; box-shadow: 0 0 0 3px rgba(165,180,252,0.25);
   }
-  /* drop-zone active state */
-  .ai-input-wrap.drag-over {
-    border-color: #6366f1;
-    background: rgba(238,242,255,0.92);
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.22);
-  }
-  .ai-input-wrap.drag-over .ai-drop-hint { display: flex; }
-  .ai-input-wrap.drag-over .ai-input-field { display: none; }
-  .ai-drop-hint {
-    display: none; align-items: center; gap: 6px;
-    font-size: 12px; color: #6366f1; font-weight: 500; flex: 1;
-    pointer-events: none;
-  }
+  .ai-drop-hint { display: none; }
 
   /* anomaly item dragging */
   .anomaly-item[draggable="true"] { cursor: grab; }
@@ -7094,21 +7082,17 @@
         e.dataTransfer.setData('anomalyId', a.id);
         e.dataTransfer.effectAllowed = 'copy';
         setTimeout(() => div.classList.add('is-dragging'), 0);
-        /* highlight BOTH drop zones */
-        ['canvasInputWrap','aiInputWrap'].forEach(id => {
-          const w = document.getElementById(id);
-          if (w) w.classList.add('drag-over');
-        });
+        /* highlight canvas viewport as the drop target */
+        const vp = document.querySelector('.canvas-viewport');
+        if (vp) vp.classList.add('drag-over');
       });
       div.addEventListener('dragend', () => {
         div.classList.remove('is-dragging');
-        ['canvasInputWrap','aiInputWrap'].forEach(id => {
-          const w = document.getElementById(id);
-          if (w) w.classList.remove('drag-over');
-        });
+        const vp = document.querySelector('.canvas-viewport');
+        if (vp) vp.classList.remove('drag-over');
       });
 
-      div.addEventListener('click', () => showToast(`${a.id}: ${a.title} — drag to AI input to analyse`, a.severity==='critical'?'orange':'blue'));
+      div.addEventListener('click', () => showToast(`${a.id}: ${a.title} — drag onto the canvas to analyse`, a.severity==='critical'?'orange':'blue'));
       list.appendChild(div);
     });
     const critical = items.filter(a=>a.severity==='critical').length;
@@ -7116,23 +7100,26 @@
     if (badge) badge.textContent = critical || items.length;
   }
 
-  /* ── Wire both input wraps as drop targets ── */
-  function _wireDropTarget(wrap) {
-    if (!wrap || wrap._dropReady) return;
-    wrap._dropReady = true;
+  /* ── Wire the canvas viewport as the drop target for anomaly items ── */
+  function _wireCanvasViewportDrop() {
+    const vp = document.querySelector('.canvas-viewport');
+    if (!vp || vp._dropReady) return;
+    vp._dropReady = true;
 
-    wrap.addEventListener('dragover', e => {
+    vp.addEventListener('dragover', e => {
+      if (!e.dataTransfer.types.includes('anomalyid')) return;
       e.preventDefault();
       e.dataTransfer.dropEffect = 'copy';
-      wrap.classList.add('drag-over');
+      vp.classList.add('drag-over');
     });
-    wrap.addEventListener('dragleave', e => {
-      if (!wrap.contains(e.relatedTarget)) wrap.classList.remove('drag-over');
+    vp.addEventListener('dragleave', e => {
+      if (!vp.contains(e.relatedTarget)) vp.classList.remove('drag-over');
     });
-    wrap.addEventListener('drop', e => {
-      e.preventDefault();
-      wrap.classList.remove('drag-over');
+    vp.addEventListener('drop', e => {
       const id = e.dataTransfer.getData('anomalyId');
+      if (!id) return;
+      e.preventDefault();
+      vp.classList.remove('drag-over');
       const anomaly = ALL_ANOMALIES.find(a => a.id === id);
       if (!anomaly) return;
       closeSettingsPanel();
@@ -7142,8 +7129,7 @@
   }
 
   function initAnomalyDropZone() {
-    _wireDropTarget(document.getElementById('canvasInputWrap'));
-    _wireDropTarget(document.getElementById('aiInputWrap'));
+    _wireCanvasViewportDrop();
   }
 
   /* init on load so canvas drop zone is ready immediately */
