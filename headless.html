@@ -1183,7 +1183,10 @@
     opacity: 0; pointer-events: none;
     transition: opacity 0.25s ease;
     overflow: hidden;
+    /* sit inside .canvas-area — topnav stays visible above */
   }
+  /* .body-layout is the correct stacking context */
+  .body-layout { position: relative; }
   .cd-page.visible { opacity: 1; pointer-events: all; }
 
   /* scrollable body */
@@ -3036,10 +3039,9 @@
 
         <!-- Case detail drawer (kept for keyboard esc compat) -->
         <div class="at-drawer" id="caseDrawer" style="display:none;"></div>
-      </div>
 
-      <!-- ═══ CASE DETAIL FULL PAGE ═══ -->
-      <div class="cd-page" id="caseDetailPage">
+        <!-- ═══ CASE DETAIL FULL PAGE — inside #tab-agentic so topnav stays visible ═══ -->
+        <div class="cd-page" id="caseDetailPage">
         <div class="cd-scroll">
 
           <!-- MAIN COLUMN -->
@@ -3209,7 +3211,9 @@
           </div>
 
         </div><!-- /cd-scroll -->
-      </div><!-- /cd-page -->
+        </div><!-- /cd-page -->
+
+      </div><!-- /tab-agentic -->
 
       <!-- POLICY & PERMISSIONS TAB -->
       <div class="canvas-area canvas-tab-content" id="tab-policy">
