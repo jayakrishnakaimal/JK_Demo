@@ -52,6 +52,15 @@
       color: var(--text); border-right: 1px solid var(--border);
       white-space: nowrap; gap: .5rem;
     }
+    .tn-brand-logo {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: #fff;
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .tn-brand-logo img { width: 20px; height: 20px; object-fit: contain; }
     .tn-tabs { display: flex; list-style: none; height: 100%; }
     .tn-tabs li a {
       display: flex; align-items: center; padding: 0 1.1rem;
@@ -127,16 +136,65 @@
     .split {
       display: grid; grid-template-columns: 1fr 380px;
       width: 100%; align-items: stretch;
+      transition: grid-template-columns 0.3s cubic-bezier(.4,0,.2,1);
+    }
+    .split.rail-collapsed {
+      grid-template-columns: 1fr 0px;
     }
     .main-col {
       padding: 3rem 3rem 3rem 3.5rem;
+      border-right: 1px solid var(--border);
+      position: relative;
+      transition: border-color 0.3s;
+    }
+    .split.rail-collapsed .main-col {
       border-right: 1px solid var(--border);
     }
     .rail-col {
       background: var(--rail);
       padding: 2.5rem 2rem;
-      position: relative;
+      overflow: hidden;
+      transition: padding 0.3s cubic-bezier(.4,0,.2,1);
     }
+    .split.rail-collapsed .rail-col {
+      padding-left: 0; padding-right: 0;
+    }
+
+    /* ── Rail toggle button — fixed to viewport right edge of main content ── */
+    #rail-toggle-fixed {
+      position: fixed;
+      top: 50%;
+      right: 380px;
+      transform: translate(50%, -50%);
+      z-index: 400;
+      width: 24px; height: 48px;
+      border-radius: 4px;
+      background: #fff;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted);
+      box-shadow: -2px 0 8px rgba(0,0,0,0.08);
+      transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+      padding: 0;
+    }
+    #rail-toggle-fixed:hover {
+      background: var(--blue); color: #fff;
+      border-color: var(--blue);
+      box-shadow: -2px 0 12px rgba(15,98,254,0.25);
+    }
+    #rail-toggle-fixed .toggle-icon {
+      transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+      display: flex; align-items: center; justify-content: center;
+    }
+    #rail-toggle-fixed.collapsed {
+      right: 0;
+    }
+    #rail-toggle-fixed.collapsed .toggle-icon {
+      transform: rotate(180deg);
+    }
+    /* hide the old inline buttons */
+    .rail-toggle-btn { display: none; }
 
     /* ── CONDITION PILL ── */
     .condition-pill {
@@ -1051,8 +1109,18 @@
 <body>
 
 <!-- ═══ TOP NAV ═══ -->
+<!-- Fixed rail toggle button -->
+<button id="rail-toggle-fixed" onclick="toggleRailPanel()" title="Collapse panel">
+  <span class="toggle-icon">
+    <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3l-5 5 5 5"/></svg>
+  </span>
+</button>
+
 <nav class="top-nav">
-  <div class="tn-brand">Headless AI / Invisible UI</div>
+  <div class="tn-brand">
+    <div class="tn-brand-logo"><img src="ini_logo.png" alt="IBM Network Intelligence logo" /></div>
+    IBM Network Intelligence
+  </div>
   <ul class="tn-tabs">
     <li><a href="#" class="active">Today</a></li>
   </ul>
@@ -1197,11 +1265,13 @@
           Move forward
           <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4l-1.41 1.41L24.17 15H4v2h20.17l-9.58 9.59L16 28l12-12z"/></svg>
         </button>
+        <button class="rail-toggle-btn" onclick="toggleRailPanel(this)" title="Collapse panel">
+          <span class="toggle-icon"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3l-5 5 5 5"/></svg></span>
+        </button>
 
       </div>
     </div>
     <div class="rail-col">
-    
       <div class="rail-step-num">
         <div class="step-num-big">01</div>
         <div class="step-num-label">Canvas view</div>
@@ -1513,6 +1583,9 @@
           Move forward
           <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4l-1.41 1.41L24.17 15H4v2h20.17l-9.58 9.59L16 28l12-12z"/></svg>
         </button>
+        <button class="rail-toggle-btn" onclick="toggleRailPanel(this)" title="Collapse panel">
+          <span class="toggle-icon"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3l-5 5 5 5"/></svg></span>
+        </button>
       </div>
     </div>
     <div class="rail-col">
@@ -1778,6 +1851,9 @@
           Move forward
           <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4l-1.41 1.41L24.17 15H4v2h20.17l-9.58 9.59L16 28l12-12z"/></svg>
         </button>
+        <button class="rail-toggle-btn" onclick="toggleRailPanel(this)" title="Collapse panel">
+          <span class="toggle-icon"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3l-5 5 5 5"/></svg></span>
+        </button>
       </div>
     </div>
     <div class="rail-col">
@@ -1889,6 +1965,9 @@
         <button class="btn-forward" onclick="goToStep(4)">
           Move forward
           <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4l-1.41 1.41L24.17 15H4v2h20.17l-9.58 9.59L16 28l12-12z"/></svg>
+        </button>
+        <button class="rail-toggle-btn" onclick="toggleRailPanel(this)" title="Collapse panel">
+          <span class="toggle-icon"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3l-5 5 5 5"/></svg></span>
         </button>
       </div>
     </div>
@@ -2512,6 +2591,9 @@
           <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M16 28l1.41-1.41L7.83 17H28v-2H7.83l9.58-9.59L16 4 4 16z"/></svg>
           Go back
         </button>
+        <button class="rail-toggle-btn" onclick="toggleRailPanel(this)" title="Collapse panel">
+          <span class="toggle-icon"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3l-5 5 5 5"/></svg></span>
+        </button>
       </div>
     </div><!-- /.main-col -->
     <div class="rail-col" id="dir-rail">
@@ -3105,6 +3187,26 @@
 </footer>
 
 <script>
+function toggleRailPanel() {
+  const btn = document.getElementById('rail-toggle-fixed');
+  const collapsed = btn.classList.toggle('collapsed');
+  // toggle the currently visible split
+  const activeSplit = document.querySelector('.panel.active .split');
+  if (activeSplit) activeSplit.classList.toggle('rail-collapsed', collapsed);
+  btn.title = collapsed ? 'Expand panel' : 'Collapse panel';
+  // update right position via JS for smooth transition
+  btn.style.transition = 'right 0.3s cubic-bezier(.4,0,.2,1), background 0.15s, color 0.15s';
+  btn.style.right = collapsed ? '0px' : '380px';
+}
+
+// keep toggle button aligned when step changes
+function syncToggleBtn() {
+  const btn = document.getElementById('rail-toggle-fixed');
+  if (!btn) return;
+  const collapsed = btn.classList.contains('collapsed');
+  btn.style.right = collapsed ? '0px' : '380px';
+}
+
 const STEP_TITLES = ['Overview','What & Why','Characteristics','Four Pillars','Directions'];
 const STEP_BC     = ['Overview','What & Why','Characteristics','Four Pillars','Design Directions'];
 
@@ -3132,7 +3234,20 @@ function goToStep(n) {
 
   // scroll to top of panel
   window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // re-apply collapse state to new active split
+  const btn = document.getElementById('rail-toggle-fixed');
+  const activeSplit = document.querySelector('.panel.active .split');
+  if (btn && activeSplit) {
+    activeSplit.classList.toggle('rail-collapsed', btn.classList.contains('collapsed'));
+  }
 }
+
+// set initial position on load
+document.addEventListener('DOMContentLoaded', function() {
+  const btn = document.getElementById('rail-toggle-fixed');
+  if (btn) btn.style.right = '380px';
+});
 
 /* ── ROLE SELECT ── */
 const roleSelectEl = document.getElementById('role-select');

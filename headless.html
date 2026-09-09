@@ -164,6 +164,224 @@
     flex: 1;
     overflow: hidden;
     background: transparent;
+    transition: none;
+  }
+
+  /* ── global settings panel ── */
+  .settings-panel {
+    width: 0;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: #ffffff;
+    border-left: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s cubic-bezier(.4,0,.2,1);
+  }
+  .settings-panel.open {
+    width: 500px;
+  }
+  .settings-panel-inner {
+    width: 500px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+  }
+  .settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    flex-shrink: 0;
+  }
+  .settings-header-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .settings-header-title svg { color: #6b7280; }
+  .settings-close-btn {
+    width: 28px; height: 28px;
+    border: none; background: none; cursor: pointer;
+    border-radius: 4px; color: #6b7280;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, color 0.15s;
+  }
+  .settings-close-btn:hover { background: #f3f4f6; color: #111827; }
+  .settings-body { padding: 0; flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+
+  /* filter bar */
+  .gmap-filter-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    flex-shrink: 0;
+    background: #fafafa;
+    flex-wrap: wrap;
+  }
+  .gmap-filter-label { font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 2px; }
+  .gmap-filter-chip {
+    font-size: 11px; font-weight: 500;
+    padding: 3px 10px; border-radius: 20px;
+    border: 1px solid #e5e7eb; background: #fff; color: #374151;
+    cursor: pointer; transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .gmap-filter-chip:hover { border-color: #93c5fd; color: #1d4ed8; }
+  .gmap-filter-chip.active { background: #2563eb; border-color: #2563eb; color: #fff; }
+
+  /* map canvas */
+  .gmap-wrap {
+    position: relative;
+    flex-shrink: 0;
+    background: #0f172a;
+    overflow: hidden;
+    cursor: grab;
+    user-select: none;
+  }
+  .gmap-wrap.is-panning { cursor: grabbing; }
+  .gmap-wrap canvas { display: block; width: 100%; }
+
+  /* zoom / reset controls */
+  .gmap-controls {
+    position: absolute;
+    bottom: 8px; right: 8px;
+    display: flex; flex-direction: column; gap: 3px;
+    z-index: 10;
+  }
+  .gmap-ctrl-btn {
+    width: 26px; height: 26px;
+    background: rgba(15,23,42,0.85);
+    border: 1px solid rgba(148,163,184,0.2);
+    border-radius: 5px;
+    color: #94a3b8;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 15px; font-weight: 300; line-height: 1;
+    transition: background 0.15s, color 0.15s;
+    backdrop-filter: blur(6px);
+  }
+  .gmap-ctrl-btn:hover { background: rgba(37,99,235,0.7); color: #fff; border-color: #2563eb; }
+
+  /* zoom badge */
+  .gmap-zoom-badge {
+    position: absolute;
+    bottom: 8px; left: 8px;
+    font-size: 10px; color: #475569;
+    background: rgba(15,23,42,0.7);
+    border: 1px solid rgba(148,163,184,0.12);
+    border-radius: 4px; padding: 2px 6px;
+    backdrop-filter: blur(4px);
+    pointer-events: none;
+  }
+
+  /* tooltip */
+  .gmap-tooltip {
+    position: absolute;
+    background: rgba(15,23,42,0.92);
+    border: 1px solid rgba(148,163,184,0.2);
+    border-radius: 6px;
+    padding: 6px 10px;
+    pointer-events: none;
+    font-size: 11px; color: #e2e8f0;
+    line-height: 1.5;
+    white-space: nowrap;
+    backdrop-filter: blur(8px);
+    z-index: 20;
+    display: none;
+  }
+  .gmap-tooltip.visible { display: block; }
+  .gmap-tooltip-title { font-weight: 600; margin-bottom: 1px; }
+  .gmap-tooltip-sub { font-size: 10px; color: #94a3b8; }
+
+  /* map legend */
+  .gmap-legend {
+    display: flex; gap: 14px; align-items: center;
+    padding: 7px 16px;
+    background: #0f172a;
+    border-bottom: 1px solid #1e293b;
+    flex-shrink: 0;
+  }
+  .gmap-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #94a3b8; }
+  .gmap-legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* anomaly list */
+  .anomaly-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px 6px;
+    flex-shrink: 0;
+  }
+  .anomaly-header-title {
+    font-size: 12px; font-weight: 600; color: #111827;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .anomaly-badge {
+    font-size: 10px; font-weight: 700;
+    background: #ef4444; color: #fff;
+    border-radius: 10px; padding: 1px 6px;
+    animation: anomalyBadgePulse 1.8s ease-in-out infinite;
+  }
+  @keyframes anomalyBadgePulse {
+    0%,100% { opacity: 1; } 50% { opacity: 0.55; }
+  }
+  .anomaly-scan-btn {
+    font-size: 11px; font-weight: 500;
+    padding: 3px 10px; border-radius: 4px;
+    border: 1px solid #e5e7eb; background: #fff; color: #374151;
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .anomaly-scan-btn:hover { border-color: #2563eb; color: #2563eb; }
+  .anomaly-scan-btn.scanning { border-color: #2563eb; color: #2563eb; }
+  .anomaly-scan-btn.scanning .scan-icon { animation: scanSpin 0.7s linear infinite; }
+  @keyframes scanSpin { to { transform: rotate(360deg); } }
+
+  .anomaly-list { flex: 1; overflow-y: auto; padding: 0 12px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .anomaly-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 12px; border-radius: 8px;
+    border: 1px solid #f0f0f0; background: #fff;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+    animation: anomalySlideIn 0.3s cubic-bezier(.4,0,.2,1) both;
+  }
+  .anomaly-item:hover { border-color: #93c5fd; box-shadow: 0 2px 8px rgba(37,99,235,0.08); transform: translateX(-2px); }
+  @keyframes anomalySlideIn {
+    from { opacity: 0; transform: translateX(12px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .anomaly-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px;
+  }
+  .anomaly-dot.critical { background: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.2); animation: dotPulse 1.4s ease-in-out infinite; }
+  .anomaly-dot.warning  { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.2); animation: dotPulse 2s ease-in-out infinite; }
+  .anomaly-dot.info     { background: #3b82f6; }
+  @keyframes dotPulse {
+    0%,100% { box-shadow: 0 0 0 3px rgba(239,68,68,0.2); }
+    50%     { box-shadow: 0 0 0 6px rgba(239,68,68,0.05); }
+  }
+  .anomaly-dot.warning { animation-name: dotPulseAmber; }
+  @keyframes dotPulseAmber {
+    0%,100% { box-shadow: 0 0 0 3px rgba(245,158,11,0.2); }
+    50%     { box-shadow: 0 0 0 6px rgba(245,158,11,0.05); }
+  }
+  .anomaly-content { flex: 1; min-width: 0; }
+  .anomaly-title { font-size: 12px; font-weight: 600; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .anomaly-meta  { font-size: 11px; color: #6b7280; margin-top: 2px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .anomaly-tag   { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px; flex-shrink: 0; margin-top: 2px; }
+  .anomaly-tag.critical { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+  .anomaly-tag.warning  { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+  .anomaly-tag.info     { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .anomaly-time  { font-size: 10px; color: #9ca3af; flex-shrink: 0; margin-top: 3px; }
+  .nav-icon-btn.settings-active {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #2563eb;
   }
 
   /* ── canvas area ── */
@@ -700,11 +918,70 @@
     background: rgba(255,255,255,0.78); border: 1px solid rgba(209,213,219,0.7);
     border-radius: 24px; padding: 8px 16px; gap: 8px;
     backdrop-filter: blur(10px);
-    transition: border-color 0.15s, box-shadow 0.15s;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
   }
   .ai-input-wrap:focus-within {
     border-color: #818cf8; box-shadow: 0 0 0 3px rgba(165,180,252,0.25);
   }
+  /* drop-zone active state */
+  .ai-input-wrap.drag-over {
+    border-color: #6366f1;
+    background: rgba(238,242,255,0.92);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.22);
+  }
+  .ai-input-wrap.drag-over .ai-drop-hint { display: flex; }
+  .ai-input-wrap.drag-over .ai-input-field { display: none; }
+  .ai-drop-hint {
+    display: none; align-items: center; gap: 6px;
+    font-size: 12px; color: #6366f1; font-weight: 500; flex: 1;
+    pointer-events: none;
+  }
+
+  /* anomaly item dragging */
+  .anomaly-item[draggable="true"] { cursor: grab; }
+  .anomaly-item[draggable="true"]:active { cursor: grabbing; }
+  .anomaly-item.is-dragging {
+    opacity: 0.45;
+    transform: scale(0.97);
+    border-color: #6366f1;
+  }
+
+  /* anomaly canvas tile */
+  .anomaly-canvas-tile {
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 14px;
+    animation: tileSlideIn 0.35s cubic-bezier(.4,0,.2,1) both;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-shadow: 0 2px 12px rgba(99,102,241,0.10);
+  }
+  .anomaly-canvas-tile::-webkit-scrollbar { width: 3px; }
+  .anomaly-canvas-tile::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+  .act-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+  .act-id { font-size: 10px; font-weight: 700; color: #6366f1; letter-spacing: 0.5px; }
+  .act-title { font-size: 12px; font-weight: 600; color: #111827; margin-top: 2px; line-height: 1.4; }
+  .act-close { background: none; border: none; cursor: pointer; color: #9ca3af; font-size: 14px; line-height: 1; padding: 0; flex-shrink: 0; }
+  .act-close:hover { color: #374151; }
+  .act-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .act-tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; }
+  .act-tag.critical { background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; }
+  .act-tag.warning  { background:#fffbeb; color:#92400e; border:1px solid #fde68a; }
+  .act-tag.info     { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
+  .act-location { font-size: 11px; color: #6b7280; }
+  .act-chart { margin: 8px 0 4px; }
+  .act-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .act-chip { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 5px; background: #f0f4ff; border: 1px solid #c7d2fe; color: #3730a3; }
+  .act-chip.red   { background:#fef2f2; border-color:#fca5a5; color:#b91c1c; }
+  .act-chip.green { background:#f0fdf4; border-color:#86efac; color:#166534; }
+  .act-chip.amber { background:#fffbeb; border-color:#fcd34d; color:#92400e; }
+  .act-ai-response { font-size: 12px; color: #374151; line-height: 1.6; margin-top: 8px; padding-top: 8px; border-top: 1px solid #f3f4f6; }
   .ai-input-field {
     flex: 1; border: none; background: none; outline: none;
     font-size: 13px; color: #111827;
@@ -3070,7 +3347,7 @@
             <path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/>
           </svg>
         </button>
-        <button class="nav-icon-btn" title="Global settings" onclick="showToast('Settings panel coming soon', 'blue')">
+        <button class="nav-icon-btn" id="settingsBtn" title="Global settings" onclick="openSettingsPanel()">
           <!-- clean globe with horizontal bands + vertical meridian -->
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="9"/>
@@ -3162,12 +3439,16 @@
            </div>
            <!-- Inline AI input row — identical to ai-panel input row -->
            <div class="ai-input-row" style="padding:0; margin-top:6px;">
-             <div class="ai-input-wrap">
+             <div class="ai-input-wrap" id="canvasInputWrap">
                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:0.45"><circle cx="6.5" cy="6.5" r="4.5" stroke="#6b7280" stroke-width="1.4"/><path d="M10 10l3 3" stroke="#6b7280" stroke-width="1.4" stroke-linecap="round"/></svg>
                <input class="ai-input-field" id="canvasScenarioInput"
                  placeholder="Ask anything or describe a scenario to chart…"
                  onkeydown="if(event.key==='Enter') canvasInputSubmit()"
                  autocomplete="off" spellcheck="false"/>
+               <span class="ai-drop-hint">
+                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                 Drop anomaly to analyse
+               </span>
                <button class="ai-send-btn" onclick="canvasInputSubmit()" title="Send">
                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 8l12-6-4 6 4 6-12-6z" fill="white"/></svg>
                </button>
@@ -3242,9 +3523,13 @@
 
             <!-- Input row -->
             <div class="ai-input-row">
-              <div class="ai-input-wrap">
+              <div class="ai-input-wrap" id="aiInputWrap">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:0.45"><circle cx="6.5" cy="6.5" r="4.5" stroke="#6b7280" stroke-width="1.4"/><path d="M10 10l3 3" stroke="#6b7280" stroke-width="1.4" stroke-linecap="round"/></svg>
                 <input class="ai-input-field" id="aiInputField" type="text" placeholder="Type a question or use voice…" onkeydown="if(event.key==='Enter') aiSendText()" />
+                <span class="ai-drop-hint">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                  Drop anomaly to analyse on canvas
+                </span>
                 <button class="ai-send-btn" onclick="aiSendText()" title="Send">
                   <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 8l12-6-4 6 4 6-12-6z" fill="white"/></svg>
                 </button>
@@ -4006,6 +4291,77 @@
         </div>
 
       </div><!-- /right-panel -->
+
+      <!-- GLOBAL SETTINGS PANEL -->
+      <div class="settings-panel" id="settingsPanel">
+        <div class="settings-panel-inner">
+          <div class="settings-header">
+            <div class="settings-header-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 3 C9 7 9 17 12 21 M12 3 C15 7 15 17 12 21"/>
+                <path d="M3 12 Q7 9 12 9 Q17 9 21 12"/>
+                <path d="M3 12 Q7 15 12 15 Q17 15 21 12"/>
+              </svg>
+              Global Settings
+            </div>
+            <button class="settings-close-btn" onclick="closeSettingsPanel()" title="Close">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <div class="settings-body">
+
+            <!-- Region filter bar -->
+            <div class="gmap-filter-bar">
+              <span class="gmap-filter-label">Region</span>
+              <button class="gmap-filter-chip active" onclick="gmapFilter(this,'ALL')">All</button>
+              <button class="gmap-filter-chip" onclick="gmapFilter(this,'APAC')">APAC</button>
+              <button class="gmap-filter-chip" onclick="gmapFilter(this,'EMEA')">EMEA</button>
+              <button class="gmap-filter-chip" onclick="gmapFilter(this,'AMER')">AMER</button>
+              <button class="gmap-filter-chip" onclick="gmapFilter(this,'JAPAN')">Japan</button>
+            </div>
+
+            <!-- World map canvas -->
+            <div class="gmap-wrap" id="gmapWrap">
+              <canvas id="gmapCanvas" height="240"></canvas>
+              <!-- zoom controls -->
+              <div class="gmap-controls">
+                <button class="gmap-ctrl-btn" onclick="gmapZoomIn()" title="Zoom in">+</button>
+                <button class="gmap-ctrl-btn" onclick="gmapZoomOut()" title="Zoom out">−</button>
+                <button class="gmap-ctrl-btn" onclick="gmapReset()" title="Reset view" style="font-size:11px;">⌂</button>
+              </div>
+              <!-- zoom level badge -->
+              <div class="gmap-zoom-badge" id="gmapZoomBadge">1.0×</div>
+              <!-- hover tooltip -->
+              <div class="gmap-tooltip" id="gmapTooltipEl"></div>
+            </div>
+
+            <!-- Map legend -->
+            <div class="gmap-legend">
+              <div class="gmap-legend-item"><div class="gmap-legend-dot" style="background:#ef4444"></div>Critical</div>
+              <div class="gmap-legend-item"><div class="gmap-legend-dot" style="background:#f59e0b"></div>Warning</div>
+              <div class="gmap-legend-item"><div class="gmap-legend-dot" style="background:#22c55e"></div>Healthy</div>
+              <div class="gmap-legend-item"><div class="gmap-legend-dot" style="background:#3b82f6"></div>Info</div>
+              <div style="margin-left:auto;font-size:10px;color:#475569" id="gmapNodeCount">12 nodes</div>
+            </div>
+
+            <!-- Anomaly detection list -->
+            <div class="anomaly-header">
+              <div class="anomaly-header-title">
+                Anomaly Detection
+                <span class="anomaly-badge" id="anomalyBadge">4</span>
+              </div>
+              <button class="anomaly-scan-btn" id="anomalyScanBtn" onclick="runAnomalyScan()">
+                <svg class="scan-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 11-9-9"/><path d="M21 3v5h-5"/></svg>
+                Scan now
+              </button>
+            </div>
+            <div class="anomaly-list" id="anomalyList"></div>
+
+          </div><!-- /settings-body -->
+        </div><!-- /settings-panel-inner -->
+      </div><!-- /settings-panel -->
+
     </div><!-- /body-layout -->
   </div><!-- /dashboard -->
 </div><!-- /outer-chrome -->
@@ -5579,6 +5935,754 @@
       toast.classList.remove('show');
       setTimeout(() => toast.remove(), 350);
     }, 3500);
+  }
+
+  /* ────────────────────────────────────────────
+     GLOBAL SETTINGS PANEL — NETWORK MAP + ANOMALIES
+  ──────────────────────────────────────────── */
+
+  /* ── Node data: {id, label, region, x(0-1), y(0-1), status, lat, lon} ── */
+  const GMAP_NODES = [
+    { id:'TK-01', label:'Tokyo Core',        region:'JAPAN', lon: 139.7, lat: 35.7, status:'critical' },
+    { id:'OS-01', label:'Osaka Edge',         region:'JAPAN', lon: 135.5, lat: 34.7, status:'warning'  },
+    { id:'SG-01', label:'Singapore Hub',      region:'APAC',  lon: 103.8, lat:  1.4, status:'healthy'  },
+    { id:'SY-01', label:'Sydney Gateway',     region:'APAC',  lon: 151.2, lat:-33.9, status:'healthy'  },
+    { id:'HK-01', label:'Hong Kong Edge',     region:'APAC',  lon: 114.2, lat: 22.3, status:'warning'  },
+    { id:'MU-01', label:'Mumbai Core',        region:'APAC',  lon:  72.9, lat: 19.1, status:'info'     },
+    { id:'FR-01', label:'Frankfurt Core',     region:'EMEA',  lon:   8.7, lat: 50.1, status:'healthy'  },
+    { id:'LD-01', label:'London Edge',        region:'EMEA',  lon:  -0.1, lat: 51.5, status:'warning'  },
+    { id:'DU-01', label:'Dubai Hub',          region:'EMEA',  lon:  55.3, lat: 25.2, status:'healthy'  },
+    { id:'NY-01', label:'New York Core',      region:'AMER',  lon: -74.0, lat: 40.7, status:'critical' },
+    { id:'LA-01', label:'Los Angeles Edge',   region:'AMER',  lon:-118.2, lat: 34.1, status:'healthy'  },
+    { id:'SP-01', label:'São Paulo Hub',      region:'AMER',  lon: -46.6, lat:-23.5, status:'info'     },
+  ];
+
+  /* edges between nodes */
+  const GMAP_EDGES = [
+    ['TK-01','OS-01'],['TK-01','HK-01'],['TK-01','SG-01'],
+    ['SG-01','MU-01'],['SG-01','SY-01'],['HK-01','MU-01'],
+    ['FR-01','LD-01'],['FR-01','DU-01'],['FR-01','MU-01'],
+    ['NY-01','LA-01'],['NY-01','SP-01'],['NY-01','FR-01'],
+    ['LA-01','TK-01'],['DU-01','MU-01'],
+  ];
+
+  const GMAP_STATUS_COLOR = { critical:'#ef4444', warning:'#f59e0b', healthy:'#22c55e', info:'#3b82f6' };
+
+  let gmapActiveRegion = 'ALL';
+  let gmapAnimFrame    = null;
+  let gmapPulseT       = 0;
+  let gmapCanvas, gmapCtx;
+
+  /* ── Viewport transform state ── */
+  let gmapZoom   = 1;          // current scale
+  let gmapPanX   = 0;          // pan offset in CSS px
+  let gmapPanY   = 0;
+  const GMAP_ZOOM_MIN = 0.8;
+  const GMAP_ZOOM_MAX = 8;
+  const GMAP_ZOOM_STEP = 0.35;
+
+  /* ── Equirectangular lon/lat → CSS pixel (applies zoom+pan) ── */
+  function geoToXY(lon, lat, W, H) {
+    /* base equirectangular */
+    const bx = (lon + 180) / 360 * W;
+    const by = (90  - lat) / 180 * H;
+    /* apply zoom around centre, then pan */
+    const cx = W / 2, cy = H / 2;
+    const x = cx + (bx - cx) * gmapZoom + gmapPanX;
+    const y = cy + (by - cy) * gmapZoom + gmapPanY;
+    return [x, y];
+  }
+
+  /* ── zoom badge helper ── */
+  function gmapUpdateBadge() {
+    const b = document.getElementById('gmapZoomBadge');
+    if (b) b.textContent = gmapZoom.toFixed(1) + '×';
+  }
+
+  /* ── zoom to a point (cx,cy in CSS px) ── */
+  function gmapZoomTo(factor, cx, cy) {
+    if (!gmapCanvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const W = gmapCanvas.width / dpr, H = gmapCanvas.height / dpr;
+    const newZoom = Math.min(GMAP_ZOOM_MAX, Math.max(GMAP_ZOOM_MIN, gmapZoom * factor));
+    /* adjust pan so zoom centres on the cursor point */
+    const ratio = newZoom / gmapZoom;
+    gmapPanX = cx - ratio * (cx - gmapPanX);
+    gmapPanY = cy - ratio * (cy - gmapPanY);
+    gmapZoom = newZoom;
+    gmapUpdateBadge();
+  }
+
+  function gmapZoomIn()  { if (!gmapCanvas) return; const dpr=window.devicePixelRatio||1; const W=gmapCanvas.width/dpr,H=gmapCanvas.height/dpr; gmapZoomTo(1+GMAP_ZOOM_STEP, W/2, H/2); }
+  function gmapZoomOut() { if (!gmapCanvas) return; const dpr=window.devicePixelRatio||1; const W=gmapCanvas.width/dpr,H=gmapCanvas.height/dpr; gmapZoomTo(1/(1+GMAP_ZOOM_STEP), W/2, H/2); }
+  function gmapReset()   { gmapZoom=1; gmapPanX=0; gmapPanY=0; gmapUpdateBadge(); }
+
+  /* ── Detailed continent coastlines (lon/lat arrays) ── */
+  const COAST_POLYS = [
+    /* ── North America ── */
+    [[-168,72],[-140,72],[-120,74],[-84,74],[-64,63],[-52,47],[-52,44],[-66,44],[-70,43],[-75,45],[-76,44],[-80,43],[-83,46],[-84,46],[-82,43],[-83,42],[-88,42],[-90,47],[-92,48],[-96,49],[-98,49],[-100,49],[-110,49],[-117,49],[-123,49],[-130,54],[-136,57],[-140,60],[-145,61],[-152,59],[-155,60],[-162,63],[-165,65],[-168,66],[-168,72]],
+    /* ── Central America / Caribbean bridge ── */
+    [[-83,10],[-77,8],[-75,9],[-76,11],[-83,15],[-88,16],[-90,18],[-88,20],[-85,21],[-84,23],[-80,25],[-80,27],[-83,30],[-88,30],[-90,29],[-94,29],[-97,26],[-97,22],[-96,19],[-92,18],[-90,15],[-89,13],[-83,10]],
+    /* ── South America ── */
+    [[-80,9],[-75,11],[-63,11],[-60,7],[-52,5],[-50,0],[-50,-5],[-35,-8],[-35,-12],[-38,-16],[-40,-21],[-42,-23],[-44,-23],[-48,-28],[-50,-30],[-52,-33],[-53,-35],[-58,-38],[-62,-41],[-65,-43],[-66,-46],[-68,-50],[-70,-52],[-68,-55],[-65,-56],[-63,-51],[-60,-52],[-65,-44],[-67,-40],[-65,-35],[-60,-25],[-55,-15],[-50,-10],[-44,-3],[-40,0],[-35,5],[-52,12],[-63,11],[-72,12],[-80,9]],
+    /* ── Europe ── */
+    [[-9,38],[-9,39],[-8,44],[-4,44],[-2,44],[0,43],[3,44],[5,44],[8,44],[10,56],[12,56],[15,57],[18,60],[24,65],[28,71],[30,70],[28,68],[26,65],[24,60],[28,56],[28,54],[20,54],[18,55],[14,54],[10,55],[8,57],[5,59],[5,58],[3,54],[-2,51],[-5,50],[-5,48],[-2,47],[-2,44],[-5,44],[-5,43],[-8,41],[-9,38]],
+    /* ── Scandinavia ── */
+    [[5,58],[8,57],[10,55],[14,54],[18,55],[20,54],[24,60],[28,56],[28,54],[24,57],[20,60],[18,65],[15,68],[18,70],[24,71],[28,71],[28,68],[26,65],[24,60],[20,65],[18,68],[15,67],[14,65],[12,62],[10,60],[8,58],[6,58],[5,58]],
+    /* ── Africa ── */
+    [[-18,15],[-16,20],[-17,21],[-15,22],[-13,27],[-8,29],[-5,30],[0,30],[5,32],[10,37],[14,37],[18,38],[24,38],[32,30],[36,22],[42,12],[44,12],[50,12],[52,14],[44,20],[40,22],[38,24],[36,30],[34,29],[30,22],[28,16],[26,10],[24,5],[22,0],[18,-5],[16,-10],[14,-18],[12,-22],[14,-25],[18,-28],[20,-30],[22,-32],[26,-34],[28,-34],[30,-30],[32,-26],[34,-22],[36,-18],[38,-12],[40,-10],[42,-12],[44,-12],[46,-14],[40,-12],[36,-12],[32,-10],[28,-5],[22,0],[18,5],[15,10],[12,14],[10,18],[8,22],[6,24],[2,28],[0,30],[4,30],[8,30],[12,28],[14,24],[16,20],[18,16],[16,12],[12,10],[10,6],[6,5],[4,5],[2,6],[0,6],[-2,5],[-4,5],[-6,5],[-10,5],[-14,10],[-16,12],[-18,15]],
+    /* ── Asia (mainland) ── */
+    [[26,42],[30,42],[36,36],[36,30],[42,12],[50,12],[54,18],[58,22],[62,22],[65,25],[68,24],[72,22],[72,20],[75,20],[78,8],[80,10],[82,14],[85,28],[88,28],[90,24],[92,24],[95,22],[100,4],[103,1],[105,1],[108,16],[110,20],[114,22],[118,24],[120,26],[122,28],[124,32],[122,36],[120,40],[120,45],[125,50],[130,45],[132,44],[135,46],[135,52],[138,46],[140,43],[142,46],[142,52],[140,56],[138,60],[136,54],[134,50],[130,54],[128,56],[126,52],[128,48],[124,48],[120,50],[114,54],[110,54],[106,52],[100,50],[96,52],[90,52],[88,48],[82,50],[80,54],[72,54],[68,52],[64,50],[60,46],[56,44],[52,44],[48,42],[44,42],[40,42],[36,42],[30,44],[26,44],[26,42]],
+    /* ── Indian subcontinent ── */
+    [[72,22],[72,20],[75,20],[78,8],[80,10],[82,14],[80,16],[78,18],[75,20],[72,22]],
+    /* ── Southeast Asia peninsula ── */
+    [[98,18],[102,22],[104,22],[108,16],[105,10],[103,1],[100,4],[98,8],[98,18]],
+    /* ── Australia ── */
+    [[114,-22],[116,-20],[120,-18],[125,-14],[130,-12],[136,-12],[140,-18],[144,-18],[148,-20],[150,-22],[152,-24],[152,-26],[150,-30],[150,-34],[148,-38],[146,-39],[144,-38],[142,-38],[140,-36],[138,-36],[136,-34],[132,-32],[128,-32],[124,-28],[120,-24],[116,-22],[114,-22]],
+    /* ── Japan ── */
+    [[130,31],[131,32],[132,34],[134,34],[136,36],[138,38],[140,40],[141,42],[142,44],[144,44],[145,42],[143,40],[141,38],[139,36],[138,34],[136,34],[134,32],[131,32],[130,31]],
+    /* ── British Isles ── */
+    [[-6,50],[-5,50],[-3,52],[-3,54],[-5,56],[-5,58],[-3,59],[-1,58],[1,52],[0,51],[-1,51],[-3,50],[-5,50],[-6,50]],
+    /* ── Greenland ── */
+    [[-44,60],[-24,60],[-18,66],[-18,72],[-24,76],[-36,76],[-46,72],[-52,68],[-52,64],[-44,60]],
+    /* ── New Zealand (simplified) ── */
+    [[166,-46],[168,-44],[170,-42],[172,-42],[172,-44],[170,-46],[168,-46],[166,-46]],
+  ];
+
+  function gmapDrawWorld(ctx, W, H) {
+    /* ocean */
+    ctx.fillStyle = '#0d1b2e';
+    ctx.fillRect(0, 0, W, H);
+
+    /* graticule — every 30° */
+    ctx.strokeStyle = 'rgba(148,163,184,0.07)';
+    ctx.lineWidth = 0.5;
+    for (let lon = -180; lon <= 180; lon += 30) {
+      const [x] = geoToXY(lon, 0, W, H);
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let lat = -90; lat <= 90; lat += 30) {
+      const [, y] = geoToXY(0, lat, W, H);
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+
+    /* equator highlight */
+    const [, eqY] = geoToXY(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(148,163,184,0.13)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(0, eqY); ctx.lineTo(W, eqY); ctx.stroke();
+
+    /* continents */
+    COAST_POLYS.forEach(ring => {
+      ctx.beginPath();
+      ring.forEach(([lon, lat], i) => {
+        const [x, y] = geoToXY(lon, lat, W, H);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.closePath();
+      ctx.fillStyle = '#1e3a5f';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(96,165,250,0.22)';
+      ctx.lineWidth = 0.7;
+      ctx.stroke();
+    });
+  }
+
+  function gmapDraw() {
+    if (!gmapCanvas) return;
+    const W = gmapCanvas.width, H = gmapCanvas.height;
+    const ctx = gmapCtx;
+    const t   = gmapPulseT;
+
+    gmapDrawWorld(ctx, W, H);
+
+    /* ── filter visible nodes ── */
+    const visibleIds = new Set(
+      GMAP_NODES.filter(n => gmapActiveRegion === 'ALL' || n.region === gmapActiveRegion).map(n => n.id)
+    );
+
+    /* ── node pixel positions from lon/lat ── */
+    function nxy(node) { return geoToXY(node.lon, node.lat, W, H); }
+
+    /* ── edges ── */
+    GMAP_EDGES.forEach(([a, b]) => {
+      if (!visibleIds.has(a) || !visibleIds.has(b)) return;
+      const na = GMAP_NODES.find(n => n.id === a);
+      const nb = GMAP_NODES.find(n => n.id === b);
+      const [ax, ay] = nxy(na), [bx, by] = nxy(nb);
+
+      const isCritical = na.status === 'critical' || nb.status === 'critical';
+      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+      ctx.strokeStyle = isCritical ? 'rgba(239,68,68,0.30)' : 'rgba(96,165,250,0.20)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      /* animated packet */
+      const progress = ((t * 0.35) + GMAP_NODES.indexOf(na) * 0.17) % 1;
+      const px = ax + (bx - ax) * progress, py = ay + (by - ay) * progress;
+      ctx.beginPath(); ctx.arc(px, py, 1.6, 0, Math.PI * 2);
+      ctx.fillStyle = isCritical ? 'rgba(252,165,165,0.85)' : 'rgba(147,197,253,0.85)';
+      ctx.fill();
+    });
+
+    /* ── nodes ── */
+    GMAP_NODES.forEach(node => {
+      if (!visibleIds.has(node.id)) return;
+      const [nx, ny] = nxy(node);
+      const col = GMAP_STATUS_COLOR[node.status];
+
+      /* outer pulse ring for critical / warning */
+      if (node.status === 'critical' || node.status === 'warning') {
+        const speed = node.status === 'critical' ? 3.8 : 2.4;
+        const pulse = 0.5 + 0.5 * Math.sin(t * speed);
+        const rMax  = node.status === 'critical' ? 13 : 9;
+        const alpha = 0.35 * (1 - pulse);
+        ctx.beginPath(); ctx.arc(nx, ny, 5 + rMax * pulse, 0, Math.PI * 2);
+        ctx.strokeStyle = col.replace('rgb(', 'rgba(').replace(')', `,${alpha})`);
+        ctx.lineWidth = 1.5; ctx.stroke();
+
+        /* second inner ring */
+        const pulse2 = 0.5 + 0.5 * Math.sin(t * speed + 1);
+        ctx.beginPath(); ctx.arc(nx, ny, 5 + (rMax * 0.5) * pulse2, 0, Math.PI * 2);
+        ctx.strokeStyle = col.replace('rgb(', 'rgba(').replace(')', `,${alpha * 0.5})`);
+        ctx.lineWidth = 0.8; ctx.stroke();
+      }
+
+      /* glow halo */
+      const grd = ctx.createRadialGradient(nx, ny, 0, nx, ny, 8);
+      grd.addColorStop(0, col + 'aa');
+      grd.addColorStop(1, col + '00');
+      ctx.beginPath(); ctx.arc(nx, ny, 8, 0, Math.PI * 2);
+      ctx.fillStyle = grd; ctx.fill();
+
+      /* core dot */
+      ctx.beginPath(); ctx.arc(nx, ny, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = col; ctx.fill();
+      ctx.strokeStyle = '#0d1b2e'; ctx.lineWidth = 1.2; ctx.stroke();
+
+      /* inner highlight */
+      ctx.beginPath(); ctx.arc(nx - 1.2, ny - 1.2, 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.fill();
+
+      /* label */
+      ctx.fillStyle = 'rgba(203,213,225,0.9)';
+      ctx.font = 'bold 8px -apple-system,system-ui,sans-serif';
+      ctx.fillText(node.id, nx + 7, ny + 3);
+    });
+
+    gmapPulseT += 0.022;
+    gmapAnimFrame = requestAnimationFrame(gmapDraw);
+  }
+
+  function gmapInit() {
+    gmapCanvas = document.getElementById('gmapCanvas');
+    if (!gmapCanvas) return;
+    gmapCtx = gmapCanvas.getContext('2d');
+    const wrap = document.getElementById('gmapWrap');
+
+    /* hi-DPI */
+    const dpr  = window.devicePixelRatio || 1;
+    const cssW = wrap.clientWidth  || 500;
+    const cssH = 280;
+    gmapCanvas.width  = cssW * dpr;
+    gmapCanvas.height = cssH * dpr;
+    gmapCanvas.style.width  = cssW + 'px';
+    gmapCanvas.style.height = cssH + 'px';
+    gmapCtx.scale(dpr, dpr);
+
+    /* reset view */
+    gmapZoom = 1; gmapPanX = 0; gmapPanY = 0;
+    gmapUpdateBadge();
+
+    if (gmapAnimFrame) cancelAnimationFrame(gmapAnimFrame);
+    gmapDraw();
+
+    /* ── remove old listeners before re-adding ── */
+    const c = gmapCanvas;
+    c.onmousedown = c.onmousemove = c.onmouseup = c.onmouseleave =
+    c.onclick = c.ondblclick = c.onwheel = c.ontouchstart =
+    c.ontouchmove = c.ontouchend = null;
+
+    /* ── WHEEL — zoom towards cursor ── */
+    c.addEventListener('wheel', e => {
+      e.preventDefault();
+      const rect = c.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      const factor = e.deltaY < 0 ? (1 + GMAP_ZOOM_STEP) : 1 / (1 + GMAP_ZOOM_STEP);
+      gmapZoomTo(factor, mx, my);
+    }, { passive: false });
+
+    /* ── MOUSE DRAG — pan ── */
+    let _drag = false, _lastX = 0, _lastY = 0, _moved = false;
+    c.addEventListener('mousedown', e => {
+      if (e.button !== 0) return;
+      _drag = true; _moved = false;
+      _lastX = e.clientX; _lastY = e.clientY;
+      wrap.classList.add('is-panning');
+    });
+    window.addEventListener('mousemove', e => {
+      if (!_drag) return;
+      const dx = e.clientX - _lastX, dy = e.clientY - _lastY;
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) _moved = true;
+      gmapPanX += dx; gmapPanY += dy;
+      _lastX = e.clientX; _lastY = e.clientY;
+    });
+    window.addEventListener('mouseup', () => {
+      _drag = false;
+      wrap.classList.remove('is-panning');
+    });
+
+    /* ── HOVER — tooltip ── */
+    c.addEventListener('mousemove', e => {
+      const rect = c.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      const hit = gmapNodeHit(mx, my);
+      const tip = document.getElementById('gmapTooltipEl');
+      if (hit) {
+        c.style.cursor = _drag ? 'grabbing' : 'pointer';
+        const col = GMAP_STATUS_COLOR[hit.status];
+        tip.innerHTML = `<div class="gmap-tooltip-title" style="color:${col}">${hit.label}</div>
+          <div class="gmap-tooltip-sub">${hit.id} · ${hit.region} · <span style="color:${col}">${hit.status.toUpperCase()}</span></div>`;
+        /* position: offset from cursor, keep inside wrap */
+        const wRect = wrap.getBoundingClientRect();
+        let tx = e.clientX - wRect.left + 12;
+        let ty = e.clientY - wRect.top  - 10;
+        tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
+        tip.classList.add('visible');
+      } else {
+        c.style.cursor = _drag ? 'grabbing' : 'grab';
+        tip.classList.remove('visible');
+      }
+    });
+    c.addEventListener('mouseleave', () => {
+      const tip = document.getElementById('gmapTooltipEl');
+      if (tip) tip.classList.remove('visible');
+    });
+
+    /* ── CLICK — show toast (only if not a drag) ── */
+    c.addEventListener('click', e => {
+      if (_moved) { _moved = false; return; }
+      const rect = c.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      const hit = gmapNodeHit(mx, my);
+      if (hit) showToast(`${hit.label} — ${hit.status.toUpperCase()} · ${hit.region}`, hit.status === 'critical' ? 'orange' : 'blue');
+    });
+
+    /* ── DOUBLE-CLICK — drill in (zoom 2× towards point) ── */
+    c.addEventListener('dblclick', e => {
+      const rect = c.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      gmapZoomTo(2, mx, my);
+    });
+
+    /* ── TOUCH — pinch zoom + drag ── */
+    let _t0 = null, _tDist0 = 0, _tMidX = 0, _tMidY = 0;
+    c.addEventListener('touchstart', e => {
+      if (e.touches.length === 1) {
+        _t0 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        _tDist0 = 0;
+      } else if (e.touches.length === 2) {
+        const dx = e.touches[1].clientX - e.touches[0].clientX;
+        const dy = e.touches[1].clientY - e.touches[0].clientY;
+        _tDist0 = Math.sqrt(dx*dx + dy*dy);
+        const rect = c.getBoundingClientRect();
+        _tMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+        _tMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+      }
+      e.preventDefault();
+    }, { passive: false });
+    c.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (e.touches.length === 1 && _t0) {
+        gmapPanX += e.touches[0].clientX - _t0.x;
+        gmapPanY += e.touches[0].clientY - _t0.y;
+        _t0 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      } else if (e.touches.length === 2 && _tDist0 > 0) {
+        const dx = e.touches[1].clientX - e.touches[0].clientX;
+        const dy = e.touches[1].clientY - e.touches[0].clientY;
+        const newDist = Math.sqrt(dx*dx + dy*dy);
+        gmapZoomTo(newDist / _tDist0, _tMidX, _tMidY);
+        _tDist0 = newDist;
+      }
+    }, { passive: false });
+    c.addEventListener('touchend', () => { _t0 = null; _tDist0 = 0; });
+  }
+
+  function gmapNodeHit(mx, my) {
+    if (!gmapCanvas) return null;
+    const dpr = window.devicePixelRatio || 1;
+    const W = gmapCanvas.width / dpr, H = gmapCanvas.height / dpr;
+    const hitR = Math.max(10, 10 / gmapZoom); /* easier to hit at low zoom */
+    return GMAP_NODES.find(n => {
+      const [nx, ny] = geoToXY(n.lon, n.lat, W, H);
+      return Math.sqrt((nx-mx)**2 + (ny-my)**2) < hitR;
+    });
+  }
+
+  function gmapFilter(btn, region) {
+    document.querySelectorAll('.gmap-filter-chip').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    gmapActiveRegion = region;
+    const visible = GMAP_NODES.filter(n => region==='ALL' || n.region===region);
+    document.getElementById('gmapNodeCount').textContent = visible.length + ' node' + (visible.length!==1?'s':'');
+    renderAnomalyList(region);
+  }
+
+  /* ── Anomaly data ── */
+  const ALL_ANOMALIES = [
+    { id:'AN-091', title:'BGP route flap — TK-01 ↔ HK-01', region:'JAPAN', severity:'critical', location:'Tokyo Core',      meta:'Packet loss 23%',        ago:'2m ago'  },
+    { id:'AN-090', title:'CRC error burst — NY-01 uplink',  region:'AMER',  severity:'critical', location:'New York Core',    meta:'4th recurrence / week',   ago:'5m ago'  },
+    { id:'AN-089', title:'Latency spike — LD-01 → FR-01',   region:'EMEA',  severity:'warning',  location:'London Edge',      meta:'p99 = 420ms (+210%)',     ago:'11m ago' },
+    { id:'AN-088', title:'High CPU — OS-01 control plane',  region:'JAPAN', severity:'warning',  location:'Osaka Edge',       meta:'CPU 91% / 15m avg',       ago:'18m ago' },
+    { id:'AN-087', title:'Asymmetric routing — HK-01',      region:'APAC',  severity:'warning',  location:'Hong Kong Edge',   meta:'Return path divergence',  ago:'24m ago' },
+    { id:'AN-086', title:'MTU mismatch — SG-01 peering',    region:'APAC',  severity:'info',     location:'Singapore Hub',    meta:'MTU 1480 vs 1500',        ago:'31m ago' },
+    { id:'AN-085', title:'Certificate expiry — DU-01',      region:'EMEA',  severity:'info',     location:'Dubai Hub',        meta:'Expires in 6 days',       ago:'1h ago'  },
+    { id:'AN-084', title:'Packet drop — SP-01 → NY-01',     region:'AMER',  severity:'info',     location:'São Paulo Hub',    meta:'Drop rate 0.8%',          ago:'1h ago'  },
+  ];
+
+  function renderAnomalyList(region) {
+    const list = document.getElementById('anomalyList');
+    if (!list) return;
+    const items = ALL_ANOMALIES.filter(a => region==='ALL' || a.region===region);
+    list.innerHTML = '';
+    items.forEach((a, i) => {
+      const div = document.createElement('div');
+      div.className = 'anomaly-item';
+      div.style.animationDelay = (i * 0.04) + 's';
+      div.draggable = true;
+      div.dataset.anomalyId = a.id;
+      div.innerHTML = `
+        <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;margin-right:2px;">
+          <svg width="9" height="12" viewBox="0 0 9 14" fill="none" style="opacity:0.35;flex-shrink:0">
+            <circle cx="2.5" cy="2"  r="1.5" fill="currentColor"/>
+            <circle cx="6.5" cy="2"  r="1.5" fill="currentColor"/>
+            <circle cx="2.5" cy="7"  r="1.5" fill="currentColor"/>
+            <circle cx="6.5" cy="7"  r="1.5" fill="currentColor"/>
+            <circle cx="2.5" cy="12" r="1.5" fill="currentColor"/>
+            <circle cx="6.5" cy="12" r="1.5" fill="currentColor"/>
+          </svg>
+          <div class="anomaly-dot ${a.severity}"></div>
+        </div>
+        <div class="anomaly-content">
+          <div class="anomaly-title">${a.title}</div>
+          <div class="anomaly-meta"><span>${a.location}</span><span>${a.meta}</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
+          <span class="anomaly-tag ${a.severity}">${a.severity.toUpperCase()}</span>
+          <span class="anomaly-time">${a.ago}</span>
+        </div>`;
+
+      /* drag events */
+      div.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('anomalyId', a.id);
+        e.dataTransfer.effectAllowed = 'copy';
+        setTimeout(() => div.classList.add('is-dragging'), 0);
+        /* highlight BOTH drop zones */
+        ['canvasInputWrap','aiInputWrap'].forEach(id => {
+          const w = document.getElementById(id);
+          if (w) w.classList.add('drag-over');
+        });
+      });
+      div.addEventListener('dragend', () => {
+        div.classList.remove('is-dragging');
+        ['canvasInputWrap','aiInputWrap'].forEach(id => {
+          const w = document.getElementById(id);
+          if (w) w.classList.remove('drag-over');
+        });
+      });
+
+      div.addEventListener('click', () => showToast(`${a.id}: ${a.title} — drag to AI input to analyse`, a.severity==='critical'?'orange':'blue'));
+      list.appendChild(div);
+    });
+    const critical = items.filter(a=>a.severity==='critical').length;
+    const badge = document.getElementById('anomalyBadge');
+    if (badge) badge.textContent = critical || items.length;
+  }
+
+  /* ── Wire both input wraps as drop targets ── */
+  function _wireDropTarget(wrap) {
+    if (!wrap || wrap._dropReady) return;
+    wrap._dropReady = true;
+
+    wrap.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      wrap.classList.add('drag-over');
+    });
+    wrap.addEventListener('dragleave', e => {
+      if (!wrap.contains(e.relatedTarget)) wrap.classList.remove('drag-over');
+    });
+    wrap.addEventListener('drop', e => {
+      e.preventDefault();
+      wrap.classList.remove('drag-over');
+      const id = e.dataTransfer.getData('anomalyId');
+      const anomaly = ALL_ANOMALIES.find(a => a.id === id);
+      if (!anomaly) return;
+      closeSettingsPanel();
+      showToast(`Analysing ${anomaly.id} on canvas…`, 'blue');
+      setTimeout(() => addAnomalyCanvasTile(anomaly), 350);
+    });
+  }
+
+  function initAnomalyDropZone() {
+    _wireDropTarget(document.getElementById('canvasInputWrap'));
+    _wireDropTarget(document.getElementById('aiInputWrap'));
+  }
+
+  /* init on load so canvas drop zone is ready immediately */
+  document.addEventListener('DOMContentLoaded', initAnomalyDropZone);
+
+  /* ── Anomaly-specific canvas tile ── */
+  /* ── Per-anomaly detail data ── */
+  const ANOMALY_DETAIL = {
+    'AN-091': {
+      theme: { color:'#ef4444', color2:'#f97316', label:'loss%', type:'area',    base:18, variance:14 },
+      kpi: '23%', kpiLabel: 'packet loss', kpiCls: 'red',
+      metrics: [
+        { label:'BGP sessions affected', value:'4/6',    pct:66, cls:'red'   },
+        { label:'Reroute ready',          value:'Yes',   pct:100, cls:'green' },
+        { label:'Avg loss (7d)',          value:'1.2%',  pct:12,  cls:'green' },
+      ],
+      chips: [{ label:'P1 · Critical', cls:'red' },{ label:'Agent active', cls:'green' },{ label:'Auto-reroute queued', cls:'' }],
+      analysis: 'BGP route flap on TK-01 ↔ HK-01 link. 4 of 6 BGP sessions dropping packets at 23%. Agent has pre-computed an alternate path via SG-01. Awaiting approval to execute reroute.',
+      action: 'Approve reroute'
+    },
+    'AN-090': {
+      theme: { color:'#ef4444', color2:'#fca5a5', label:'err/s', type:'bar',     base:12, variance:9  },
+      kpi: '4th', kpiLabel: 'recurrence this week', kpiCls: 'red',
+      metrics: [
+        { label:'CRC error rate',  value:'847/s',  pct:85,  cls:'red'   },
+        { label:'Port health',     value:'Fail',   pct:5,   cls:'red'   },
+        { label:'Uptime (7d)',     value:'98.1%',  pct:98,  cls:'green' },
+      ],
+      chips: [{ label:'P1 · Critical', cls:'red' },{ label:'Port replace needed', cls:'amber' },{ label:'Escalated', cls:'red' }],
+      analysis: 'Recurring CRC burst on NY-01 uplink port 7/4. Hardware degradation confirmed — 4th incident in 7 days. Agent recommends immediate port replacement; auto-remediation blocked by policy.',
+      action: 'Escalate to ops'
+    },
+    'AN-089': {
+      theme: { color:'#f59e0b', color2:'#fbbf24', label:'ms',    type:'line',    base:210, variance:120 },
+      kpi: '420ms', kpiLabel: 'p99 latency', kpiCls: 'amber',
+      metrics: [
+        { label:'p99 latency',     value:'420ms',  pct:84,  cls:'amber' },
+        { label:'Baseline p99',    value:'200ms',  pct:40,  cls:'green' },
+        { label:'Affected flows',  value:'1 240',  pct:62,  cls:'amber' },
+      ],
+      chips: [{ label:'P2 · Warning', cls:'amber' },{ label:'Monitoring', cls:'green' },{ label:'+210% vs baseline', cls:'amber' }],
+      analysis: 'Latency spike on LD-01 → FR-01 link. p99 at 420ms, 210% above baseline. Likely cause: congestion on trans-Atlantic segment. Agent is sampling every 30s; escalation triggers at 500ms.',
+      action: 'View traffic path'
+    },
+    'AN-088': {
+      theme: { color:'#f59e0b', color2:'#fbbf24', label:'%',     type:'area',    base:88, variance:8   },
+      kpi: '91%', kpiLabel: 'CPU avg (15m)', kpiCls: 'amber',
+      metrics: [
+        { label:'CPU now',         value:'91%',    pct:91,  cls:'amber' },
+        { label:'Memory',          value:'74%',    pct:74,  cls:'green' },
+        { label:'Control-plane Q', value:'High',   pct:78,  cls:'amber' },
+      ],
+      chips: [{ label:'P2 · Warning', cls:'amber' },{ label:'CPU throttle risk', cls:'amber' },{ label:'No drop yet', cls:'green' }],
+      analysis: 'Sustained 91% CPU on OS-01 control plane over 15 min avg. BGP prefix churn likely cause. Agent recommends dampening timers adjustment. No packet drop observed yet.',
+      action: 'Apply dampening'
+    },
+    'AN-087': {
+      theme: { color:'#f59e0b', color2:'#06b6d4', label:'ms',    type:'line',    base:55, variance:40  },
+      kpi: '2 paths', kpiLabel: 'divergent routes', kpiCls: 'amber',
+      metrics: [
+        { label:'Forward path',    value:'OK',     pct:100, cls:'green' },
+        { label:'Return path',     value:'Diverge',pct:40,  cls:'amber' },
+        { label:'RTT delta',       value:'+38ms',  pct:38,  cls:'amber' },
+      ],
+      chips: [{ label:'P2 · Warning', cls:'amber' },{ label:'Asymmetric routing', cls:'amber' },{ label:'Monitoring', cls:'green' }],
+      analysis: 'Forward and return paths on HK-01 diverging. RTT delta of 38ms indicates asymmetric routing. Agent traced return via MU-01 instead of expected SG-01. Config correction prepared.',
+      action: 'Apply route fix'
+    },
+    'AN-086': {
+      theme: { color:'#3b82f6', color2:'#06b6d4', label:'pps',   type:'scatter', base:4100, variance:700 },
+      kpi: '1480', kpiLabel: 'MTU mismatch (vs 1500)', kpiCls: 'blue',
+      metrics: [
+        { label:'Local MTU',       value:'1480',   pct:74,  cls:'amber' },
+        { label:'Peer MTU',        value:'1500',   pct:75,  cls:'green' },
+        { label:'Frag rate',       value:'0.3%',   pct:3,   cls:'green' },
+      ],
+      chips: [{ label:'P3 · Info', cls:'blue' },{ label:'Fragmentation low', cls:'green' },{ label:'Fix at next window', cls:'' }],
+      analysis: 'MTU mismatch on SG-01 peering interface. Local configured at 1480 vs peer 1500. Fragmentation rate is 0.3% — low impact. Agent recommends aligning MTU at next maintenance window.',
+      action: 'Schedule fix'
+    },
+    'AN-085': {
+      theme: { color:'#3b82f6', color2:'#818cf8', label:'days',  type:'bar',     base:6, variance:1    },
+      kpi: '6 days', kpiLabel: 'until cert expiry', kpiCls: 'amber',
+      metrics: [
+        { label:'Certificate valid',value:'6 days', pct:8,  cls:'amber' },
+        { label:'Services affected', value:'3',     pct:30,  cls:'amber' },
+        { label:'Auto-renew',        value:'No',    pct:0,   cls:'red'   },
+      ],
+      chips: [{ label:'P3 · Info', cls:'blue' },{ label:'Expiry in 6d', cls:'amber' },{ label:'Manual renew needed', cls:'red' }],
+      analysis: 'TLS certificate on DU-01 API gateway expires in 6 days. Auto-renew is not configured. 3 downstream services will be impacted. Agent has prepared the renewal CSR — requires human approval.',
+      action: 'Renew certificate'
+    },
+    'AN-084': {
+      theme: { color:'#3b82f6', color2:'#06b6d4', label:'drop%', type:'line',    base:0.7, variance:0.4 },
+      kpi: '0.8%', kpiLabel: 'packet drop rate', kpiCls: 'blue',
+      metrics: [
+        { label:'Drop rate',       value:'0.8%',   pct:8,   cls:'amber' },
+        { label:'Affected traffic','value':'MPLS', pct:35,  cls:'amber' },
+        { label:'SLA threshold',   value:'1.0%',   pct:10,  cls:'green' },
+      ],
+      chips: [{ label:'P3 · Info', cls:'blue' },{ label:'Below SLA threshold', cls:'green' },{ label:'Watching', cls:'' }],
+      analysis: 'Minor packet drop on SP-01 → NY-01 MPLS circuit at 0.8%. Below 1.0% SLA threshold. Agent flagged for awareness — no immediate action. Will auto-escalate if drop rate exceeds SLA.',
+      action: 'Mark as watched'
+    },
+  };
+
+  /* ── Progress bar SVG for metrics ── */
+  function _metricBar(pct, cls) {
+    const col = { red:'#ef4444', amber:'#f59e0b', green:'#22c55e', blue:'#3b82f6' }[cls] || '#6366f1';
+    const W = 100, H = 4, r = 2;
+    const fill = Math.max(2, pct);
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;border-radius:2px;overflow:visible">
+      <rect x="0" y="0" width="${W}" height="${H}" rx="${r}" fill="#f3f4f6"/>
+      <rect x="0" y="0" width="${fill}" height="${H}" rx="${r}" fill="${col}"/>
+    </svg>`;
+  }
+
+  function addAnomalyCanvasTile(anomaly) {
+    const grid = document.getElementById('canvasTilesGrid');
+    if (!grid) return;
+
+    if (grid.querySelectorAll('.canvas-tile, .anomaly-canvas-tile').length >= 6) {
+      const msg = document.getElementById('canvasTilesFull');
+      if (msg) { msg.classList.add('visible'); setTimeout(() => msg.classList.remove('visible'), 2500); }
+      return;
+    }
+
+    const d = ANOMALY_DETAIL[anomaly.id] || {
+      theme: { color:'#6366f1', color2:'#a78bfa', label:'val', type:'area', base:60, variance:25 },
+      kpi: '—', kpiLabel: anomaly.meta, kpiCls: 'blue',
+      metrics: [],
+      chips: [{ label: anomaly.severity.toUpperCase(), cls: anomaly.severity === 'critical' ? 'red' : anomaly.severity === 'warning' ? 'amber' : 'blue' }],
+      analysis: `Agent is monitoring ${anomaly.title} at ${anomaly.location}. ${anomaly.meta}.`,
+      action: 'View details'
+    };
+
+    /* build chart using the same helpers as normal tiles */
+    const vals  = _tileSeeded(anomaly.id, d.theme.base, d.theme.variance, 12);
+    const last  = vals[vals.length - 1];
+    const peak  = Math.max(...vals);
+    const chartSvg = _buildTileSVG(vals, d.theme);
+
+    /* severity colour */
+    const sevCol = { critical:'#ef4444', warning:'#f59e0b', info:'#3b82f6' }[anomaly.severity] || '#6366f1';
+    const kpiColStyle = { red:'color:#ef4444', amber:'color:#f59e0b', blue:'color:#3b82f6', green:'color:#22c55e' }[d.kpiCls] || '';
+
+    /* metrics rows */
+    const metricsHtml = d.metrics.map(m => `
+      <div style="margin-bottom:7px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+          <span style="font-size:10px;color:#6b7280;">${m.label}</span>
+          <span style="font-size:10px;font-weight:600;color:#374151;">${m.value}</span>
+        </div>
+        ${_metricBar(m.pct, m.cls)}
+      </div>`).join('');
+
+    /* chips */
+    const chipsHtml = d.chips.map(c =>
+      `<span class="act-chip ${c.cls}">${c.label}</span>`).join('');
+
+    const tile = document.createElement('div');
+    tile.className = 'anomaly-canvas-tile';
+    tile.innerHTML = `
+      <!-- header -->
+      <div class="act-header">
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;">
+            <span style="width:7px;height:7px;border-radius:50%;background:${sevCol};flex-shrink:0;display:inline-block;"></span>
+            <span class="act-id">${anomaly.id} · ${anomaly.region} · ${anomaly.ago}</span>
+          </div>
+          <div class="act-title">${anomaly.title}</div>
+        </div>
+        <button class="act-close" onclick="(function(btn){
+          const t=btn.closest('.anomaly-canvas-tile'); t.style.transition='opacity 0.2s,transform 0.2s'; t.style.opacity='0'; t.style.transform='scale(0.93)';
+          setTimeout(()=>{ t.remove(); const g=document.getElementById('canvasTilesGrid'); if(!g.querySelector('.canvas-tile,.anomaly-canvas-tile')) g.classList.remove('has-tiles'); },210);
+        })(this)" title="Remove">✕</button>
+      </div>
+
+      <!-- KPI row -->
+      <div style="display:flex;align-items:baseline;gap:4px;margin:6px 0 4px;">
+        <span style="font-size:22px;font-weight:300;letter-spacing:-0.5px;line-height:1;${kpiColStyle}">${d.kpi}</span>
+        <span style="font-size:10px;color:#9ca3af;">${d.kpiLabel}</span>
+      </div>
+
+      <!-- chips -->
+      <div class="act-chips" style="margin-bottom:8px;">${chipsHtml}</div>
+
+      <!-- chart -->
+      <div style="height:62px;margin-bottom:8px;border-radius:6px;overflow:hidden;background:rgba(248,250,252,0.6);">
+        ${chartSvg}
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:#9ca3af;margin-bottom:8px;">
+        <span>Now: <strong style="color:#374151;">${last} ${d.theme.label}</strong></span>
+        <span>Peak: <strong style="color:#374151;">${peak} ${d.theme.label}</strong></span>
+        <span>12 intervals</span>
+      </div>
+
+      <!-- metrics -->
+      ${d.metrics.length ? `<div style="border-top:1px solid #f3f4f6;padding-top:8px;margin-bottom:8px;">${metricsHtml}</div>` : ''}
+
+      <!-- AI analysis -->
+      <div class="act-ai-response">
+        <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px;">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2 2"/></svg>
+          <strong style="font-size:10px;color:#6366f1;letter-spacing:0.3px;">AI ANALYSIS</strong>
+        </div>
+        <div style="font-size:11px;color:#374151;line-height:1.6;">${d.analysis}</div>
+        <button onclick="showToast('${d.action} initiated for ${anomaly.id}','blue')" style="margin-top:8px;width:100%;padding:5px 0;border-radius:5px;border:1px solid #6366f1;background:none;color:#6366f1;font-size:11px;font-weight:600;cursor:pointer;transition:background 0.15s;"
+          onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='none'">${d.action} →</button>
+      </div>`;
+
+    grid.appendChild(tile);
+    grid.classList.add('has-tiles');
+
+    /* entry flash */
+    requestAnimationFrame(() => {
+      tile.style.boxShadow = `0 0 0 2px ${sevCol}`;
+      setTimeout(() => tile.style.boxShadow = '', 900);
+    });
+  }
+
+  function runAnomalyScan() {
+    const btn = document.getElementById('anomalyScanBtn');
+    if (btn.classList.contains('scanning')) return;
+    btn.classList.add('scanning');
+    btn.querySelector('span') && (btn.querySelector('span').textContent = 'Scanning…');
+    const list = document.getElementById('anomalyList');
+    list.innerHTML = '';
+
+    /* staggered reveal after simulated scan */
+    setTimeout(() => {
+      btn.classList.remove('scanning');
+      btn.innerHTML = `<svg class="scan-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 11-9-9"/><path d="M21 3v5h-5"/></svg> Scan now`;
+      renderAnomalyList(gmapActiveRegion);
+      showToast('Anomaly scan complete — ' + ALL_ANOMALIES.filter(a=>gmapActiveRegion==='ALL'||a.region===gmapActiveRegion).length + ' anomalies found', 'blue');
+    }, 1800);
+  }
+
+  function openSettingsPanel() {
+    const panel = document.getElementById('settingsPanel');
+    const btn   = document.getElementById('settingsBtn');
+    const isOpen = panel.classList.contains('open');
+    if (isOpen) {
+      closeSettingsPanel();
+    } else {
+      panel.classList.add('open');
+      btn.classList.add('settings-active');
+      /* init map after panel width transition finishes */
+      setTimeout(() => { gmapInit(); renderAnomalyList('ALL'); initAnomalyDropZone(); }, 320);
+    }
+  }
+
+  function closeSettingsPanel() {
+    document.getElementById('settingsPanel').classList.remove('open');
+    document.getElementById('settingsBtn').classList.remove('settings-active');
+    if (gmapAnimFrame) { cancelAnimationFrame(gmapAnimFrame); gmapAnimFrame = null; }
   }
 
   /* ────────────────────────────────────────────
