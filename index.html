@@ -135,22 +135,22 @@
     /* Two-column split */
     .split {
       display: grid;
-      grid-template-columns: 1fr 20px 380px;
+      grid-template-columns: 1fr 24px 380px;
       width: 100%; align-items: stretch;
       transition: grid-template-columns 0.3s cubic-bezier(.4,0,.2,1);
     }
     .split.rail-collapsed {
-      grid-template-columns: 1fr 20px 0px;
+      grid-template-columns: 1fr 24px 0px;
     }
     .main-col {
       padding: 3rem 3rem 3rem 3.5rem;
-      border-right: 1px solid var(--border);
     }
     .rail-col {
       background: var(--rail);
       padding: 2.5rem 2rem;
       overflow: hidden;
       transition: padding 0.3s cubic-bezier(.4,0,.2,1);
+      border-left: 1px solid var(--border);
     }
     .split.rail-collapsed .rail-col {
       padding-left: 0; padding-right: 0;
@@ -161,26 +161,25 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      background: #f4f4f4;
       border-left: 1px solid var(--border);
       border-right: 1px solid var(--border);
-      background: var(--bg);
-      position: relative;
       cursor: pointer;
       transition: background 0.15s;
+      position: relative;
+      z-index: 1;
     }
-    .rail-toggle-col:hover { background: var(--surface); }
+    .rail-toggle-col:hover { background: #e8e8e8; }
     .rail-toggle-col:hover .rail-toggle-pill { background: var(--blue); color: #fff; border-color: var(--blue); }
 
     .rail-toggle-pill {
-      position: sticky;
-      top: 50%;
-      width: 20px; height: 48px;
+      width: 24px; height: 48px;
       background: #fff;
       border: 1px solid var(--border);
       border-radius: 4px;
       display: flex; align-items: center; justify-content: center;
       color: var(--muted);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.12);
       transition: background 0.15s, color 0.15s, border-color 0.15s;
       cursor: pointer;
     }
