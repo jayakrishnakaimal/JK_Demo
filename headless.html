@@ -291,7 +291,7 @@
   /* greeting overlay */
   .greeting {
     position: absolute;
-    bottom: 40px;
+    bottom: 28px;
     left: 28px;
     right: 28px;
   }
@@ -307,14 +307,171 @@
     font-size: 13px;
     font-weight: 400;
     color: #4b5563;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
   }
 
   .quick-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    margin-bottom: 10px;
   }
+
+  /* ── AI scenario input row ── */
+  .canvas-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .canvas-input-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.82);
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    backdrop-filter: blur(8px);
+    padding: 0 10px 0 12px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .canvas-input-wrap:focus-within {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    background: rgba(255,255,255,0.96);
+  }
+  .canvas-input-icon {
+    flex-shrink: 0;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+  }
+  .canvas-input {
+    flex: 1;
+    height: 36px;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-family: inherit;
+    color: #111827;
+    outline: none;
+  }
+  .canvas-input::placeholder { color: #9ca3af; }
+  .canvas-input-send {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    background: #2563eb;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .canvas-input-send:hover { background: #1d4ed8; }
+  .canvas-input-send:active { transform: scale(0.92); }
+  .canvas-input-send svg { pointer-events: none; }
+
+  /* ── canvas graph tiles grid ── */
+  .canvas-tiles-grid {
+    position: absolute;
+    top: 16px; left: 16px; right: 16px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 12px;
+    max-height: calc(100% - 200px);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .canvas-tiles-grid.has-tiles {
+    pointer-events: all;
+    opacity: 1;
+  }
+  .canvas-tile {
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 10px;
+    padding: 12px 14px 10px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    box-shadow: 0 2px 12px rgba(59,130,246,0.08);
+    animation: tileSlideIn 0.35s cubic-bezier(.4,0,.2,1) both;
+    position: relative;
+    overflow: hidden;
+  }
+  @keyframes tileSlideIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .canvas-tile-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .canvas-tile-title {
+    font-size: 11px;
+    font-weight: 500;
+    color: #374151;
+    line-height: 1.4;
+    flex: 1;
+    padding-right: 6px;
+  }
+  .canvas-tile-close {
+    width: 16px; height: 16px;
+    border: none; background: none;
+    cursor: pointer; color: #9ca3af;
+    font-size: 13px; line-height: 1;
+    padding: 0; flex-shrink: 0;
+    border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.1s, color 0.1s;
+  }
+  .canvas-tile-close:hover { background: #fee2e2; color: #ef4444; }
+  .canvas-tile-kpi {
+    font-size: 20px;
+    font-weight: 300;
+    color: #111827;
+    letter-spacing: -0.5px;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  .canvas-tile-sub {
+    font-size: 10px;
+    color: #9ca3af;
+    margin-bottom: 8px;
+  }
+  .canvas-tile-chart {
+    flex: 1;
+    min-height: 0;
+  }
+  .canvas-tile-chart svg {
+    width: 100%;
+    height: 100%;
+    min-height: 48px;
+    display: block;
+  }
+  /* tile overflow message */
+  .canvas-tiles-full {
+    position: absolute;
+    bottom: 56px; left: 50%;
+    transform: translateX(-50%);
+    background: #1e293b;
+    color: #f8fafc;
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 5px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 10;
+  }
+  .canvas-tiles-full.visible { opacity: 1; }
 
   .quick-btn {
     background: rgba(255,255,255,0.80);
@@ -342,7 +499,7 @@
   /* ── AI Voice/Chat Panel trigger button ── */
   .ai-mic-trigger {
     position: absolute;
-    bottom: 44px; right: 28px;
+    bottom: 75px; right: 28px;
     width: 48px; height: 48px;
     border-radius: 50%;
     background: linear-gradient(135deg, #a5b4fc 0%, #818cf8 40%, #60a5fa 100%);
@@ -3036,16 +3193,40 @@
             <div class="bg-glow" id="bgGlow"></div>
           </div>
 
-          <!-- greeting -->
-          <div class="greeting">
-            <h1>Hello Fiona, Good morning</h1>
-            <p>FYI: 3 resolved cases await their 24h fix-holding check.</p>
-            <div class="quick-actions">
-              <button class="quick-btn" id="qbLatency" onclick="handleQuickAction('latency',this)">What's causing the latency spike?</button>
-              <button class="quick-btn" id="qbC4"      onclick="handleQuickAction('c4',this)">Show me cluster C4 status</button>
-              <button class="quick-btn" id="qbRca"     onclick="handleQuickAction('rca',this)">Run root cause analysis</button>
-            </div>
-          </div>
+         <!-- canvas graph tiles grid (3×2) -->
+         <div class="canvas-tiles-grid" id="canvasTilesGrid"></div>
+         <div class="canvas-tiles-full" id="canvasTilesFull">Canvas full — remove a tile to add more</div>
+
+         <!-- greeting -->
+         <div class="greeting">
+           <h1>Hello Fiona, Good morning</h1>
+           <p>FYI: 3 resolved cases await their 24h fix-holding check.</p>
+           <div class="quick-actions">
+             <button class="quick-btn" id="qbLatency" onclick="handleQuickAction('latency',this)">What's causing the latency spike?</button>
+             <button class="quick-btn" id="qbC4"      onclick="handleQuickAction('c4',this)">Show me cluster C4 status</button>
+             <button class="quick-btn" id="qbRca"     onclick="handleQuickAction('rca',this)">Run root cause analysis</button>
+           </div>
+           <!-- AI scenario input row -->
+           <div class="canvas-input-row">
+             <div class="canvas-input-wrap">
+               <span class="canvas-input-icon">
+                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                   <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
+                   <path d="M20 20l-3-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                 </svg>
+               </span>
+               <input class="canvas-input" id="canvasScenarioInput"
+                 placeholder="Describe a scenario to chart… e.g. latency over 24h"
+                 onkeydown="if(event.key==='Enter')addCanvasTile()"
+                 autocomplete="off" spellcheck="false"/>
+             </div>
+             <button class="canvas-input-send" onclick="addCanvasTile()" title="Generate chart tile">
+               <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                 <path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+               </svg>
+             </button>
+           </div>
+         </div>
 
           <!-- quick-action chart panel (slides up on click) -->
           <div class="qa-panel" id="qaPanel">
@@ -3314,42 +3495,43 @@
                 <!-- interactive crosshair + dot (positioned by JS) -->
                 <div class="cd-conf-crosshair" id="cdConfCross"></div>
                 <div class="cd-conf-dot-ring"  id="cdConfDot"></div>
-                <svg id="cdConfChart" width="100%" height="130" viewBox="0 0 390 130" preserveAspectRatio="none"
-                     style="display:block; cursor:crosshair;"
+                <svg id="cdConfChart" width="100%" height="120" viewBox="0 0 320 120"
+                     preserveAspectRatio="xMidYMid meet"
+                     style="display:block; cursor:crosshair; overflow:visible;"
                      onmousemove="cdConfHover(event)"
                      onmouseleave="cdConfHide()">
                   <defs>
                     <linearGradient id="cdGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.28"/>
+                      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.22"/>
                       <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.02"/>
                     </linearGradient>
-                    <clipPath id="cdClip"><rect id="cdClipRect" x="0" y="0" width="0" height="130"/></clipPath>
+                    <clipPath id="cdClip"><rect id="cdClipRect" x="0" y="0" width="0" height="120"/></clipPath>
                   </defs>
-                  <!-- y-axis labels -->
-                  <text x="2"  y="13"  font-size="9" fill="#d1d5db">100%</text>
-                  <text x="2"  y="44"  font-size="9" fill="#d1d5db">75%</text>
-                  <text x="2"  y="74"  font-size="9" fill="#d1d5db">50%</text>
-                  <text x="2"  y="104" font-size="9" fill="#d1d5db">25%</text>
-                  <!-- grid lines -->
-                  <line x1="28" y1="10"  x2="390" y2="10"  stroke="#f3f4f6" stroke-width="1"/>
-                  <line x1="28" y1="40"  x2="390" y2="40"  stroke="#f3f4f6" stroke-width="1"/>
-                  <line x1="28" y1="70"  x2="390" y2="70"  stroke="#f3f4f6" stroke-width="1"/>
-                  <line x1="28" y1="100" x2="390" y2="100" stroke="#f3f4f6" stroke-width="1"/>
+                  <!-- y-axis labels — fixed font, no stretch -->
+                  <text x="0"  y="12"  font-size="8" font-family="-apple-system,Segoe UI,system-ui,sans-serif" fill="#d1d5db">100%</text>
+                  <text x="0"  y="40"  font-size="8" font-family="-apple-system,Segoe UI,system-ui,sans-serif" fill="#d1d5db">75%</text>
+                  <text x="0"  y="68"  font-size="8" font-family="-apple-system,Segoe UI,system-ui,sans-serif" fill="#d1d5db">50%</text>
+                  <text x="0"  y="96"  font-size="8" font-family="-apple-system,Segoe UI,system-ui,sans-serif" fill="#d1d5db">25%</text>
+                  <!-- grid lines, starting after y-label area (x=32) -->
+                  <line x1="32" y1="8"  x2="320" y2="8"  stroke="#f0f1f3" stroke-width="0.8"/>
+                  <line x1="32" y1="36" x2="320" y2="36" stroke="#f0f1f3" stroke-width="0.8"/>
+                  <line x1="32" y1="64" x2="320" y2="64" stroke="#f0f1f3" stroke-width="0.8"/>
+                  <line x1="32" y1="92" x2="320" y2="92" stroke="#f0f1f3" stroke-width="0.8"/>
                   <!-- area + line drawn by JS -->
                   <path id="cdConfArea" clip-path="url(#cdClip)" fill="url(#cdGrad)"/>
-                  <path id="cdConfLine" clip-path="url(#cdClip)" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+                  <path id="cdConfLine" clip-path="url(#cdClip)" fill="none" stroke="#3b82f6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
                   <!-- data-point dots (filled by JS) -->
                   <g id="cdConfDots"></g>
                   <!-- x-axis step labels -->
-                  <text x="28"  y="126" font-size="9" fill="#d1d5db" text-anchor="middle">T1</text>
-                  <text x="73"  y="126" font-size="9" fill="#d1d5db" text-anchor="middle">T2</text>
-                  <text x="118" y="126" font-size="9" fill="#d1d5db" text-anchor="middle">T3</text>
-                  <text x="163" y="126" font-size="9" fill="#d1d5db" text-anchor="middle">T4</text>
-                  <text x="208" y="126" font-size="9" fill="#d1d5db" text-anchor="middle">T5</text>
-                  <text x="253" y="126" font-size="9" fill="#d1d5db" text-anchor="middle">T6</text>
-                  <text x="298" y="126" font-size="9" fill="#d1d5db" text-anchor="middle">T7</text>
-                  <text x="343" y="126" font-size="9" fill="#d1d5db" text-anchor="middle">T8</text>
-                  <text x="388" y="126" font-size="9" fill="#d1d5db" text-anchor="middle">T9</text>
+                  <text x="32"  y="114" font-size="8" font-family="-apple-system,Segoe UI,system-ui,sans-serif" fill="#d1d5db" text-anchor="middle">T1</text>
+                  <text x="65"  y="114" font-size="8" font-family="-apple-system,Segoe UI,system-ui,sans-serif" fill="#d1d5db" text-anchor="middle">T2</text>
+                  <text x="98"  y="114" font-size="8" font-family="-apple-system,Segoe UI,system-ui,sans-serif" fill="#d1d5db" text-anchor="middle">T3</text>
+                  <text x="131" y="114" font-size="8" font-family="-apple-system,Segoe UI,system-ui,sans-serif" fill="#d1d5db" text-anchor="middle">T4</text>
+                  <text x="164" y="114" font-size="8" font-family="-apple-system,Segoe UI,system-ui,sans-serif" fill="#d1d5db" text-anchor="middle">T5</text>
+                  <text x="197" y="114" font-size="8" font-family="-apple-system,Segoe UI,system-ui,sans-serif" fill="#d1d5db" text-anchor="middle">T6</text>
+                  <text x="230" y="114" font-size="8" font-family="-apple-system,Segoe UI,system-ui,sans-serif" fill="#d1d5db" text-anchor="middle">T7</text>
+                  <text x="263" y="114" font-size="8" font-family="-apple-system,Segoe UI,system-ui,sans-serif" fill="#d1d5db" text-anchor="middle">T8</text>
+                  <text x="296" y="114" font-size="8" font-family="-apple-system,Segoe UI,system-ui,sans-serif" fill="#d1d5db" text-anchor="middle">T9</text>
                 </svg>
               </div>
 
@@ -4233,6 +4415,138 @@
     });
 
     showToast('Timeline updated: ' + period + ' view', 'blue');
+  }
+
+  /* ────────────────────────────────────────────
+     CANVAS SCENARIO TILES (3×2 grid)
+  ──────────────────────────────────────────── */
+
+  // keyword → chart palette / type / seed
+  const _TILE_THEMES = {
+    latency:    { color:'#ef4444', label:'ms',   type:'line',  base:180, variance:80  },
+    throughput: { color:'#3b82f6', label:'Mbps', type:'bar',   base:850, variance:200 },
+    memory:     { color:'#8b5cf6', label:'%',    type:'area',  base:62,  variance:22  },
+    cpu:        { color:'#f59e0b', label:'%',    type:'area',  base:55,  variance:30  },
+    error:      { color:'#ef4444', label:'err/s',type:'bar',   base:12,  variance:10  },
+    packet:     { color:'#06b6d4', label:'pps',  type:'line',  base:4200,variance:800 },
+    disk:       { color:'#10b981', label:'%',    type:'area',  base:70,  variance:15  },
+    agent:      { color:'#6366f1', label:'score',type:'line',  base:88,  variance:8   },
+    confidence: { color:'#2563eb', label:'%',    type:'line',  base:82,  variance:12  },
+    cluster:    { color:'#0ea5e9', label:'nodes',type:'bar',   base:11,  variance:3   },
+    default:    { color:'#6366f1', label:'val',  type:'line',  base:60,  variance:25  },
+  };
+
+  function _tileTheme(text) {
+    const t = text.toLowerCase();
+    for (const key of Object.keys(_TILE_THEMES)) {
+      if (key !== 'default' && t.includes(key)) return _TILE_THEMES[key];
+    }
+    return _TILE_THEMES.default;
+  }
+
+  function _tileSeeded(seed, base, variance, n) {
+    // deterministic-ish noise from seed string
+    let h = 0;
+    for (let i = 0; i < seed.length; i++) h = (Math.imul(31, h) + seed.charCodeAt(i)) | 0;
+    const vals = [];
+    let v = base;
+    for (let i = 0; i < n; i++) {
+      h = (Math.imul(1664525, h) + 1013904223) | 0;
+      const delta = ((h & 0xffff) / 0xffff - 0.5) * variance;
+      v = Math.max(0, Math.round(v + delta));
+      vals.push(v);
+    }
+    return vals;
+  }
+
+  function _buildTileSVG(vals, theme) {
+    const W=180, H=60, pad=4;
+    const min = Math.min(...vals), max = Math.max(...vals);
+    const rng = max - min || 1;
+    const n = vals.length;
+    const xs = vals.map((_,i) => pad + (i/(n-1))*(W-pad*2));
+    const ys = vals.map(v => H - pad - ((v-min)/rng)*(H-pad*2));
+    const pts = xs.map((x,i) => [x, ys[i]]);
+    const col = theme.color;
+
+    if (theme.type === 'bar') {
+      const bw = Math.max(2, (W - pad*2) / n - 3);
+      const bars = pts.map(([x,y],i) =>
+        `<rect x="${(x-bw/2).toFixed(1)}" y="${y.toFixed(1)}" width="${bw}" height="${(H-pad-y).toFixed(1)}"
+          fill="${col}" opacity="0.75" rx="2"/>`
+      ).join('');
+      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"
+        style="width:100%;height:100%;display:block;">${bars}</svg>`;
+    }
+    // line / area
+    const lineD = `M${pts.map(p=>p.map(v=>v.toFixed(1)).join(',')).join(' L')}`;
+    const areaD = `${lineD} L${xs[n-1].toFixed(1)},${(H-pad)} L${xs[0].toFixed(1)},${(H-pad)} Z`;
+    const grad = `ctg${Math.abs(col.replace(/\D/g,''))}`;
+    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"
+      style="width:100%;height:100%;display:block;">
+      <defs>
+        <linearGradient id="${grad}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${col}" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="${col}" stop-opacity="0.02"/>
+        </linearGradient>
+      </defs>
+      ${theme.type==='area' ? `<path d="${areaD}" fill="url(#${grad})"/>` : ''}
+      <path d="${lineD}" fill="none" stroke="${col}" stroke-width="1.6"
+        stroke-linejoin="round" stroke-linecap="round"/>
+      ${pts.map(([x,y])=>`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2" fill="#fff" stroke="${col}" stroke-width="1.2"/>`).join('')}
+    </svg>`;
+  }
+
+  function addCanvasTile() {
+    const input = document.getElementById('canvasScenarioInput');
+    const text  = input.value.trim();
+    if (!text) { input.focus(); return; }
+
+    const grid = document.getElementById('canvasTilesGrid');
+    const tiles = grid.querySelectorAll('.canvas-tile');
+    if (tiles.length >= 6) {
+      // show full message
+      const msg = document.getElementById('canvasTilesFull');
+      msg.classList.add('visible');
+      setTimeout(() => msg.classList.remove('visible'), 2500);
+      return;
+    }
+
+    const theme = _tileTheme(text);
+    const vals  = _tileSeeded(text, theme.base, theme.variance, 10);
+    const last  = vals[vals.length-1];
+    const peak  = Math.max(...vals);
+    const svg   = _buildTileSVG(vals, theme);
+
+    const tile = document.createElement('div');
+    tile.className = 'canvas-tile';
+    tile.style.animationDelay = (tiles.length * 0.05) + 's';
+    tile.innerHTML = `
+      <div class="canvas-tile-header">
+        <div class="canvas-tile-title">${text.charAt(0).toUpperCase()+text.slice(0,38)}</div>
+        <button class="canvas-tile-close" onclick="removeCanvasTile(this)" title="Remove">✕</button>
+      </div>
+      <div class="canvas-tile-kpi">${last}<span style="font-size:11px;color:#9ca3af;margin-left:2px">${theme.label}</span></div>
+      <div class="canvas-tile-sub">peak ${peak} ${theme.label} · ${10} steps</div>
+      <div class="canvas-tile-chart">${svg}</div>`;
+
+    grid.appendChild(tile);
+    grid.classList.add('has-tiles');
+    input.value = '';
+    input.focus();
+  }
+
+  function removeCanvasTile(btn) {
+    const tile = btn.closest('.canvas-tile');
+    if (!tile) return;
+    tile.style.transition = 'opacity 0.2s, transform 0.2s';
+    tile.style.opacity = '0';
+    tile.style.transform = 'scale(0.92)';
+    setTimeout(() => {
+      tile.remove();
+      const grid = document.getElementById('canvasTilesGrid');
+      if (!grid.querySelector('.canvas-tile')) grid.classList.remove('has-tiles');
+    }, 220);
   }
 
   /* ────────────────────────────────────────────
@@ -5374,20 +5688,20 @@
     // show page
     document.getElementById('caseDetailPage').classList.add('visible');
 
-    // animate chart — new viewBox 390×130
-    const xs=[28,73,118,163,208,253,298,343,388], yMax=110, range=100;
+    // animate chart — viewBox 320×120, chart area x:32–320, y:8–100
+    const xs=[32,65,98,131,164,197,230,263,296], yMax=100, yMin=8, range=yMax-yMin;
     const vy = v => yMax - (v/100)*range;
     const vals = cd.confidence;
-    const pts  = vals.map((v,i) => [xs[i], vy(v)]);
+    const pts  = vals.slice(0,9).map((v,i) => [xs[i], vy(v)]);
     const lineD = `M${pts.map(p=>p.join(',')).join(' L')}`;
-    const areaD = `${lineD} L${xs[vals.length-1]},${yMax} L${xs[0]},${yMax} Z`;
+    const areaD = `${lineD} L${xs[pts.length-1]},${yMax} L${xs[0]},${yMax} Z`;
     document.getElementById('cdConfArea').setAttribute('d', areaD);
     document.getElementById('cdConfLine').setAttribute('d', lineD);
 
     // draw small data-point dots
     const dotsG = document.getElementById('cdConfDots');
     dotsG.innerHTML = pts.map(([cx,cy]) =>
-      `<circle cx="${cx}" cy="${cy}" r="3" fill="#fff" stroke="#3b82f6" stroke-width="1.5"/>`
+      `<circle cx="${cx}" cy="${cy}" r="2.5" fill="#fff" stroke="#3b82f6" stroke-width="1.4"/>`
     ).join('');
 
     // KPI badge = last value
@@ -5395,13 +5709,13 @@
 
     // store pts on SVG for hover
     document.getElementById('cdConfChart')._pts  = pts;
-    document.getElementById('cdConfChart')._vals = vals;
+    document.getElementById('cdConfChart')._vals = vals.slice(0,9);
 
     // animate clip
     const clip = document.getElementById('cdClipRect');
     clip.setAttribute('width','0');
     clip.style.transition = 'none';
-    requestAnimationFrame(()=>{ clip.style.transition='width 0.9s cubic-bezier(.4,0,.2,1)'; clip.setAttribute('width','390'); });
+    requestAnimationFrame(()=>{ clip.style.transition='width 0.9s cubic-bezier(.4,0,.2,1)'; clip.setAttribute('width','320'); });
 
     // animate gates bar
     document.getElementById('cdGatesBar').style.width = '0%';
@@ -5420,10 +5734,10 @@
     const vals = svg._vals;
     if (!pts || !pts.length) return;
 
-    // map mouse to SVG viewBox coords
+    // map mouse to SVG viewBox coords (320×120)
     const rect = svg.getBoundingClientRect();
-    const svgX = (e.clientX - rect.left) / rect.width  * 390;
-    const svgY = (e.clientY - rect.top)  / rect.height * 130;
+    const svgX = (e.clientX - rect.left) / rect.width  * 320;
+    const svgY = (e.clientY - rect.top)  / rect.height * 120;
 
     // find nearest data point (by x distance)
     let nearest = 0, minDist = Infinity;
@@ -5437,9 +5751,9 @@
 
     // crosshair: position in card-relative px
     const cardRect = document.getElementById('cdConfCard').getBoundingClientRect();
-    const crossX   = rect.left + (cx / 390) * rect.width - cardRect.left;
+    const crossX   = rect.left + (cx / 320) * rect.width - cardRect.left;
     const dotX     = crossX;
-    const dotY     = rect.top  + (cy / 130) * rect.height - cardRect.top;
+    const dotY     = rect.top  + (cy / 120) * rect.height - cardRect.top;
 
     const cross = document.getElementById('cdConfCross');
     cross.style.left = crossX + 'px';
