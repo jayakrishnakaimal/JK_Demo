@@ -2725,36 +2725,68 @@
         <span>Live charts</span>
       </div>
     </div>
-    <div class="demo-banner-right">
-      <div class="demo-banner-preview">
+    <div class="demo-banner-right" id="demoBannerRight">
+      <!-- ambient glow orb behind the card -->
+      <div class="dbr-orb"></div>
+
+      <div class="demo-banner-preview" id="dbpPreview">
         <div class="dbp-topbar">
           <span class="dbp-dot" style="background:#ff5f57"></span>
           <span class="dbp-dot" style="background:#febc2e"></span>
           <span class="dbp-dot" style="background:#28c840"></span>
-          <span class="dbp-url">jayakrishnakaimal.github.io/JK_Demo/headless.html</span>
+          <span class="dbp-url" id="dbpUrl">headless.html</span>
         </div>
         <div class="dbp-screen">
-          <div class="dbp-nav"></div>
+          <div class="dbp-nav">
+            <!-- animated nav tabs -->
+            <div class="dbp-nav-tabs">
+              <span class="dbp-nav-tab active" id="dbpTab0">Canvas</span>
+              <span class="dbp-nav-tab" id="dbpTab1">Agentic Trace</span>
+              <span class="dbp-nav-tab" id="dbpTab2">Policy</span>
+            </div>
+          </div>
           <div class="dbp-body">
-            <div class="dbp-sidebar"></div>
+            <div class="dbp-sidebar">
+              <!-- sidebar mini stat bars -->
+              <div class="dbp-stat-bar" style="--h:55%;--c:#3b82f6;--d:0s"></div>
+              <div class="dbp-stat-bar" style="--h:80%;--c:#10b981;--d:.2s"></div>
+              <div class="dbp-stat-bar" style="--h:40%;--c:#f59e0b;--d:.4s"></div>
+            </div>
             <div class="dbp-main">
-              <div class="dbp-card" style="width:60%;height:14px;background:#e0e7ff;border-radius:2px;margin-bottom:8px"></div>
-              <div class="dbp-card" style="width:40%;height:10px;background:#f0f1f3;border-radius:2px;margin-bottom:14px"></div>
-              <div class="dbp-chips">
-                <span></span><span></span><span></span>
+              <!-- greeting skeleton lines -->
+              <div class="dbp-card dbp-shimmer" style="width:72%;height:11px;margin-bottom:6px"></div>
+              <div class="dbp-card dbp-shimmer" style="width:50%;height:8px;margin-bottom:12px;opacity:.6"></div>
+              <!-- animated chart bars -->
+              <div class="dbp-chart-bars" id="dbpBars">
+                <div class="dbp-bar" style="--bh:45%;--bc:#6366f1;--bd:0s"></div>
+                <div class="dbp-bar" style="--bh:70%;--bc:#3b82f6;--bd:.1s"></div>
+                <div class="dbp-bar" style="--bh:35%;--bc:#10b981;--bd:.2s"></div>
+                <div class="dbp-bar" style="--bh:85%;--bc:#f59e0b;--bd:.3s"></div>
+                <div class="dbp-bar" style="--bh:55%;--bc:#6366f1;--bd:.4s"></div>
+                <div class="dbp-bar" style="--bh:65%;--bc:#3b82f6;--bd:.5s"></div>
               </div>
+              <!-- input row -->
               <div class="dbp-input-row">
-                <div class="dbp-input"></div>
+                <div class="dbp-input">
+                  <span class="dbp-cursor" id="dbpCursor"></span>
+                </div>
                 <div class="dbp-send"></div>
               </div>
             </div>
           </div>
         </div>
+        <!-- hover overlay hint -->
+        <div class="dbp-hover-hint">Click to explore →</div>
       </div>
-      <a class="demo-banner-cta" href="headless.html" target="_blank">
-        Open live demo
-        <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M24 6H8a2 2 0 00-2 2v16a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2zm0 18H8V8h16v16zm-6-10h4v4h-2v-2h-6v6h-2V12h6z"/></svg>
-      </a>
+
+      <!-- CTA with pulse ring -->
+      <div class="demo-cta-wrap">
+        <div class="demo-cta-pulse"></div>
+        <a class="demo-banner-cta" href="headless.html" target="_blank">
+          Open live demo
+          <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M24 6H8a2 2 0 00-2 2v16a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2zm0 18H8V8h16v16zm-6-10h4v4h-2v-2h-6v6h-2V12h6z"/></svg>
+        </a>
+      </div>
     </div>
   </div>
 </section>
@@ -2767,7 +2799,6 @@
   }
   .demo-banner-inner {
     max-width: 1100px;
-    margin: 0 auto;
     display: flex;
     gap: 4rem;
     align-items: center;
@@ -2818,8 +2849,26 @@
     flex-direction: column;
     align-items: center;
     gap: 1.25rem;
+    position: relative;
   }
-  /* mini browser preview */
+
+  /* ── ambient orb behind mockup ── */
+  .dbr-orb {
+    position: absolute;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(99,102,241,0.18) 0%, rgba(59,130,246,0.10) 50%, transparent 75%);
+    top: -40px; left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    animation: dbrOrbPulse 4s ease-in-out infinite;
+  }
+  @keyframes dbrOrbPulse {
+    0%,100% { transform: translateX(-50%) scale(1);   opacity: .8; }
+    50%      { transform: translateX(-50%) scale(1.12); opacity: 1;  }
+  }
+
+  /* ── mini browser card ── */
   .demo-banner-preview {
     width: 280px;
     border: 1px solid #c6c6c6;
@@ -2827,7 +2876,29 @@
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0,0,0,0.10);
     background: #fff;
+    position: relative;
+    cursor: pointer;
+    transition: transform .3s cubic-bezier(.4,0,.2,1), box-shadow .3s;
   }
+  .demo-banner-preview:hover {
+    transform: translateY(-6px) rotate(.4deg);
+    box-shadow: 0 16px 40px rgba(99,102,241,0.18), 0 4px 12px rgba(0,0,0,0.10);
+  }
+
+  /* hover hint overlay */
+  .dbp-hover-hint {
+    position: absolute; inset: 0;
+    background: rgba(99,102,241,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: #4338ca;
+    font-family: var(--font);
+    opacity: 0;
+    transition: opacity .2s;
+    pointer-events: none;
+    letter-spacing: .04em;
+  }
+  .demo-banner-preview:hover .dbp-hover-hint { opacity: 1; }
+
   .dbp-topbar {
     display: flex;
     align-items: center;
@@ -2851,66 +2922,145 @@
     margin-left: 4px;
     font-family: monospace;
   }
+
+  /* ── animated nav tabs ── */
+  .dbp-nav {
+    height: 26px;
+    background: rgba(255,255,255,0.92);
+    border-bottom: 1px solid rgba(229,231,235,0.9);
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 6px;
+  }
+  .dbp-nav-tabs { display: flex; gap: 2px; align-items: flex-end; }
+  .dbp-nav-tab {
+    font-size: 7px; font-family: var(--font);
+    color: #9ca3af; padding: 3px 6px;
+    border-bottom: 2px solid transparent;
+    transition: color .3s, border-color .3s;
+    white-space: nowrap;
+  }
+  .dbp-nav-tab.active { color: #0f62fe; border-bottom-color: #0f62fe; }
+
   .dbp-screen {
-    height: 160px;
+    height: 170px;
     display: flex;
     flex-direction: column;
     background: linear-gradient(160deg, #f8fafd 0%, #ddeaf5 60%, #9ec8e0 100%);
   }
-  .dbp-nav {
-    height: 22px;
-    background: rgba(255,255,255,0.85);
-    border-bottom: 1px solid rgba(229,231,235,0.8);
-    flex-shrink: 0;
-  }
-  .dbp-body {
-    flex: 1;
-    display: flex;
-    min-height: 0;
-  }
+  .dbp-body { flex: 1; display: flex; min-height: 0; }
+
+  /* ── sidebar with animated stat bars ── */
   .dbp-sidebar {
-    width: 56px;
-    background: rgba(255,255,255,0.5);
+    width: 48px;
+    background: rgba(255,255,255,0.55);
     border-right: 1px solid rgba(229,231,235,0.5);
     flex-shrink: 0;
-  }
-  .dbp-main {
-    flex: 1;
-    padding: 14px 12px 10px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    gap: 4px;
+    padding: 6px 6px 8px;
   }
-  .dbp-chips {
+  .dbp-stat-bar {
+    height: var(--h);
+    max-height: 30px;
+    background: var(--c);
+    border-radius: 2px;
+    opacity: 0;
+    transform: scaleY(0);
+    transform-origin: bottom;
+    animation: dbpBarGrow .6s cubic-bezier(.4,0,.2,1) var(--d) forwards;
+  }
+  @keyframes dbpBarGrow {
+    to { opacity: .75; transform: scaleY(1); }
+  }
+
+  .dbp-main {
+    flex: 1; padding: 10px 10px 8px;
+    display: flex; flex-direction: column;
+    justify-content: flex-end; gap: 0;
+  }
+
+  /* skeleton shimmer */
+  .dbp-card {
+    border-radius: 2px;
+    background: rgba(255,255,255,0.6);
+  }
+  .dbp-shimmer {
+    background: linear-gradient(90deg,
+      rgba(255,255,255,0.4) 0%,
+      rgba(255,255,255,0.85) 40%,
+      rgba(255,255,255,0.4) 80%);
+    background-size: 200% 100%;
+    animation: dbpShimmer 2s ease-in-out infinite;
+  }
+  @keyframes dbpShimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ── animated chart bars in main area ── */
+  .dbp-chart-bars {
     display: flex;
-    gap: 5px;
+    align-items: flex-end;
+    gap: 3px;
+    height: 38px;
     margin-bottom: 8px;
   }
-  .dbp-chips span {
-    height: 14px;
+  .dbp-bar {
     flex: 1;
-    background: rgba(255,255,255,0.7);
-    border: 1px solid rgba(209,213,219,0.6);
-    border-radius: 2px;
+    height: var(--bh);
+    background: var(--bc);
+    border-radius: 2px 2px 0 0;
+    opacity: 0;
+    transform: scaleY(0);
+    transform-origin: bottom;
+    animation: dbpBarGrow .5s cubic-bezier(.4,0,.2,1) var(--bd) forwards;
   }
-  .dbp-input-row {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-  }
+
+  /* ── input row ── */
+  .dbp-input-row { display: flex; gap: 5px; align-items: center; }
   .dbp-input {
-    flex: 1;
-    height: 18px;
+    flex: 1; height: 16px;
     background: rgba(255,255,255,0.82);
     border: 1px solid rgba(209,213,219,0.7);
-    border-radius: 9px;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    display: flex; align-items: center; padding-left: 6px;
   }
   .dbp-send {
-    width: 18px; height: 18px;
-    border-radius: 50%;
+    width: 16px; height: 16px; border-radius: 50%;
     background: linear-gradient(135deg,#818cf8,#60a5fa);
     flex-shrink: 0;
   }
+
+  /* blinking cursor in input */
+  .dbp-cursor {
+    display: inline-block;
+    width: 1px; height: 8px;
+    background: #6366f1;
+    animation: dbpBlink .9s step-end infinite;
+  }
+  @keyframes dbpBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* ── CTA pulse ring ── */
+  .demo-cta-wrap { position: relative; display: inline-flex; }
+  .demo-cta-pulse {
+    position: absolute;
+    inset: 0;
+    border: 2px solid #0f62fe;
+    pointer-events: none;
+    animation: ctaPulse 2.4s ease-out infinite;
+  }
+  @keyframes ctaPulse {
+    0%   { transform: scale(1);    opacity: .6; }
+    70%  { transform: scale(1.18); opacity: 0;  }
+    100% { transform: scale(1.18); opacity: 0;  }
+  }
+
   /* CTA button */
   .demo-banner-cta {
     display: inline-flex;
@@ -2928,13 +3078,13 @@
     text-decoration: none;
     transition: background .15s;
     white-space: nowrap;
+    position: relative;
+    z-index: 1;
   }
-  .demo-banner-cta:hover {
-    background: var(--blue-h);
-    color: #fff;
-  }
+  .demo-banner-cta:hover { background: var(--blue-h); color: #fff; }
   .demo-banner-cta svg { flex-shrink: 0; transition: transform .2s; }
   .demo-banner-cta:hover svg { transform: translateX(2px) translateY(-2px); }
+
   @media (max-width: 860px) {
     .demo-banner-inner { flex-direction: column; gap: 2.5rem; }
     .demo-banner-right { width: 100%; align-items: flex-start; }
@@ -3645,6 +3795,69 @@ function dtrSet(lv, el) {
     _orig(n);
     if (n === 4) setTimeout(dfdTriggerAlert, 600);
   };
+}());
+</script>
+
+<script>
+/* ── demo-banner-right micro-interactions ── */
+(function () {
+  // 1. Typewriter URL animation
+  const urlEl = document.getElementById('dbpUrl');
+  if (urlEl) {
+    const full = 'jayakrishnakaimal.github.io/JK_Demo/headless.html';
+    let i = 0;
+    urlEl.textContent = '';
+    function typeUrl() {
+      if (i <= full.length) {
+        urlEl.textContent = full.slice(0, i++);
+        setTimeout(typeUrl, i < 30 ? 28 : 18);
+      }
+    }
+    // start after 600ms so bars finish growing first
+    setTimeout(typeUrl, 600);
+  }
+
+  // 2. Cycle active nav tab every 2.2s
+  const tabs = [
+    document.getElementById('dbpTab0'),
+    document.getElementById('dbpTab1'),
+    document.getElementById('dbpTab2'),
+  ];
+  if (tabs[0]) {
+    let activeTab = 0;
+    setInterval(() => {
+      tabs[activeTab].classList.remove('active');
+      activeTab = (activeTab + 1) % tabs.length;
+      tabs[activeTab].classList.add('active');
+    }, 2200);
+  }
+
+  // 3. Re-trigger bar grow animation on IntersectionObserver (replay when scrolled into view)
+  const bars = document.querySelectorAll('.dbp-bar, .dbp-stat-bar');
+  if ('IntersectionObserver' in window && bars.length) {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          bars.forEach(b => {
+            b.style.animation = 'none';
+            void b.offsetWidth; // reflow
+            b.style.animation = '';
+          });
+          obs.disconnect();
+        }
+      });
+    }, { threshold: 0.4 });
+    const preview = document.getElementById('dbpPreview');
+    if (preview) obs.observe(preview);
+  }
+
+  // 4. Click on preview card → navigate to headless.html
+  const preview = document.getElementById('dbpPreview');
+  if (preview) {
+    preview.addEventListener('click', () => {
+      window.open('headless.html', '_blank');
+    });
+  }
 }());
 </script>
 </body>
