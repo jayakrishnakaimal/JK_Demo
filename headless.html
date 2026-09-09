@@ -663,6 +663,23 @@
     color: #4b5563;
     margin-bottom: 14px;
   }
+  .greeting-notice {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #edf5ff;
+    border: 1px solid #97c1ff;
+    border-left: 3px solid #0f62fe;
+    border-radius: 4px;
+    padding: 7px 12px 7px 10px;
+    margin-bottom: 14px;
+    font-size: 12px;
+    font-weight: 400;
+    color: #161616;
+    line-height: 1.4;
+  }
+  .greeting-notice strong { font-weight: 600; color: #0043ce; }
+  .greeting-notice svg { flex-shrink: 0; }
 
   .quick-actions {
     display: flex;
@@ -3853,7 +3870,14 @@
          <!-- greeting -->
          <div class="greeting">
            <h1>Hello Fiona, Good morning</h1>
-           <p>FYI: 3 resolved cases await their 24h fix-holding check.</p>
+           <div class="greeting-notice">
+             <!-- IBM Carbon "Information" icon (16px) -->
+             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 32 32" fill="#0f62fe">
+               <path d="M17 22V16h-4v2h2v4h-2v2h6v-2zM16 7a1.5 1.5 0 1 0 1.5 1.5A1.5 1.5 0 0 0 16 7z"/>
+               <path d="M16 30a14 14 0 1 1 14-14 14 14 0 0 1-14 14zm0-26a12 12 0 1 0 12 12A12 12 0 0 0 16 4z"/>
+             </svg>
+             <span>FYI: <strong>3 resolved cases</strong> await their 24h fix-holding check.</span>
+           </div>
            <div class="quick-actions">
              <button class="quick-btn" id="qbLatency" onclick="handleQuickAction('latency',this)">What's causing the latency spike?</button>
              <button class="quick-btn" id="qbC4"      onclick="handleQuickAction('c4',this)">Show me cluster C4 status</button>
