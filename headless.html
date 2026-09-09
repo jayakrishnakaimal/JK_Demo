@@ -1721,34 +1721,42 @@
     color: #ffffff;
     border: none;
     border-radius: 6px;
-    padding: 10px 0;
-    font-size: 14px;
+    padding: 6px 0;
+    font-size: 13px;
     font-weight: 500;
     cursor: pointer;
     font-family: inherit;
-    transition: background 0.15s, transform 0.1s;
+    transition: all 0.15s;
     text-align: center;
     position: relative; overflow: hidden;
   }
-  .cd-btn-approve:hover:not(:disabled) { background: #1d4ed8; }
-  .cd-btn-approve:active:not(:disabled) { transform: scale(0.97); }
+  .cd-btn-approve:hover:not(:disabled) {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(37,99,235,0.3);
+  }
+  .cd-btn-approve:active:not(:disabled) { transform: translateY(0); box-shadow: none; }
   .cd-btn-deny {
     flex: 1;
     background: #ffffff;
-    color: #dc2626;
-    border: 1px solid #d1d5db;
+    color: #b45309;
+    border: 1.5px solid #d97706;
     border-radius: 6px;
-    padding: 10px 0;
-    font-size: 14px;
+    padding: 6px 0;
+    font-size: 13px;
     font-weight: 500;
     cursor: pointer;
     font-family: inherit;
-    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    transition: all 0.15s;
     text-align: center;
     position: relative; overflow: hidden;
   }
-  .cd-btn-deny:hover:not(:disabled) { background: #fef2f2; border-color: #fca5a5; }
-  .cd-btn-deny:active:not(:disabled) { transform: scale(0.97); }
+  .cd-btn-deny:hover:not(:disabled) {
+    background: #fffbeb;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(217,119,6,0.2);
+  }
+  .cd-btn-deny:active:not(:disabled) { transform: translateY(0); box-shadow: none; }
 
   /* ripple */
   @keyframes cdRipple {
@@ -4422,18 +4430,27 @@
   ──────────────────────────────────────────── */
 
   // keyword → chart palette / type / seed
+  // ── keyword → chart theme (type drives distinct visual) ──
   const _TILE_THEMES = {
-    latency:    { color:'#ef4444', label:'ms',   type:'line',  base:180, variance:80  },
-    throughput: { color:'#3b82f6', label:'Mbps', type:'bar',   base:850, variance:200 },
-    memory:     { color:'#8b5cf6', label:'%',    type:'area',  base:62,  variance:22  },
-    cpu:        { color:'#f59e0b', label:'%',    type:'area',  base:55,  variance:30  },
-    error:      { color:'#ef4444', label:'err/s',type:'bar',   base:12,  variance:10  },
-    packet:     { color:'#06b6d4', label:'pps',  type:'line',  base:4200,variance:800 },
-    disk:       { color:'#10b981', label:'%',    type:'area',  base:70,  variance:15  },
-    agent:      { color:'#6366f1', label:'score',type:'line',  base:88,  variance:8   },
-    confidence: { color:'#2563eb', label:'%',    type:'line',  base:82,  variance:12  },
-    cluster:    { color:'#0ea5e9', label:'nodes',type:'bar',   base:11,  variance:3   },
-    default:    { color:'#6366f1', label:'val',  type:'line',  base:60,  variance:25  },
+    latency:    { color:'#ef4444', color2:'#f97316', label:'ms',    type:'line',    base:180, variance:80  },
+    throughput: { color:'#3b82f6', color2:'#06b6d4', label:'Mbps',  type:'bar',     base:850, variance:200 },
+    memory:     { color:'#8b5cf6', color2:'#a78bfa', label:'%',     type:'area',    base:62,  variance:22  },
+    cpu:        { color:'#f59e0b', color2:'#fbbf24', label:'%',     type:'area',    base:55,  variance:30  },
+    error:      { color:'#ef4444', color2:'#fca5a5', label:'err/s', type:'bar',     base:12,  variance:10  },
+    packet:     { color:'#06b6d4', color2:'#67e8f9', label:'pps',   type:'scatter', base:4200,variance:800 },
+    disk:       { color:'#10b981', color2:'#6ee7b7', label:'%',     type:'area',    base:70,  variance:15  },
+    agent:      { color:'#6366f1', color2:'#818cf8', label:'score', type:'multiline',base:88, variance:8   },
+    confidence: { color:'#2563eb', color2:'#60a5fa', label:'%',     type:'line',    base:82,  variance:12  },
+    cluster:    { color:'#0ea5e9', color2:'#38bdf8', label:'nodes', type:'bar',     base:11,  variance:3   },
+    health:     { color:'#22c55e', color2:'#4ade80', label:'%',     type:'donut',   base:88,  variance:10  },
+    policy:     { color:'#f59e0b', color2:'#a78bfa', label:'score', type:'donut',   base:76,  variance:8   },
+    request:    { color:'#3b82f6', color2:'#06b6d4', label:'req/s', type:'bar',     base:320, variance:90  },
+    response:   { color:'#10b981', color2:'#f59e0b', label:'ms',    type:'multiline',base:95, variance:40  },
+    network:    { color:'#06b6d4', color2:'#6366f1', label:'Mbps',  type:'area',    base:640, variance:150 },
+    queue:      { color:'#f97316', color2:'#fbbf24', label:'jobs',  type:'bar',     base:24,  variance:12  },
+    alert:      { color:'#ef4444', color2:'#f97316', label:'count', type:'scatter', base:8,   variance:7   },
+    sla:        { color:'#22c55e', color2:'#3b82f6', label:'%',     type:'donut',   base:94,  variance:4   },
+    default:    { color:'#6366f1', color2:'#a78bfa', label:'val',   type:'line',    base:60,  variance:25  },
   };
 
   function _tileTheme(text) {
@@ -4445,7 +4462,6 @@
   }
 
   function _tileSeeded(seed, base, variance, n) {
-    // deterministic-ish noise from seed string
     let h = 0;
     for (let i = 0; i < seed.length; i++) h = (Math.imul(31, h) + seed.charCodeAt(i)) | 0;
     const vals = [];
@@ -4453,47 +4469,146 @@
     for (let i = 0; i < n; i++) {
       h = (Math.imul(1664525, h) + 1013904223) | 0;
       const delta = ((h & 0xffff) / 0xffff - 0.5) * variance;
-      v = Math.max(0, Math.round(v + delta));
+      v = Math.max(1, Math.round(v + delta));
       vals.push(v);
     }
     return vals;
   }
 
-  function _buildTileSVG(vals, theme) {
-    const W=180, H=60, pad=4;
-    const min = Math.min(...vals), max = Math.max(...vals);
-    const rng = max - min || 1;
-    const n = vals.length;
-    const xs = vals.map((_,i) => pad + (i/(n-1))*(W-pad*2));
-    const ys = vals.map(v => H - pad - ((v-min)/rng)*(H-pad*2));
-    const pts = xs.map((x,i) => [x, ys[i]]);
-    const col = theme.color;
+  // unique gradient id per tile (avoids SVG id collisions)
+  let _tileGradIdx = 0;
 
-    if (theme.type === 'bar') {
-      const bw = Math.max(2, (W - pad*2) / n - 3);
-      const bars = pts.map(([x,y],i) =>
-        `<rect x="${(x-bw/2).toFixed(1)}" y="${y.toFixed(1)}" width="${bw}" height="${(H-pad-y).toFixed(1)}"
-          fill="${col}" opacity="0.75" rx="2"/>`
-      ).join('');
-      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"
-        style="width:100%;height:100%;display:block;">${bars}</svg>`;
+  function _buildTileSVG(vals, theme) {
+    const W = 180, H = 62, pad = 4;
+    const col  = theme.color;
+    const col2 = theme.color2 || col;
+    const n    = vals.length;
+    const min  = Math.min(...vals), max = Math.max(...vals);
+    const rng  = max - min || 1;
+    const gid  = 'tg' + (++_tileGradIdx);
+
+    // helpers
+    const nx  = i  => pad + (i / (n - 1)) * (W - pad * 2);
+    const ny  = v  => H - pad - ((v - min) / rng) * (H - pad * 2 - 6);
+    const xs  = vals.map((_, i) => nx(i));
+    const ys  = vals.map(v => ny(v));
+    const pts = xs.map((x, i) => [x, ys[i]]);
+    const fa  = v => v.toFixed(1);
+
+    // ── 1. LINE — sharp line + dots ──
+    if (theme.type === 'line') {
+      const d = `M${pts.map(([x,y])=>`${fa(x)},${fa(y)}`).join(' L')}`;
+      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block;">
+        <defs>
+          <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${col}" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="${col}" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="${d} L${fa(xs[n-1])},${H-pad} L${fa(xs[0])},${H-pad} Z" fill="url(#${gid})"/>
+        <path d="${d}" fill="none" stroke="${col}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+        ${pts.map(([x,y],i)=>`<circle cx="${fa(x)}" cy="${fa(y)}" r="${i===n-1?3:2}" fill="${i===n-1?col:'#fff'}" stroke="${col}" stroke-width="1.3"/>`).join('')}
+      </svg>`;
     }
-    // line / area
-    const lineD = `M${pts.map(p=>p.map(v=>v.toFixed(1)).join(',')).join(' L')}`;
-    const areaD = `${lineD} L${xs[n-1].toFixed(1)},${(H-pad)} L${xs[0].toFixed(1)},${(H-pad)} Z`;
-    const grad = `ctg${Math.abs(col.replace(/\D/g,''))}`;
-    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"
-      style="width:100%;height:100%;display:block;">
-      <defs>
-        <linearGradient id="${grad}" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="${col}" stop-opacity="0.3"/>
-          <stop offset="100%" stop-color="${col}" stop-opacity="0.02"/>
-        </linearGradient>
-      </defs>
-      ${theme.type==='area' ? `<path d="${areaD}" fill="url(#${grad})"/>` : ''}
-      <path d="${lineD}" fill="none" stroke="${col}" stroke-width="1.6"
-        stroke-linejoin="round" stroke-linecap="round"/>
-      ${pts.map(([x,y])=>`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2" fill="#fff" stroke="${col}" stroke-width="1.2"/>`).join('')}
+
+    // ── 2. AREA — smooth gradient fill, no dots ──
+    if (theme.type === 'area') {
+      // cubic bezier smooth
+      const smooth = pts.map(([x,y],i,a) => {
+        if (i === 0) return `M${fa(x)},${fa(y)}`;
+        const [px,py] = a[i-1];
+        const cpx = fa((px+x)/2), cpy = fa(py), cpx2 = fa((px+x)/2), cpy2 = fa(y);
+        return `C${cpx},${cpy} ${cpx2},${cpy2} ${fa(x)},${fa(y)}`;
+      }).join(' ');
+      const aD = `${smooth} L${fa(xs[n-1])},${H-pad} L${fa(xs[0])},${H-pad} Z`;
+      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block;">
+        <defs>
+          <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${col}" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="${col}" stop-opacity="0.03"/>
+          </linearGradient>
+        </defs>
+        <path d="${aD}" fill="url(#${gid})"/>
+        <path d="${smooth}" fill="none" stroke="${col}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>`;
+    }
+
+    // ── 3. BAR — vertical bars with rounded top ──
+    if (theme.type === 'bar') {
+      const bw = Math.max(3, (W - pad * 2) / n - 4);
+      const bars = pts.map(([x, y], i) => {
+        const barH = H - pad - y;
+        // alternate subtle shade on every other bar
+        const op = i % 2 === 0 ? '0.85' : '0.65';
+        return `<rect x="${fa(x - bw/2)}" y="${fa(y)}" width="${fa(bw)}" height="${fa(barH)}" fill="${col}" opacity="${op}" rx="2"/>`;
+      }).join('');
+      // baseline
+      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block;">
+        <line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="#e5e7eb" stroke-width="0.8"/>
+        ${bars}
+      </svg>`;
+    }
+
+    // ── 4. SCATTER — dots of varying sizes ──
+    if (theme.type === 'scatter') {
+      let h2 = 0;
+      for (let i = 0; i < theme.label.length; i++) h2 = (Math.imul(31, h2) + theme.label.charCodeAt(i)) | 0;
+      const circles = pts.map(([x, y], i) => {
+        h2 = (Math.imul(1664525, h2) + 1013904223) | 0;
+        const r = 2.5 + ((h2 & 0xff) / 255) * 3.5;
+        const op = 0.5 + ((h2 >> 8 & 0xff) / 255) * 0.5;
+        return `<circle cx="${fa(x)}" cy="${fa(y)}" r="${fa(r)}" fill="${col}" opacity="${fa(op)}"/>`;
+      }).join('');
+      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block;">
+        <line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="#f0f1f3" stroke-width="0.8"/>
+        <line x1="${pad}" y1="${H/2}" x2="${W-pad}" y2="${H/2}" stroke="#f0f1f3" stroke-width="0.8"/>
+        ${circles}
+      </svg>`;
+    }
+
+    // ── 5. DONUT — ring with percentage fill ──
+    if (theme.type === 'donut') {
+      const pct   = Math.min(99, Math.max(10, vals[vals.length - 1] % 100));
+      const cx = W/2, cy = H/2 - 2, R = Math.min(cx, cy) - 6;
+      const circ  = 2 * Math.PI * R;
+      const dash  = (pct / 100) * circ;
+      const gap   = circ - dash;
+      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block;">
+        <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#f0f1f3" stroke-width="7"/>
+        <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${col}" stroke-width="7"
+          stroke-dasharray="${fa(dash)} ${fa(gap)}"
+          stroke-dashoffset="${fa(circ * 0.25)}"
+          stroke-linecap="round"/>
+        <text x="${cx}" y="${cy + 1}" text-anchor="middle" dominant-baseline="middle"
+          font-size="13" font-weight="500" fill="#111827"
+          font-family="-apple-system,Segoe UI,system-ui,sans-serif">${pct}%</text>
+      </svg>`;
+    }
+
+    // ── 6. MULTILINE — 2 series lines ──
+    if (theme.type === 'multiline') {
+      // second series: offset seed
+      const vals2 = vals.map((v, i) => {
+        const off = Math.round(Math.sin(i * 1.3 + 0.9) * theme.variance * 0.6);
+        return Math.max(1, v + off);
+      });
+      const min2 = Math.min(...vals, ...vals2), max2 = Math.max(...vals, ...vals2);
+      const rng2 = max2 - min2 || 1;
+      const ny2  = v => H - pad - ((v - min2) / rng2) * (H - pad * 2 - 6);
+      const d1 = `M${vals.map((v,i)=>`${fa(nx(i))},${fa(ny2(v))}`).join(' L')}`;
+      const d2 = `M${vals2.map((v,i)=>`${fa(nx(i))},${fa(ny2(v))}`).join(' L')}`;
+      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block;">
+        <path d="${d1}" fill="none" stroke="${col}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="${d2}" fill="none" stroke="${col2}" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="4 2"/>
+        ${vals.map((v,i)=>i%3===0?`<circle cx="${fa(nx(i))}" cy="${fa(ny2(v))}" r="2" fill="${col}" stroke="${col}" stroke-width="1"/>`:'').join('')}
+        ${vals2.map((v,i)=>i%3===0?`<circle cx="${fa(nx(i))}" cy="${fa(ny2(v))}" r="2" fill="#fff" stroke="${col2}" stroke-width="1"/>`:'').join('')}
+      </svg>`;
+    }
+
+    // fallback: line
+    const d = `M${pts.map(([x,y])=>`${fa(x)},${fa(y)}`).join(' L')}`;
+    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block;">
+      <path d="${d}" fill="none" stroke="${col}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
     </svg>`;
   }
 
