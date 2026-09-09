@@ -317,60 +317,14 @@
     margin-bottom: 10px;
   }
 
-  /* ── AI scenario input row ── */
+  /* ── canvas scenario input row — reuses ai-input-row/wrap styles ── */
   .canvas-input-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     margin-top: 4px;
+    padding: 0;
   }
-  .canvas-input-wrap {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    background: rgba(255,255,255,0.82);
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    backdrop-filter: blur(8px);
-    padding: 0 10px 0 12px;
-    transition: border-color 0.15s, box-shadow 0.15s;
-  }
-  .canvas-input-wrap:focus-within {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
-    background: rgba(255,255,255,0.96);
-  }
-  .canvas-input-icon {
-    flex-shrink: 0;
-    color: #9ca3af;
-    display: flex;
-    align-items: center;
-    margin-right: 8px;
-  }
-  .canvas-input {
-    flex: 1;
-    height: 36px;
-    border: none;
-    background: transparent;
-    font-size: 13px;
-    font-family: inherit;
-    color: #111827;
-    outline: none;
-  }
-  .canvas-input::placeholder { color: #9ca3af; }
-  .canvas-input-send {
-    flex-shrink: 0;
-    width: 28px; height: 28px;
-    background: #2563eb;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s, transform 0.1s;
-  }
-  .canvas-input-send:hover { background: #1d4ed8; }
-  .canvas-input-send:active { transform: scale(0.92); }
-  .canvas-input-send svg { pointer-events: none; }
 
   /* ── canvas graph tiles grid ── */
   .canvas-tiles-grid {
@@ -3214,25 +3168,18 @@
              <button class="quick-btn" id="qbC4"      onclick="handleQuickAction('c4',this)">Show me cluster C4 status</button>
              <button class="quick-btn" id="qbRca"     onclick="handleQuickAction('rca',this)">Run root cause analysis</button>
            </div>
-           <!-- AI scenario input row -->
+           <!-- AI scenario input row — same style as ai-input-row -->
            <div class="canvas-input-row">
-             <div class="canvas-input-wrap">
-               <span class="canvas-input-icon">
-                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                   <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
-                   <path d="M20 20l-3-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                 </svg>
-               </span>
-               <input class="canvas-input" id="canvasScenarioInput"
+             <div class="ai-input-wrap">
+               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:0.45"><circle cx="6.5" cy="6.5" r="4.5" stroke="#6b7280" stroke-width="1.4"/><path d="M10 10l3 3" stroke="#6b7280" stroke-width="1.4" stroke-linecap="round"/></svg>
+               <input class="ai-input-field" id="canvasScenarioInput"
                  placeholder="Describe a scenario to chart… e.g. latency over 24h"
-                 onkeydown="if(event.key==='Enter')addCanvasTile()"
+                 onkeydown="if(event.key==='Enter') addCanvasTile()"
                  autocomplete="off" spellcheck="false"/>
+               <button class="ai-send-btn" onclick="addCanvasTile()" title="Generate chart tile">
+                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 8l12-6-4 6 4 6-12-6z" fill="white"/></svg>
+               </button>
              </div>
-             <button class="canvas-input-send" onclick="addCanvasTile()" title="Generate chart tile">
-               <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                 <path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-               </svg>
-             </button>
            </div>
          </div>
 
