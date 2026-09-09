@@ -584,7 +584,14 @@ A companion **concept testing plan** for validating the three novel UI surfaces 
 | Logo | Hub-and-spoke SVG on white circle with blue border |
 | Dropdown | Japan region selector |
 | Tab bar | Canvas · Agentic Trace · Policy & Permissions — `switchTab()` driven |
-| Right icons | Person icon · Globe icon |
+| Right icons | Person icon · **Globe button** (`.nav-icon-btn--globe`) |
+
+#### Globe button (settings)
+- 36×36px, gradient background `#eff6ff → #dbeafe`, blue border `#93c5fd`
+- SVG: radial-gradient filled sphere (`#dbeafe → #93c5fd`), meridian/latitude paths, specular dot
+- Hover: scale 1.08, glow ring `rgba(59,130,246,0.18)`, darker border
+- Active (`.settings-active`): solid blue gradient `#2563eb → #1d4ed8`, white SVG paths
+- Toggles the **Global Network Map** side panel (`.settings-panel`)
 
 ---
 
@@ -595,6 +602,55 @@ A companion **concept testing plan** for validating the three novel UI surfaces 
 | Confidence score | Stick-figure SVG | **95%** | `font-weight:300`, dark green `#1a6334` |
 | Agent fleet health | ECG sparkline SVG | **94%** | same |
 | Badges | Auto-resolved · Escalation · Fix failed | — | coloured pill badges |
+
+---
+
+### Global Network Map Panel (`.settings-panel`)
+
+Opens as a 500px right-hand slide-in panel when the globe button is clicked. Contains the orthographic 3D globe + anomaly detection list.
+
+#### 3D Orthographic Globe (`#gmapCanvas`, 300px tall)
+
+The globe renderer replaced a flat equirectangular map. It is a fully custom canvas renderer:
+
+| Feature | Detail |
+|---|---|
+| **Projection** | Orthographic — `geoToOrth(lon, lat, R, cx, cy)` returns `[x, y, dot]`; `dot < 0` = behind globe (hidden) |
+| **Auto-spin** | `globeLon += 0.10°/frame` (`GLOBE_SPIN_DEG`) — pauses on mouse drag, toggleable by double-click |
+| **Star field** | 90 randomised `{x, y, r, a}` points drawn each frame behind globe |
+| **Atmosphere** | Radial gradient halo `rgba(96,165,250,0.18 → 0)` at `R × 1.18` |
+| **Ocean sphere** | Radial gradient: `#1e4d8c → #0d2d5e → #060f1e` centred off-axis for depth |
+| **Clip** | `ctx.clip()` to globe disc before drawing graticule + continents |
+| **Graticule** | Meridians every 30° + parallels every 30° in `rgba(96,165,250,0.08)`; equator in `rgba(96,165,250,0.22)` |
+| **Continents** | `COAST_POLYS` lon/lat arrays projected via `geoToOrth`, filled `#1e3d6e`, stroked `rgba(120,180,255,0.5)` |
+| **Gloss** | Radial gradient overlay upper-left `rgba(255,255,255,0.14 → 0)` for 3D sheen |
+| **Rim** | 2px stroke `rgba(10,20,40,0.55)` around globe edge |
+| **Edges** | Great-circle arcs via 40-sample Slerp (`drawArc()`); `Math.acos` clamped to `[-1,1]` to prevent NaN |
+| **Nodes** | Dots only on visible hemisphere (`dot > 0`); labels when `dot > 0.25` |
+| **Packets** | Animated dot along straight lon/lat lerp (not true great-circle) |
+| **Drag** | `mousemove` delta → `globeLon += dx * 0.4`, `globeLat -= dy * 0.4` (clamped ±85°) |
+| **Zoom** | Wheel / `+`/`-` buttons adjust `globeZoom` (`0.5–3`); reset (`⌂`) restores `globeLon=20, globeLat=15, globeZoom=1` |
+
+#### Globe state variables
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `globeLon` | `20` | Camera centre longitude |
+| `globeLat` | `15` | Camera centre latitude |
+| `globeZoom` | `1.0` | Radius multiplier |
+| `_globeSpinOn` | `true` | Auto-spin toggle |
+| `GLOBE_SPIN_DEG` | `0.10` | Degrees per frame |
+
+#### Panel header
+- Title: globe SVG icon + "Global Network Map"
+- **Maximize button removed** — only the close button (✕) remains
+- Region filter chips: All · APAC · EMEA · AMER · Japan
+
+#### Anomaly Detection list
+- Below the globe + map legend
+- Pulsing red badge count (`anomalyBadge`)
+- "Scan now" button (`runAnomalyScan()`) with spinning icon
+- Draggable anomaly items drop onto canvas
 
 ---
 
@@ -616,13 +672,36 @@ A companion **concept testing plan** for validating the three novel UI surfaces 
 
 Slides up over the canvas viewport (`position:absolute; inset:15px` when `.visible`) with frosted glass background (`rgba(248,250,253,0.97)` + `backdrop-filter:blur(16px)`).
 
-**Layout:** Left sidebar (220px) of KPI cards + insight note · Right chart area (flex:1)
+**Layout:** Left sidebar (232px, `.qa-insight`) of coloured KPI cards + insight note · Right chart area (flex:1)
+
+#### qa-insight sidebar design
+- **Background:** `linear-gradient(170deg, #f0f7ff → #f5f3ff → #fdf4ff)` — pale blue-violet-pink
+- **Top accent stripe** (3px): `linear-gradient(90deg, #3b82f6 → #8b5cf6 → #ec4899)` — blue to violet to pink
+- **Inner wrapper** `.qa-insight-inner` — `padding:16px 16px 18px`, `gap:12px`
+- **Section title** `.qa-insight-section-title` — 9px uppercase, `#9ca3af`
+
+Each KPI card (`.qa-insight-kpi`) has:
+- Colour variant class (`kpi-red` / `kpi-amber` / `kpi-green` / `kpi-blue` / `kpi-violet`) setting `--kpi-accent` CSS var, matching border, and diagonal gradient background
+- 3px left accent bar (`::before` pseudo, `var(--kpi-accent)`)
+- Mini SVG icon + bold status badge row (`.qa-insight-kpi-icon`)
+- Label (10px, uppercase) + large value (26px, weight 300)
+- **Trend micro-badge** (`.qa-insight-trend.up/.down/.ok`) — coloured pill below the value
+
+| Colour variant | CSS class | Accent | Border | Used for |
+|---|---|---|---|---|
+| Red | `kpi-red` | `#ef4444` | `#fee2e2` | Peak / high-alert values |
+| Amber | `kpi-amber` | `#f59e0b` | `#fef3c7` | Warning / average values |
+| Green | `kpi-green` | `#10b981` | `#d1fae5` | Healthy / SLA / confidence |
+| Blue | `kpi-blue` | `#3b82f6` | `#dbeafe` | Scan / informational |
+| Violet | `kpi-violet` | `#8b5cf6` | `#ede9fe` | Aggregate / avg health |
+
+**Insight note** (`.qa-insight-note`): glass card, violet left border `#6366f1`, `backdrop-filter:blur(4px)`
 
 | Button | Title | Tag | Chart type | KPI cards |
 |---|---|---|---|---|
-| Latency spike | Latency Analysis | Live · 5s refresh | Multi-line time-series (30 min) | Peak 284ms · Avg 142ms · SLA 200ms |
-| Cluster C4 | Cluster C4 Status | 12 / 13 Healthy | Horizontal bar chart (13 nodes) | 12 healthy · 1 degraded · Avg 97% |
-| Root cause | Root Cause Analysis | 72h window | Stacked area chart (72h) | 4 820 events · 3 root causes · 91% confidence |
+| Latency spike | Latency Analysis | Live · 5s refresh | Multi-line time-series (30 min) | Peak 284ms (red) · Avg 142ms (amber) · SLA 200ms (green) |
+| Cluster C4 | Cluster C4 Status | 12 / 13 Healthy | Horizontal bar chart (13 nodes) | 12 healthy (green) · 1 degraded (amber) · Avg 97% (violet) |
+| Root cause | Root Cause Analysis | 72h window | Stacked area chart (72h) | 4 820 events (blue) · 3 root causes (amber) · 91% confidence (green) |
 
 **Chart interactions:**
 - All charts: hover tooltip (`#qaTooltip` fixed dark pill) showing values at cursor position
@@ -952,6 +1031,12 @@ When a quick-action button is clicked, a `.qa-skeleton` overlay is injected into
 | `closeDropPanel()` | Hides `#dropPanel` |
 | `confirmDropApprove(cardId)` | Approve action from drop panel — fires toast (timeline branch: export toast) |
 | `confirmDropEscalate()` | Escalate from drop panel — fires orange toast |
+| `geoToOrth(lon, lat, R, cx, cy)` | Orthographic projection: returns `[x, y, dot]` or `null` if behind globe (`dot < 0`) |
+| `gmapDraw()` | Main globe render loop: star field → atmosphere → ocean → clip → graticule → continents → gloss → rim → arcs → nodes |
+| `drawArc(lon1, lat1, lon2, lat2, color, dashed)` | Renders a 40-sample Slerp great-circle arc between two lon/lat points |
+| `gmapInit()` | Sets canvas hi-DPI size (300px), cancels previous RAF, wires all mouse/wheel/touch events |
+| `gmapNodeHit(mx, my)` | Finds node within 12px of cursor using `geoToOrth`; returns null for back-hemisphere nodes |
+| `gmapZoomIn/Out/Reset()` | Adjusts `globeZoom`; reset restores `globeLon=20, globeLat=15, globeZoom=1` |
 | `openAiPanel()` | Shows `#aiPanel` with `.visible` class |
 | `closeAiPanel()` | Hides panel; removes `listening`/`has-chat`; resets orb labels; stops recognition |
 | `toggleAiListen()` | Toggles listening state; starts/stops Speech Recognition; updates orb title + sub |
@@ -1183,3 +1268,16 @@ When a quick-action button is clicked, a `.qa-skeleton` overlay is injected into
 | Main site | https://jayakrishnakaimal.github.io/JK_Demo/index.html |
 | UXR Plan | https://jayakrishnakaimal.github.io/JK_Demo/uxr_plan.html |
 | Headless Dashboard | https://jayakrishnakaimal.github.io/JK_Demo/headless.html |
+
+---
+
+## Changelog
+
+### Latest — `headless.html`
+
+| # | Change | Detail |
+|---|---|---|
+| 1 | **3D Orthographic Globe** | Replaced flat equirectangular map with a fully custom canvas orthographic globe renderer. Auto-spin, star field, atmosphere glow, ocean gradient, graticule, continent polygons, great-circle arc edges, specular gloss, drag-to-rotate, scroll-to-zoom, double-click spin toggle. |
+| 2 | **Globe nav button** | `.nav-icon-btn--globe` — 36×36 gradient blue pill with radial-fill SVG sphere, specular dot, hover glow ring + scale, active solid-blue state. |
+| 3 | **qa-insight sidebar** | Creative coloured KPI sidebar: rainbow accent stripe, per-card colour variants (red/amber/green/blue/violet), `--kpi-accent` CSS var, left accent bar, mini SVG icon + status badge, trend micro-pill below each value. |
+| 4 | **Remove maximize button** | `settingsMaximizeBtn` + `settingsRestoreBtn` removed from Global Network Map panel header. Only close (✕) remains. |

@@ -475,6 +475,28 @@
     color: #2563eb;
   }
 
+  /* prominent globe button */
+  .nav-icon-btn--globe {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border: 1.5px solid #93c5fd;
+    box-shadow: 0 0 0 0 rgba(37,99,235,0.3);
+    transition: all 0.2s;
+  }
+  .nav-icon-btn--globe:hover {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.18), 0 2px 8px rgba(37,99,235,0.2);
+    transform: scale(1.08);
+  }
+  .nav-icon-btn--globe svg { width: 20px; height: 20px; }
+  .nav-icon-btn--globe.settings-active {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    border-color: #1d4ed8;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.25), 0 2px 10px rgba(37,99,235,0.35);
+  }
+
   /* ── canvas area ── */
   .canvas-area {
     flex: 1;
@@ -1459,27 +1481,89 @@
   }
   /* left insight summary */
   .qa-insight {
-    width: 220px; flex-shrink: 0; padding: 20px 18px;
+    width: 232px; flex-shrink: 0; padding: 0;
     border-right: 1px solid #e5e7eb; overflow-y: auto;
-    display: flex; flex-direction: column; gap: 14px;
+    display: flex; flex-direction: column; gap: 0;
+    background: linear-gradient(170deg, #f0f7ff 0%, #f5f3ff 60%, #fdf4ff 100%);
+  }
+  /* coloured accent stripe at top of insight panel */
+  .qa-insight::before {
+    content: '';
+    display: block;
+    height: 3px;
+    flex-shrink: 0;
+    background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+  }
+  .qa-insight-inner {
+    padding: 16px 16px 18px;
+    display: flex; flex-direction: column; gap: 12px;
+    flex: 1;
   }
   .qa-insight-kpi {
-    background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px;
-    padding: 12px 14px;
+    background: #ffffff;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 11px 13px 10px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
+  /* coloured left accent bar per KPI */
+  .qa-insight-kpi::before {
+    content: '';
+    position: absolute; top: 0; left: 0; bottom: 0;
+    width: 3px;
+    border-radius: 10px 0 0 10px;
+    background: var(--kpi-accent, #3b82f6);
+  }
+  .qa-insight-kpi.kpi-red   { --kpi-accent: #ef4444; border-color: #fee2e2; background: linear-gradient(135deg, #fff5f5 0%, #fff 60%); }
+  .qa-insight-kpi.kpi-amber { --kpi-accent: #f59e0b; border-color: #fef3c7; background: linear-gradient(135deg, #fffbeb 0%, #fff 60%); }
+  .qa-insight-kpi.kpi-green { --kpi-accent: #10b981; border-color: #d1fae5; background: linear-gradient(135deg, #f0fdf4 0%, #fff 60%); }
+  .qa-insight-kpi.kpi-blue  { --kpi-accent: #3b82f6; border-color: #dbeafe; background: linear-gradient(135deg, #eff6ff 0%, #fff 60%); }
+  .qa-insight-kpi.kpi-violet{ --kpi-accent: #8b5cf6; border-color: #ede9fe; background: linear-gradient(135deg, #f5f3ff 0%, #fff 60%); }
+  .qa-insight-kpi-icon {
+    font-size: 14px; line-height: 1; margin-bottom: 5px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .qa-insight-kpi-icon svg { flex-shrink: 0; }
   .qa-insight-kpi-label {
-    font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
-    color: #9ca3af; text-transform: uppercase; margin-bottom: 4px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.07em;
+    color: #6b7280; text-transform: uppercase; margin-bottom: 3px;
   }
   .qa-insight-kpi-val {
-    font-size: 24px; font-weight: 300; letter-spacing: -0.5px; line-height: 1;
+    font-size: 26px; font-weight: 300; letter-spacing: -0.5px; line-height: 1;
+    padding-left: 3px;
   }
-  .qa-insight-kpi-val.green { color: #166534; }
+  .qa-insight-kpi-val.green { color: #059669; }
   .qa-insight-kpi-val.red   { color: #dc2626; }
   .qa-insight-kpi-val.amber { color: #d97706; }
+  .qa-insight-kpi-val.blue  { color: #2563eb; }
+  .qa-insight-kpi-val.violet{ color: #7c3aed; }
+  /* trend micro badge */
+  .qa-insight-trend {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 10px; font-weight: 600;
+    padding: 1px 6px; border-radius: 10px;
+    margin-top: 4px;
+  }
+  .qa-insight-trend.up   { background: #fef2f2; color: #dc2626; }
+  .qa-insight-trend.down { background: #f0fdf4; color: #16a34a; }
+  .qa-insight-trend.ok   { background: #eff6ff; color: #2563eb; }
+  /* insight note with richer styling */
   .qa-insight-note {
-    font-size: 12px; color: #6b7280; line-height: 1.6;
-    border-left: 3px solid #2563eb; padding-left: 10px;
+    font-size: 11.5px; color: #374151; line-height: 1.65;
+    background: rgba(255,255,255,0.75);
+    border: 1px solid rgba(209,213,219,0.6);
+    border-left: 3px solid #6366f1;
+    border-radius: 0 8px 8px 0;
+    padding: 9px 11px;
+    backdrop-filter: blur(4px);
+  }
+  /* section header inside insight */
+  .qa-insight-section-title {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+    color: #9ca3af; text-transform: uppercase;
+    margin-top: 4px; margin-bottom: 2px;
   }
   /* chart area */
   .qa-chart-area {
@@ -3826,13 +3910,25 @@
             <path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/>
           </svg>
         </button>
-        <button class="nav-icon-btn" id="settingsBtn" title="Global settings" onclick="openSettingsPanel()">
-          <!-- clean globe with horizontal bands + vertical meridian -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="9"/>
-            <path d="M12 3 C9 7 9 17 12 21 M12 3 C15 7 15 17 12 21"/>
-            <path d="M3 12 Q7 9 12 9 Q17 9 21 12"/>
-            <path d="M3 12 Q7 15 12 15 Q17 15 21 12"/>
+        <button class="nav-icon-btn nav-icon-btn--globe" id="settingsBtn" title="Global Network Map" onclick="openSettingsPanel()">
+          <!-- bold 3-D globe with thick meridian, latitude bands, shine dot -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9.5" fill="url(#gbGrad)" stroke="url(#gbRing)" stroke-width="1.5"/>
+            <path d="M12 2.5 C8.5 6.5 8.5 17.5 12 21.5 M12 2.5 C15.5 6.5 15.5 17.5 12 21.5" stroke="rgba(37,99,235,0.55)" stroke-width="1.3"/>
+            <path d="M2.5 12 Q6.5 8.5 12 8.5 Q17.5 8.5 21.5 12" stroke="rgba(37,99,235,0.55)" stroke-width="1.3"/>
+            <path d="M2.5 12 Q6.5 15.5 12 15.5 Q17.5 15.5 21.5 12" stroke="rgba(37,99,235,0.55)" stroke-width="1.3"/>
+            <circle cx="8.5" cy="8" r="1.2" fill="rgba(255,255,255,0.6)" stroke="none"/>
+            <defs>
+              <radialGradient id="gbGrad" cx="38%" cy="32%" r="68%">
+                <stop offset="0%" stop-color="#dbeafe"/>
+                <stop offset="55%" stop-color="#93c5fd"/>
+                <stop offset="100%" stop-color="#2563eb" stop-opacity="0.25"/>
+              </radialGradient>
+              <linearGradient id="gbRing" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#2563eb"/>
+                <stop offset="100%" stop-color="#1d4ed8"/>
+              </linearGradient>
+            </defs>
           </svg>
         </button>
       </div>
@@ -4843,14 +4939,6 @@
              Global Network Map
             </div>
             <div style="display:flex;align-items:center;gap:4px;">
-              <!-- Maximize panel -->
-              <button class="settings-close-btn" id="settingsMaximizeBtn" onclick="settingsPanelMaximize()" title="Maximize">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-              </button>
-              <!-- Restore panel (shown when maximized) -->
-              <button class="settings-close-btn" id="settingsRestoreBtn" onclick="settingsPanelRestore()" title="Restore" style="display:none;">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
-              </button>
               <!-- Close panel -->
               <button class="settings-close-btn" onclick="closeSettingsPanel()" title="Close">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -4892,7 +4980,7 @@
                   </button>
                 </div>
               </div>
-              <canvas id="gmapCanvas" height="240"></canvas>
+              <canvas id="gmapCanvas" height="300"></canvas>
               <!-- zoom controls -->
               <div class="gmap-controls">
                 <button class="gmap-ctrl-btn" onclick="gmapZoomIn()" title="Zoom in">+</button>
@@ -6339,33 +6427,84 @@
       titleEl.childNodes[0].nodeValue = 'Latency Analysis ';
       tagEl.textContent = 'Live · 5s refresh';
       labelEl.textContent = 'AGENT LATENCY (ms) — LAST 30 MINUTES';
-      insightEl.innerHTML = `
-        <div class="qa-insight-kpi"><div class="qa-insight-kpi-label">Peak Latency</div><div class="qa-insight-kpi-val red">284<span style="font-size:14px;color:#9ca3af"> ms</span></div></div>
-        <div class="qa-insight-kpi"><div class="qa-insight-kpi-label">Avg Latency</div><div class="qa-insight-kpi-val amber">142<span style="font-size:14px;color:#9ca3af"> ms</span></div></div>
-        <div class="qa-insight-kpi"><div class="qa-insight-kpi-label">SLA Threshold</div><div class="qa-insight-kpi-val green">200<span style="font-size:14px;color:#9ca3af"> ms</span></div></div>
-        <div class="qa-insight-note">TVM-EDGE-04 port 4/2 signal loss is the primary driver. Agent-06 cascading. Restart sequence recommended.</div>`;
+      insightEl.innerHTML = `<div class="qa-insight-inner">
+        <div class="qa-insight-section-title">Key Metrics</div>
+        <div class="qa-insight-kpi kpi-red">
+          <div class="qa-insight-kpi-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span style="font-size:10px;color:#ef4444;font-weight:600">HIGH</span></div>
+          <div class="qa-insight-kpi-label">Peak Latency</div>
+          <div class="qa-insight-kpi-val red">284<span style="font-size:13px;color:#9ca3af"> ms</span></div>
+          <div class="qa-insight-trend up">↑ +42ms vs baseline</div>
+        </div>
+        <div class="qa-insight-kpi kpi-amber">
+          <div class="qa-insight-kpi-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><span style="font-size:10px;color:#d97706;font-weight:600">AVG</span></div>
+          <div class="qa-insight-kpi-label">Avg Latency</div>
+          <div class="qa-insight-kpi-val amber">142<span style="font-size:13px;color:#9ca3af"> ms</span></div>
+          <div class="qa-insight-trend ok">Within range</div>
+        </div>
+        <div class="qa-insight-kpi kpi-green">
+          <div class="qa-insight-kpi-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg><span style="font-size:10px;color:#059669;font-weight:600">SLA</span></div>
+          <div class="qa-insight-kpi-label">SLA Threshold</div>
+          <div class="qa-insight-kpi-val green">200<span style="font-size:13px;color:#9ca3af"> ms</span></div>
+          <div class="qa-insight-trend down">Peak exceeds SLA</div>
+        </div>
+        <div class="qa-insight-note">TVM-EDGE-04 port 4/2 signal loss is the primary driver. Agent-06 cascading. Restart sequence recommended.</div>
+      </div>`;
       drawLatencyChart(wrapEl);
 
     } else if (action === 'c4') {
       titleEl.childNodes[0].nodeValue = 'Cluster C4 Status ';
       tagEl.textContent = '12 / 13 Healthy';
       labelEl.textContent = 'NODE HEALTH (%) — CLUSTER C4';
-      insightEl.innerHTML = `
-        <div class="qa-insight-kpi"><div class="qa-insight-kpi-label">Healthy Nodes</div><div class="qa-insight-kpi-val green">12<span style="font-size:14px;color:#9ca3af"> / 13</span></div></div>
-        <div class="qa-insight-kpi"><div class="qa-insight-kpi-label">Degraded</div><div class="qa-insight-kpi-val amber">1</div></div>
-        <div class="qa-insight-kpi"><div class="qa-insight-kpi-label">Avg Health</div><div class="qa-insight-kpi-val green">97<span style="font-size:14px;color:#9ca3af"> %</span></div></div>
-        <div class="qa-insight-note">Agent-06 showing soft breach at 61%. All other nodes nominal. Auto-monitoring engaged.</div>`;
+      insightEl.innerHTML = `<div class="qa-insight-inner">
+        <div class="qa-insight-section-title">Cluster Health</div>
+        <div class="qa-insight-kpi kpi-green">
+          <div class="qa-insight-kpi-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg><span style="font-size:10px;color:#059669;font-weight:600">GOOD</span></div>
+          <div class="qa-insight-kpi-label">Healthy Nodes</div>
+          <div class="qa-insight-kpi-val green">12<span style="font-size:13px;color:#9ca3af"> / 13</span></div>
+          <div class="qa-insight-trend down">↑ 92% availability</div>
+        </div>
+        <div class="qa-insight-kpi kpi-amber">
+          <div class="qa-insight-kpi-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9l-8 13.8A1.7 1.7 0 0 0 3.8 20h16.4a1.7 1.7 0 0 0 1.5-2.3l-8-13.8a1.7 1.7 0 0 0-3 0z"/></svg><span style="font-size:10px;color:#d97706;font-weight:600">WARN</span></div>
+          <div class="qa-insight-kpi-label">Degraded</div>
+          <div class="qa-insight-kpi-val amber">1</div>
+          <div class="qa-insight-trend up">Agent-06 at 61%</div>
+        </div>
+        <div class="qa-insight-kpi kpi-violet">
+          <div class="qa-insight-kpi-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2 2"/></svg><span style="font-size:10px;color:#7c3aed;font-weight:600">AVG</span></div>
+          <div class="qa-insight-kpi-label">Avg Health</div>
+          <div class="qa-insight-kpi-val violet">97<span style="font-size:13px;color:#9ca3af"> %</span></div>
+          <div class="qa-insight-trend down">Nominal</div>
+        </div>
+        <div class="qa-insight-note">Agent-06 showing soft breach at 61%. All other nodes nominal. Auto-monitoring engaged.</div>
+      </div>`;
       drawC4Chart(wrapEl);
 
     } else if (action === 'rca') {
       titleEl.childNodes[0].nodeValue = 'Root Cause Analysis ';
       tagEl.textContent = '72h window';
       labelEl.textContent = 'INCIDENT CONTRIBUTORS — LAST 72 HOURS';
-      insightEl.innerHTML = `
-        <div class="qa-insight-kpi"><div class="qa-insight-kpi-label">Events Scanned</div><div class="qa-insight-kpi-val" style="color:#1d4ed8">4 820</div></div>
-        <div class="qa-insight-kpi"><div class="qa-insight-kpi-label">Root Causes ID'd</div><div class="qa-insight-kpi-val amber">3</div></div>
-        <div class="qa-insight-kpi"><div class="qa-insight-kpi-label">Confidence</div><div class="qa-insight-kpi-val green">91<span style="font-size:14px;color:#9ca3af"> %</span></div></div>
-        <div class="qa-insight-note">Hardware degradation (47%), config drift (31%), and load spike (22%) account for all incidents.</div>`;
+      insightEl.innerHTML = `<div class="qa-insight-inner">
+        <div class="qa-insight-section-title">Analysis Summary</div>
+        <div class="qa-insight-kpi kpi-blue">
+          <div class="qa-insight-kpi-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"><path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg><span style="font-size:10px;color:#2563eb;font-weight:600">SCAN</span></div>
+          <div class="qa-insight-kpi-label">Events Scanned</div>
+          <div class="qa-insight-kpi-val blue">4 820</div>
+          <div class="qa-insight-trend ok">72h window</div>
+        </div>
+        <div class="qa-insight-kpi kpi-amber">
+          <div class="qa-insight-kpi-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><span style="font-size:10px;color:#d97706;font-weight:600">FOUND</span></div>
+          <div class="qa-insight-kpi-label">Root Causes ID'd</div>
+          <div class="qa-insight-kpi-val amber">3</div>
+          <div class="qa-insight-trend up">HW · Config · Load</div>
+        </div>
+        <div class="qa-insight-kpi kpi-green">
+          <div class="qa-insight-kpi-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"><path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg><span style="font-size:10px;color:#059669;font-weight:600">AI</span></div>
+          <div class="qa-insight-kpi-label">Confidence</div>
+          <div class="qa-insight-kpi-val green">91<span style="font-size:13px;color:#9ca3af"> %</span></div>
+          <div class="qa-insight-trend down">High confidence</div>
+        </div>
+        <div class="qa-insight-note">Hardware degradation (47%), config drift (31%), and load spike (22%) account for all incidents.</div>
+      </div>`;
       drawRcaChart(wrapEl);
     }
   }
@@ -6838,49 +6977,43 @@
   let gmapPulseT       = 0;
   let gmapCanvas, gmapCtx;
 
-  /* ── Viewport transform state ── */
-  let gmapZoom   = 1;          // current scale
-  let gmapPanX   = 0;          // pan offset in CSS px
-  let gmapPanY   = 0;
-  const GMAP_ZOOM_MIN = 0.8;
-  const GMAP_ZOOM_MAX = 8;
-  const GMAP_ZOOM_STEP = 0.35;
+  /* ── Globe rotation state ── */
+  let globeLon    =  20;   // camera centre longitude (deg)
+  let globeLat    =  15;   // camera centre latitude  (deg)
+  let globeZoom   =  1.0;  // 1 = default radius
+  let _globeSpinOn = true; // auto-spin flag
+  const GLOBE_SPIN_DEG = 0.10; // degrees/frame
 
-  /* ── Equirectangular lon/lat → CSS pixel (applies zoom+pan) ── */
-  function geoToXY(lon, lat, W, H) {
-    /* base equirectangular */
-    const bx = (lon + 180) / 360 * W;
-    const by = (90  - lat) / 180 * H;
-    /* apply zoom around centre, then pan */
-    const cx = W / 2, cy = H / 2;
-    const x = cx + (bx - cx) * gmapZoom + gmapPanX;
-    const y = cy + (by - cy) * gmapZoom + gmapPanY;
-    return [x, y];
+  /* ── Orthographic projection: lon/lat → [x, y, visible] ── */
+  function geoToOrth(lon, lat, R, cx, cy) {
+    const φ  = lat  * Math.PI / 180;
+    const λ  = lon  * Math.PI / 180;
+    const φ0 = globeLat  * Math.PI / 180;
+    const λ0 = globeLon  * Math.PI / 180;
+    // dot product (is point on visible hemisphere?)
+    const dot = Math.sin(φ0)*Math.sin(φ) + Math.cos(φ0)*Math.cos(φ)*Math.cos(λ - λ0);
+    if (dot < 0) return null; // behind globe
+    const x = cx + R * Math.cos(φ) * Math.sin(λ - λ0);
+    const y = cy - R * (Math.cos(φ0)*Math.sin(φ) - Math.sin(φ0)*Math.cos(φ)*Math.cos(λ - λ0));
+    return [x, y, dot];
   }
 
-  /* ── zoom badge helper ── */
+  /* geoToXY shim: returns [x,y] for the flat badge – we override for hit-testing */
+  function geoToXY(lon, lat, W, H) {
+    const R  = Math.min(W, H) * 0.42 * globeZoom;
+    const cx = W / 2, cy = H / 2;
+    const r  = geoToOrth(lon, lat, R, cx, cy);
+    return r ? [r[0], r[1]] : [-999, -999];
+  }
+
+  /* ── zoom / reset helpers (repurposed for globe) ── */
   function gmapUpdateBadge() {
     const b = document.getElementById('gmapZoomBadge');
-    if (b) b.textContent = gmapZoom.toFixed(1) + '×';
+    if (b) b.textContent = globeZoom.toFixed(1) + '×';
   }
-
-  /* ── zoom to a point (cx,cy in CSS px) ── */
-  function gmapZoomTo(factor, cx, cy) {
-    if (!gmapCanvas) return;
-    const dpr = window.devicePixelRatio || 1;
-    const W = gmapCanvas.width / dpr, H = gmapCanvas.height / dpr;
-    const newZoom = Math.min(GMAP_ZOOM_MAX, Math.max(GMAP_ZOOM_MIN, gmapZoom * factor));
-    /* adjust pan so zoom centres on the cursor point */
-    const ratio = newZoom / gmapZoom;
-    gmapPanX = cx - ratio * (cx - gmapPanX);
-    gmapPanY = cy - ratio * (cy - gmapPanY);
-    gmapZoom = newZoom;
-    gmapUpdateBadge();
-  }
-
-  function gmapZoomIn()  { if (!gmapCanvas) return; const dpr=window.devicePixelRatio||1; const W=gmapCanvas.width/dpr,H=gmapCanvas.height/dpr; gmapZoomTo(1+GMAP_ZOOM_STEP, W/2, H/2); }
-  function gmapZoomOut() { if (!gmapCanvas) return; const dpr=window.devicePixelRatio||1; const W=gmapCanvas.width/dpr,H=gmapCanvas.height/dpr; gmapZoomTo(1/(1+GMAP_ZOOM_STEP), W/2, H/2); }
-  function gmapReset()   { gmapZoom=1; gmapPanX=0; gmapPanY=0; gmapUpdateBadge(); }
+  function gmapZoomIn()  { globeZoom = Math.min(3, globeZoom * 1.3); gmapUpdateBadge(); }
+  function gmapZoomOut() { globeZoom = Math.max(0.5, globeZoom / 1.3); gmapUpdateBadge(); }
+  function gmapReset()   { globeLon = 20; globeLat = 15; globeZoom = 1; gmapUpdateBadge(); }
 
   /* ── settings panel window controls ── */
   function settingsPanelMaximize() {
@@ -7048,17 +7181,6 @@
   </g>
   </svg>`;
 
-  /* pre-render the SVG to an Image so drawImage is fast each frame */
-  let _worldImg = null;
-  let _worldImgReady = false;
-  (function _preloadWorldImg() {
-    const blob = new Blob([_WORLD_SVG_1000], { type: 'image/svg+xml' });
-    const url  = URL.createObjectURL(blob);
-    _worldImg  = new Image();
-    _worldImg.onload = () => { _worldImgReady = true; URL.revokeObjectURL(url); };
-    _worldImg.src = url;
-  })();
-
   /* ── High-fidelity Natural Earth simplified coastlines ── */
   const COAST_POLYS = [
     /* North America mainland */
@@ -7138,65 +7260,189 @@
     [[126,34],[128,36],[130,38],[130,36],[128,34],[126,34]],
   ];
 
-  function gmapDrawWorld(ctx, W, H) {
-    /* ocean fallback always drawn first */
-    ctx.fillStyle = '#0d1e35';
-    ctx.fillRect(0, 0, W, H);
-
-    if (!_worldImgReady || !_worldImg) return;
-
-    /* apply the same zoom+pan as geoToXY so the map background tracks nodes.
-       The SVG is designed for a 1:1 equirectangular mapping.
-       We draw it centred (cx,cy) then scale by gmapZoom and shift by gmapPanX/Y */
-    const cx = W / 2, cy = H / 2;
-    const sx = cx + (-cx) * gmapZoom + gmapPanX; // left edge of zoomed image
-    const sy = cy + (-cy) * gmapZoom + gmapPanY; // top edge of zoomed image
-    const sw = W * gmapZoom;                      // scaled width
-    const sh = H * gmapZoom;                      // scaled height
-    ctx.drawImage(_worldImg, sx, sy, sw, sh);
-  }
-
+  /* ── Orthographic globe draw ── */
   function gmapDraw() {
     if (!gmapCanvas) return;
-    const W = gmapCanvas.width, H = gmapCanvas.height;
+    const dpr = window.devicePixelRatio || 1;
+    const W = gmapCanvas.width / dpr, H = gmapCanvas.height / dpr;
     const ctx = gmapCtx;
     const t   = gmapPulseT;
+    const cx  = W / 2, cy = H / 2;
+    const R   = Math.min(W, H) * 0.42 * globeZoom;
 
-    gmapDrawWorld(ctx, W, H);
+    /* ── auto-spin ── */
+    if (_globeSpinOn) globeLon = (globeLon + GLOBE_SPIN_DEG) % 360;
+
+    ctx.clearRect(0, 0, W, H);
+
+    /* ── star field ── */
+    ctx.save();
+    if (!gmapDraw._stars) {
+      gmapDraw._stars = Array.from({length: 90}, () => ({
+        x: Math.random(), y: Math.random(),
+        r: 0.4 + Math.random() * 0.9,
+        a: 0.3 + Math.random() * 0.5
+      }));
+    }
+    gmapDraw._stars.forEach(s => {
+      ctx.beginPath();
+      ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(203,213,225,${s.a})`;
+      ctx.fill();
+    });
+    ctx.restore();
+
+    /* ── atmosphere outer glow ── */
+    const atm = ctx.createRadialGradient(cx, cy, R * 0.94, cx, cy, R * 1.18);
+    atm.addColorStop(0, 'rgba(96,165,250,0.18)');
+    atm.addColorStop(0.5, 'rgba(59,130,246,0.07)');
+    atm.addColorStop(1, 'rgba(59,130,246,0)');
+    ctx.beginPath(); ctx.arc(cx, cy, R * 1.18, 0, Math.PI * 2);
+    ctx.fillStyle = atm; ctx.fill();
+
+    /* ── ocean sphere ── */
+    const ocean = ctx.createRadialGradient(cx - R*0.3, cy - R*0.3, R*0.05, cx, cy, R);
+    ocean.addColorStop(0, '#1e4d8c');
+    ocean.addColorStop(0.4, '#0d2d5e');
+    ocean.addColorStop(1, '#060f1e');
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.fillStyle = ocean; ctx.fill();
+
+    /* ── clip to globe disc for continent drawing ── */
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.clip();
+
+    /* ── graticule lines ── */
+    ctx.strokeStyle = 'rgba(96,165,250,0.08)';
+    ctx.lineWidth = 0.6;
+    for (let lon = -180; lon <= 180; lon += 30) {
+      ctx.beginPath();
+      let first = true;
+      for (let lat = -90; lat <= 90; lat += 3) {
+        const p = geoToOrth(lon, lat, R, cx, cy);
+        if (!p) { first = true; continue; }
+        first ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1]);
+        first = false;
+      }
+      ctx.stroke();
+    }
+    for (let lat = -60; lat <= 60; lat += 30) {
+      ctx.beginPath();
+      let first = true;
+      for (let lon = -180; lon <= 185; lon += 3) {
+        const p = geoToOrth(lon, lat, R, cx, cy);
+        if (!p) { first = true; continue; }
+        first ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1]);
+        first = false;
+      }
+      ctx.stroke();
+    }
+    /* equator highlight */
+    ctx.strokeStyle = 'rgba(96,165,250,0.22)';
+    ctx.lineWidth = 0.9;
+    ctx.beginPath(); let eFirst = true;
+    for (let lon = -180; lon <= 185; lon += 2) {
+      const p = geoToOrth(lon, 0, R, cx, cy);
+      if (!p) { eFirst = true; continue; }
+      eFirst ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1]);
+      eFirst = false;
+    }
+    ctx.stroke();
+
+    /* ── draw continent coastlines using COAST_POLYS ── */
+    ctx.fillStyle = '#1e3d6e';
+    ctx.strokeStyle = 'rgba(120,180,255,0.5)';
+    ctx.lineWidth = 0.8;
+    COAST_POLYS.forEach(poly => {
+      ctx.beginPath();
+      let pFirst = true;
+      poly.forEach(([lon, lat]) => {
+        const p = geoToOrth(lon, lat, R, cx, cy);
+        if (!p) { pFirst = true; return; }
+        pFirst ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1]);
+        pFirst = false;
+      });
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    });
+
+    /* ── sphere gloss highlight ── */
+    const shine = ctx.createRadialGradient(cx - R*0.38, cy - R*0.38, R*0.02, cx - R*0.25, cy - R*0.3, R*0.6);
+    shine.addColorStop(0, 'rgba(255,255,255,0.14)');
+    shine.addColorStop(0.5, 'rgba(255,255,255,0.04)');
+    shine.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = shine;
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore(); /* end clip */
+
+    /* ── globe rim shadow ── */
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(10,20,40,0.55)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
 
     /* ── filter visible nodes ── */
     const visibleIds = new Set(
       GMAP_NODES.filter(n => gmapActiveRegion === 'ALL' || n.region === gmapActiveRegion).map(n => n.id)
     );
 
-    /* ── node pixel positions from lon/lat ── */
-    function nxy(node) { return geoToXY(node.lon, node.lat, W, H); }
+    /* ── great-circle arc helper (sample N intermediate points) ── */
+    function drawArc(lon1, lat1, lon2, lat2, color, dashed) {
+      const N = 40;
+      const φ1 = lat1*Math.PI/180, λ1 = lon1*Math.PI/180;
+      const φ2 = lat2*Math.PI/180, λ2 = lon2*Math.PI/180;
+      const d  = Math.acos(Math.max(-1, Math.min(1, Math.sin(φ1)*Math.sin(φ2) + Math.cos(φ1)*Math.cos(φ2)*Math.cos(λ2-λ1))));
+      if (d < 0.001) return;
+      ctx.beginPath();
+      let first = true, prevVisible = false;
+      if (dashed) ctx.setLineDash([4,4]); else ctx.setLineDash([]);
+      for (let i = 0; i <= N; i++) {
+        const f = i / N;
+        const A = Math.sin((1-f)*d) / Math.sin(d), B = Math.sin(f*d) / Math.sin(d);
+        const x3 = A*Math.cos(φ1)*Math.cos(λ1) + B*Math.cos(φ2)*Math.cos(λ2);
+        const y3 = A*Math.cos(φ1)*Math.sin(λ1) + B*Math.cos(φ2)*Math.sin(λ2);
+        const z3 = A*Math.sin(φ1)               + B*Math.sin(φ2);
+        const lon3 = Math.atan2(y3, x3) * 180/Math.PI;
+        const lat3 = Math.atan2(z3, Math.sqrt(x3*x3+y3*y3)) * 180/Math.PI;
+        const p = geoToOrth(lon3, lat3, R, cx, cy);
+        if (!p) { first = true; prevVisible = false; continue; }
+        first ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1]);
+        first = false; prevVisible = true;
+      }
+      ctx.strokeStyle = color; ctx.lineWidth = 1.1; ctx.stroke();
+      ctx.setLineDash([]);
+    }
 
     /* ── edges ── */
     GMAP_EDGES.forEach(([a, b]) => {
       if (!visibleIds.has(a) || !visibleIds.has(b)) return;
       const na = GMAP_NODES.find(n => n.id === a);
       const nb = GMAP_NODES.find(n => n.id === b);
-      const [ax, ay] = nxy(na), [bx, by] = nxy(nb);
-
       const isCritical = na.status === 'critical' || nb.status === 'critical';
-      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
-      ctx.strokeStyle = isCritical ? 'rgba(239,68,68,0.30)' : 'rgba(96,165,250,0.20)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
+      drawArc(na.lon, na.lat, nb.lon, nb.lat,
+        isCritical ? 'rgba(239,68,68,0.38)' : 'rgba(96,165,250,0.28)', false);
 
-      /* animated packet */
-      const progress = ((t * 0.35) + GMAP_NODES.indexOf(na) * 0.17) % 1;
-      const px = ax + (bx - ax) * progress, py = ay + (by - ay) * progress;
-      ctx.beginPath(); ctx.arc(px, py, 1.6, 0, Math.PI * 2);
-      ctx.fillStyle = isCritical ? 'rgba(252,165,165,0.85)' : 'rgba(147,197,253,0.85)';
-      ctx.fill();
+      /* animated packet along arc */
+      const progress = ((t * 0.3) + GMAP_NODES.indexOf(na) * 0.18) % 1;
+      const pLon = na.lon + (nb.lon - na.lon) * progress;
+      const pLat = na.lat + (nb.lat - na.lat) * progress;
+      const pp = geoToOrth(pLon, pLat, R, cx, cy);
+      if (pp) {
+        ctx.beginPath(); ctx.arc(pp[0], pp[1], 1.8, 0, Math.PI * 2);
+        ctx.fillStyle = isCritical ? 'rgba(252,165,165,0.9)' : 'rgba(147,197,253,0.9)';
+        ctx.fill();
+      }
     });
 
     /* ── nodes ── */
     GMAP_NODES.forEach(node => {
       if (!visibleIds.has(node.id)) return;
-      const [nx, ny] = nxy(node);
+      const p = geoToOrth(node.lon, node.lat, R, cx, cy);
+      if (!p) return; // behind globe
+      const [nx, ny, dot] = p;
       const col = GMAP_STATUS_COLOR[node.status];
 
       /* outer pulse ring for critical / warning */
@@ -7204,21 +7450,15 @@
         const speed = node.status === 'critical' ? 3.8 : 2.4;
         const pulse = 0.5 + 0.5 * Math.sin(t * speed);
         const rMax  = node.status === 'critical' ? 13 : 9;
-        const alpha = 0.35 * (1 - pulse);
+        const alpha = 0.38 * (1 - pulse);
         ctx.beginPath(); ctx.arc(nx, ny, 5 + rMax * pulse, 0, Math.PI * 2);
-        ctx.strokeStyle = col.replace('rgb(', 'rgba(').replace(')', `,${alpha})`);
+        ctx.strokeStyle = col + Math.round(alpha * 255).toString(16).padStart(2,'0');
         ctx.lineWidth = 1.5; ctx.stroke();
-
-        /* second inner ring */
-        const pulse2 = 0.5 + 0.5 * Math.sin(t * speed + 1);
-        ctx.beginPath(); ctx.arc(nx, ny, 5 + (rMax * 0.5) * pulse2, 0, Math.PI * 2);
-        ctx.strokeStyle = col.replace('rgb(', 'rgba(').replace(')', `,${alpha * 0.5})`);
-        ctx.lineWidth = 0.8; ctx.stroke();
       }
 
       /* glow halo */
       const grd = ctx.createRadialGradient(nx, ny, 0, nx, ny, 8);
-      grd.addColorStop(0, col + 'aa');
+      grd.addColorStop(0, col + 'bb');
       grd.addColorStop(1, col + '00');
       ctx.beginPath(); ctx.arc(nx, ny, 8, 0, Math.PI * 2);
       ctx.fillStyle = grd; ctx.fill();
@@ -7226,16 +7466,18 @@
       /* core dot */
       ctx.beginPath(); ctx.arc(nx, ny, 4.5, 0, Math.PI * 2);
       ctx.fillStyle = col; ctx.fill();
-      ctx.strokeStyle = '#0d1b2e'; ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.strokeStyle = 'rgba(6,15,30,0.7)'; ctx.lineWidth = 1.2; ctx.stroke();
 
       /* inner highlight */
       ctx.beginPath(); ctx.arc(nx - 1.2, ny - 1.2, 1.5, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fill();
 
-      /* label */
-      ctx.fillStyle = 'rgba(203,213,225,0.9)';
-      ctx.font = 'bold 8px -apple-system,system-ui,sans-serif';
-      ctx.fillText(node.id, nx + 7, ny + 3);
+      /* label — only show when dot product > 0.25 (good visibility) */
+      if (dot > 0.25) {
+        ctx.fillStyle = 'rgba(203,213,225,0.92)';
+        ctx.font = 'bold 8px -apple-system,system-ui,sans-serif';
+        ctx.fillText(node.id, nx + 7, ny + 3);
+      }
     });
 
     gmapPulseT += 0.022;
@@ -7251,17 +7493,14 @@
     /* hi-DPI */
     const dpr  = window.devicePixelRatio || 1;
     const cssW = wrap.clientWidth  || 500;
-    const cssH = 280;
+    const cssH = 300;
     gmapCanvas.width  = cssW * dpr;
     gmapCanvas.height = cssH * dpr;
     gmapCanvas.style.width  = cssW + 'px';
     gmapCanvas.style.height = cssH + 'px';
     gmapCtx.scale(dpr, dpr);
 
-    /* reset view */
-    gmapZoom = 1; gmapPanX = 0; gmapPanY = 0;
     gmapUpdateBadge();
-
     if (gmapAnimFrame) cancelAnimationFrame(gmapAnimFrame);
     gmapDraw();
 
@@ -7271,28 +7510,28 @@
     c.onclick = c.ondblclick = c.onwheel = c.ontouchstart =
     c.ontouchmove = c.ontouchend = null;
 
-    /* ── WHEEL — zoom towards cursor ── */
+    /* ── WHEEL — zoom globe ── */
     c.addEventListener('wheel', e => {
       e.preventDefault();
-      const rect = c.getBoundingClientRect();
-      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-      const factor = e.deltaY < 0 ? (1 + GMAP_ZOOM_STEP) : 1 / (1 + GMAP_ZOOM_STEP);
-      gmapZoomTo(factor, mx, my);
+      const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+      globeZoom = Math.min(3, Math.max(0.5, globeZoom * factor));
+      gmapUpdateBadge();
     }, { passive: false });
 
-    /* ── MOUSE DRAG — pan ── */
+    /* ── MOUSE DRAG — rotate globe ── */
     let _drag = false, _lastX = 0, _lastY = 0, _moved = false;
     c.addEventListener('mousedown', e => {
       if (e.button !== 0) return;
-      _drag = true; _moved = false;
+      _drag = true; _moved = false; _globeSpinOn = false;
       _lastX = e.clientX; _lastY = e.clientY;
       wrap.classList.add('is-panning');
     });
     window.addEventListener('mousemove', e => {
       if (!_drag) return;
       const dx = e.clientX - _lastX, dy = e.clientY - _lastY;
-      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) _moved = true;
-      gmapPanX += dx; gmapPanY += dy;
+      if (Math.abs(dx) > 1 || Math.abs(dy) > 1) _moved = true;
+      globeLon += dx * 0.4;
+      globeLat  = Math.max(-85, Math.min(85, globeLat - dy * 0.4));
       _lastX = e.clientX; _lastY = e.clientY;
     });
     window.addEventListener('mouseup', () => {
@@ -7311,11 +7550,9 @@
         const col = GMAP_STATUS_COLOR[hit.status];
         tip.innerHTML = `<div class="gmap-tooltip-title" style="color:${col}">${hit.label}</div>
           <div class="gmap-tooltip-sub">${hit.id} · ${hit.region} · <span style="color:${col}">${hit.status.toUpperCase()}</span></div>`;
-        /* position: offset from cursor, keep inside wrap */
         const wRect = wrap.getBoundingClientRect();
-        let tx = e.clientX - wRect.left + 12;
-        let ty = e.clientY - wRect.top  - 10;
-        tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
+        tip.style.left = (e.clientX - wRect.left + 12) + 'px';
+        tip.style.top  = (e.clientY - wRect.top  - 10) + 'px';
         tip.classList.add('visible');
       } else {
         c.style.cursor = _drag ? 'grabbing' : 'grab';
@@ -7327,63 +7564,52 @@
       if (tip) tip.classList.remove('visible');
     });
 
-    /* ── CLICK — show toast (only if not a drag) ── */
+    /* ── CLICK — show toast ── */
     c.addEventListener('click', e => {
       if (_moved) { _moved = false; return; }
       const rect = c.getBoundingClientRect();
-      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-      const hit = gmapNodeHit(mx, my);
+      const hit = gmapNodeHit(e.clientX - rect.left, e.clientY - rect.top);
       if (hit) showToast(`${hit.label} — ${hit.status.toUpperCase()} · ${hit.region}`, hit.status === 'critical' ? 'orange' : 'blue');
     });
 
-    /* ── DOUBLE-CLICK — drill in (zoom 2× towards point) ── */
-    c.addEventListener('dblclick', e => {
-      const rect = c.getBoundingClientRect();
-      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-      gmapZoomTo(2, mx, my);
+    /* ── DOUBLE-CLICK — toggle spin ── */
+    c.addEventListener('dblclick', () => {
+      _globeSpinOn = !_globeSpinOn;
+      showToast(_globeSpinOn ? 'Globe auto-spin on' : 'Globe auto-spin off', 'blue');
     });
 
-    /* ── TOUCH — pinch zoom + drag ── */
-    let _t0 = null, _tDist0 = 0, _tMidX = 0, _tMidY = 0;
+    /* ── TOUCH — rotate ── */
+    let _t0 = null;
     c.addEventListener('touchstart', e => {
       if (e.touches.length === 1) {
         _t0 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        _tDist0 = 0;
-      } else if (e.touches.length === 2) {
-        const dx = e.touches[1].clientX - e.touches[0].clientX;
-        const dy = e.touches[1].clientY - e.touches[0].clientY;
-        _tDist0 = Math.sqrt(dx*dx + dy*dy);
-        const rect = c.getBoundingClientRect();
-        _tMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
-        _tMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+        _globeSpinOn = false;
       }
       e.preventDefault();
     }, { passive: false });
     c.addEventListener('touchmove', e => {
       e.preventDefault();
       if (e.touches.length === 1 && _t0) {
-        gmapPanX += e.touches[0].clientX - _t0.x;
-        gmapPanY += e.touches[0].clientY - _t0.y;
+        const dx = e.touches[0].clientX - _t0.x;
+        const dy = e.touches[0].clientY - _t0.y;
+        globeLon += dx * 0.45;
+        globeLat = Math.max(-85, Math.min(85, globeLat - dy * 0.45));
         _t0 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      } else if (e.touches.length === 2 && _tDist0 > 0) {
-        const dx = e.touches[1].clientX - e.touches[0].clientX;
-        const dy = e.touches[1].clientY - e.touches[0].clientY;
-        const newDist = Math.sqrt(dx*dx + dy*dy);
-        gmapZoomTo(newDist / _tDist0, _tMidX, _tMidY);
-        _tDist0 = newDist;
       }
     }, { passive: false });
-    c.addEventListener('touchend', () => { _t0 = null; _tDist0 = 0; });
+    c.addEventListener('touchend', () => { _t0 = null; });
   }
 
   function gmapNodeHit(mx, my) {
     if (!gmapCanvas) return null;
     const dpr = window.devicePixelRatio || 1;
     const W = gmapCanvas.width / dpr, H = gmapCanvas.height / dpr;
-    const hitR = Math.max(10, 10 / gmapZoom); /* easier to hit at low zoom */
+    const R = Math.min(W, H) * 0.42 * globeZoom;
+    const cx = W / 2, cy = H / 2;
     return GMAP_NODES.find(n => {
-      const [nx, ny] = geoToXY(n.lon, n.lat, W, H);
-      return Math.sqrt((nx-mx)**2 + (ny-my)**2) < hitR;
+      const p = geoToOrth(n.lon, n.lat, R, cx, cy);
+      if (!p) return false;
+      return Math.sqrt((p[0]-mx)**2 + (p[1]-my)**2) < 12;
     });
   }
 
