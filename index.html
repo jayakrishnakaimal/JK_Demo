@@ -2710,6 +2710,239 @@
 </div>
 
 <!-- ═══ DARK FOOTER ═══ -->
+<!-- ═══ DEMO BANNER ═══ -->
+<section class="demo-banner">
+  <div class="demo-banner-inner">
+    <div class="demo-banner-left">
+      <div class="demo-banner-eyebrow">Interactive prototype</div>
+      <h2 class="demo-banner-title">See the headless AI concept in action</h2>
+      <p class="demo-banner-body">Explore a fully interactive dashboard — agentic trace, policy controls, confidence charts, and AI-driven decision flows — built to demonstrate the invisible UI principles from this deck.</p>
+      <div class="demo-banner-tags">
+        <span>Canvas AI input</span>
+        <span>Agentic trace</span>
+        <span>Policy &amp; permissions</span>
+        <span>Case detail</span>
+        <span>Live charts</span>
+      </div>
+    </div>
+    <div class="demo-banner-right">
+      <div class="demo-banner-preview">
+        <div class="dbp-topbar">
+          <span class="dbp-dot" style="background:#ff5f57"></span>
+          <span class="dbp-dot" style="background:#febc2e"></span>
+          <span class="dbp-dot" style="background:#28c840"></span>
+          <span class="dbp-url">jayakrishnakaimal.github.io/JK_Demo/headless.html</span>
+        </div>
+        <div class="dbp-screen">
+          <div class="dbp-nav"></div>
+          <div class="dbp-body">
+            <div class="dbp-sidebar"></div>
+            <div class="dbp-main">
+              <div class="dbp-card" style="width:60%;height:14px;background:#e0e7ff;border-radius:2px;margin-bottom:8px"></div>
+              <div class="dbp-card" style="width:40%;height:10px;background:#f0f1f3;border-radius:2px;margin-bottom:14px"></div>
+              <div class="dbp-chips">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="dbp-input-row">
+                <div class="dbp-input"></div>
+                <div class="dbp-send"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a class="demo-banner-cta" href="headless.html" target="_blank">
+        Open live demo
+        <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M24 6H8a2 2 0 00-2 2v16a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2zm0 18H8V8h16v16zm-6-10h4v4h-2v-2h-6v6h-2V12h6z"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .demo-banner {
+    background: #f4f4f4;
+    border-top: 1px solid var(--border);
+    padding: 4rem 2rem;
+  }
+  .demo-banner-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    gap: 4rem;
+    align-items: center;
+  }
+  .demo-banner-left {
+    flex: 1;
+    min-width: 0;
+  }
+  .demo-banner-eyebrow {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: .75rem;
+  }
+  .demo-banner-title {
+    font-size: 1.75rem;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1.2;
+    letter-spacing: -.02em;
+    margin-bottom: 1rem;
+  }
+  .demo-banner-body {
+    font-size: .9rem;
+    color: #525252;
+    line-height: 1.65;
+    margin-bottom: 1.25rem;
+    max-width: 480px;
+  }
+  .demo-banner-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+  }
+  .demo-banner-tags span {
+    font-size: .72rem;
+    font-weight: 500;
+    color: #393939;
+    background: #e0e0e0;
+    padding: .25rem .75rem;
+    border-radius: 99px;
+  }
+  .demo-banner-right {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  /* mini browser preview */
+  .demo-banner-preview {
+    width: 280px;
+    border: 1px solid #c6c6c6;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+    background: #fff;
+  }
+  .dbp-topbar {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 10px;
+    background: #f0f0f0;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .dbp-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .dbp-url {
+    flex: 1;
+    font-size: 8px;
+    color: #6f6f6f;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 2px 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-left: 4px;
+    font-family: monospace;
+  }
+  .dbp-screen {
+    height: 160px;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(160deg, #f8fafd 0%, #ddeaf5 60%, #9ec8e0 100%);
+  }
+  .dbp-nav {
+    height: 22px;
+    background: rgba(255,255,255,0.85);
+    border-bottom: 1px solid rgba(229,231,235,0.8);
+    flex-shrink: 0;
+  }
+  .dbp-body {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+  }
+  .dbp-sidebar {
+    width: 56px;
+    background: rgba(255,255,255,0.5);
+    border-right: 1px solid rgba(229,231,235,0.5);
+    flex-shrink: 0;
+  }
+  .dbp-main {
+    flex: 1;
+    padding: 14px 12px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .dbp-chips {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 8px;
+  }
+  .dbp-chips span {
+    height: 14px;
+    flex: 1;
+    background: rgba(255,255,255,0.7);
+    border: 1px solid rgba(209,213,219,0.6);
+    border-radius: 2px;
+  }
+  .dbp-input-row {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+  .dbp-input {
+    flex: 1;
+    height: 18px;
+    background: rgba(255,255,255,0.82);
+    border: 1px solid rgba(209,213,219,0.7);
+    border-radius: 9px;
+  }
+  .dbp-send {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,#818cf8,#60a5fa);
+    flex-shrink: 0;
+  }
+  /* CTA button */
+  .demo-banner-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .85rem 2rem;
+    background: var(--blue);
+    color: #fff;
+    font-size: .9375rem;
+    font-weight: 400;
+    font-family: var(--font);
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .15s;
+    white-space: nowrap;
+  }
+  .demo-banner-cta:hover {
+    background: var(--blue-h);
+    color: #fff;
+  }
+  .demo-banner-cta svg { flex-shrink: 0; transition: transform .2s; }
+  .demo-banner-cta:hover svg { transform: translateX(2px) translateY(-2px); }
+  @media (max-width: 860px) {
+    .demo-banner-inner { flex-direction: column; gap: 2.5rem; }
+    .demo-banner-right { width: 100%; align-items: flex-start; }
+    .demo-banner-preview { width: 100%; max-width: 340px; }
+    .demo-banner-cta { width: 100%; max-width: 340px; justify-content: center; }
+  }
+</style>
+
 <footer class="dark-footer">
   <span class="df-brand">Headless AI</span>
   <div class="df-flow">
