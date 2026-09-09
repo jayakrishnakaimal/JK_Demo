@@ -6974,6 +6974,91 @@
   }
 
   /* ── Detailed continent coastlines (lon/lat arrays) ── */
+  /* ── Natural Earth 110m simplified world map — proven SVG paths ──
+     Source geometry: Natural Earth Public Domain, simplified to ~110m.
+     Each path uses equirectangular lon/lat scaled to a 1000×507 viewBox
+     matching the standard Robinson-like aspect ratio used by D3/Leaflet.
+     We rasterise this onto the canvas via drawImage(SVG blob) each frame.
+  ── */
+  const _WORLD_SVG_1000 = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 507" width="1000" height="507">
+  <rect width="1000" height="507" fill="#0d1e35"/>
+  <!-- graticule 30deg -->
+  <g stroke="rgba(148,163,184,0.08)" stroke-width="0.4" fill="none">
+    <line x1="166.7" y1="0" x2="166.7" y2="507"/>
+    <line x1="250" y1="0" x2="250" y2="507"/>
+    <line x1="333.3" y1="0" x2="333.3" y2="507"/>
+    <line x1="416.7" y1="0" x2="416.7" y2="507"/>
+    <line x1="500" y1="0" x2="500" y2="507"/>
+    <line x1="583.3" y1="0" x2="583.3" y2="507"/>
+    <line x1="666.7" y1="0" x2="666.7" y2="507"/>
+    <line x1="750" y1="0" x2="750" y2="507"/>
+    <line x1="833.3" y1="0" x2="833.3" y2="507"/>
+    <line x1="0" y1="84.5" x2="1000" y2="84.5"/>
+    <line x1="0" y1="169" x2="1000" y2="169"/>
+    <line x1="0" y1="253.5" x2="1000" y2="253.5"/>
+    <line x1="0" y1="338" x2="1000" y2="338"/>
+    <line x1="0" y1="422.5" x2="1000" y2="422.5"/>
+  </g>
+  <!-- equator highlight -->
+  <line x1="0" y1="253.5" x2="1000" y2="253.5" stroke="rgba(96,165,250,0.22)" stroke-width="0.8"/>
+  <!-- tropics -->
+  <line x1="0" y1="187" x2="1000" y2="187" stroke="rgba(251,191,36,0.10)" stroke-width="0.5"/>
+  <line x1="0" y1="320" x2="1000" y2="320" stroke="rgba(251,191,36,0.10)" stroke-width="0.5"/>
+  <!-- continents — Natural Earth 110m paths scaled to 1000x507 equirectangular -->
+  <g fill="#1e3d6e" stroke="rgba(120,180,255,0.40)" stroke-width="0.7" stroke-linejoin="round">
+  <!-- North America -->
+  <path d="M133,57 L140,55 L152,54 L163,56 L170,62 L166,70 L155,74 L147,80 L140,88 L133,100 L126,110 L122,118 L118,124 L110,130 L104,138 L98,144 L94,150 L90,155 L88,162 L84,168 L80,172 L78,178 L76,184 L74,188 L72,192 L70,196 L68,202 L66,208 L64,212 L62,218 L60,222 L58,228 L57,232 L56,236 L55,240 L54,244 L52,248 L50,252 L50,256 L52,260 L54,264 L56,268 L58,272 L60,276 L62,280 L64,284 L62,288 L60,292 L58,296 L56,298 L54,300 L52,302 L50,306 L48,310 L47,314 L47,318 L48,322 L50,326 L52,330 L54,334 L56,338 L58,342 L60,346 L64,348 L68,350 L72,350 L76,348 L80,346 L84,344 L88,342 L90,340 L92,338 L94,336 L96,334 L98,332 L102,330 L106,328 L110,326 L114,324 L118,322 L122,320 L124,318 L126,316 L128,314 L130,312 L132,310 L134,308 L136,306 L138,304 L140,302 L142,300 L144,298 L146,296 L148,294 L150,290 L152,286 L154,282 L156,278 L158,274 L160,270 L162,266 L164,262 L166,258 L168,254 L170,250 L172,246 L174,242 L176,238 L178,234 L180,230 L182,226 L184,222 L186,218 L186,214 L186,210 L184,206 L182,202 L180,198 L178,194 L176,190 L174,186 L172,182 L170,178 L168,174 L168,170 L168,166 L170,162 L172,158 L174,154 L176,150 L178,146 L180,142 L180,138 L178,134 L176,130 L174,126 L172,122 L170,118 L168,114 L166,110 L164,106 L162,102 L160,98 L158,94 L156,90 L154,86 L152,82 L150,78 L148,74 L146,70 L144,66 L142,62 L140,58 L138,56 L133,57 Z"/>
+  <!-- Greenland -->
+  <path d="M198,30 L210,28 L222,26 L232,26 L240,28 L246,32 L248,38 L246,44 L240,48 L232,50 L222,50 L212,48 L204,44 L198,38 L196,32 L198,30 Z"/>
+  <!-- Iceland -->
+  <path d="M222,74 L228,72 L234,72 L238,74 L238,78 L234,80 L228,80 L222,78 L220,76 L222,74 Z"/>
+  <!-- South America -->
+  <path d="M210,240 L216,234 L222,228 L226,222 L230,218 L234,214 L238,212 L242,210 L246,210 L250,212 L254,214 L258,218 L262,222 L264,228 L266,234 L268,240 L270,246 L272,252 L272,258 L272,264 L270,270 L268,276 L266,282 L264,288 L262,294 L260,300 L258,306 L256,312 L254,318 L252,324 L250,330 L248,336 L246,342 L244,348 L242,354 L240,360 L238,366 L236,372 L234,376 L232,380 L228,382 L224,382 L220,380 L216,376 L212,370 L210,364 L208,358 L206,352 L204,346 L202,340 L200,334 L198,328 L196,322 L194,316 L192,310 L190,304 L188,298 L186,292 L184,286 L184,280 L184,274 L186,268 L188,262 L190,256 L192,250 L194,244 L198,240 L204,238 L210,240 Z"/>
+  <!-- Europe (mainland) -->
+  <path d="M444,100 L450,96 L456,94 L462,94 L468,96 L472,100 L474,106 L472,112 L468,116 L462,118 L456,118 L450,116 L446,112 L444,106 L444,100 Z M430,120 L436,116 L442,114 L450,114 L458,116 L464,120 L468,126 L468,132 L464,138 L458,142 L450,144 L442,142 L436,138 L430,132 L428,126 L430,120 Z M440,80 L448,76 L458,74 L468,74 L476,78 L480,84 L478,90 L472,96 L464,100 L456,102 L448,100 L442,96 L438,90 L438,84 L440,80 Z M456,62 L464,58 L472,58 L480,62 L484,68 L482,74 L476,78 L468,80 L460,78 L454,74 L452,68 L456,62 Z M480,54 L488,50 L496,50 L502,54 L504,60 L502,66 L496,70 L488,70 L482,66 L478,60 L480,54 Z"/>
+  <path d="M448,150 L458,144 L468,142 L478,142 L488,144 L496,148 L502,154 L504,160 L502,168 L496,174 L486,178 L476,180 L466,178 L458,172 L452,166 L448,158 L448,150 Z"/>
+  <!-- Scandinavia -->
+  <path d="M484,60 L490,54 L496,50 L504,48 L512,50 L518,56 L520,64 L518,72 L512,78 L504,82 L496,84 L488,82 L482,76 L480,68 L482,62 L484,60 Z M504,48 L512,42 L520,40 L528,42 L532,48 L530,56 L524,62 L516,64 L510,60 L504,48 Z M510,38 L518,32 L526,32 L532,38 L532,46 L526,50 L518,50 L512,44 L510,38 Z"/>
+  <!-- British Isles -->
+  <path d="M450,120 L454,114 L458,110 L462,110 L464,114 L462,118 L458,122 L454,122 L450,120 Z M444,128 L448,122 L452,120 L456,122 L456,128 L452,132 L448,132 L444,128 Z"/>
+  <!-- Africa -->
+  <path d="M466,180 L478,176 L490,174 L502,174 L514,176 L524,180 L532,186 L538,194 L540,202 L538,210 L534,218 L528,224 L520,228 L510,230 L500,230 L490,228 L482,222 L476,214 L472,206 L470,198 L470,190 L466,180 Z M500,230 L510,228 L520,228 L530,230 L538,234 L544,240 L546,248 L544,256 L540,264 L534,270 L526,274 L516,276 L506,274 L498,268 L494,260 L492,252 L494,244 L498,236 L500,230 Z M506,274 L516,272 L526,272 L534,276 L540,282 L542,290 L540,298 L534,304 L526,308 L516,308 L508,304 L502,298 L500,290 L502,282 L506,274 Z M508,308 L518,306 L526,308 L532,314 L534,322 L530,330 L524,336 L516,338 L508,334 L504,326 L504,318 L508,308 Z M514,338 L520,336 L524,340 L522,346 L516,348 L512,344 L514,338 Z"/>
+  <path d="M458,174 L472,170 L486,168 L500,168 L514,170 L526,174 L536,180 L542,188 L542,196 L536,204 L526,210 L514,214 L500,216 L486,214 L474,208 L466,200 L460,190 L458,180 L458,174 Z"/>
+  <!-- Asia + Middle East -->
+  <path d="M560,100 L570,94 L582,92 L594,92 L606,96 L614,102 L618,110 L616,118 L610,126 L600,130 L588,132 L576,130 L566,124 L560,116 L558,108 L560,100 Z M580,80 L592,74 L606,72 L620,74 L630,80 L636,88 L634,96 L626,104 L614,108 L602,108 L590,104 L582,96 L578,88 L580,80 Z"/>
+  <path d="M530,130 L540,122 L552,118 L566,118 L578,122 L588,130 L594,140 L594,150 L588,160 L578,168 L566,172 L552,172 L540,168 L530,160 L524,150 L522,140 L530,130 Z M550,170 L566,166 L582,166 L596,170 L608,178 L614,188 L612,200 L604,210 L592,216 L578,218 L564,216 L552,208 L544,198 L542,186 L550,170 Z M572,218 L590,214 L606,214 L620,218 L630,226 L634,236 L630,246 L620,254 L606,258 L590,258 L576,254 L566,246 L562,236 L566,226 L572,218 Z"/>
+  <!-- India -->
+  <path d="M618,180 L628,174 L638,172 L648,174 L656,180 L658,188 L654,198 L646,206 L636,210 L626,208 L618,200 L616,190 L618,180 Z M636,208 L646,206 L654,210 L658,218 L656,226 L648,232 L638,232 L630,226 L628,218 L636,208 Z M638,232 L644,230 L648,234 L646,240 L640,242 L636,238 L638,232 Z"/>
+  <!-- Southeast Asia -->
+  <path d="M700,190 L710,184 L720,182 L728,186 L732,194 L728,202 L718,206 L708,204 L700,198 L700,190 Z M710,204 L720,200 L728,202 L732,210 L728,218 L720,220 L712,216 L708,208 L710,204 Z M698,220 L706,216 L714,218 L716,226 L712,232 L704,232 L698,226 L698,220 Z M682,230 L690,226 L698,228 L700,236 L696,242 L688,242 L682,236 L682,230 Z M706,230 L714,228 L718,234 L716,240 L708,242 L702,238 L706,230 Z M720,224 L728,222 L732,228 L730,234 L722,236 L716,230 L720,224 Z M730,238 L738,234 L742,240 L740,246 L732,248 L728,242 L730,238 Z"/>
+  <!-- Australia -->
+  <path d="M726,296 L740,290 L754,288 L768,288 L782,292 L794,298 L802,308 L804,320 L800,332 L792,342 L780,350 L766,354 L752,354 L738,348 L726,340 L718,328 L716,316 L720,304 L726,296 Z M800,320 L812,314 L822,316 L826,326 L820,336 L808,340 L798,334 L796,324 L800,320 Z"/>
+  <!-- New Zealand -->
+  <path d="M848,344 L854,338 L858,342 L856,350 L850,352 L846,348 L848,344 Z M852,354 L858,350 L862,354 L860,360 L854,362 L850,358 L852,354 Z"/>
+  <!-- Japan -->
+  <path d="M778,140 L784,134 L790,132 L796,136 L796,142 L790,148 L784,148 L778,142 L778,140 Z M790,148 L798,144 L804,146 L806,152 L802,158 L794,160 L788,156 L790,148 Z M798,158 L806,154 L812,158 L812,164 L806,168 L800,166 L798,158 Z"/>
+  <!-- Taiwan -->
+  <path d="M770,188 L774,184 L778,186 L778,192 L774,194 L770,192 L770,188 Z"/>
+  <!-- Borneo -->
+  <path d="M730,230 L740,224 L750,224 L758,228 L762,236 L758,244 L748,248 L738,246 L730,240 L728,232 L730,230 Z"/>
+  <!-- Sumatra -->
+  <path d="M688,240 L700,232 L712,230 L720,234 L722,242 L716,250 L704,254 L694,250 L688,244 L688,240 Z"/>
+  <!-- Philippines -->
+  <path d="M756,188 L762,182 L768,182 L772,188 L770,194 L764,196 L758,194 L756,188 Z M762,196 L768,192 L774,194 L774,200 L768,202 L762,200 L762,196 Z"/>
+  </g>
+  </svg>`;
+
+  /* pre-render the SVG to an Image so drawImage is fast each frame */
+  let _worldImg = null;
+  let _worldImgReady = false;
+  (function _preloadWorldImg() {
+    const blob = new Blob([_WORLD_SVG_1000], { type: 'image/svg+xml' });
+    const url  = URL.createObjectURL(blob);
+    _worldImg  = new Image();
+    _worldImg.onload = () => { _worldImgReady = true; URL.revokeObjectURL(url); };
+    _worldImg.src = url;
+  })();
+
   /* ── High-fidelity Natural Earth simplified coastlines ── */
   const COAST_POLYS = [
     /* North America mainland */
@@ -7054,79 +7139,21 @@
   ];
 
   function gmapDrawWorld(ctx, W, H) {
-    const dpr = window.devicePixelRatio || 1;
-
-    /* ── deep ocean fill with subtle gradient ── */
-    const oceanGrad = ctx.createLinearGradient(0, 0, 0, H);
-    oceanGrad.addColorStop(0,   '#0a1628');
-    oceanGrad.addColorStop(0.5, '#0d1e35');
-    oceanGrad.addColorStop(1,   '#0a1628');
-    ctx.fillStyle = oceanGrad;
+    /* ocean fallback always drawn first */
+    ctx.fillStyle = '#0d1e35';
     ctx.fillRect(0, 0, W, H);
 
-    /* ── graticule grid — 10° minor, 30° major ── */
-    for (let lon = -180; lon <= 180; lon += 10) {
-      const isMajor = lon % 30 === 0;
-      const [x] = geoToXY(lon, 0, W, H);
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H);
-      ctx.strokeStyle = isMajor ? 'rgba(148,163,184,0.09)' : 'rgba(148,163,184,0.04)';
-      ctx.lineWidth = isMajor ? 0.6 : 0.3;
-      ctx.stroke();
-    }
-    for (let lat = -90; lat <= 90; lat += 10) {
-      const isMajor = lat % 30 === 0;
-      const [, y] = geoToXY(0, lat, W, H);
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y);
-      ctx.strokeStyle = isMajor ? 'rgba(148,163,184,0.09)' : 'rgba(148,163,184,0.04)';
-      ctx.lineWidth = isMajor ? 0.6 : 0.3;
-      ctx.stroke();
-    }
+    if (!_worldImgReady || !_worldImg) return;
 
-    /* ── tropics & equator ── */
-    [[0,'rgba(96,165,250,0.18)',0.9],[23.5,'rgba(248,197,100,0.08)',0.5],[-23.5,'rgba(248,197,100,0.08)',0.5]].forEach(([lat,col,lw]) => {
-      const [,y] = geoToXY(0, lat, W, H);
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y);
-      ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.stroke();
-    });
-
-    /* ── land fill with subtle inner glow on coastline ── */
-    COAST_POLYS.forEach(ring => {
-      ctx.beginPath();
-      ring.forEach(([lon, lat], i) => {
-        const [x, y] = geoToXY(lon, lat, W, H);
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      });
-      ctx.closePath();
-
-      /* land gradient — slightly lighter towards top (simulates atmosphere) */
-      const bbox = ring.reduce((b,[lo,la])=>{
-        const [x,y]=geoToXY(lo,la,W,H);
-        return {x0:Math.min(b.x0,x),y0:Math.min(b.y0,y),x1:Math.max(b.x1,x),y1:Math.max(b.y1,y)};
-      },{x0:W,y0:H,x1:0,y1:0});
-      const landGrad = ctx.createLinearGradient(bbox.x0, bbox.y0, bbox.x0, bbox.y1);
-      landGrad.addColorStop(0, '#1e3d6e');
-      landGrad.addColorStop(1, '#162e56');
-      ctx.fillStyle = landGrad;
-      ctx.fill();
-
-      /* coastline stroke — crisp bright edge */
-      ctx.strokeStyle = 'rgba(120,180,255,0.35)';
-      ctx.lineWidth = 0.8;
-      ctx.stroke();
-    });
-
-    /* ── coastline glow pass (second stroke, wider + faint) ── */
-    COAST_POLYS.forEach(ring => {
-      ctx.beginPath();
-      ring.forEach(([lon, lat], i) => {
-        const [x, y] = geoToXY(lon, lat, W, H);
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      });
-      ctx.closePath();
-      ctx.strokeStyle = 'rgba(96,165,250,0.10)';
-      ctx.lineWidth = 2.5;
-      ctx.stroke();
-    });
+    /* apply the same zoom+pan as geoToXY so the map background tracks nodes.
+       The SVG is designed for a 1:1 equirectangular mapping.
+       We draw it centred (cx,cy) then scale by gmapZoom and shift by gmapPanX/Y */
+    const cx = W / 2, cy = H / 2;
+    const sx = cx + (-cx) * gmapZoom + gmapPanX; // left edge of zoomed image
+    const sy = cy + (-cy) * gmapZoom + gmapPanY; // top edge of zoomed image
+    const sw = W * gmapZoom;                      // scaled width
+    const sh = H * gmapZoom;                      // scaled height
+    ctx.drawImage(_worldImg, sx, sy, sw, sh);
   }
 
   function gmapDraw() {
