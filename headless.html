@@ -99,6 +99,38 @@
   .region-selector:hover { opacity: 0.75; }
   .region-selector svg { width: 14px; height: 14px; }
 
+  /* ── Headless menu link ── */
+  .headless-menu-link {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 13px;
+    margin-right: 16px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+  }
+  .headless-menu-link:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1d4ed8;
+    box-shadow: 0 1px 4px rgba(37,99,235,0.12);
+  }
+  .headless-menu-link svg {
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+  .headless-menu-link:hover svg {
+    transform: rotate(30deg);
+  }
+
   .nav-tabs {
     display: flex;
     align-items: center;
@@ -3893,6 +3925,19 @@
           <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 6l4 4 4-4"/></svg>
         </button>
       </div>
+
+      <!-- Headless menu link -->
+      <a class="headless-menu-link" href="index.html" title="Back to main site">
+        <!-- headless agent icon: node ring + dashed orbit -->
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3.5"/>
+          <circle cx="12" cy="12" r="8.5" stroke-dasharray="3 2.5" stroke-width="1.2"/>
+          <circle cx="19.5" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="4.5"  cy="12" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="12"   cy="4.5" r="1.5" fill="currentColor" stroke="none"/>
+        </svg>
+        Headless
+      </a>
 
       <div class="nav-tabs">
         <button class="nav-tab active" onclick="switchTab('canvas', this)">Canvas</button>
