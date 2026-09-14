@@ -1281,3 +1281,200 @@ When a quick-action button is clicked, a `.qa-skeleton` overlay is injected into
 | 2 | **Globe nav button** | `.nav-icon-btn--globe` — 36×36 gradient blue pill with radial-fill SVG sphere, specular dot, hover glow ring + scale, active solid-blue state. |
 | 3 | **qa-insight sidebar** | Creative coloured KPI sidebar: rainbow accent stripe, per-card colour variants (red/amber/green/blue/violet), `--kpi-accent` CSS var, left accent bar, mini SVG icon + status badge, trend micro-pill below each value. |
 | 4 | **Remove maximize button** | `settingsMaximizeBtn` + `settingsRestoreBtn` removed from Global Network Map panel header. Only close (✕) remains. |
+
+---
+
+## Feature: Slack Integration (`headless.html`)
+
+Added a full Slack incoming-webhook integration to the **Global Network Map** panel and the anomaly list.
+
+### UI — Slack config bar (lines ~5212–5241)
+
+```
+.slack-config-bar          — horizontal flex bar at the top of the anomaly section
+  .slack-config-label      — Slack hash-mark SVG logo + "Slack" text
+  .slack-status-dot        — 8px circle: .connected (green #22c55e) / .disconnected (grey #9ca3af)
+  .slack-webhook-input     — text input for the webhook URL (Enter key triggers save)
+  .slack-webhook-save      — "Save" button, purple Slack brand colour (#4a154b)
+  .slack-toggle-wrap       — checkbox + label "Auto-alert"
+```
+
+The webhook URL is **persisted to `localStorage`** key `slackWebhookUrl`. On page load the input is pre-filled and the status dot turns connected if a saved URL exists.
+
+### UI — Per-anomaly send button (CSS ~4058–4078, HTML inside `renderAnomalyItem`)
+
+```
+.anomaly-slack-btn         — icon-only button, hidden by default (opacity:0, scale 0.85)
+  :hover on .anomaly-item  — reveals the button (opacity:1, scale 1)
+  .sending                 — spinner replaces icon, pointer-events:none
+  .sent                    — green border (#22c55e), green background, ✓ icon
+```
+
+### UI — Send-all footer (lines ~5312–5316)
+
+```
+#slackSendAllWrap          — shown only when ≥1 anomaly exists (display:none → flex)
+  #slackSendAllBtn         — "Send all to Slack" full-width button, purple outline style
+```
+
+### JavaScript functions
+
+| Function | Lines | Description |
+|---|---|---|
+| `saveSlackWebhook()` | ~9928 | Reads input, validates `https://hooks.slack.com/` prefix, saves to `localStorage`, updates status dot, shows toast |
+| `_buildSlackPayload(anomaly)` | ~9952 | Returns a Slack **Block Kit** JSON payload: header block with severity emoji + region, section with severity/service/timestamp/description fields, action button linking to the dashboard |
+| `sendAnomalyToSlack(anomaly, btnEl)` | ~9996 | Checks webhook is configured, sets `.sending` on button, POSTs payload (no-cors mode), transitions button to `.sent` after 900 ms, fires success toast |
+| `sendAllAnomaliesToSlack()` | ~10038 | Iterates `_anomalyData`, calls `sendAnomalyToSlack` for each with a **400 ms stagger** between calls, disables the send-all button during send |
+| `_slackAutoAlertIfEnabled(anomalyLike)` | ~10064 | Called by `confirmEscalate()` and `confirmDropEscalate()` — fires `sendAnomalyToSlack` only if the auto-alert checkbox is checked and a webhook URL is saved |
+
+### Block Kit payload shape
+
+```json
+{
+  "blocks": [
+    { "type": "header", "text": { "type": "plain_text", "text": "🔴 Critical — ap-southeast-1" } },
+    { "type": "section", "fields": [
+        { "type": "mrkdwn", "text": "*Severity:*\nCritical" },
+        { "type": "mrkdwn", "text": "*Service:*\nBGP route flap" },
+        { "type": "mrkdwn", "text": "*Time:*\n14:32 UTC" },
+        { "type": "mrkdwn", "text": "*Details:*\nRoute 10.0.0.0/8 flapping …" }
+    ]},
+    { "type": "actions", "elements": [
+        { "type": "button", "text": { "type": "plain_text", "text": "View Dashboard" },
+          "url": "https://jayakrishnakaimal.github.io/JK_Demo/headless.html" }
+    ]}
+  ]
+}
+```
+
+### CSS additions (lines ~3986–4078)
+
+| Selector | Purpose |
+|---|---|
+| `.slack-config-bar` | Flex row, 12px gap, `#fafcff` background, bottom border |
+| `.slack-webhook-input` | Full-width text input, focus ring `rgba(74,21,75,0.3)` |
+| `.slack-webhook-save` | Purple pill button, hover darkens to `#611f69` |
+| `.anomaly-slack-btn` | 26×22 icon button, hidden until parent hover |
+| `.anomaly-slack-btn.sent` | Green tint, green border, ✓ icon |
+
+---
+
+## Feature: Policy & Permissions — Edit Mode (`headless.html`)
+
+Replaced the old dual-button "Edit operating mode / Change operating mode" pattern with a single **Edit / Save toggle** and an amber edit banner.
+
+### Edit toggle button (HTML line ~4749)
+
+```html
+<button class="pp-btn pp-edit-toggle-btn" id="ppEditToggleBtn" onclick="ppToggleEditMode()">
+  Edit
+</button>
+```
+
+In edit mode the button label changes to **"Save"** and its class switches to `pp-edit-toggle-btn--save`. Clicking Save commits all pending permission changes and exits edit mode.
+
+### Amber edit banner (HTML line ~4759)
+
+```html
+<div class="pp-edit-banner" id="ppEditBanner" style="display:none">
+  <span>Editing — unsaved changes</span>
+  <button class="pp-edit-discard-btn" onclick="ppDiscardEdit()">Discard</button>
+</div>
+```
+
+Visible only while `pp-wrap` has class `edit-mode`. Contains a **Discard** button that rolls back all toggle states to their pre-edit snapshot.
+
+### CSS additions (lines ~3581–3747)
+
+| Selector | Purpose |
+|---|---|
+| `.pp-wrap.edit-mode .pp-row` | Amber `outline: 1.5px solid rgba(245,158,11,0.45)` on each permission row |
+| `.pp-wrap.edit-mode .pp-right` | Amber left border `2px solid rgba(245,158,11,0.5)` |
+| `.pp-edit-toggle-btn--save` | Blue background + white text to signal save state |
+| `.pp-edit-banner` | Amber `#fffbeb` strip, amber left border, flex row with discard button |
+
+### JavaScript functions
+
+| Function | Lines | Description |
+|---|---|---|
+| `ppToggleEditMode()` | ~9817 | Reads `pp-wrap.edit-mode` presence; calls `ppEnterEditMode()` or `ppSaveEditMode()` |
+| `ppEnterEditMode()` | ~9821 | Adds `edit-mode` class to `pp-wrap`, shows banner, switches button to Save, **snapshots** all toggle states into `_ppEditSnapshot` |
+| `ppSaveEditMode()` | ~9847 | Removes `edit-mode`, hides banner, switches button back to Edit, shows "Permissions saved" toast |
+| `ppDiscardEdit()` | ~9870 | Restores every `pp-toggle-seg` to its snapshot state (re-applies the correct `active-*` class and syncs the `.pp-mode-badge` pill), removes `edit-mode`, hides banner |
+
+---
+
+## Feature: Permission Toggle Switches (`headless.html`)
+
+Each of the 7 permission rows has a **3-segment inline toggle** replacing the old static pill badge. The toggle is locked (pointer-events:none) in view mode and activates in edit mode.
+
+### HTML pattern (example — telemetry, lines ~4838–4841)
+
+```html
+<div class="pp-perm-toggle" data-perm="telemetry">
+  <button class="pp-toggle-seg active-auto"  data-val="Auto"     onclick="ppToggleSeg(this)">Auto</button>
+  <button class="pp-toggle-seg"              data-val="Ask"      onclick="ppToggleSeg(this)">Ask</button>
+  <button class="pp-toggle-seg"              data-val="Approval" onclick="ppToggleSeg(this)">Approval</button>
+</div>
+```
+
+The `data-perm` attribute on the parent and `data-val` on each button are used by `ppToggleSeg` and the snapshot/restore logic.
+
+### Default states (7 permissions)
+
+| Permission | Default |
+|---|---|
+| Telemetry read | Auto |
+| CMDB write | Auto |
+| Restart pods | Ask |
+| Cordon nodes | Ask |
+| BGP route injection | Approval |
+| QoS policy push | Approval |
+| Cross-tenant access | Approval |
+
+### CSS additions (lines ~3581–3747)
+
+| Selector | Purpose |
+|---|---|
+| `.pp-perm-toggle` | Flex row, 3px gap, hidden overflow, `pointer-events:none` in view mode |
+| `.pp-wrap.edit-mode .pp-perm-toggle` | `pointer-events:auto`, amber glow `box-shadow` |
+| `.pp-toggle-seg` | 48px min-width, pill segment button, `border-radius:4px` |
+| `.active-auto` | Green `#16a34a` text + `#dcfce7` background |
+| `.active-ask` | Amber `#d97706` text + `#fef3c7` background |
+| `.active-approval` | Red `#dc2626` text + `#fee2e2` background |
+
+### JavaScript — `ppToggleSeg(clickedSeg)` (line ~7244)
+
+1. Finds the parent `.pp-perm-toggle`
+2. Removes all `active-auto / active-ask / active-approval` from siblings
+3. Adds the matching `active-{val.toLowerCase()}` class to the clicked segment
+4. Syncs the adjacent `.pp-mode-badge` pill text and colour
+5. Fires a brief toast: `"Permission updated: {permName} → {val}"`
+
+### Snapshot & discard
+
+- **`ppEnterEditMode()`** iterates all `.pp-perm-toggle` elements, records `{ perm, val }` for the currently active segment → stored in `_ppEditSnapshot[]`
+- **`ppDiscardEdit()`** iterates the snapshot, finds the matching segment by `data-val`, restores `active-*` classes and badge text/colour, then exits edit mode
+
+---
+
+## Feature: Right Panel — Removed items (`headless.html`)
+
+### Removed: trend sparkline (`pp-trend-wrap`)
+
+The `pp-trend-wrap` div (a mini SVG sparkline chart inside the composite score row) was removed from the Policy & Permissions tab. The composite score row is now a clean label + number + badge layout only.
+
+### Removed: slider controls
+
+The `pp-knob` rows previously contained `<input type="range">` sliders for Autonomy, Risk tolerance, and Confidence threshold. These were removed. The right panel (`pp-right`) now shows **static value rows** (knob label + numeric value) with no interactive controls.
+
+### Removed: associated JavaScript
+
+| Removed function / call | Was responsible for |
+|---|---|
+| `ppKnobLive(input)` | Live-updating knob value display and radar on slider change |
+| `_ppRedrawRadarFromSliders()` | Re-drawing the 8-axis radar SVG from slider positions |
+| `initTrend()` call in `switchTab` | Initialising the sparkline chart on tab switch |
+
+The radar spider chart itself (`initRadar()`, lines ~4850–4900) is **retained** — it renders the 8-axis polygon with static values. Only the slider-driven redraw path was removed.
+
