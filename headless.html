@@ -7314,6 +7314,9 @@
     _ppAnimateKnobNum('ppKnobConfidence', newConf);
     _ppAnimateKnobNum('ppKnobRate',       newRate);
     _ppAnimateKnobNum('ppKnobBlast',      newBlast);
+
+    /* update the radar spider to match the new permission mix */
+    if (typeof window._ppUpdateRadar === 'function') window._ppUpdateRadar();
   }
 
   /** Flips a knob number with a brief scale-pop + colour flash */
@@ -9237,7 +9240,7 @@
       const poly = el('polygon', {
         points: ptStr, fill: s.fill, stroke: s.color,
         'stroke-width': '1.6',
-        style: 'transition: fill-opacity 0.2s, stroke-opacity 0.2s, stroke-width 0.15s; cursor: pointer;'
+        style: 'transition: points 0.45s ease, fill-opacity 0.2s, stroke-opacity 0.2s, stroke-width 0.15s; cursor: pointer;'
       });
       svg.appendChild(poly);
       polyEls[s.key] = poly;
@@ -9266,7 +9269,7 @@
       // tooltip on mousemove over polygon
       poly.addEventListener('mousemove', e => {
         if (hidden[s.key]) return;
-        // find nearest axis
+        // find nearest axis — use live vals from series object (updated by _ppUpdateRadar)
         const svgRect = svg.getBoundingClientRect();
         const scaleX  = 320 / svgRect.width;
         const svgX    = (e.clientX - svgRect.left) * scaleX;
@@ -9290,7 +9293,7 @@
         ptsArr.forEach(([x, y], i) => {
           const c = el('circle', {
             cx: x, cy: y, r: '3.5', fill: s.color,
-            style: 'transition: opacity 0.2s; pointer-events: none;'
+            style: 'transition: cx 0.45s ease, cy 0.45s ease, opacity 0.2s; pointer-events: none;'
           });
           svg.appendChild(c);
           dotEls[s.key].push(c);
@@ -9311,6 +9314,67 @@
 
     // ── hide tooltip when mouse leaves SVG ──
     svg.addEventListener('mouseleave', () => { tip.style.opacity = '0'; });
+
+    /**
+     * Exposed updater — called by _ppRecalcKnobs() after a toggle change.
+     * Recalculates the Balanced (blue) series values from the permission
+     * distribution and animates the polygon + dots to the new shape.
+     *
+     * Axis mapping (index → meaning, Auto=high / Approval=low rule):
+     *   0 Risk Exposure     Auto→0.85  Ask→0.60  Approval→0.35
+     *   1 Time to remediate Auto→0.35  Ask→0.55  Approval→0.80
+     *   2 Tool calls/task   Auto→0.85  Ask→0.60  Approval→0.35
+     *   3 Autonomy          Auto→0.90  Ask→0.55  Approval→0.25
+     *   4 Human review load Auto→0.30  Ask→0.60  Approval→0.90
+     *   5 Reversibility     Auto→0.45  Ask→0.65  Approval→0.88
+     *   6 Blast radius      Auto→0.85  Ask→0.55  Approval→0.28
+     *   7 Compliance        Auto→0.40  Ask→0.65  Approval→0.92
+     */
+    const AXIS_WEIGHTS = [
+      { Auto: 0.85, Ask: 0.60, Approval: 0.35 }, // Risk Exposure
+      { Auto: 0.35, Ask: 0.55, Approval: 0.80 }, // Time to remediate
+      { Auto: 0.85, Ask: 0.60, Approval: 0.35 }, // Tool calls / task
+      { Auto: 0.90, Ask: 0.55, Approval: 0.25 }, // Autonomy
+      { Auto: 0.30, Ask: 0.60, Approval: 0.90 }, // Human review load
+      { Auto: 0.45, Ask: 0.65, Approval: 0.88 }, // Reversibility
+      { Auto: 0.85, Ask: 0.55, Approval: 0.28 }, // Blast radius
+      { Auto: 0.40, Ask: 0.65, Approval: 0.92 }, // Compliance
+    ];
+
+    window._ppUpdateRadar = function() {
+      // tally counts per value
+      const counts = { Auto: 0, Ask: 0, Approval: 0 };
+      const total  = document.querySelectorAll('.pp-perm-toggle').length || 1;
+      document.querySelectorAll('.pp-perm-toggle').forEach(toggle => {
+        const active = toggle.querySelector('.pp-toggle-seg[class*="active-"]');
+        const val = active ? active.dataset.val : 'Auto';
+        counts[val]++;
+      });
+
+      // compute new value for each radar axis as weighted average across all toggles
+      const newVals = AXIS_WEIGHTS.map(w =>
+        (counts.Auto * w.Auto + counts.Ask * w.Ask + counts.Approval * w.Approval) / total
+      );
+
+      // update the live vals on the blue series object so tooltips stay accurate
+      SERIES[0].vals = newVals;
+
+      // animate polygon points
+      const bluePoly = polyEls['blue'];
+      if (bluePoly) {
+        const newPts = AXES.map((a, i) => pt(newVals[i], a.angle).join(',')).join(' ');
+        bluePoly.setAttribute('points', newPts);
+      }
+
+      // animate dots
+      if (dotEls['blue']) {
+        dotEls['blue'].forEach((dot, i) => {
+          const [nx, ny] = pt(newVals[i], AXES[i].angle);
+          dot.setAttribute('cx', nx.toFixed(2));
+          dot.setAttribute('cy', ny.toFixed(2));
+        });
+      }
+    };
   }
   /* ────────────────────────────────────────────
      AGENTIC TRACE STAT ANIMATIONS
@@ -9970,7 +10034,7 @@
     const modeSpan = document.getElementById('ppModeSpan');
     if (modeSpan) modeSpan.textContent = '\u00b7 Balance';
 
-    /* re-sync knobs to match the restored permission state */
+    /* re-sync knobs and radar to match the restored permission state */
     _ppRecalcKnobs();
 
     showToast('Changes discarded', 'orange');
