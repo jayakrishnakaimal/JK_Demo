@@ -7536,8 +7536,6 @@
       badge.className   = 'pp-mode-badge ' + badgeClass[newVal];
     }
 
-    const colour = newVal === 'Auto' ? 'green' : newVal === 'Ask' ? 'blue' : 'orange';
-    showToast('Permission changed to ' + newVal, colour);
 
     /* recalculate right-panel knob values to reflect the new permission mix */
     _ppRecalcKnobs();
