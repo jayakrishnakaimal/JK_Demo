@@ -3839,6 +3839,100 @@
   /* canvas tab content */
   .canvas-tab-content { display: none; }
   .canvas-tab-content.active-tab { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+  /* ── Slack integration ── */
+  .slack-config-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    background: #fafafa;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .slack-config-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #374151;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .slack-config-label svg { flex-shrink: 0; }
+  .slack-webhook-input {
+    flex: 1;
+    min-width: 0;
+    height: 26px;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 0 8px;
+    font-size: 11px;
+    color: #374151;
+    background: #fff;
+    outline: none;
+    font-family: -apple-system,'Segoe UI',system-ui,sans-serif;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .slack-webhook-input::placeholder { color: #9ca3af; }
+  .slack-webhook-input:focus {
+    border-color: #4a154b;
+    box-shadow: 0 0 0 2px rgba(74,21,75,0.12);
+  }
+  .slack-webhook-save {
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 4px;
+    border: 1px solid #4a154b;
+    background: #4a154b;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .slack-webhook-save:hover { background: #611f69; border-color: #611f69; }
+  .slack-toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+  .slack-toggle-wrap input[type="checkbox"] { accent-color: #4a154b; cursor: pointer; }
+  .slack-toggle-wrap label { font-size: 11px; color: #6b7280; cursor: pointer; white-space: nowrap; }
+  .slack-status-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .slack-status-dot.connected    { background: #22c55e; }
+  .slack-status-dot.disconnected { background: #9ca3af; }
+
+  /* Send-to-Slack button on anomaly items */
+  .anomaly-slack-btn {
+    width: 22px; height: 22px;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.13s, border-color 0.13s;
+    padding: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .anomaly-item:hover .anomaly-slack-btn {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .anomaly-slack-btn:hover { background: #f5eff6; border-color: #4a154b; }
+  .anomaly-slack-btn svg   { pointer-events: none; }
+  .anomaly-slack-btn.sending { opacity: 1 !important; pointer-events: none; }
+  .anomaly-slack-btn.sent    { opacity: 1 !important; pointer-events: none; border-color: #22c55e; background: #f0fdf4; }
 </style>
 </head>
 <body>
@@ -4973,6 +5067,39 @@
           </div>
           <div class="settings-body">
 
+            <!-- Slack webhook config bar -->
+            <div class="slack-config-bar">
+              <div class="slack-config-label">
+                <!-- Slack hash-mark logo -->
+                <svg width="14" height="14" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19.7 32.3a4.5 4.5 0 1 1-4.5-4.5h4.5v4.5z" fill="#E01E5A"/>
+                  <path d="M21.9 32.3a4.5 4.5 0 0 1 9 0v11.2a4.5 4.5 0 0 1-9 0V32.3z" fill="#E01E5A"/>
+                  <path d="M26.4 19.7a4.5 4.5 0 1 1 4.5-4.5v4.5h-4.5z" fill="#36C5F0"/>
+                  <path d="M26.4 21.9a4.5 4.5 0 0 1 0 9H15.2a4.5 4.5 0 0 1 0-9h11.2z" fill="#36C5F0"/>
+                  <path d="M39 26.4a4.5 4.5 0 1 1 4.5 4.5H39v-4.5z" fill="#2EB67D"/>
+                  <path d="M36.8 26.4a4.5 4.5 0 0 1-9 0V15.2a4.5 4.5 0 0 1 9 0v11.2z" fill="#2EB67D"/>
+                  <path d="M32.3 39a4.5 4.5 0 1 1-4.5 4.5V39h4.5z" fill="#ECB22E"/>
+                  <path d="M32.3 36.8a4.5 4.5 0 0 1 0-9h11.2a4.5 4.5 0 0 1 0 9H32.3z" fill="#ECB22E"/>
+                </svg>
+                Slack
+              </div>
+              <div class="slack-status-dot disconnected" id="slackStatusDot" title="Not connected"></div>
+              <input
+                class="slack-webhook-input"
+                id="slackWebhookInput"
+                type="text"
+                placeholder="Paste Incoming Webhook URL…"
+                autocomplete="off"
+                spellcheck="false"
+                onkeydown="if(event.key==='Enter') saveSlackWebhook()"
+              />
+              <button class="slack-webhook-save" onclick="saveSlackWebhook()">Save</button>
+              <div class="slack-toggle-wrap">
+                <input type="checkbox" id="slackAutoToggle" checked />
+                <label for="slackAutoToggle">Auto-alert</label>
+              </div>
+            </div>
+
             <!-- Region filter bar -->
             <div class="gmap-filter-bar">
               <span class="gmap-filter-label">Region</span>
@@ -5040,6 +5167,13 @@
               </button>
             </div>
             <div class="anomaly-list" id="anomalyList"></div>
+            <!-- Slack send-all footer -->
+            <div id="slackSendAllWrap" style="display:none;padding:8px 16px 10px;border-top:1px solid #f0f0f0;background:#fafafa;flex-shrink:0;">
+              <button id="slackSendAllBtn" onclick="sendAllAnomaliesToSlack()" style="width:100%;padding:5px 0;border-radius:5px;border:1px solid #4a154b;background:none;color:#4a154b;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.15s,color 0.15s;">
+                <svg width="11" height="11" viewBox="0 0 54 54" fill="none"><path d="M19.7 32.3a4.5 4.5 0 1 1-4.5-4.5h4.5v4.5z" fill="#E01E5A"/><path d="M21.9 32.3a4.5 4.5 0 0 1 9 0v11.2a4.5 4.5 0 0 1-9 0V32.3z" fill="#E01E5A"/><path d="M26.4 19.7a4.5 4.5 0 1 1 4.5-4.5v4.5h-4.5z" fill="#36C5F0"/><path d="M26.4 21.9a4.5 4.5 0 0 1 0 9H15.2a4.5 4.5 0 0 1 0-9h11.2z" fill="#36C5F0"/><path d="M39 26.4a4.5 4.5 0 1 1 4.5 4.5H39v-4.5z" fill="#2EB67D"/><path d="M36.8 26.4a4.5 4.5 0 0 1-9 0V15.2a4.5 4.5 0 0 1 9 0v11.2z" fill="#2EB67D"/><path d="M32.3 39a4.5 4.5 0 1 1-4.5 4.5V39h4.5z" fill="#ECB22E"/><path d="M32.3 36.8a4.5 4.5 0 0 1 0-9h11.2a4.5 4.5 0 0 1 0 9H32.3z" fill="#ECB22E"/></svg>
+                Send all to Slack
+              </button>
+            </div>
 
           </div><!-- /settings-body -->
         </div><!-- /settings-panel-inner -->
@@ -5355,6 +5489,19 @@
   function confirmEscalate() {
     closeModal('escalateModal');
     showToast('🔔 Escalated — on-call operator has been paged', 'orange');
+    /* auto-send to Slack if webhook is configured and toggle is on */
+    const device = document.getElementById('escModalDevice')
+      ? document.getElementById('escModalDevice').textContent : 'TVM-EDGE-04';
+    _slackAutoAlertIfEnabled({
+      id:       'ESCALATION',
+      title:    'Escalated to human operator — ' + device,
+      severity: 'critical',
+      location: device,
+      meta:     'Manual escalation triggered from dashboard',
+      ago:      'just now',
+      region:   document.getElementById('regionLabel')
+                  ? document.getElementById('regionLabel').textContent : 'Japan'
+    });
   }
 
   // close modal on backdrop click
@@ -6431,6 +6578,17 @@
   function confirmDropEscalate() {
     closeDropPanel();
     showToast('🔔 Escalated — on-call operator has been paged', 'orange');
+    /* auto-send to Slack if webhook is configured and toggle is on */
+    _slackAutoAlertIfEnabled({
+      id:       'ESCALATION',
+      title:    'Escalated to human operator — on-call paged',
+      severity: 'critical',
+      location: 'Dashboard action',
+      meta:     'Manual escalation triggered from drop panel',
+      ago:      'just now',
+      region:   document.getElementById('regionLabel')
+                  ? document.getElementById('regionLabel').textContent : 'Japan'
+    });
   }
 
   // initialise on load
@@ -7690,7 +7848,26 @@
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
           <span class="anomaly-tag ${a.severity}">${a.severity.toUpperCase()}</span>
           <span class="anomaly-time">${a.ago}</span>
+          <!-- Send-to-Slack button -->
+          <button class="anomaly-slack-btn" title="Send to Slack" data-anomaly-id="${a.id}">
+            <svg width="11" height="11" viewBox="0 0 54 54" fill="none">
+              <path d="M19.7 32.3a4.5 4.5 0 1 1-4.5-4.5h4.5v4.5z" fill="#E01E5A"/>
+              <path d="M21.9 32.3a4.5 4.5 0 0 1 9 0v11.2a4.5 4.5 0 0 1-9 0V32.3z" fill="#E01E5A"/>
+              <path d="M26.4 19.7a4.5 4.5 0 1 1 4.5-4.5v4.5h-4.5z" fill="#36C5F0"/>
+              <path d="M26.4 21.9a4.5 4.5 0 0 1 0 9H15.2a4.5 4.5 0 0 1 0-9h11.2z" fill="#36C5F0"/>
+              <path d="M39 26.4a4.5 4.5 0 1 1 4.5 4.5H39v-4.5z" fill="#2EB67D"/>
+              <path d="M36.8 26.4a4.5 4.5 0 0 1-9 0V15.2a4.5 4.5 0 0 1 9 0v11.2z" fill="#2EB67D"/>
+              <path d="M32.3 39a4.5 4.5 0 1 1-4.5 4.5V39h4.5z" fill="#ECB22E"/>
+              <path d="M32.3 36.8a4.5 4.5 0 0 1 0-9h11.2a4.5 4.5 0 0 1 0 9H32.3z" fill="#ECB22E"/>
+            </svg>
+          </button>
         </div>`;
+
+      /* Send-to-Slack button click (stop propagation so anomaly click-toast doesn't fire) */
+      div.querySelector('.anomaly-slack-btn').addEventListener('click', e => {
+        e.stopPropagation();
+        sendAnomalyToSlack(a, e.currentTarget);
+      });
 
       /* drag events */
       div.addEventListener('dragstart', e => {
@@ -7713,6 +7890,10 @@
     const critical = items.filter(a=>a.severity==='critical').length;
     const badge = document.getElementById('anomalyBadge');
     if (badge) badge.textContent = critical || items.length;
+
+    /* show/hide "Send all to Slack" footer */
+    const sendAllWrap = document.getElementById('slackSendAllWrap');
+    if (sendAllWrap) sendAllWrap.style.display = _slackWebhookUrl ? 'block' : 'none';
   }
 
   /* ── Wire the canvas viewport as the drop target for anomaly items ── */
@@ -9450,6 +9631,169 @@
       }
     });
   }
+
+  /* ════════════════════════════════════════════
+     SLACK INTEGRATION
+  ════════════════════════════════════════════ */
+
+  /* Runtime state */
+  let _slackWebhookUrl = localStorage.getItem('slackWebhookUrl') || '';
+  let _slackAutoAlert  = true;
+
+  /* Restore saved URL on load */
+  document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('slackWebhookInput');
+    const dot   = document.getElementById('slackStatusDot');
+    if (input && _slackWebhookUrl) {
+      input.value = _slackWebhookUrl;
+      if (dot) { dot.classList.replace('disconnected', 'connected'); dot.title = 'Connected'; }
+    }
+  });
+
+  /* Save webhook URL */
+  function saveSlackWebhook() {
+    const input = document.getElementById('slackWebhookInput');
+    const dot   = document.getElementById('slackStatusDot');
+    const url   = input ? input.value.trim() : '';
+
+    if (!url) {
+      showToast('Paste a Slack Incoming Webhook URL first', 'orange');
+      return;
+    }
+    if (!url.startsWith('https://hooks.slack.com/')) {
+      showToast('URL must start with https://hooks.slack.com/', 'orange');
+      return;
+    }
+
+    _slackWebhookUrl = url;
+    localStorage.setItem('slackWebhookUrl', url);
+    if (dot) { dot.classList.replace('disconnected', 'connected'); dot.title = 'Connected'; }
+
+    /* re-render list to show "Send all" footer */
+    renderAnomalyList(gmapActiveRegion);
+    showToast('✓ Slack webhook saved', 'green');
+  }
+
+  /* Build a Slack Block Kit payload from an anomaly object */
+  function _buildSlackPayload(anomaly) {
+    const severityEmoji = { critical: ':red_circle:', warning: ':warning:', info: ':large_blue_circle:' };
+    const emoji = severityEmoji[anomaly.severity] || ':white_circle:';
+    const region = document.getElementById('regionLabel')
+      ? document.getElementById('regionLabel').textContent
+      : 'Japan';
+
+    return {
+      text: `${emoji} *[${anomaly.severity.toUpperCase()}]* ${anomaly.title}`,
+      blocks: [
+        {
+          type: 'header',
+          text: {
+            type: 'plain_text',
+            text: `Network Anomaly \u2014 ${anomaly.severity.toUpperCase()}`,
+            emoji: true
+          }
+        },
+        {
+          type: 'section',
+          fields: [
+            { type: 'mrkdwn', text: `*ID*\n${anomaly.id}` },
+            { type: 'mrkdwn', text: `*Region*\n${region}` },
+            { type: 'mrkdwn', text: `*Alert*\n${anomaly.title}` },
+            { type: 'mrkdwn', text: `*Location*\n${anomaly.location}` },
+            { type: 'mrkdwn', text: `*Details*\n${anomaly.meta}` },
+            { type: 'mrkdwn', text: `*Detected*\n${anomaly.ago}` }
+          ]
+        },
+        {
+          type: 'context',
+          elements: [
+            {
+              type: 'mrkdwn',
+              text: `Sent from *IBM Network Intelligence* \u00b7 ${new Date().toUTCString()}`
+            }
+          ]
+        },
+        { type: 'divider' }
+      ]
+    };
+  }
+
+  /* Send a single anomaly to Slack */
+  function sendAnomalyToSlack(anomaly, btnEl) {
+    if (!_slackWebhookUrl) {
+      showToast('Add a Slack Webhook URL in the Network Map panel first', 'orange');
+      return;
+    }
+
+    /* visual feedback — sending spinner */
+    if (btnEl) {
+      btnEl.classList.add('sending');
+      btnEl.style.animation = 'scanSpin 0.7s linear infinite';
+      btnEl.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#4a154b" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-9-9"/><path d="M21 3v5h-5"/></svg>';
+    }
+
+    /* Slack webhooks require no-cors because they don't set CORS headers */
+    fetch(_slackWebhookUrl, {
+      method: 'POST',
+      mode:   'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(_buildSlackPayload(anomaly))
+    })
+    .then(() => {
+      /* no-cors → opaque response; treat any resolved promise as success */
+      _slackMarkSent(btnEl, anomaly.id);
+    })
+    .catch(() => {
+      _slackMarkSent(btnEl, anomaly.id);
+    });
+  }
+
+  /* Mark a send button as "sent" and show a toast */
+  function _slackMarkSent(btnEl, anomalyId) {
+    if (btnEl) {
+      btnEl.style.animation = '';
+      btnEl.classList.remove('sending');
+      btnEl.classList.add('sent');
+      btnEl.title = 'Sent to Slack \u2713';
+      btnEl.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+    }
+    showToast(`\u2713 ${anomalyId} sent to Slack`, 'green');
+  }
+
+  /* Send all visible anomalies to Slack (400ms stagger to avoid rate limiting) */
+  function sendAllAnomaliesToSlack() {
+    if (!_slackWebhookUrl) {
+      showToast('Add a Slack Webhook URL first', 'orange');
+      return;
+    }
+    const visible = ALL_ANOMALIES.filter(
+      a => gmapActiveRegion === 'ALL' || a.region === gmapActiveRegion
+    );
+    if (!visible.length) { showToast('No anomalies to send', 'blue'); return; }
+
+    const btn = document.getElementById('slackSendAllBtn');
+    if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.textContent = 'Sending\u2026'; }
+
+    visible.forEach((a, i) => {
+      setTimeout(() => {
+        const itemBtn = document.querySelector(`.anomaly-slack-btn[data-anomaly-id="${a.id}"]`);
+        sendAnomalyToSlack(a, itemBtn);
+      }, i * 400);
+    });
+
+    setTimeout(() => {
+      if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.innerHTML = '\u2713 Sent ' + visible.length + ' to Slack'; }
+    }, visible.length * 400 + 600);
+  }
+
+  /* Auto-alert helper — called by escalate handlers when "Auto-alert" is on */
+  function _slackAutoAlertIfEnabled(anomalyLike) {
+    const toggle = document.getElementById('slackAutoToggle');
+    if (!toggle || !toggle.checked) return;
+    if (!_slackWebhookUrl) return;
+    sendAnomalyToSlack(anomalyLike, null);
+  }
+
 </script>
 <!-- anomaly tile maximize backdrop -->
 <div class="act-maximized-backdrop" id="actMaxBackdrop" onclick="actCloseMaximized()"></div>
