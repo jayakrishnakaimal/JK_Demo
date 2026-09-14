@@ -4958,19 +4958,19 @@
               <div class="pp-knob-row">
                 <span class="pp-knob-label">Model confidence gate</span>
                 <span class="pp-knob-val">
-                  <span class="pp-knob-num">80</span><span class="pp-knob-unit">%</span>
+                  <span class="pp-knob-num" id="ppKnobConfidence">71</span><span class="pp-knob-unit">%</span>
                 </span>
               </div>
               <div class="pp-knob-row">
                 <span class="pp-knob-label">Action rate limit</span>
                 <span class="pp-knob-val">
-                  <span class="pp-knob-num">12</span><span class="pp-knob-unit-word">acts/min</span>
+                  <span class="pp-knob-num" id="ppKnobRate">11</span><span class="pp-knob-unit-word">acts/min</span>
                 </span>
               </div>
               <div class="pp-knob-row">
                 <span class="pp-knob-label">Blast radius cap</span>
                 <span class="pp-knob-val">
-                  <span class="pp-knob-num">2</span><span class="pp-knob-unit-word">level</span>
+                  <span class="pp-knob-num" id="ppKnobBlast">2.1</span><span class="pp-knob-unit-word">level</span>
                 </span>
               </div>
 
@@ -7226,6 +7226,15 @@
     document.getElementById('pp-config-tab').style.display = tab === 'config' ? '' : 'none';
     const ppRight = document.querySelector('.pp-right');
     if (ppRight) ppRight.style.display = tab === 'config' ? 'none' : '';
+
+    /* Edit button is only meaningful on the Studio tab */
+    const editBtn = document.getElementById('ppEditToggleBtn');
+    if (editBtn) editBtn.style.display = tab === 'studio' ? '' : 'none';
+
+    /* If we switch away from Studio while in edit mode, discard silently */
+    if (tab !== 'studio' && _ppEditMode) {
+      ppDiscardEdit();
+    }
   }
 
   const badgeCycle = ['Auto','Ask','Approval'];
@@ -7264,6 +7273,66 @@
 
     const colour = newVal === 'Auto' ? 'green' : newVal === 'Ask' ? 'blue' : 'orange';
     showToast('Permission changed to ' + newVal, colour);
+
+    /* recalculate right-panel knob values to reflect the new permission mix */
+    _ppRecalcKnobs();
+  }
+
+  /**
+   * Recalculates the three right-panel knob numbers from the current
+   * state of all pp-perm-toggle segments and animates the change.
+   *
+   * Weights per segment value:
+   *   Model confidence gate : Auto→90%  Ask→75%  Approval→55%
+   *   Action rate limit     : Auto→20   Ask→12   Approval→5   (acts/min)
+   *   Blast radius cap      : Auto→4    Ask→2    Approval→1   (level)
+   */
+  function _ppRecalcKnobs() {
+    const weights = {
+      confidence: { Auto: 90, Ask: 75, Approval: 55 },
+      rate:       { Auto: 20, Ask: 12, Approval:  5 },
+      blast:      { Auto:  4, Ask:  2, Approval:  1 }
+    };
+
+    let sumConf = 0, sumRate = 0, sumBlast = 0, count = 0;
+
+    document.querySelectorAll('.pp-perm-toggle').forEach(toggle => {
+      const active = toggle.querySelector('.pp-toggle-seg[class*="active-"]');
+      const val = active ? active.dataset.val : 'Auto';
+      sumConf  += weights.confidence[val];
+      sumRate  += weights.rate[val];
+      sumBlast += weights.blast[val];
+      count++;
+    });
+
+    if (!count) return;
+
+    const newConf  = Math.round(sumConf  / count);
+    const newRate  = Math.round(sumRate  / count);
+    const newBlast = Math.round(sumBlast / count * 10) / 10;   // 1 decimal
+
+    /* animate number flip for each knob */
+    _ppAnimateKnobNum('ppKnobConfidence', newConf);
+    _ppAnimateKnobNum('ppKnobRate',       newRate);
+    _ppAnimateKnobNum('ppKnobBlast',      newBlast);
+  }
+
+  /** Flips a knob number with a brief scale-pop + colour flash */
+  function _ppAnimateKnobNum(id, newVal) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const cur = parseFloat(el.textContent);
+    if (cur === newVal) return;
+
+    el.style.transition = 'transform 0.12s ease, color 0.15s';
+    el.style.transform  = 'scale(1.35)';
+    el.style.color      = newVal > cur ? '#16a34a' : '#dc2626';
+
+    setTimeout(() => {
+      el.textContent    = newVal;
+      el.style.transform = 'scale(1)';
+      setTimeout(() => { el.style.color = ''; }, 600);
+    }, 120);
   }
 
   /* ────────────────────────────────────────────
@@ -9901,6 +9970,9 @@
     if (postureSub) postureSub.textContent = 'Under balanced';
     const modeSpan = document.getElementById('ppModeSpan');
     if (modeSpan) modeSpan.textContent = '\u00b7 Balance';
+
+    /* re-sync knobs to match the restored permission state */
+    _ppRecalcKnobs();
 
     showToast('Changes discarded', 'orange');
     _ppSnapshot = null;
