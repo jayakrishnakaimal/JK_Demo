@@ -4351,6 +4351,21 @@
   </div>
 </div>
 
+<!-- Policy Save Confirmation Modal -->
+<div class="modal-backdrop" id="ppSaveModal">
+  <div class="modal">
+    <div class="modal-title">Save policy changes?</div>
+    <div class="modal-device">Operating mode · Balance</div>
+    <div class="modal-label">Changes summary</div>
+    <div class="modal-trace" id="ppSaveModalTrace">Loading changes…</div>
+    <div class="modal-body">These permission changes will take effect immediately and govern what the agent can do autonomously. This action is auditable and reversible.</div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeModal('ppSaveModal')">Cancel</button>
+      <button class="modal-btn-confirm" onclick="ppConfirmSave()" style="background:#0f62fe;">Save changes</button>
+    </div>
+  </div>
+</div>
+
 <!-- outer chrome -->
 <div class="outer-chrome">
   <div class="chrome-title">Headless AI exploration_Dashboard</div>
@@ -10301,7 +10316,34 @@
   };
 
   function ppToggleEditMode() {
-    if (!_ppEditMode) ppEnterEditMode(); else ppSaveEditMode();
+    if (!_ppEditMode) { ppEnterEditMode(); return; }
+
+    /* build a human-readable diff of what changed for the modal trace */
+    const lines = [];
+    if (_ppSnapshot) {
+      _ppSnapshot.forEach(s => {
+        if (!s.toggle) return;
+        const active = s.toggle.querySelector('.pp-toggle-seg[class*="active-"]');
+        const newVal = active ? active.dataset.val : 'Auto';
+        if (newVal !== s.val) {
+          const permName = s.toggle.closest('.pp-perm-row')
+            ?.querySelector('.pp-perm-name')?.textContent?.trim() || s.toggle.dataset.perm;
+          lines.push(`→ <strong>${permName}</strong>: ${s.val} → ${newVal}`);
+        }
+      });
+    }
+    const trace = document.getElementById('ppSaveModalTrace');
+    if (trace) {
+      trace.innerHTML = lines.length
+        ? lines.join('<br>')
+        : '<span style="color:#9ca3af;font-style:italic">No permission changes detected.</span>';
+    }
+    document.getElementById('ppSaveModal').classList.add('open');
+  }
+
+  function ppConfirmSave() {
+    closeModal('ppSaveModal');
+    ppSaveEditMode();
   }
 
   function ppEnterEditMode() {
