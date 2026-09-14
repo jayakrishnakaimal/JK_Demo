@@ -1478,3 +1478,207 @@ The `pp-knob` rows previously contained `<input type="range">` sliders for Auton
 
 The radar spider chart itself (`initRadar()`, lines ~4850–4900) is **retained** — it renders the 8-axis polygon with static values. Only the slider-driven redraw path was removed.
 
+
+---
+
+## Feature: Edit Button — Studio Tab Only (`headless.html`)
+
+### Change
+The **Edit / Save toggle button** (`#ppEditToggleBtn`) was moved out of `pp-header-btns` and placed inside `.pp-tabs` at the far right (`margin-left: auto`). It is now physically co-located with the Studio / Configuration Testing tab buttons.
+
+### Behaviour
+- **Studio tab active** → Edit button is visible
+- **Config tab active** → Edit button is hidden (`display:none` via `switchPPTab`)
+- Switching to Config tab while in edit mode silently calls `ppDiscardEdit()` to avoid leaving stale unsaved state
+
+### HTML location
+```html
+<div class="pp-tabs">
+  <button class="pp-tab active" onclick="switchPPTab('studio',this)">…Studio</button>
+  <button class="pp-tab" onclick="switchPPTab('config',this)">…Configuration Testing</button>
+  <!-- Edit button — only shown when Studio tab is active -->
+  <button class="pp-btn pp-edit-toggle-btn" id="ppEditToggleBtn" onclick="ppToggleEditMode()" style="margin-left:auto;">
+    <svg id="ppEditIcon" …></svg>
+    <span id="ppEditBtnLabel">Edit</span>
+  </button>
+</div>
+```
+
+---
+
+## Feature: Save Confirmation Modal (`headless.html`)
+
+When the user clicks **Save** in edit mode, a confirmation modal opens before any changes are committed.
+
+### Modal HTML (`#ppSaveModal`)
+```html
+<div class="modal-backdrop" id="ppSaveModal">
+  <div class="modal">
+    <div class="modal-title">Save policy changes?</div>
+    <div class="modal-device">Operating mode · Balance</div>
+    <div class="modal-label">Changes summary</div>
+    <div class="modal-trace" id="ppSaveModalTrace">…</div>
+    <div class="modal-body">These permission changes will take effect immediately…</div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeModal('ppSaveModal')">Cancel</button>
+      <button class="modal-btn-confirm" onclick="ppConfirmSave()">Save changes</button>
+    </div>
+  </div>
+</div>
+```
+
+### Diff summary in `#ppSaveModalTrace`
+`ppToggleEditMode()` compares the current toggle states against `_ppSnapshot` and renders a human-readable list of changes:
+```
+→ Restart pods: Ask → Auto
+→ BGP route injection: Approval → Ask
+```
+If nothing changed: *"No permission changes detected."*
+
+### JavaScript flow
+
+| Step | Function | Action |
+|---|---|---|
+| 1 | `ppToggleEditMode()` | Detects edit mode is active → builds diff → opens `#ppSaveModal` |
+| 2 | Cancel | `closeModal('ppSaveModal')` → modal closes, edit mode stays active |
+| 3 | Save changes | `ppConfirmSave()` → `closeModal` + `ppSaveEditMode()` |
+| 4 | `ppSaveEditMode()` | Exits edit mode, flips button to "Saved", fires green toast |
+
+---
+
+## Feature: Live Stat-Value Micro-interactions (`headless.html`)
+
+The two stats-bar values (`#statVal1` — Confidence Score, `#statVal2` — Agent fleet health) are now fully live with ongoing micro-interactions.
+
+### New CSS classes
+
+| Class | Trigger | Effect |
+|---|---|---|
+| `.tick-up` | Value increases | Spring scale 1→1.18→1, green glow text-shadow (`statTickUp` keyframe) |
+| `.tick-down` | Value decreases | Spring scale 1→1.14→1, red glow text-shadow (`statTickDown` keyframe) |
+| `.heartbeat` | Idle (no change) | Double-beat opacity/scale pulse (`statHeartbeat` keyframe) |
+| `.stat-delta` | Every tick | Floating `+1%` / `-1%` badge that rises and fades (`deltaFloat` keyframe) |
+| `.stat-sparkle` | Every tick | 7 radial particles burst outward and fade (`sparkleFly` keyframe) |
+| `.stat-live-dot` | Always | 6px green pulsing dot appended to each stat label |
+
+### JavaScript — `initStatValues()` (refactored)
+
+| Function | Purpose |
+|---|---|
+| `countUp(el, target, suffix, duration, onDone)` | Initial spring roll-up from 0 → target; preserves `.stat-delta` child span |
+| `burst(el, color)` | Spawns 7 `.stat-sparkle` elements at radial angles, removes after 820ms |
+| `showDelta(deltaEl, diff)` | Shows floating `+N%` / `-N%` badge with `deltaFloat` animation |
+| `liveTick(stat)` | 70% chance: ±1 drift with flash + burst + delta; 30% chance: idle heartbeat |
+| `scheduleNext()` | Recursive `setTimeout` with ±700ms jitter — stat1: ~4.2s, stat2: ~5.5s base |
+
+### Stat config
+```js
+{ elId: 'statVal1', deltaId: 'statDelta1', subId: 'statSub1',
+  val: 95, suffix: '%', min: 88, max: 99,
+  subFn: v => `13 agents | ${v}% …` }   // sub-label updates with value
+```
+
+---
+
+## Feature: Radar Spider Web — Live Permission Sync (`headless.html`)
+
+The **Balanced (blue)** series on the posture radar updates in real time whenever a permission toggle is changed in edit mode.
+
+### Axis weight table (`AXIS_WEIGHTS`)
+
+| Axis | Auto | Ask | Approval |
+|---|---|---|---|
+| Risk Exposure | 0.85 | 0.60 | 0.35 |
+| Time to remediate | 0.35 | 0.55 | 0.80 |
+| Tool calls / task | 0.85 | 0.60 | 0.35 |
+| Autonomy | 0.90 | 0.55 | 0.25 |
+| Human review load | 0.30 | 0.60 | 0.90 |
+| Reversibility | 0.45 | 0.65 | 0.88 |
+| Blast radius | 0.85 | 0.55 | 0.28 |
+| Compliance | 0.40 | 0.65 | 0.92 |
+
+### Update chain
+`ppToggleSeg` → `_ppRecalcKnobs` → `window._ppUpdateRadar()`
+
+`_ppUpdateRadar()` (defined inside `initRadar()` closure, exposed on `window`):
+1. Tallies Auto/Ask/Approval counts across all 7 `.pp-perm-toggle` elements
+2. Computes weighted average per axis
+3. Updates `SERIES[0].vals` (blue series) so tooltips stay accurate
+4. Calls `bluePoly.setAttribute('points', newPts)` — animated via `transition: points 0.45s ease`
+5. Updates each blue dot `cx`/`cy` — animated via `transition: cx 0.45s ease, cy 0.45s ease`
+
+`ppDiscardEdit()` also calls `_ppRecalcKnobs()` to restore the radar to the pre-edit state.
+
+---
+
+## Feature: Knob Values — Live Permission Sync (`headless.html`)
+
+The three right-panel knob numbers update live on every permission toggle change.
+
+### IDs added to HTML
+```html
+<span class="pp-knob-num" id="ppKnobConfidence">71</span>
+<span class="pp-knob-num" id="ppKnobRate">11</span>
+<span class="pp-knob-num" id="ppKnobBlast">2.1</span>
+```
+
+### Weight table
+
+| Knob | Auto | Ask | Approval |
+|---|---|---|---|
+| Model confidence gate (%) | 90 | 75 | 55 |
+| Action rate limit (acts/min) | 20 | 12 | 5 |
+| Blast radius cap (level) | 4 | 2 | 1 |
+
+### `_ppAnimateKnobNum(id, newVal)`
+- Scales element to 1.35× with green (up) or red (down) colour flash
+- After 120ms snaps to new value and scales back to 1×
+- Colour fades back to default after 600ms
+
+### Initial defaults (2 Auto + 2 Ask + 3 Approval across 7 permissions)
+- Confidence gate: **71%** · Rate limit: **11** acts/min · Blast radius: **2.1** level
+
+---
+
+## Feature: Canvas Viewport — Empty State Drop Placeholder (`headless.html`)
+
+A creative animated placeholder is shown in the centre of `.canvas-viewport` when no tiles are present.
+
+### HTML (`#canvasDropPlaceholder`)
+```
+#canvasDropPlaceholder        — absolute inset:0, flex column, z-index:4
+  .cdp-cards                  — 3 stacked ghost card silhouettes (200×112px)
+    .cdp-card ×3              — rotated cards with shimmer lines, floating animation
+  .cdp-zone                   — drop arrow + label + chips
+    .cdp-arrow-wrap           — pulsing dashed indigo ring (cdpPulseRing)
+      svg arrow               — bouncing down-arrow (cdpArrowBounce)
+    .cdp-label                — "Drag anomaly cards here"
+    .cdp-sub                  — descriptor text
+    .cdp-chips                — 3 hint chips: Critical / Warnings / RCA
+```
+
+### Animations
+| Keyframe | Target | Effect |
+|---|---|---|
+| `cdpFloat1/2/3` | Each card | Independent vertical float (3.2s / 3.8s / 4.0s loops) |
+| `cdpPulseRing` | Arrow ring | Border opacity + outward glow breath (2.4s) |
+| `cdpArrowBounce` | Arrow SVG | Bounce down 5px and back (2.4s) |
+
+### Show / hide
+`_syncCanvasBarBtns()` (called on every tile add/remove):
+```js
+const ph = document.getElementById('canvasDropPlaceholder');
+if (ph) ph.classList.toggle('hidden', !!hasTiles);
+```
+`.hidden` → `opacity: 0; pointer-events: none`
+
+---
+
+## Fixes (`headless.html`)
+
+| Fix | Detail |
+|---|---|
+| **`rpToggleBtn` chevron direction** | Arrow was `‹` (left) expanded / `›` (right) collapsed — now correctly `›` (right) expanded = collapse, `‹` (left) collapsed = expand |
+| **Hard breach badge removed** | `badge-hard "1 hard breach"` removed from Agent fleet health — inconsistent with 94% score. Only `badge-soft "01 soft breach"` retained |
+| **`at-search` width** | Widened from 180px → 500px for usable search input in Agentic Trace tab |
+| **Saved button checkmark** | Removed `✓` unicode character from "Saved" button label |
