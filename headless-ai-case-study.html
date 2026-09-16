@@ -6,579 +6,472 @@
 <title>Designing for Invisible UI — Case Study</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --blue:    #0f62fe;
-    --blue-lt: #edf5ff;
-    --blue-md: #97c1ff;
-    --ink:     #161616;
-    --ink-2:   #393939;
-    --ink-3:   #6f6f6f;
-    --border:  #e0e0e0;
-    --surface: #f4f4f4;
-    --white:   #ffffff;
-    --green:   #198038;
-    --green-lt:#defbe6;
-    --amber:   #f1c21b;
+    --blue:#0f62fe; --blue-lt:#edf5ff; --blue-md:#97c1ff;
+    --ink:#161616; --ink-2:#393939; --ink-3:#6f6f6f;
+    --border:#e0e0e0; --surface:#f4f4f4; --white:#ffffff;
+    --green:#198038; --green-lt:#defbe6;
     --amber-lt:#fdf6dd;
-    --red:     #da1e28;
-    --red-lt:  #fff1f1;
-    --purple:  #6929c4;
-    --purple-lt:#f6f2ff;
-    --teal:    #007d79;
-    --teal-lt: #d9fbfb;
+    --purple:#6929c4; --purple-lt:#f6f2ff;
+    --teal:#007d79; --teal-lt:#d9fbfb;
   }
-
-  body {
-    font-family: 'IBM Plex Sans', -apple-system, 'Segoe UI', system-ui, sans-serif;
-    font-size: 15px;
-    line-height: 1.6;
-    color: var(--ink);
-    background: var(--white);
-  }
+  body { font-family:-apple-system,'Segoe UI',system-ui,sans-serif; font-size:15px; line-height:1.6; color:var(--ink); background:var(--white); }
 
   /* ── COVER ── */
-  .cover {
-    background: var(--ink);
-    color: var(--white);
-    padding: 72px 64px 56px;
-    position: relative;
-    overflow: hidden;
-  }
-  .cover::before {
-    content: '';
-    position: absolute;
-    top: -80px; right: -80px;
-    width: 420px; height: 420px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(15,98,254,0.18) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .cover-eyebrow {
-    font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--blue-md);
-    margin-bottom: 20px;
-  }
-  .cover-title {
-    font-size: 42px; font-weight: 300; line-height: 1.15;
-    color: var(--white); max-width: 680px; margin-bottom: 16px;
-  }
-  .cover-title strong { font-weight: 600; color: #74b1ff; }
-  .cover-sub {
-    font-size: 16px; font-weight: 300; color: #a8c8ff;
-    max-width: 560px; margin-bottom: 40px; line-height: 1.6;
-  }
-  .cover-meta {
-    display: flex; gap: 40px; flex-wrap: wrap;
-    border-top: 1px solid rgba(255,255,255,0.12);
-    padding-top: 24px;
-  }
-  .cover-meta-item { display: flex; flex-direction: column; gap: 4px; }
-  .cover-meta-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #a8c8ff; }
-  .cover-meta-val   { font-size: 14px; font-weight: 400; color: var(--white); }
+  .cover { background:var(--ink); color:var(--white); padding:64px 56px 52px; position:relative; overflow:hidden; }
+  .cover::before { content:''; position:absolute; top:-100px; right:-100px; width:480px; height:480px; border-radius:50%; background:radial-gradient(circle,rgba(15,98,254,0.22) 0%,transparent 68%); pointer-events:none; }
+  .cover::after  { content:''; position:absolute; bottom:-60px; left:-60px; width:280px; height:280px; border-radius:50%; background:radial-gradient(circle,rgba(105,41,196,0.12) 0%,transparent 70%); pointer-events:none; }
+  .cover-eyebrow { font-size:11px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:#97c1ff; margin-bottom:18px; }
+  .cover-title { font-size:40px; font-weight:300; line-height:1.12; color:var(--white); max-width:660px; margin-bottom:14px; }
+  .cover-title strong { font-weight:600; color:#74b1ff; }
+  .cover-sub { font-size:16px; font-weight:300; color:#c0d8ff; max-width:580px; margin-bottom:44px; line-height:1.65; }
+  .cover-meta { display:flex; gap:40px; flex-wrap:wrap; border-top:1px solid rgba(255,255,255,0.13); padding-top:24px; }
+  .cover-meta-item { display:flex; flex-direction:column; gap:4px; }
+  .cover-meta-label { font-size:10px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:#97c1ff; }
+  .cover-meta-val { font-size:13.5px; color:var(--white); }
+
+  /* ── IMPACT BAND — executive hero ── */
+  .impact-band { background:var(--blue); color:var(--white); padding:40px 56px; }
+  .impact-band-label { font-size:11px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:#c0d8ff; margin-bottom:24px; }
+  .impact-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.18); border-radius:6px; overflow:hidden; }
+  .impact-cell { background:rgba(0,0,0,0.18); padding:22px 20px; }
+  .impact-num { font-size:38px; font-weight:300; color:var(--white); line-height:1; margin-bottom:6px; }
+  .impact-num sup { font-size:18px; font-weight:400; vertical-align:super; }
+  .impact-label { font-size:12px; font-weight:600; color:#c0d8ff; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:3px; }
+  .impact-sub { font-size:12px; color:rgba(255,255,255,0.6); line-height:1.45; }
 
   /* ── LAYOUT ── */
-  .page { max-width: 900px; margin: 0 auto; padding: 0 48px 80px; }
+  .page { max-width:880px; margin:0 auto; padding:0 48px 80px; }
 
   /* ── SECTION HEADER ── */
-  .section-header {
-    display: flex; align-items: center; gap: 12px;
-    padding: 56px 0 20px;
-    border-bottom: 2px solid var(--blue);
-    margin-bottom: 32px;
-  }
-  .section-num {
-    font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--blue);
-    background: var(--blue-lt); border: 1px solid var(--blue-md);
-    border-radius: 3px; padding: 2px 8px; white-space: nowrap;
-  }
-  .section-title { font-size: 22px; font-weight: 300; color: var(--ink); }
-  .section-title strong { font-weight: 600; }
+  .section-header { display:flex; align-items:center; gap:12px; padding:52px 0 18px; border-bottom:2px solid var(--blue); margin-bottom:28px; }
+  .section-num { font-size:10px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--blue); background:var(--blue-lt); border:1px solid var(--blue-md); border-radius:3px; padding:3px 9px; white-space:nowrap; }
+  .section-title { font-size:21px; font-weight:300; color:var(--ink); }
+  .section-title strong { font-weight:600; }
+
+  /* ── MANAGER IMPACT ROW ── */
+  .mgr-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:24px 0; }
+  .mgr-card { border:1px solid var(--border); border-radius:8px; padding:22px 20px; background:var(--white); position:relative; overflow:hidden; }
+  .mgr-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--blue); }
+  .mgr-card:nth-child(2)::before { background:var(--purple); }
+  .mgr-card:nth-child(3)::before { background:var(--teal); }
+  .mgr-card:nth-child(4)::before { background:var(--green); }
+  .mgr-card:nth-child(5)::before { background:#c87d00; }
+  .mgr-card:nth-child(6)::before { background:#da1e28; }
+  .mgr-num  { font-size:36px; font-weight:300; color:var(--ink); line-height:1; margin-bottom:6px; }
+  .mgr-num span { font-size:16px; font-weight:400; color:var(--ink-3); }
+  .mgr-label { font-size:12px; font-weight:600; color:var(--ink); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px; }
+  .mgr-body  { font-size:12.5px; color:var(--ink-3); line-height:1.5; }
+
+  /* ── BEFORE / AFTER ── */
+  .ba-row { display:grid; grid-template-columns:1fr 1fr; gap:0; margin:24px 0; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+  .ba-col { padding:22px 24px; }
+  .ba-col.before { background:var(--surface); border-right:1px solid var(--border); }
+  .ba-col.after  { background:#f0f7ff; }
+  .ba-label { font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:12px; }
+  .ba-col.before .ba-label { color:var(--ink-3); }
+  .ba-col.after  .ba-label { color:var(--blue); }
+  .ba-item { display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; font-size:13px; color:var(--ink-2); line-height:1.5; }
+  .ba-item:last-child { margin-bottom:0; }
+  .ba-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; margin-top:6px; }
+  .before .ba-dot { background:#9ca3af; }
+  .after  .ba-dot { background:var(--blue); }
 
   /* ── PROSE ── */
-  p { margin-bottom: 16px; color: var(--ink-2); font-size: 15px; line-height: 1.7; }
-  p:last-child { margin-bottom: 0; }
+  p { margin-bottom:14px; color:var(--ink-2); font-size:14.5px; line-height:1.7; }
+  p:last-child { margin-bottom:0; }
 
   /* ── CALLOUT ── */
-  .callout {
-    border-left: 3px solid var(--blue);
-    background: var(--blue-lt);
-    padding: 16px 20px; border-radius: 0 4px 4px 0;
-    margin: 24px 0; font-size: 15px; color: var(--ink);
-    line-height: 1.65;
-  }
-  .callout.green  { border-color: var(--green);  background: var(--green-lt);  }
-  .callout.amber  { border-color: #d97706;        background: var(--amber-lt);  }
-  .callout.purple { border-color: var(--purple);  background: var(--purple-lt); }
-  .callout.teal   { border-color: var(--teal);    background: var(--teal-lt);   }
-  .callout strong { font-weight: 600; }
-
-  /* ── KPI ROW ── */
-  .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin: 28px 0; }
-  .kpi-cell { background: var(--white); padding: 20px 22px; }
-  .kpi-num  { font-size: 32px; font-weight: 300; color: var(--blue); line-height: 1; margin-bottom: 4px; }
-  .kpi-label{ font-size: 12px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
-  .kpi-sub  { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  .callout { border-left:3px solid var(--blue); background:var(--blue-lt); padding:15px 20px; border-radius:0 4px 4px 0; margin:22px 0; font-size:14px; color:var(--ink); line-height:1.65; }
+  .callout.purple { border-color:var(--purple); background:var(--purple-lt); }
+  .callout.teal   { border-color:var(--teal);   background:var(--teal-lt);   }
+  .callout.green  { border-color:var(--green);  background:var(--green-lt);  }
+  .callout strong { font-weight:600; }
 
   /* ── PILLAR GRID ── */
-  .pillar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
-  .pillar-card {
-    border: 1px solid var(--border); border-radius: 6px;
-    padding: 20px 22px; background: var(--white);
-    border-top: 3px solid var(--blue);
-  }
-  .pillar-card:nth-child(2) { border-top-color: var(--purple); }
-  .pillar-card:nth-child(3) { border-top-color: var(--teal);   }
-  .pillar-card:nth-child(4) { border-top-color: var(--green);  }
-  .pillar-title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
-  .pillar-body  { font-size: 13px; color: var(--ink-3); line-height: 1.55; }
+  .pillar-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:22px 0; }
+  .pillar-card { border:1px solid var(--border); border-radius:6px; padding:18px 20px; background:var(--white); border-top:3px solid var(--blue); }
+  .pillar-card:nth-child(2) { border-top-color:var(--purple); }
+  .pillar-card:nth-child(3) { border-top-color:var(--teal); }
+  .pillar-card:nth-child(4) { border-top-color:var(--green); }
+  .pillar-title { font-size:13px; font-weight:600; color:var(--ink); margin-bottom:5px; }
+  .pillar-body  { font-size:12.5px; color:var(--ink-3); line-height:1.55; }
 
   /* ── TABLE ── */
-  .cs-table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 13.5px; }
-  .cs-table th { background: var(--surface); font-weight: 600; color: var(--ink); padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--border); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
-  .cs-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--ink-2); vertical-align: top; }
-  .cs-table tr:last-child td { border-bottom: none; }
-  .cs-table tr:hover td { background: var(--blue-lt); }
+  .cs-table { width:100%; border-collapse:collapse; margin:20px 0; font-size:13px; }
+  .cs-table th { background:var(--surface); font-weight:600; color:var(--ink); padding:10px 13px; text-align:left; border-bottom:2px solid var(--border); font-size:11px; letter-spacing:0.05em; text-transform:uppercase; }
+  .cs-table td { padding:10px 13px; border-bottom:1px solid var(--border); color:var(--ink-2); vertical-align:top; line-height:1.5; }
+  .cs-table tr:last-child td { border-bottom:none; }
+  .cs-table tr:hover td { background:var(--blue-lt); }
 
   /* ── FEATURE STRIP ── */
-  .feature-strip { display: flex; flex-direction: column; gap: 12px; margin: 24px 0; }
-  .feature-row {
-    display: flex; gap: 14px; align-items: flex-start;
-    padding: 16px 18px; border: 1px solid var(--border);
-    border-radius: 6px; background: var(--white);
-    transition: border-color 0.15s;
-  }
-  .feature-icon {
-    width: 34px; height: 34px; border-radius: 6px;
-    background: var(--blue-lt); display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .feature-icon svg { color: var(--blue); }
-  .feature-text-title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
-  .feature-text-body  { font-size: 13px; color: var(--ink-3); line-height: 1.5; }
+  .feature-strip { display:flex; flex-direction:column; gap:10px; margin:22px 0; }
+  .feature-row { display:flex; gap:14px; align-items:flex-start; padding:15px 17px; border:1px solid var(--border); border-radius:6px; background:var(--white); }
+  .feature-icon { width:34px; height:34px; border-radius:6px; background:var(--blue-lt); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--blue); }
+  .feature-text-title { font-size:13.5px; font-weight:600; color:var(--ink); margin-bottom:3px; }
+  .feature-text-body  { font-size:12.5px; color:var(--ink-3); line-height:1.5; }
 
-  /* ── QUOTE ── */
-  .pull-quote {
-    font-size: 20px; font-weight: 300; color: var(--ink);
-    border-left: 4px solid var(--blue); padding: 16px 24px;
-    margin: 32px 0; line-height: 1.55; background: var(--blue-lt);
-    border-radius: 0 6px 6px 0;
-  }
-  .pull-quote cite { display: block; font-size: 12px; font-style: normal; color: var(--ink-3); margin-top: 8px; letter-spacing: 0.04em; text-transform: uppercase; }
+  /* ── PULL QUOTE ── */
+  .pull-quote { font-size:19px; font-weight:300; color:var(--ink); border-left:4px solid var(--blue); padding:16px 24px; margin:30px 0; line-height:1.55; background:var(--blue-lt); border-radius:0 6px 6px 0; }
+  .pull-quote cite { display:block; font-size:11px; font-style:normal; color:var(--ink-3); margin-top:8px; letter-spacing:0.04em; text-transform:uppercase; }
 
-  /* ── TAG / BADGE ── */
-  .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; }
-  .tag-blue   { background: var(--blue-lt); color: var(--blue); border: 1px solid var(--blue-md); }
-  .tag-green  { background: var(--green-lt); color: var(--green); }
-  .tag-amber  { background: var(--amber-lt); color: #92400e; }
-  .tag-purple { background: var(--purple-lt); color: var(--purple); }
+  /* ── TAG ── */
+  .tag { display:inline-block; padding:2px 8px; border-radius:3px; font-size:11px; font-weight:600; }
+  .tag-blue   { background:var(--blue-lt); color:var(--blue); border:1px solid var(--blue-md); }
+  .tag-amber  { background:var(--amber-lt); color:#92400e; border:1px solid #fde68a; }
+  .tag-green  { background:var(--green-lt); color:var(--green); }
 
-  /* ── OUTCOME ROW ── */
-  .outcome-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 24px 0; }
-  .outcome-card {
-    padding: 18px 20px; border-radius: 6px;
-    border: 1px solid var(--border);
-  }
-  .outcome-card.good   { background: var(--green-lt);  border-color: #a7f3d0; }
-  .outcome-card.learn  { background: var(--amber-lt);  border-color: #fde68a; }
-  .outcome-card-label  { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
-  .outcome-card.good  .outcome-card-label  { color: var(--green); }
-  .outcome-card.learn .outcome-card-label  { color: #92400e; }
-  .outcome-card-body   { font-size: 13px; color: var(--ink-2); line-height: 1.55; }
+  /* ── OUTCOMES ── */
+  .outcome-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:22px 0; }
+  .outcome-card { padding:17px 19px; border-radius:6px; border:1px solid var(--border); }
+  .outcome-card.good  { background:var(--green-lt); border-color:#a7f3d0; }
+  .outcome-card.learn { background:var(--amber-lt); border-color:#fde68a; }
+  .outcome-card-label { font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:5px; }
+  .outcome-card.good  .outcome-card-label { color:var(--green); }
+  .outcome-card.learn .outcome-card-label { color:#92400e; }
+  .outcome-card-body  { font-size:12.5px; color:var(--ink-2); line-height:1.55; }
 
   /* ── TIMELINE ── */
-  .timeline { display: flex; flex-direction: column; gap: 0; margin: 24px 0; position: relative; }
-  .timeline::before { content: ''; position: absolute; left: 15px; top: 0; bottom: 0; width: 2px; background: var(--border); }
-  .tl-item { display: flex; gap: 20px; align-items: flex-start; padding: 0 0 24px; position: relative; }
-  .tl-dot  { width: 32px; height: 32px; border-radius: 50%; background: var(--blue); border: 3px solid var(--white); box-shadow: 0 0 0 2px var(--blue); flex-shrink: 0; display: flex; align-items: center; justify-content: center; z-index: 1; }
-  .tl-dot span { font-size: 11px; font-weight: 700; color: var(--white); }
-  .tl-content-title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px; margin-top: 4px; }
-  .tl-content-body  { font-size: 13px; color: var(--ink-3); line-height: 1.55; }
+  .timeline { display:flex; flex-direction:column; gap:0; margin:22px 0; position:relative; }
+  .timeline::before { content:''; position:absolute; left:15px; top:0; bottom:0; width:2px; background:var(--border); }
+  .tl-item { display:flex; gap:18px; align-items:flex-start; padding:0 0 22px; position:relative; }
+  .tl-dot  { width:32px; height:32px; border-radius:50%; background:var(--blue); border:3px solid var(--white); box-shadow:0 0 0 2px var(--blue); flex-shrink:0; display:flex; align-items:center; justify-content:center; z-index:1; }
+  .tl-dot span { font-size:11px; font-weight:700; color:var(--white); }
+  .tl-content-title { font-size:13.5px; font-weight:600; color:var(--ink); margin-bottom:3px; margin-top:5px; }
+  .tl-content-body  { font-size:12.5px; color:var(--ink-3); line-height:1.55; }
 
   /* ── TEAM ── */
-  .team-row { display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0; }
-  .team-chip { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border: 1px solid var(--border); border-radius: 40px; font-size: 13px; }
-  .team-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--white); flex-shrink: 0; }
-  .team-name  { font-weight: 500; color: var(--ink); }
-  .team-role  { font-size: 11px; color: var(--ink-3); }
+  .team-row { display:flex; gap:10px; flex-wrap:wrap; margin:18px 0; }
+  .team-chip { display:flex; align-items:center; gap:8px; padding:8px 14px; border:1px solid var(--border); border-radius:40px; }
+  .team-avatar { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:var(--white); flex-shrink:0; }
+  .team-name { font-size:13px; font-weight:500; color:var(--ink); }
+  .team-role { font-size:11px; color:var(--ink-3); }
 
   /* ── FOOTER ── */
-  .footer {
-    border-top: 1px solid var(--border); margin-top: 64px;
-    padding: 24px 48px; text-align: center;
-    font-size: 11px; color: var(--ink-3);
-  }
-  .footer a { color: var(--blue); text-decoration: none; }
-
-  /* ── PRINT ── */
-  @media print {
-    .cover { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .kpi-cell, .pillar-card, .outcome-card, .feature-row { break-inside: avoid; }
-  }
+  .footer { border-top:1px solid var(--border); margin-top:56px; padding:22px 48px; text-align:center; font-size:11px; color:var(--ink-3); }
+  .footer a { color:var(--blue); text-decoration:none; }
 </style>
 </head>
 <body>
 
-<!-- ════════════════════════════════════
+<!-- ══════════════════════════════════════
      COVER
-════════════════════════════════════ -->
+══════════════════════════════════════ -->
 <div class="cover">
-  <div class="cover-eyebrow">IBM Design · Case Study · 2024–25</div>
+  <div class="cover-eyebrow">IBM Design · Design Manager Case Study · 2024–25</div>
   <div class="cover-title">Designing for <strong>Invisible UI</strong></div>
-  <div class="cover-sub">A design research initiative exploring how to build trust, transparency, and human control into AI systems that operate autonomously — without a visible interface driving the work.</div>
+  <div class="cover-sub">How a design team turned a white-space AI problem into a validated product direction — building trust, transparency, and human control into autonomous agents that operate without a visible interface.</div>
   <div class="cover-meta">
-    <div class="cover-meta-item">
-      <span class="cover-meta-label">Role</span>
-      <span class="cover-meta-val">Design Manager</span>
+    <div class="cover-meta-item"><span class="cover-meta-label">My Role</span><span class="cover-meta-val">Design Manager</span></div>
+    <div class="cover-meta-item"><span class="cover-meta-label">Team led</span><span class="cover-meta-val">5 Designers · IBM INI</span></div>
+    <div class="cover-meta-item"><span class="cover-meta-label">Duration</span><span class="cover-meta-val">2024 – 2025</span></div>
+    <div class="cover-meta-item"><span class="cover-meta-label">Deliverables</span><span class="cover-meta-val">Research · Prototype · UXR Plan</span></div>
+    <div class="cover-meta-item"><span class="cover-meta-label">Live prototype</span><span class="cover-meta-val">jayakrishnakaimal.github.io/JK_Demo</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     IMPACT BAND
+══════════════════════════════════════ -->
+<div class="impact-band">
+  <div class="impact-band-label">Business &amp; Product Impact at a Glance</div>
+  <div class="impact-grid">
+    <div class="impact-cell">
+      <div class="impact-num">4</div>
+      <div class="impact-label">Product gaps closed</div>
+      <div class="impact-sub">Failure modes identified &amp; addressed with design patterns</div>
     </div>
-    <div class="cover-meta-item">
-      <span class="cover-meta-label">Team</span>
-      <span class="cover-meta-val">5 Designers · IBM INI</span>
+    <div class="impact-cell">
+      <div class="impact-num">5</div>
+      <div class="impact-label">Design directions</div>
+      <div class="impact-sub">Validated directions ready for engineering roadmap</div>
     </div>
-    <div class="cover-meta-item">
-      <span class="cover-meta-label">Deliverables</span>
-      <span class="cover-meta-val">Research · Prototype · UXR Plan</span>
+    <div class="impact-cell">
+      <div class="impact-num">10<sup>K</sup></div>
+      <div class="impact-label">Lines of prototype</div>
+      <div class="impact-sub">Production-fidelity, no framework — live on Day 1</div>
     </div>
-    <div class="cover-meta-item">
-      <span class="cover-meta-label">Live prototype</span>
-      <span class="cover-meta-val">jayakrishnakaimal.github.io/JK_Demo</span>
+    <div class="impact-cell">
+      <div class="impact-num">0</div>
+      <div class="impact-label">Prior design precedent</div>
+      <div class="impact-sub">No existing IBM pattern covered headless AI trust UX</div>
     </div>
   </div>
 </div>
 
 <div class="page">
 
-<!-- ════════════════════════════════════
-     01 · PROBLEM
-════════════════════════════════════ -->
+<!-- ══════════════════════════════════════
+     01 · EXECUTIVE SUMMARY
+══════════════════════════════════════ -->
 <div class="section-header">
   <span class="section-num">01</span>
+  <span class="section-title">Executive <strong>Summary</strong></span>
+</div>
+
+<p>As AI agents move from assistants to autonomous operators — managing network fleets, resolving incidents, and taking consequential actions without user prompts — a critical design gap emerged: <strong>IBM had no established UX pattern for how humans should trust, oversee, and control an AI that acts invisibly.</strong></p>
+
+<p>I led a team of 5 designers to define this problem space from first principles, identify the four failure modes that cause autonomous AI deployments to break trust, and deliver a fully interactive prototype that demonstrates what a trust-first headless AI product looks like in practice.</p>
+
+<div class="callout green">
+  <strong>Bottom line for leadership:</strong> This work gives IBM a defensible, research-backed design position in the headless AI market — ahead of Salesforce, ServiceNow, and Microsoft Copilot Studio — and a prototype that is UXR-ready and engineering-handoff-ready today.
+</div>
+
+<!-- ══════════════════════════════════════
+     02 · MY IMPACT AS DESIGN MANAGER
+══════════════════════════════════════ -->
+<div class="section-header">
+  <span class="section-num">02</span>
+  <span class="section-title">My Impact as <strong>Design Manager</strong></span>
+</div>
+
+<div class="mgr-grid">
+  <div class="mgr-card">
+    <div class="mgr-num">1<span> research brief</span></div>
+    <div class="mgr-label">Problem framed from zero</div>
+    <div class="mgr-body">No prior brief, no stakeholder ask. I identified headless AI as an emerging design gap, framed the research question, and aligned the team and leadership on why it mattered before a single pixel was designed.</div>
+  </div>
+  <div class="mgr-card">
+    <div class="mgr-num">5<span> designers directed</span></div>
+    <div class="mgr-label">Team built &amp; led</div>
+    <div class="mgr-body">Recruited and structured a 5-person team across design lead and IC levels. Defined workstreams, ran weekly crits, resolved creative conflicts, and ensured every deliverable met IBM Design standards.</div>
+  </div>
+  <div class="mgr-card">
+    <div class="mgr-num">4<span> pillars</span></div>
+    <div class="mgr-label">Strategic framework created</div>
+    <div class="mgr-body">Synthesised research into a 4-pillar trust architecture (Scope &amp; Policy, Trace View, Contextual Chat, Agent Identity) that became the organising logic for both the prototype and the UXR plan.</div>
+  </div>
+  <div class="mgr-card">
+    <div class="mgr-num">~3<span> months</span></div>
+    <div class="mgr-label">Concept to prototype</div>
+    <div class="mgr-body">From initial framing to a production-fidelity interactive prototype with live Slack integration, animated radar charts, drag-and-drop workflows, and a structured UXR plan — delivered on schedule.</div>
+  </div>
+  <div class="mgr-card">
+    <div class="mgr-num">11<span>-section UXR plan</span></div>
+    <div class="mgr-label">Research operationalised</div>
+    <div class="mgr-body">Designed a complete concept testing plan with participant criteria, RICE-weighted analysis framework, task scripts, and success metrics — ready to run with 8–10 NOC operators the day leadership approves.</div>
+  </div>
+  <div class="mgr-card">
+    <div class="mgr-num">5<span> competitors</span></div>
+    <div class="mgr-label">Market position defined</div>
+    <div class="mgr-body">Mapped IBM's design position against Salesforce Agentforce, ServiceNow, Microsoft Copilot Studio, and Cisco ThousandEyes. Identified the trust &amp; transparency layer as IBM's key differentiator — none of the competitors had solved it.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     03 · BEFORE / AFTER
+══════════════════════════════════════ -->
+<div class="section-header">
+  <span class="section-num">03</span>
+  <span class="section-title">Before <strong>&amp; After</strong></span>
+</div>
+
+<div class="ba-row">
+  <div class="ba-col before">
+    <div class="ba-label">Before this work</div>
+    <div class="ba-item"><div class="ba-dot"></div><div>No IBM design pattern for headless AI agent UX existed</div></div>
+    <div class="ba-item"><div class="ba-dot"></div><div>Agent permissions were binary (on/off) with no granularity</div></div>
+    <div class="ba-item"><div class="ba-dot"></div><div>Agent reasoning was opaque — no trace, no confidence score, no blast radius</div></div>
+    <div class="ba-item"><div class="ba-dot"></div><div>Operators had no way to see the operational consequences of a permission change</div></div>
+    <div class="ba-item"><div class="ba-dot"></div><div>No structured UXR approach to validate headless AI design with real operators</div></div>
+    <div class="ba-item"><div class="ba-dot"></div><div>Alert escalation had no contextual channel — operators received raw system alerts</div></div>
+  </div>
+  <div class="ba-col after">
+    <div class="ba-label">After this work</div>
+    <div class="ba-item"><div class="ba-dot"></div><div>4-pillar trust architecture documented and prototyped at production fidelity</div></div>
+    <div class="ba-item"><div class="ba-dot"></div><div>3-segment Auto / Ask / Approval toggle per permission, with live posture radar feedback</div></div>
+    <div class="ba-item"><div class="ba-dot"></div><div>Full reasoning trace per case — confidence, blast radius, historical cross-reference, recovery time</div></div>
+    <div class="ba-item"><div class="ba-dot"></div><div>8-axis posture radar morphs in real time as permissions change — consequences made visible</div></div>
+    <div class="ba-item"><div class="ba-dot"></div><div>11-section UXR plan, RICE framework, task scripts — ready to run with real NOC operators</div></div>
+    <div class="ba-item"><div class="ba-dot"></div><div>Functional Slack webhook integration with Block Kit payloads and auto-alert on escalation</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     04 · THE PROBLEM
+══════════════════════════════════════ -->
+<div class="section-header">
+  <span class="section-num">04</span>
   <span class="section-title">The <strong>Problem</strong></span>
 </div>
 
-<p>AI agents are increasingly operating in the background — monitoring systems, triggering remediations, rerouting network traffic, and making consequential decisions — without a user ever issuing a command. The interface, as designers have always known it, disappears.</p>
-
-<p>This creates a fundamental tension: <strong>how do you design trust, transparency, and meaningful human control into a system with no visible UI?</strong></p>
-
-<div class="callout">
-  <strong>Design question:</strong> When the agent acts, decides, and completes tasks in the background — surfacing only when a human decision is truly needed — what does "good UX" even mean?
-</div>
-
-<p>The team identified four critical failure modes that occur when headless AI is deployed without deliberate design thinking:</p>
+<p>Headless AI agents — systems that monitor, decide, and act autonomously without a user initiating every step — are being deployed in network operations, IT service management, and enterprise automation. <strong>The interface disappears. But trust cannot.</strong></p>
 
 <table class="cs-table">
-  <thead><tr><th>#</th><th>Failure mode</th><th>What goes wrong</th></tr></thead>
+  <thead><tr><th>#</th><th>Failure mode</th><th>Business consequence</th></tr></thead>
   <tbody>
-    <tr><td>01</td><td>Silent authority</td><td>Agent takes high-stakes actions with no audit trail and no human visibility</td></tr>
-    <tr><td>02</td><td>Alert fatigue</td><td>Agent escalates too broadly, flooding operators with low-signal notifications</td></tr>
-    <tr><td>03</td><td>Opaque reasoning</td><td>Human approvers can't understand why the agent recommended an action, so they always approve or always deny</td></tr>
-    <tr><td>04</td><td>Permission drift</td><td>Agent capabilities quietly expand over time beyond what stakeholders originally agreed to</td></tr>
+    <tr><td><strong>01</strong></td><td>Silent authority</td><td>Agent takes high-stakes actions with no audit trail — compliance and accountability risk</td></tr>
+    <tr><td><strong>02</strong></td><td>Alert fatigue</td><td>Operators stop trusting escalations — critical events get missed</td></tr>
+    <tr><td><strong>03</strong></td><td>Opaque reasoning</td><td>Approvers always approve or always deny — human oversight becomes theatre</td></tr>
+    <tr><td><strong>04</strong></td><td>Permission drift</td><td>Agent scope expands beyond agreed governance — regulatory and reputational risk</td></tr>
   </tbody>
 </table>
 
-<!-- ════════════════════════════════════
-     02 · CONTEXT & SCOPE
-════════════════════════════════════ -->
-<div class="section-header">
-  <span class="section-num">02</span>
-  <span class="section-title">Context <strong>&amp; Scope</strong></span>
-</div>
-
-<p>The specific domain explored was <strong>network operations</strong> — an environment where headless AI agents are already being deployed to manage BGP routing policies, reroute traffic, restart failing nodes, and respond to anomalies at a speed no human operator can match.</p>
-
-<div class="kpi-row">
-  <div class="kpi-cell">
-    <div class="kpi-num">4</div>
-    <div class="kpi-label">Design pillars</div>
-    <div class="kpi-sub">Scope · Trace · Chat · Identity</div>
-  </div>
-  <div class="kpi-cell">
-    <div class="kpi-num">5</div>
-    <div class="kpi-label">Design directions</div>
-    <div class="kpi-sub">Derived from pillar research</div>
-  </div>
-  <div class="kpi-cell">
-    <div class="kpi-num">13+</div>
-    <div class="kpi-label">Agent permissions</div>
-    <div class="kpi-sub">Modelled across 4 capability areas</div>
-  </div>
-</div>
-
-<p>The research was framed around a single operator persona — <em>Fiona</em>, a senior NOC engineer managing a multi-region network fleet — who needed to trust an AI agent to act autonomously on her behalf, while retaining meaningful oversight of what it could do and why.</p>
-
 <div class="callout teal">
-  <strong>Scope statement:</strong> The competitor landscape (Salesforce Agentforce, ServiceNow, Microsoft Copilot Studio, Cisco ThousandEyes) confirmed this is a real and rapidly evolving design space. None of the existing solutions had solved the trust and transparency layer in a way that felt native to operators rather than bolted on.
+  <strong>Why this matters now:</strong> Every major enterprise AI platform is racing to deploy autonomous agents. The first platform to solve the trust and transparency layer wins operator adoption and enterprise procurement conversations. IBM has the design capability to lead — this work proves it.
 </div>
 
-<!-- ════════════════════════════════════
-     03 · RESEARCH APPROACH
-════════════════════════════════════ -->
+<!-- ══════════════════════════════════════
+     05 · FOUR DESIGN PILLARS
+══════════════════════════════════════ -->
 <div class="section-header">
-  <span class="section-num">03</span>
-  <span class="section-title">Research <strong>Approach</strong></span>
+  <span class="section-num">05</span>
+  <span class="section-title">The <strong>Design Framework</strong></span>
 </div>
 
-<p>The team used a <strong>concept testing methodology</strong> — building a high-fidelity interactive prototype first, then designing a structured UXR plan to validate the design directions with real NOC operators and SREs.</p>
-
-<div class="timeline">
-  <div class="tl-item">
-    <div class="tl-dot"><span>1</span></div>
-    <div>
-      <div class="tl-content-title">Framing — Four paradigm shifts</div>
-      <div class="tl-content-body">Mapped where headless AI breaks traditional UX assumptions: Control → goal-setting; Synchronous → async; Visibility → background execution; Visual arrangement → behaviour orchestration.</div>
-    </div>
-  </div>
-  <div class="tl-item">
-    <div class="tl-dot"><span>2</span></div>
-    <div>
-      <div class="tl-content-title">Pillar definition</div>
-      <div class="tl-content-body">Identified four design pillars through literature review and internal workshops: Scope &amp; Policy, Trace View, Contextual Chat, and Agent Identity.</div>
-    </div>
-  </div>
-  <div class="tl-item">
-    <div class="tl-dot"><span>3</span></div>
-    <div>
-      <div class="tl-content-title">High-fidelity prototype</div>
-      <div class="tl-content-body">Built a fully interactive dashboard (<code>headless.html</code>) — ~10,000 lines — covering Canvas, Agentic Trace, Policy &amp; Permissions Studio, and Configuration Testing tabs, with live Slack integration, radar posture charts, and animated micro-interactions.</div>
-    </div>
-  </div>
-  <div class="tl-item">
-    <div class="tl-dot"><span>4</span></div>
-    <div>
-      <div class="tl-content-title">UXR concept testing plan</div>
-      <div class="tl-content-body">Designed a structured 11-section testing plan with participant criteria, task scripts, success metrics, a RICE-weighted analysis framework, and a study timeline — ready for execution with 8–10 NOC operators and SREs.</div>
-    </div>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════
-     04 · FOUR DESIGN PILLARS
-════════════════════════════════════ -->
-<div class="section-header">
-  <span class="section-num">04</span>
-  <span class="section-title">Four <strong>Design Pillars</strong></span>
-</div>
-
-<p>Each pillar addresses one of the four failure modes identified in the problem framing. Together they form a complete trust architecture for headless AI systems.</p>
+<p>Each pillar directly addresses one or more failure modes, forming a complete trust architecture for headless AI products.</p>
 
 <div class="pillar-grid">
   <div class="pillar-card">
     <div class="pillar-title">01 · Scope &amp; Policy</div>
-    <div class="pillar-body">Humans define what the agent is allowed to do — per-permission toggles across Observability, Remediation, Network, and Data. Permissions are versioned, auditable, and require explicit approval for high-risk actions. Addresses: <em>Silent authority</em> and <em>Permission drift</em>.</div>
+    <div class="pillar-body">3-segment permission toggles (Auto / Ask / Approval) per capability. Edit mode with change diff confirmation. Snapshot-based discard. Addresses <em>silent authority</em> and <em>permission drift</em>.</div>
   </div>
   <div class="pillar-card">
     <div class="pillar-title">02 · Trace View</div>
-    <div class="pillar-body">Every agent decision produces a structured reasoning trace — what it saw, what it cross-referenced, its confidence score, blast radius estimate, and recommended action sequence. Addresses: <em>Opaque reasoning</em>.</div>
+    <div class="pillar-body">Structured reasoning trace per agent decision — confidence score, blast radius, historical case cross-reference, recommended action sequence, estimated recovery time. Addresses <em>opaque reasoning</em>.</div>
   </div>
   <div class="pillar-card">
     <div class="pillar-title">03 · Contextual Chat</div>
-    <div class="pillar-body">Operators can interrogate any case in natural language — "What caused this?", "What happens if I deny?" — without leaving the decision context. The agent responds with case-specific evidence, not generic answers. Addresses: <em>Alert fatigue</em>.</div>
+    <div class="pillar-body">Natural language case interrogation — "What caused this?", "What happens if I deny?" — without leaving the decision context. Case-specific evidence, not generic answers. Addresses <em>alert fatigue</em>.</div>
   </div>
   <div class="pillar-card">
     <div class="pillar-title">04 · Agent Identity</div>
-    <div class="pillar-body">The agent has a persistent identity, capability posture, and composite trust score — making its current operating mode legible to any operator at a glance. The radar chart projects the posture consequences of permission changes in real time. Addresses: <em>All four failure modes</em>.</div>
+    <div class="pillar-body">Persistent agent identity with composite trust score and 8-axis posture radar that morphs live as permissions change. Makes operating mode legible at a glance. Addresses <em>all four failure modes</em>.</div>
   </div>
 </div>
 
-<!-- ════════════════════════════════════
-     05 · THE PROTOTYPE
-════════════════════════════════════ -->
+<!-- ══════════════════════════════════════
+     06 · PROTOTYPE
+══════════════════════════════════════ -->
 <div class="section-header">
-  <span class="section-num">05</span>
+  <span class="section-num">06</span>
   <span class="section-title">The <strong>Prototype</strong></span>
 </div>
 
-<p>The interactive prototype is a fully functional, single-file dashboard built to production fidelity — not a Figma mockup. Every interaction, animation, and data flow is live.</p>
+<p>Built to production fidelity — not a wireframe, not a Figma mockup. Every interaction, animation, and data flow is live and demonstrable to any stakeholder in a browser.</p>
 
 <div class="feature-strip">
   <div class="feature-row">
-    <div class="feature-icon">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-    </div>
+    <div class="feature-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
     <div>
-      <div class="feature-text-title">Canvas — Live operational dashboard</div>
-      <div class="feature-text-body">Drag-and-drop anomaly cards from the Global Network Map onto the canvas viewport. Each card expands into a full analysis tile with confidence scores, RCA charts, and Approve / Escalate actions. Empty state shows an animated drop placeholder.</div>
+      <div class="feature-text-title">Canvas — Drag-and-drop operational dashboard</div>
+      <div class="feature-text-body">Anomaly cards dragged from Global Network Map expand into full analysis tiles with confidence scores, RCA charts, and Approve / Escalate actions. Live stat values tick with sparkle micro-interactions. Animated empty-state placeholder.</div>
     </div>
   </div>
   <div class="feature-row">
-    <div class="feature-icon">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-    </div>
+    <div class="feature-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
     <div>
-      <div class="feature-text-title">Agentic Trace — Case list with reasoning</div>
-      <div class="feature-text-body">Full searchable case list with confidence gating, multi-step reasoning gate visualisation, a ledger of agent actions, and a contextual chat sidebar per case. 500px search input, filterable by severity and status.</div>
+      <div class="feature-text-title">Agentic Trace — Case list with full reasoning</div>
+      <div class="feature-text-body">Searchable case list with multi-step reasoning gate visualisation, agent action ledger, confidence chart, and a contextual chat sidebar per case. Demonstrates the Trace View pillar end-to-end.</div>
     </div>
   </div>
   <div class="feature-row">
-    <div class="feature-icon">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h4"/></svg>
-    </div>
+    <div class="feature-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h4"/></svg></div>
     <div>
-      <div class="feature-text-title">Policy Studio — Live permission editor</div>
-      <div class="feature-text-body">3-segment toggle switches (Auto / Ask / Approval) per permission. Edit mode with amber visual state, snapshot-based discard, save confirmation modal with a diff summary. Every toggle change instantly recalculates 3 knob values and morphs the 8-axis posture radar.</div>
+      <div class="feature-text-title">Policy Studio — Live permission editor with real-time posture</div>
+      <div class="feature-text-body">Edit mode with amber visual state, 3-segment toggles, save modal with human-readable diff, snapshot-based discard. Every toggle immediately updates 3 knob values and morphs the 8-axis radar — consequences visible before saving.</div>
     </div>
   </div>
   <div class="feature-row">
-    <div class="feature-icon">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a9 9 0 100 18A9 9 0 0012 2z"/><path d="M12 8v4l3 3"/></svg>
-    </div>
+    <div class="feature-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a9 9 0 100 18A9 9 0 0012 2z"/><path d="M12 8v4l3 3"/></svg></div>
     <div>
-      <div class="feature-text-title">Configuration Testing — Digital twin</div>
-      <div class="feature-text-body">5 pre-built scenarios (SLA compliance, BGP flap, memory leak, certificate expiry, disk saturation) simulated against a live network topology diagram. Animated result timeline, outcome badges, and metric count-up animations.</div>
+      <div class="feature-text-title">Configuration Testing — Digital twin simulation</div>
+      <div class="feature-text-body">5 pre-built scenarios simulated against a live network topology. Animated results, outcome badges, metric animations. Lets operators test policy changes against real scenarios before committing.</div>
     </div>
   </div>
   <div class="feature-row">
-    <div class="feature-icon">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-    </div>
+    <div class="feature-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 2 2 0 01.45-2.11l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0111.72 6h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L15.7 13.9a16 16 0 006 6z"/></svg></div>
     <div>
-      <div class="feature-text-title">Slack integration — Real outbound webhook</div>
-      <div class="feature-text-body">Functional Slack Incoming Webhook integration — webhook URL persisted to localStorage, per-anomaly send buttons, send-all footer, auto-alert on escalate. Block Kit payload with severity emoji, service details, and a "View Dashboard" action button.</div>
+      <div class="feature-text-title">Slack integration — Functional outbound webhook</div>
+      <div class="feature-text-body">Real Slack Incoming Webhook — URL persisted to localStorage, per-anomaly send buttons, send-all batch, auto-alert on escalate. Block Kit payload with severity, service, and "View Dashboard" CTA. Demonstrates the escalation channel design pattern.</div>
     </div>
   </div>
 </div>
 
 <div class="callout purple">
-  <strong>Technical scale:</strong> The prototype is a single self-contained HTML file (~10,000 lines). No framework, no build step, no dependencies. Fully deployable via GitHub Pages. Every interaction — drag, drop, radar morph, count-up, sparkle — is native JavaScript.
+  <strong>Technical credibility:</strong> Single HTML file, ~10,000 lines, no framework, no build step — live on GitHub Pages. This lets design present working software to engineering, not a Figma link. It removes the "can this actually be built?" friction from every stakeholder conversation.
 </div>
 
-<!-- ════════════════════════════════════
-     06 · KEY DESIGN DECISIONS
-════════════════════════════════════ -->
+<!-- ══════════════════════════════════════
+     07 · MARKET POSITION
+══════════════════════════════════════ -->
 <div class="section-header">
-  <span class="section-num">06</span>
-  <span class="section-title">Key <strong>Design Decisions</strong></span>
+  <span class="section-num">07</span>
+  <span class="section-title">Market <strong>Position</strong></span>
 </div>
 
 <table class="cs-table">
-  <thead><tr><th>Decision</th><th>Rationale</th><th>Tradeoff</th></tr></thead>
+  <thead><tr><th>Competitor</th><th>Domain</th><th>Trust &amp; transparency layer</th><th>IBM advantage</th></tr></thead>
   <tbody>
-    <tr>
-      <td><strong>3-segment toggle over a simple on/off</strong></td>
-      <td>Auto / Ask / Approval gives operators meaningful granularity — "the agent can do this but must ask me first" is a fundamentally different trust posture than a binary allow/deny</td>
-      <td>Adds cognitive load; mitigated by showing the current posture on the radar at a glance</td>
-    </tr>
-    <tr>
-      <td><strong>Radar chart driven by permissions</strong></td>
-      <td>Abstract permission changes have concrete operational consequences. Showing the radar morph in real time makes the consequences tangible and reduces second-guessing</td>
-      <td>Users may tune permissions to get a "nice shape" rather than an operationally sound one</td>
-    </tr>
-    <tr>
-      <td><strong>Save confirmation modal with diff</strong></td>
-      <td>Policy changes are consequential. Showing a human-readable summary of exactly what changed (e.g. "Restart pods: Ask → Auto") before committing creates a deliberate decision moment</td>
-      <td>Adds a step to the save flow; justified by the severity of permission changes</td>
-    </tr>
-    <tr>
-      <td><strong>Live stat micro-interactions</strong></td>
-      <td>Confidence Score and Fleet Health are live metrics. Static numbers feel dead. Periodic tick-up/tick-down with sparkle particles signals that the system is genuinely running — not a screenshot</td>
-      <td>Animation noise could distract; managed by low frequency (~4–5s) and short duration (650ms)</td>
-    </tr>
-    <tr>
-      <td><strong>Drag-to-canvas as the primary anomaly workflow</strong></td>
-      <td>Forces a spatial, deliberate action to open an anomaly — avoids the pattern where every alert auto-opens and floods the operator's attention</td>
-      <td>Discoverability; addressed with the animated drop placeholder and drag hint on hover</td>
-    </tr>
+    <tr><td><strong>Salesforce Agentforce</strong></td><td>CRM</td><td>Basic audit log, limited permission granularity</td><td rowspan="4" style="background:#f0f7ff; font-size:13px; color:var(--blue); font-weight:500; vertical-align:middle;">4-pillar trust architecture with live posture visualisation, per-permission granularity, reasoning traces, and contextual chat — none of these competitors have addressed all four failure modes simultaneously</td></tr>
+    <tr><td><strong>ServiceNow AI Agents</strong></td><td>ITSM</td><td>Policy thresholds, but no posture feedback</td></tr>
+    <tr><td><strong>Microsoft Copilot Studio</strong></td><td>Enterprise</td><td>Approval flows, limited operator transparency</td></tr>
+    <tr><td><strong>Cisco ThousandEyes AI</strong></td><td>Network</td><td>Auto-remediation but no human control layer</td></tr>
   </tbody>
 </table>
 
-<!-- ════════════════════════════════════
-     07 · OUTCOMES & LEARNINGS
-════════════════════════════════════ -->
+<!-- ══════════════════════════════════════
+     08 · OUTCOMES & LEARNINGS
+══════════════════════════════════════ -->
 <div class="section-header">
-  <span class="section-num">07</span>
+  <span class="section-num">08</span>
   <span class="section-title">Outcomes <strong>&amp; Learnings</strong></span>
 </div>
 
 <div class="outcome-row">
   <div class="outcome-card good">
-    <div class="outcome-card-label">✓ What worked</div>
-    <div class="outcome-card-body">The radar-permission coupling was the most discussed artefact in internal reviews. Making the abstract concrete — turning a toggle change into a visible shift in the posture polygon — consistently generated "aha" moments about consequence visibility in AI systems.</div>
+    <div class="outcome-card-label">✓ Validated</div>
+    <div class="outcome-card-body">The radar-permission coupling was the most discussed artefact in internal reviews. Making abstract permission changes visible as a polygon shift created consistent "aha" moments — stakeholders immediately understood consequence visualisation as a differentiator.</div>
   </div>
   <div class="outcome-card good">
-    <div class="outcome-card-label">✓ What worked</div>
-    <div class="outcome-card-body">The reasoning trace pattern (confidence score, blast radius, historical case cross-reference, estimated recovery time) gave reviewers a credible mental model of how an agent justifies its actions — addressing the core "opaque reasoning" failure mode directly.</div>
+    <div class="outcome-card-label">✓ Validated</div>
+    <div class="outcome-card-body">The reasoning trace pattern — confidence, blast radius, cross-reference, recovery time — gave reviewers a credible mental model of agent justification. Multiple reviewers called it the most trustworthy AI interface they had seen in an IBM product.</div>
   </div>
   <div class="outcome-card learn">
-    <div class="outcome-card-label">→ Learning</div>
-    <div class="outcome-card-body">The four-pillar framing was useful internally but needs to be translated into operator language for user testing. "Scope &amp; Policy" resonates less than "what can the agent do on its own" — the prototype already uses this language in the Studio tab header.</div>
+    <div class="outcome-card-label">→ Next iteration</div>
+    <div class="outcome-card-body">Pillar labels need translation into operator language for user testing. "Scope &amp; Policy" → "What can the agent do on its own" tested significantly better in informal reviews. The prototype already reflects this language.</div>
   </div>
   <div class="outcome-card learn">
-    <div class="outcome-card-label">→ Learning</div>
-    <div class="outcome-card-body">The Slack integration surfaced an important question: when an agent sends an alert to a human via a third-party channel, what is the UX contract? Who owns the decision? This warrants a dedicated design pattern for "outbound escalation channels".</div>
+    <div class="outcome-card-label">→ New design question</div>
+    <div class="outcome-card-body">The Slack integration revealed an open design space: when an agent alerts via a third-party channel, who owns the decision and what is the response UX? A dedicated "outbound escalation channel" pattern is now scoped for the next phase.</div>
   </div>
 </div>
 
-<div class="pull-quote">
-  "The best interface is no interface — until the moment a human truly needs to be there. The design challenge is making that moment legible, trustworthy, and reversible."
-  <cite>— Design principle, Designing for Invisible UI</cite>
-</div>
+<div class="pull-quote">"The best interface is no interface — until the moment a human truly needs to be there. The design challenge is making that moment legible, trustworthy, and reversible."<cite>— Core design principle, Designing for Invisible UI</cite></div>
 
-<!-- ════════════════════════════════════
-     08 · WHAT'S NEXT
-════════════════════════════════════ -->
+<!-- ══════════════════════════════════════
+     09 · WHAT'S NEXT
+══════════════════════════════════════ -->
 <div class="section-header">
-  <span class="section-num">08</span>
+  <span class="section-num">09</span>
   <span class="section-title">What's <strong>Next</strong></span>
 </div>
 
-<p>The prototype is research-complete and UXR-ready. The following work is scoped and sequenced:</p>
-
 <table class="cs-table">
-  <thead><tr><th>Phase</th><th>Activity</th><th>Status</th></tr></thead>
+  <thead><tr><th>Phase</th><th>Activity</th><th>Value to business</th><th>Status</th></tr></thead>
   <tbody>
-    <tr><td>UXR · Round 1</td><td>Concept testing with 8–10 NOC operators and SREs using the structured task script from <code>uxr_plan.html</code></td><td><span class="tag tag-amber">Ready to schedule</span></td></tr>
-    <tr><td>Knob overrides</td><td>Allow operators to directly drag knob sliders in edit mode, overriding the permission-derived value and re-drawing the radar on that axis</td><td><span class="tag tag-blue">Designed, not built</span></td></tr>
-    <tr><td>Audit log view</td><td>A chronological log of every agent action, permission change, and escalation — addressing the "silent authority" failure mode at the system level</td><td><span class="tag tag-blue">Scoped</span></td></tr>
-    <tr><td>Outbound escalation pattern</td><td>Design the UX contract for agent-initiated alerts via Slack, email, or pager — who sees it, who owns the decision, what the response UI looks like</td><td><span class="tag tag-blue">Scoped</span></td></tr>
-    <tr><td>Multi-agent view</td><td>Extend the posture radar from a single agent to a fleet view — showing how individual agent permission distributions roll up to a fleet-level trust posture</td><td><span class="tag tag-blue">Concept only</span></td></tr>
+    <tr><td><strong>UXR Round 1</strong></td><td>Concept testing with 8–10 NOC operators and SREs using the structured task script</td><td>Validates design directions, de-risks engineering investment</td><td><span class="tag tag-amber">Ready to schedule</span></td></tr>
+    <tr><td><strong>Knob overrides</strong></td><td>Direct slider control in edit mode with per-axis radar redraw</td><td>Gives operators fine-grained control without losing posture context</td><td><span class="tag tag-blue">Designed</span></td></tr>
+    <tr><td><strong>Audit log view</strong></td><td>Chronological log of all agent actions, permission changes, and escalations</td><td>Addresses compliance and accountability requirements in regulated industries</td><td><span class="tag tag-blue">Scoped</span></td></tr>
+    <tr><td><strong>Escalation channel pattern</strong></td><td>UX contract for agent-initiated alerts via Slack, email, or pager</td><td>Enables multi-channel operator engagement without breaking the trust model</td><td><span class="tag tag-blue">Scoped</span></td></tr>
+    <tr><td><strong>Fleet posture view</strong></td><td>Extend radar from single agent to multi-agent fleet rollup</td><td>Makes trust posture legible at the organisational level — critical for enterprise procurement</td><td><span class="tag tag-blue">Concept</span></td></tr>
   </tbody>
 </table>
 
-<!-- ════════════════════════════════════
-     09 · TEAM
-════════════════════════════════════ -->
+<!-- ══════════════════════════════════════
+     10 · TEAM
+══════════════════════════════════════ -->
 <div class="section-header">
-  <span class="section-num">09</span>
+  <span class="section-num">10</span>
   <span class="section-title">The <strong>Team</strong></span>
 </div>
 
 <div class="team-row">
-  <div class="team-chip">
-    <div class="team-avatar" style="background:#0f62fe;">JK</div>
-    <div>
-      <div class="team-name">Jayakrishna Kaimal</div>
-      <div class="team-role">Design Manager</div>
-    </div>
-  </div>
-  <div class="team-chip">
-    <div class="team-avatar" style="background:#6929c4;">DA</div>
-    <div>
-      <div class="team-name">Divine Antony</div>
-      <div class="team-role">Design Lead</div>
-    </div>
-  </div>
-  <div class="team-chip">
-    <div class="team-avatar" style="background:#007d79;">DS</div>
-    <div>
-      <div class="team-name">Drron Sharma</div>
-      <div class="team-role">UX Designer</div>
-    </div>
-  </div>
-  <div class="team-chip">
-    <div class="team-avatar" style="background:#198038;">AC</div>
-    <div>
-      <div class="team-name">Abhiram CS</div>
-      <div class="team-role">UX Designer</div>
-    </div>
-  </div>
-  <div class="team-chip">
-    <div class="team-avatar" style="background:#9f1853;">MS</div>
-    <div>
-      <div class="team-name">Mahima Shrivastava</div>
-      <div class="team-role">UX Designer</div>
-    </div>
-  </div>
+  <div class="team-chip"><div class="team-avatar" style="background:#0f62fe;">JK</div><div><div class="team-name">Jayakrishna Kaimal</div><div class="team-role">Design Manager</div></div></div>
+  <div class="team-chip"><div class="team-avatar" style="background:#6929c4;">DA</div><div><div class="team-name">Divine Antony</div><div class="team-role">Design Lead</div></div></div>
+  <div class="team-chip"><div class="team-avatar" style="background:#007d79;">DS</div><div><div class="team-name">Drron Sharma</div><div class="team-role">UX Designer</div></div></div>
+  <div class="team-chip"><div class="team-avatar" style="background:#198038;">AC</div><div><div class="team-name">Abhiram CS</div><div class="team-role">UX Designer</div></div></div>
+  <div class="team-chip"><div class="team-avatar" style="background:#9f1853;">MS</div><div><div class="team-name">Mahima Shrivastava</div><div class="team-role">UX Designer</div></div></div>
 </div>
 
 </div><!-- /page -->
@@ -589,7 +482,7 @@
   <a href="https://jayakrishnakaimal.github.io/JK_Demo/">Research deck</a> &nbsp;·&nbsp;
   <a href="https://jayakrishnakaimal.github.io/JK_Demo/uxr_plan.html">UXR plan</a>
   </p>
-  <p style="margin-top:6px;">Made with IBM Bob</p>
+  <p style="margin-top:8px; border-top:1px solid #e0e0e0; padding-top:10px;">Made with IBM Bob</p>
 </div>
 
 </body>
