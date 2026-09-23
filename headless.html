@@ -158,6 +158,32 @@
     margin-left: 24px;
   }
 
+  /* theme toggle pill */
+  .theme-toggle-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    height: 30px;
+    border-radius: 15px;
+    border: 1px solid #d1d5db;
+    background: #f9fafb;
+    color: #374151;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    letter-spacing: 0.01em;
+  }
+  .theme-toggle-pill:hover {
+    background: #1e1b4b;
+    border-color: #4338ca;
+    color: #fff;
+  }
+  .theme-toggle-pill svg { flex-shrink: 0; }
+
   .nav-icon-btn {
     width: 32px;
     height: 32px;
@@ -4393,6 +4419,13 @@
       </div>
 
       <div class="nav-icons">
+        <!-- Dark theme toggle — navigates to sample.html -->
+        <a class="theme-toggle-pill" href="sample.html" title="Switch to Dark Glass theme">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          Dark theme
+        </a>
         <!-- Headless menu link — icon only, navigates to index.html -->
         <a class="nav-icon-btn headless-menu-link" href="index.html" title="Headless — back to main site">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
