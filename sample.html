@@ -5183,6 +5183,216 @@
     100% { transform: scale(1);    color: #42be65; text-shadow: none; }
   }
 
+  /* ── 30. Buttons — full glass pass ── */
+
+  /* nav tabs */
+  .nav-tab {
+    background: transparent !important;
+    color: rgba(198,198,198,0.70) !important;
+    border-bottom: 2px solid transparent !important;
+    backdrop-filter: none !important;
+  }
+  .nav-tab:hover {
+    background: rgba(255,255,255,0.06) !important;
+    color: #f4f4f4 !important;
+  }
+  .nav-tab.active {
+    background: rgba(69,137,255,0.10) !important;
+    color: #4589ff !important;
+    border-bottom-color: #4589ff !important;
+    box-shadow: inset 0 1px 0 rgba(69,137,255,0.15) !important;
+  }
+
+  /* nav icon buttons */
+  .nav-icon-btn {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    color: #8d8d8d !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05) !important;
+  }
+  .nav-icon-btn:hover {
+    background: rgba(255,255,255,0.09) !important;
+    border-color: rgba(255,255,255,0.16) !important;
+    color: #f4f4f4 !important;
+    box-shadow: 0 0 10px rgba(69,137,255,0.12), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+  }
+
+  /* region selector */
+  .region-selector {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+    color: #4589ff !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05) !important;
+  }
+  .region-selector:hover {
+    background: rgba(69,137,255,0.10) !important;
+    border-color: rgba(69,137,255,0.30) !important;
+    box-shadow: 0 0 10px rgba(69,137,255,0.15) !important;
+  }
+
+  /* theme toggle pill (override for dark context) */
+  .theme-toggle-pill {
+    background: rgba(255,255,255,0.05) !important;
+    border: 1px solid rgba(255,255,255,0.14) !important;
+    color: #c6c6c6 !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07) !important;
+  }
+  .theme-toggle-pill:hover {
+    background: rgba(69,137,255,0.14) !important;
+    border-color: #4589ff !important;
+    color: #fff !important;
+    box-shadow: 0 0 14px rgba(69,137,255,0.25), inset 0 1px 0 rgba(255,255,255,0.10) !important;
+  }
+
+  /* quick-action prompt buttons */
+  .quick-btn {
+    background: rgba(255,255,255,0.05) !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    color: #c6c6c6 !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06) !important;
+  }
+  .quick-btn:hover {
+    background: rgba(69,137,255,0.10) !important;
+    border-color: rgba(69,137,255,0.35) !important;
+    color: #f4f4f4 !important;
+    box-shadow: 0 0 12px rgba(69,137,255,0.18), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+  }
+
+  /* AI send + voice buttons */
+  .ai-send-btn {
+    background: linear-gradient(135deg, #0f62fe, #4589ff) !important;
+    border: none !important;
+    box-shadow: 0 0 14px rgba(69,137,255,0.45), inset 0 1px 0 rgba(255,255,255,0.20) !important;
+  }
+  .ai-send-btn:hover {
+    background: linear-gradient(135deg, #0050e6, #0f62fe) !important;
+    box-shadow: 0 0 20px rgba(69,137,255,0.60) !important;
+  }
+  .ai-voice-btn {
+    background: linear-gradient(135deg, #6929c4, #8a3ffc) !important;
+    border: none !important;
+    box-shadow: 0 0 14px rgba(138,63,252,0.40), inset 0 1px 0 rgba(255,255,255,0.18) !important;
+  }
+  .ai-voice-btn:hover {
+    background: linear-gradient(135deg, #491d8b, #6929c4) !important;
+    box-shadow: 0 0 20px rgba(138,63,252,0.55) !important;
+  }
+  .ai-panel.listening .ai-voice-btn {
+    background: linear-gradient(135deg, #9f1853, #ee5396) !important;
+    box-shadow: 0 0 20px rgba(238,83,150,0.55) !important;
+  }
+
+  /* anomaly scan button */
+  .anomaly-scan-btn {
+    background: rgba(255,255,255,0.05) !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    color: #c6c6c6 !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05) !important;
+  }
+  .anomaly-scan-btn:hover {
+    background: rgba(69,137,255,0.10) !important;
+    border-color: rgba(69,137,255,0.35) !important;
+    color: #4589ff !important;
+    box-shadow: 0 0 10px rgba(69,137,255,0.18) !important;
+  }
+
+  /* map control + window buttons */
+  .gmap-ctrl-btn {
+    background: rgba(255,255,255,0.06) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+    color: #c6c6c6 !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06) !important;
+  }
+  .gmap-ctrl-btn:hover {
+    background: rgba(255,255,255,0.11) !important;
+    border-color: rgba(255,255,255,0.18) !important;
+    color: #f4f4f4 !important;
+  }
+  .gmap-win-btn {
+    background: rgba(255,255,255,0.05) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+    color: #8d8d8d !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+  }
+  .gmap-win-btn:hover {
+    background: rgba(255,255,255,0.10) !important;
+    color: #f4f4f4 !important;
+  }
+
+  /* settings close */
+  .settings-close-btn {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    color: #8d8d8d !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+  }
+  .settings-close-btn:hover {
+    background: rgba(255,255,255,0.09) !important;
+    border-color: rgba(255,255,255,0.16) !important;
+    color: #f4f4f4 !important;
+    box-shadow: 0 0 8px rgba(255,255,255,0.06) !important;
+  }
+
+  /* right-panel collapse toggle */
+  .rp-toggle {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04) !important;
+  }
+
+  /* qa panel close */
+  .qa-panel-close {
+    background: rgba(255,255,255,0.05) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+    color: #8d8d8d !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+  }
+  .qa-panel-close:hover {
+    background: rgba(255,255,255,0.09) !important;
+    color: #f4f4f4 !important;
+  }
+
+  /* greeting notice close */
+  .greeting-notice-close {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    color: #8d8d8d !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+  }
+  .greeting-notice-close:hover {
+    background: rgba(69,137,255,0.12) !important;
+    border-color: rgba(69,137,255,0.30) !important;
+    color: #4589ff !important;
+  }
+
+  /* sb (settings bar) buttons */
+  .sb-btn {
+    background: rgba(255,255,255,0.05) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+    color: #c6c6c6 !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05) !important;
+  }
+
 </style>
 </head>
 <body>
