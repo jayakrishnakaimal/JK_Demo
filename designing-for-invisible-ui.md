@@ -1143,6 +1143,19 @@ When a quick-action button is clicked, a `.qa-skeleton` overlay is injected into
 │       ├── Pillar architecture JS      ~3137–3214
 │       └── Direction micro-interactions ~3215–3410
 │
+├── sample.html                         ← IBM CARBON DARK GLASS THEME (~11,463 lines)
+│   ├── Base: full copy of headless.html
+│   ├── IBM Plex Sans + IBM Plex Mono fonts (Google Fonts)
+│   ├── data-carbon-theme="g100" on <html>
+│   ├── Glassmorphism override block (lines ~4304–5159)
+│   │   ├── CSS custom properties (:root)   ~4311–4338
+│   │   ├── Body: #020208 + 3 radial orbs   ~4345–4356
+│   │   ├── Top nav frosted glass bar        ~4415–4431
+│   │   ├── Sidebar, cards, modals, inputs  ~4432–5159
+│   │   └── IBM Plex Mono for code/traces   ~4897, ~5081
+│   ├── Theme toggle pill → headless.html   (nav-icons, top-right)
+│   └── All JS and HTML identical to headless.html
+│
 ├── headless.html                       ← HEADLESS AI DASHBOARD (~6200 lines)
 │   ├── CSS (lines 8–2100)
 │   │   ├── Body gradient + base          ~8–42
@@ -1268,19 +1281,23 @@ When a quick-action button is clicked, a `.qa-skeleton` overlay is injected into
 | Main site | https://jayakrishnakaimal.github.io/JK_Demo/index.html |
 | UXR Plan | https://jayakrishnakaimal.github.io/JK_Demo/uxr_plan.html |
 | Headless Dashboard | https://jayakrishnakaimal.github.io/JK_Demo/headless.html |
+| Dark Glass Theme | https://jayakrishnakaimal.github.io/JK_Demo/sample.html |
 
 ---
 
 ## Changelog
 
-### Latest — `headless.html`
+### Latest — `headless.html` + `sample.html`
 
-| # | Change | Detail |
-|---|---|---|
-| 1 | **3D Orthographic Globe** | Replaced flat equirectangular map with a fully custom canvas orthographic globe renderer. Auto-spin, star field, atmosphere glow, ocean gradient, graticule, continent polygons, great-circle arc edges, specular gloss, drag-to-rotate, scroll-to-zoom, double-click spin toggle. |
-| 2 | **Globe nav button** | `.nav-icon-btn--globe` — 36×36 gradient blue pill with radial-fill SVG sphere, specular dot, hover glow ring + scale, active solid-blue state. |
-| 3 | **qa-insight sidebar** | Creative coloured KPI sidebar: rainbow accent stripe, per-card colour variants (red/amber/green/blue/violet), `--kpi-accent` CSS var, left accent bar, mini SVG icon + status badge, trend micro-pill below each value. |
-| 4 | **Remove maximize button** | `settingsMaximizeBtn` + `settingsRestoreBtn` removed from Global Network Map panel header. Only close (✕) remains. |
+| # | Change | File | Detail |
+|---|---|---|---|
+| 1 | **3D Orthographic Globe** | `headless.html` | Replaced flat equirectangular map with a fully custom canvas orthographic globe renderer. Auto-spin, star field, atmosphere glow, ocean gradient, graticule, continent polygons, great-circle arc edges, specular gloss, drag-to-rotate, scroll-to-zoom, double-click spin toggle. |
+| 2 | **Globe nav button** | `headless.html` | `.nav-icon-btn--globe` — 36×36 gradient blue pill with radial-fill SVG sphere, specular dot, hover glow ring + scale, active solid-blue state. |
+| 3 | **qa-insight sidebar** | `headless.html` | Creative coloured KPI sidebar: rainbow accent stripe, per-card colour variants (red/amber/green/blue/violet), `--kpi-accent` CSS var, left accent bar, mini SVG icon + status badge, trend micro-pill below each value. |
+| 4 | **Remove maximize button** | `headless.html` | `settingsMaximizeBtn` + `settingsRestoreBtn` removed from Global Network Map panel header. Only close (✕) remains. |
+| 5 | **`sample.html` — IBM Carbon Dark Glass Theme** | `sample.html` (new) | Full copy of `headless.html` reskinned with IBM Carbon g100 glassmorphism dark theme. IBM Plex Sans/Mono fonts, `#020208` substrate, 3 ambient radial orbs (blue/purple/teal), frosted glass panels (`backdrop-filter: blur(20px)`), specular highlights, neon accent glows on buttons/nav, 672 `!important` overrides. All functionality identical. |
+| 6 | **Theme toggle pill** | Both | "Dark theme" pill in `headless.html` nav → `sample.html`. "Light theme" pill in `sample.html` nav → `headless.html`. Moon/sun SVG icons, styled to match each theme. |
+| 7 | **Greeting repositioned** | `sample.html` | Greeting restored to original `position: absolute; bottom: 28px` after testing top-of-canvas placement. |
 
 ---
 
