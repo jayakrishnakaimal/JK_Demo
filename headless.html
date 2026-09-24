@@ -10809,6 +10809,67 @@
     }
     closeAnomalyDrawerLt();
   }
+
+  /* ── expose all globally-called functions on window ── */
+  window.showToast                = showToast;
+  window.openAnomalyDrawerLt      = openAnomalyDrawerLt;
+  window.closeAnomalyDrawerLt     = closeAnomalyDrawerLt;
+  window.addDrawerLtAction        = addDrawerLtAction;
+  window.actCloseMaximized        = actCloseMaximized;
+  window.actToggleMaximize        = actToggleMaximize;
+  window.sendAnomalyToSlack       = sendAnomalyToSlack;
+  window.sendAllAnomaliesToSlack  = sendAllAnomaliesToSlack;
+  window._slackAutoAlertIfEnabled = _slackAutoAlertIfEnabled;
+  window.switchTab                = switchTab;
+  window.toggleRightPanel         = toggleRightPanel;
+  window.toggleDropdown           = toggleDropdown;
+  window.closeDropdown            = closeDropdown;
+  window.selectRegion             = selectRegion;
+  window.openApproveModal         = openApproveModal;
+  window.openEscalateModal        = openEscalateModal;
+  window.closeModal               = closeModal;
+  window.confirmApprove           = confirmApprove;
+  window.confirmEscalate          = confirmEscalate;
+  window.openReasoningTrace       = openReasoningTrace;
+  window.switchTimeline           = switchTimeline;
+  window.canvasInputSubmit        = canvasInputSubmit;
+  window.canvasVoiceClick         = canvasVoiceClick;
+  window.removeCanvasTile         = removeCanvasTile;
+  window.canvasRefresh            = canvasRefresh;
+  window.canvasReset              = canvasReset;
+  window.ctToggleMaximize         = ctToggleMaximize;
+  window.ctCloseMaximized         = ctCloseMaximized;
+  window.closeQaPanel             = closeQaPanel;
+  window.closeAiPanel             = closeAiPanel;
+  window.toggleAiListen           = toggleAiListen;
+  window.aiSendText               = aiSendText;
+  window.aiSuggest                = aiSuggest;
+  window.closeDropPanel           = closeDropPanel;
+  window.confirmDropApprove       = confirmDropApprove;
+  window.confirmDropEscalate      = confirmDropEscalate;
+  window.handleQuickAction        = handleQuickAction;
+  window.switchPPTab              = switchPPTab;
+  window.ppToggleSeg              = ppToggleSeg;
+  window.gmapReset                = gmapReset;
+  window.gmapViewClose            = gmapViewClose;
+  window.gmapViewMinimize         = gmapViewMinimize;
+  window.gmapViewToggleMax        = gmapViewToggleMax;
+  window.gmapFilter               = gmapFilter;
+  window.runAnomalyScan           = runAnomalyScan;
+  window.openSettingsPanel        = openSettingsPanel;
+  window.closeSettingsPanel       = closeSettingsPanel;
+  window.openDrawer               = openDrawer;
+  window.closeDrawer              = closeDrawer;
+  window.closeCaseDetail          = closeCaseDetail;
+  window.cdApprove                = cdApprove;
+  window.cdDeny                   = cdDeny;
+  window.cdChatSend               = cdChatSend;
+  window.cdChatChip               = cdChatChip;
+  window.runConfigTest            = runConfigTest;
+  window.ppToggleEditMode         = ppToggleEditMode;
+  window.ppConfirmSave            = ppConfirmSave;
+  window.ppDiscardEdit            = ppDiscardEdit;
+  window.saveSlackWebhook         = saveSlackWebhook;
 </script>
 <!-- anomaly tile maximize backdrop -->
 <div class="act-maximized-backdrop" id="actMaxBackdrop" onclick="actCloseMaximized()"></div>
