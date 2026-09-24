@@ -6848,12 +6848,6 @@
             </div>
 
             <!-- Anomaly detection list -->
-            <!-- TEST BUTTON — remove after fix -->
-            <div style="padding:8px 12px;">
-              <button onclick="openAnomalyDrawer(ALL_ANOMALIES[0])" style="width:100%;padding:8px;background:#0f62fe;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">
-                ▶ TEST: Open AN-091 Detail
-              </button>
-            </div>
             <div class="anomaly-header">
               <div class="anomaly-header-title">
                 Anomaly Detection
@@ -9670,7 +9664,7 @@
   }
 
   /* ── Anomaly data ── */
-  const ALL_ANOMALIES = [
+  window.ALL_ANOMALIES = [
     { id:'AN-091', title:'BGP route flap — TK-01 ↔ HK-01', region:'JAPAN', severity:'critical', location:'Tokyo Core',      meta:'Packet loss 23%',        ago:'2m ago'  },
     { id:'AN-090', title:'CRC error burst — NY-01 uplink',  region:'AMER',  severity:'critical', location:'New York Core',    meta:'4th recurrence / week',   ago:'5m ago'  },
     { id:'AN-089', title:'Latency spike — LD-01 → FR-01',   region:'EMEA',  severity:'warning',  location:'London Edge',      meta:'p99 = 420ms (+210%)',     ago:'11m ago' },
@@ -10111,7 +10105,7 @@
 
   /* ── Anomaly-specific canvas tile ── */
   /* ── Per-anomaly detail data ── */
-  const ANOMALY_DETAIL = {
+  window.ANOMALY_DETAIL = {
     'AN-091': {
       theme: { color:'#ef4444', color2:'#f97316', label:'loss%', type:'area',    base:18, variance:14 },
       kpi: '23%', kpiLabel: 'packet loss', kpiCls: 'red',
