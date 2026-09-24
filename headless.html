@@ -4324,6 +4324,96 @@
   .anomaly-slack-btn svg   { pointer-events: none; }
   .anomaly-slack-btn.sending { opacity: 1 !important; pointer-events: none; }
   .anomaly-slack-btn.sent    { opacity: 1 !important; pointer-events: none; border-color: #22c55e; background: #f0fdf4; }
+  /* ── Anomaly Detail Drawer (light theme) ── */
+  .add-drawer-lt {
+    position: fixed;
+    top: 56px;
+    right: 0;
+    width: 500px;
+    bottom: 0;
+    background: #ffffff;
+    border-left: 1px solid #e5e7eb;
+    box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+    display: none;
+    flex-direction: column;
+    z-index: 500;
+    overflow: hidden;
+  }
+  .add-drawer-lt.open { display: flex; }
+  .add-drawer-lt-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 16px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+    flex-shrink: 0;
+  }
+  .add-drawer-lt-back {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 5px; border: 1px solid #e5e7eb;
+    background: #fff; color: #6b7280; cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .add-drawer-lt-back:hover { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+  .add-drawer-lt-id { font-size: 11px; font-weight: 600; color: #6b7280; font-family: 'Courier New', monospace; }
+  .add-drawer-lt-tag {
+    margin-left: auto; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.04em; padding: 2px 8px; border-radius: 3px; border: 1px solid;
+  }
+  .add-drawer-lt-tag.critical { background: #fef2f2; color: #dc2626; border-color: #fca5a5; }
+  .add-drawer-lt-tag.warning  { background: #fffbeb; color: #d97706; border-color: #fcd34d; }
+  .add-drawer-lt-tag.info     { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+  .add-drawer-lt-body {
+    flex: 1; overflow-y: auto; padding: 16px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .add-drawer-lt-body::-webkit-scrollbar { width: 4px; }
+  .add-drawer-lt-body::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+  .add-drawer-lt-title { font-size: 14px; font-weight: 600; color: #111827; line-height: 1.4; }
+  .add-drawer-lt-loc { font-size: 12px; color: #6b7280; }
+  .add-drawer-lt-kpi-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .add-drawer-lt-kpi-chip {
+    display: flex; flex-direction: column; gap: 2px;
+    padding: 8px 12px; border-radius: 8px;
+    border: 1px solid #e5e7eb; background: #f9fafb;
+    min-width: 80px; flex: 1;
+  }
+  .add-drawer-lt-kpi-val { font-size: 16px; font-weight: 700; color: #111827; }
+  .add-drawer-lt-kpi-val.red   { color: #dc2626; }
+  .add-drawer-lt-kpi-val.amber { color: #d97706; }
+  .add-drawer-lt-kpi-val.blue  { color: #2563eb; }
+  .add-drawer-lt-kpi-val.green { color: #059669; }
+  .add-drawer-lt-kpi-lbl { font-size: 10px; color: #9ca3af; }
+  .add-drawer-lt-section { font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; }
+  .add-drawer-lt-insight {
+    background: #eff6ff; border: 1px solid #bfdbfe;
+    border-left: 3px solid #2563eb; border-radius: 6px;
+    padding: 10px 12px;
+  }
+  .add-drawer-lt-insight-label {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 10px; font-weight: 700; color: #2563eb;
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px;
+  }
+  .add-drawer-lt-insight-text { font-size: 12px; color: #374151; line-height: 1.55; }
+  .add-drawer-lt-footer {
+    display: flex; gap: 8px; padding: 12px 16px;
+    border-top: 1px solid #e5e7eb; background: #f9fafb; flex-shrink: 0;
+  }
+  .add-drawer-lt-btn-primary {
+    flex: 1; padding: 9px 0; border-radius: 6px;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    background: #2563eb; color: #fff; border: none;
+    transition: background 0.15s;
+  }
+  .add-drawer-lt-btn-primary:hover { background: #1d4ed8; }
+  .add-drawer-lt-btn-secondary {
+    padding: 9px 14px; border-radius: 6px;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    background: #fff; color: #374151;
+    border: 1px solid #e5e7eb; transition: background 0.15s;
+  }
+  .add-drawer-lt-btn-secondary:hover { background: #f3f4f6; }
 </style>
 </head>
 <body>
@@ -5615,9 +5705,27 @@
         </div><!-- /settings-panel-inner -->
       </div><!-- /settings-panel -->
 
-    </div><!-- /body-layout -->
-  </div><!-- /dashboard -->
+  </div><!-- /body-layout -->
+</div><!-- /dashboard -->
 </div><!-- /outer-chrome -->
+
+<!-- Anomaly Detail Drawer (light theme, fixed overlay) -->
+<div class="add-drawer-lt" id="addDrawerLt">
+  <div class="add-drawer-lt-header">
+    <div class="add-drawer-lt-back" onclick="closeAnomalyDrawerLt()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </div>
+    <span class="add-drawer-lt-id" id="addDrawerLtId">AN-091</span>
+    <span class="add-drawer-lt-tag" id="addDrawerLtTag">CRITICAL</span>
+  </div>
+  <div class="add-drawer-lt-body" id="addDrawerLtBody">
+    <!-- populated by openAnomalyDrawerLt() -->
+  </div>
+  <div class="add-drawer-lt-footer">
+    <button class="add-drawer-lt-btn-primary" id="addDrawerLtBtn" onclick="addDrawerLtAction()">Investigate →</button>
+    <button class="add-drawer-lt-btn-secondary" onclick="closeAnomalyDrawerLt()">Dismiss</button>
+  </div>
+</div>
 
 <script>
   /* ────────────────────────────────────────────
@@ -8344,7 +8452,7 @@
   }
 
   /* ── Anomaly data ── */
-  const ALL_ANOMALIES = [
+  window.ALL_ANOMALIES = [
     { id:'AN-091', title:'BGP route flap — TK-01 ↔ HK-01', region:'JAPAN', severity:'critical', location:'Tokyo Core',      meta:'Packet loss 23%',        ago:'2m ago'  },
     { id:'AN-090', title:'CRC error burst — NY-01 uplink',  region:'AMER',  severity:'critical', location:'New York Core',    meta:'4th recurrence / week',   ago:'5m ago'  },
     { id:'AN-089', title:'Latency spike — LD-01 → FR-01',   region:'EMEA',  severity:'warning',  location:'London Edge',      meta:'p99 = 420ms (+210%)',     ago:'11m ago' },
@@ -8361,11 +8469,13 @@
     const items = ALL_ANOMALIES.filter(a => region==='ALL' || a.region===region);
     list.innerHTML = '';
     items.forEach((a, i) => {
+      window._anomalyMap = window._anomalyMap || {};
+      window._anomalyMap[a.id] = a;
       const div = document.createElement('div');
       div.className = 'anomaly-item';
       div.style.animationDelay = (i * 0.04) + 's';
-      div.draggable = true;
       div.dataset.anomalyId = a.id;
+      div.setAttribute('onclick', `openAnomalyDrawerLt(window._anomalyMap['${a.id}'])`);
       div.innerHTML = `
         <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;margin-right:2px;">
           <svg width="9" height="12" viewBox="0 0 9 14" fill="none" style="opacity:0.35;flex-shrink:0">
@@ -8421,7 +8531,10 @@
         if (vp) vp.classList.remove('drag-over');
       });
 
-      div.addEventListener('click', () => showToast(`${a.id}: ${a.title} — drag onto the canvas to analyse`, a.severity==='critical'?'orange':'blue'));
+      /* drag only from grip handle */
+      const handle = div.querySelector('div[style*="cursor:grab"]') || div;
+      if (handle !== div) handle.addEventListener('mousedown', () => { div.draggable = true; });
+      div.addEventListener('dragend', () => { div.draggable = false; });
       list.appendChild(div);
     });
     const critical = items.filter(a=>a.severity==='critical').length;
@@ -8699,7 +8812,7 @@
 
   /* ── Anomaly-specific canvas tile ── */
   /* ── Per-anomaly detail data ── */
-  const ANOMALY_DETAIL = {
+  window.ANOMALY_DETAIL = {
     'AN-091': {
       theme: { color:'#ef4444', color2:'#f97316', label:'loss%', type:'area',    base:18, variance:14 },
       kpi: '23%', kpiLabel: 'packet loss', kpiCls: 'red',
@@ -10630,6 +10743,72 @@
     sendAnomalyToSlack(anomalyLike, null);
   }
 
+  /* ── Anomaly Detail Drawer — light theme ── */
+  let _addLtCurrentAnomaly = null;
+
+  function openAnomalyDrawerLt(a) {
+    if (!a) return;
+    _addLtCurrentAnomaly = a;
+    const d = ANOMALY_DETAIL[a.id];
+    if (!d) return;
+    const col = (d.theme && d.theme.color) || '#2563eb';
+    const colMap = { red:'#dc2626', amber:'#d97706', green:'#059669', blue:'#2563eb' };
+
+    document.getElementById('addDrawerLtId').textContent  = a.id;
+    const tag = document.getElementById('addDrawerLtTag');
+    tag.textContent = a.severity.toUpperCase();
+    tag.className   = 'add-drawer-lt-tag ' + a.severity;
+
+    document.getElementById('addDrawerLtBody').innerHTML = `
+      <div class="add-drawer-lt-title">${a.title}</div>
+      <div class="add-drawer-lt-loc">${a.location} · ${a.ago}</div>
+
+      <div class="add-drawer-lt-kpi-row">
+        <div class="add-drawer-lt-kpi-chip" style="border-color:${col}44;background:${col}0d;">
+          <span class="add-drawer-lt-kpi-val" style="color:${col}">${d.kpi}</span>
+          <span class="add-drawer-lt-kpi-lbl">${d.kpiLabel}</span>
+        </div>
+        ${(d.chips||[]).map(c=>`<div class="add-drawer-lt-kpi-chip"><span class="add-drawer-lt-kpi-lbl" style="font-size:11px;font-weight:600;color:${colMap[c.cls]||'#6b7280'}">${c.label}</span></div>`).join('')}
+      </div>
+
+      <div class="add-drawer-lt-section">Metrics</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${(d.metrics||[]).map(m=>`
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+              <span style="color:#374151">${m.label}</span>
+              <span style="color:${colMap[m.cls]||'#374151'};font-weight:600">${m.value}</span>
+            </div>
+            <div style="height:5px;border-radius:3px;background:#f3f4f6;">
+              <div style="height:5px;border-radius:3px;width:${m.pct}%;background:${colMap[m.cls]||'#2563eb'};transition:width 0.6s ease;"></div>
+            </div>
+          </div>`).join('')}
+      </div>
+
+      <div class="add-drawer-lt-insight">
+        <div class="add-drawer-lt-insight-label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          AI Analysis
+        </div>
+        <div class="add-drawer-lt-insight-text">${d.analysis}</div>
+      </div>
+    `;
+
+    document.getElementById('addDrawerLtBtn').textContent = (d.action || 'Investigate') + ' →';
+    document.getElementById('addDrawerLt').classList.add('open');
+  }
+
+  function closeAnomalyDrawerLt() {
+    document.getElementById('addDrawerLt').classList.remove('open');
+    _addLtCurrentAnomaly = null;
+  }
+
+  function addDrawerLtAction() {
+    if (_addLtCurrentAnomaly) {
+      showToast(_addLtCurrentAnomaly.id + ': ' + (ANOMALY_DETAIL[_addLtCurrentAnomaly.id]?.action || 'Investigating') + ' initiated', 'blue');
+    }
+    closeAnomalyDrawerLt();
+  }
 </script>
 <!-- anomaly tile maximize backdrop -->
 <div class="act-maximized-backdrop" id="actMaxBackdrop" onclick="actCloseMaximized()"></div>
