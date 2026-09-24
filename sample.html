@@ -804,7 +804,33 @@
     font-weight: 400;
     color: #1f2937;
     margin-bottom: 6px;
+    min-height: 1.3em;
   }
+
+  /* typewriter cursor blink */
+  .greeting-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: #6b7280;
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    border-radius: 1px;
+    animation: greetBlink 0.9s step-end infinite;
+  }
+  @keyframes greetBlink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+
+  /* tod part fades in after name is typed */
+  .greeting-tod {
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    color: #6b7280;
+    font-weight: 300;
+  }
+  .greeting-tod.visible { opacity: 1; }
 
   .greeting p {
     font-size: 13px;
@@ -812,6 +838,7 @@
     color: #4b5563;
     margin-bottom: 14px;
   }
+
   .greeting-notice {
     display: inline-flex;
     align-items: center;
@@ -826,6 +853,13 @@
     font-weight: 400;
     color: #161616;
     line-height: 1.4;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .greeting-notice.greet-visible {
+    opacity: 1;
+    transform: translateY(0);
   }
   .greeting-notice strong { font-weight: 600; color: #0043ce; }
   .greeting-notice svg { flex-shrink: 0; }
@@ -4613,6 +4647,8 @@
 
   /* ── 7. Greeting overlay ── */
   .greeting h1 { color: #f4f4f4 !important; text-shadow: 0 2px 20px rgba(69,137,255,0.20) !important; }
+  .greeting-cursor { background: #8d8d8d !important; }
+  .greeting-tod { color: #8d8d8d !important; }
   .greeting p  { color: #c6c6c6 !important; }
   .greeting-notice {
     background: rgba(69,137,255,0.08) !important;
@@ -5835,8 +5871,8 @@
 
          <!-- greeting -->
          <div class="greeting">
-           <h1>Hello Fiona, Good morning</h1>
-           <div class="greeting-notice">
+           <h1 id="greetH1"><span id="greetName"></span><span class="greeting-tod" id="greetTod"></span><span class="greeting-cursor" id="greetCursor"></span></h1>
+           <div class="greeting-notice" id="greetingNotice">
              <!-- IBM Carbon "Information" icon (16px) -->
              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 32 32" fill="#0f62fe">
                <path d="M17 22V16h-4v2h2v4h-2v2h6v-2zM16 7a1.5 1.5 0 1 0 1.5 1.5A1.5 1.5 0 0 0 16 7z"/>
@@ -10801,16 +10837,42 @@
     initStatValues();
     initTimeline();
 
-    // ── personalise greeting from login ──
-    const storedName = localStorage.getItem('haiDashFirstName');
-    if (storedName) {
-      const greetH1 = document.querySelector('.greeting h1');
-      if (greetH1) {
-        const hour = new Date().getHours();
-        const tod  = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-        greetH1.textContent = 'Hello ' + storedName + ', ' + tod;
+    // ── typewriter greeting ──
+    (function initGreeting() {
+      const storedName = localStorage.getItem('haiDashFirstName');
+      const name = storedName || 'Fiona';
+      const hour = new Date().getHours();
+      const tod  = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+      const fullText = 'Hello ' + name + ', ';
+
+      const nameEl   = document.getElementById('greetName');
+      const todEl    = document.getElementById('greetTod');
+      const cursorEl = document.getElementById('greetCursor');
+      const noticeEl = document.getElementById('greetingNotice');
+      if (!nameEl) return;
+
+      todEl.textContent = tod;
+      let i = 0;
+      const speed = 38; // ms per character
+
+      function typeNext() {
+        if (i < fullText.length) {
+          nameEl.textContent = fullText.slice(0, ++i);
+          setTimeout(typeNext, speed);
+        } else {
+          // name done — fade in tod
+          todEl.classList.add('visible');
+          // remove cursor after short pause
+          setTimeout(() => {
+            if (cursorEl) cursorEl.remove();
+            // then fade in notice
+            if (noticeEl) noticeEl.classList.add('greet-visible');
+          }, 700);
+        }
       }
-    }
+
+      setTimeout(typeNext, 180); // slight delay before starting
+    })();
   });
 
   /* ────────────────────────────────────────────
