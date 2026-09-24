@@ -6884,52 +6884,9 @@
     <span class="add-drawer-tag" id="addDrawerTag">CRITICAL</span>
   </div>
 
-  <div class="add-drawer-body">
-            <div class="add-drawer-title" id="addDrawerTitle">BGP route flap — TK-01 ↔ HK-01</div>
-            <div class="add-drawer-location" id="addDrawerLocation">Tokyo Core · 2m ago</div>
-
-            <!-- Severity + key metrics row -->
-            <div class="add-kpi-row" id="addKpiRow">
-              <!-- populated by JS -->
-            </div>
-
-            <!-- Sparkline chart -->
-            <div class="add-chart-wrap">
-              <div class="add-chart-label" id="addChartLabel">Packet loss % — last 30 min</div>
-              <svg class="add-chart-svg" id="addChartSvg" viewBox="0 0 260 72" preserveAspectRatio="none">
-                <!-- grid lines -->
-                <line x1="0" y1="18" x2="260" y2="18" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-                <line x1="0" y1="36" x2="260" y2="36" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-                <line x1="0" y1="54" x2="260" y2="54" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-                <!-- area fill -->
-                <path id="addChartArea" d="" fill="rgba(69,137,255,0.12)"/>
-                <!-- line -->
-                <path id="addChartLine" d="" fill="none" stroke="#4589ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <!-- dot at latest point -->
-                <circle id="addChartDot" cx="0" cy="0" r="3.5" fill="#4589ff"/>
-              </svg>
-              <div class="add-chart-axis">
-                <span>30m ago</span><span>20m</span><span>10m</span><span>Now</span>
-              </div>
-            </div>
-
-            <!-- AI insight block -->
-            <div class="add-insight-block" id="addInsightBlock">
-              <div class="add-insight-label">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-                AI Analysis
-              </div>
-              <div class="add-insight-text" id="addInsightText">Analysing…</div>
-            </div>
-
-            <!-- Impacted nodes -->
-            <div class="add-section-title">Impacted nodes</div>
-            <div class="add-nodes-row" id="addNodesRow"><!-- populated by JS --></div>
-
-            <!-- Timeline -->
-            <div class="add-section-title">Event timeline</div>
-            <div class="add-timeline" id="addTimeline"><!-- populated by JS --></div>
-          </div>
+  <div class="add-drawer-body" id="addDrawerBody">
+    <!-- populated entirely by openAnomalyDrawer() -->
+  </div>
 
   <!-- Action footer -->
   <div class="add-drawer-footer">
@@ -9686,62 +9643,56 @@
     const d = ANOMALY_DETAIL[a.id];
     if (!d) return;
 
+    const col = (d.theme && d.theme.color) || '#4589ff';
+
     // header
-    document.getElementById('addDrawerId').textContent    = a.id;
-    document.getElementById('addDrawerTitle').textContent = a.title;
-    document.getElementById('addDrawerLocation').textContent = a.location + ' · ' + a.ago;
-    const tagEl = document.getElementById('addDrawerTag');
-    tagEl.textContent = a.severity.toUpperCase();
-    tagEl.className = 'add-drawer-tag ' + a.severity;
+    document.getElementById('addDrawerId').textContent           = a.id;
+    document.getElementById('addDrawerTag').textContent          = a.severity.toUpperCase();
+    document.getElementById('addDrawerTag').className            = 'add-drawer-tag ' + a.severity;
 
-    // KPI chips
-    document.getElementById('addKpiRow').innerHTML = d.kpis.map(k =>
-      `<div class="add-kpi-chip">
-        <span class="add-kpi-val ${k.cls}">${k.val}</span>
-        <span class="add-kpi-label">${k.label}</span>
-      </div>`
-    ).join('');
+    // body — rewrite entire drawer body with correct schema
+    document.getElementById('addDrawerBody').innerHTML = `
+      <div class="add-drawer-title">${a.title}</div>
+      <div class="add-drawer-location">${a.location} · ${a.ago}</div>
 
-    // chart
-    document.getElementById('addChartLabel').textContent = d.chartLabel;
-    const vals = d.chartValues;
-    const W = 260, H = 68, pad = 4;
-    const minV = 0, maxV = Math.max(...vals) * 1.1;
-    const xs = vals.map((_, i) => (i / (vals.length - 1)) * W);
-    const ys = vals.map(v => H - pad - ((v - minV) / (maxV - minV || 1)) * (H - pad * 2));
-    const pts = xs.map((x, i) => [x, ys[i]]);
-    const lineD = 'M' + pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' L');
-    const areaD = lineD + ' L' + pts[pts.length-1][0].toFixed(1) + ',' + H + ' L0,' + H + ' Z';
-    const lp = pts[pts.length - 1];
-    document.getElementById('addChartLine').setAttribute('d', lineD);
-    document.getElementById('addChartLine').setAttribute('stroke', d.chartColor);
-    document.getElementById('addChartArea').setAttribute('d', areaD);
-    document.getElementById('addChartArea').setAttribute('fill', d.chartColor.replace(')', ',0.12)').replace('rgb', 'rgba'));
-    document.getElementById('addChartDot').setAttribute('cx', lp[0].toFixed(1));
-    document.getElementById('addChartDot').setAttribute('cy', lp[1].toFixed(1));
-    document.getElementById('addChartDot').setAttribute('fill', d.chartColor);
+      <!-- Primary KPI -->
+      <div class="add-kpi-row">
+        <div class="add-kpi-chip" style="border-color:${col}33;background:${col}11;">
+          <span class="add-kpi-val" style="color:${col}">${d.kpi}</span>
+          <span class="add-kpi-label">${d.kpiLabel}</span>
+        </div>
+        ${(d.chips||[]).map(c=>`<div class="add-kpi-chip"><span class="add-kpi-label" style="font-size:11px;color:${c.cls==='red'?'#ff8389':c.cls==='amber'?'#f1c21b':c.cls==='green'?'#42be65':'#8d8d8d'}">${c.label}</span></div>`).join('')}
+      </div>
 
-    // AI insight
-    document.getElementById('addInsightText').textContent = d.insight;
+      <!-- Metrics bars -->
+      <div class="add-section-title">Metrics</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        ${(d.metrics||[]).map(m=>`
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;">
+              <span style="color:#c6c6c6">${m.label}</span>
+              <span style="color:${m.cls==='red'?'#ff8389':m.cls==='amber'?'#f1c21b':m.cls==='green'?'#42be65':'#8d8d8d'};font-weight:600">${m.value}</span>
+            </div>
+            <div style="height:4px;border-radius:2px;background:rgba(255,255,255,0.08);">
+              <div style="height:4px;border-radius:2px;width:${m.pct}%;background:${m.cls==='red'?'#ff8389':m.cls==='amber'?'#f1c21b':m.cls==='green'?'#42be65':'#4589ff'};transition:width 0.6s ease;"></div>
+            </div>
+          </div>`).join('')}
+      </div>
 
-    // nodes
-    document.getElementById('addNodesRow').innerHTML = d.nodes.map(n =>
-      `<span class="add-node-chip${n.affected?' affected':''}">${n.label}</span>`
-    ).join('');
+      <!-- AI Analysis -->
+      <div class="add-insight-block">
+        <div class="add-insight-label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          AI Analysis
+        </div>
+        <div class="add-insight-text">${d.analysis}</div>
+      </div>
+    `;
 
-    // timeline
-    document.getElementById('addTimeline').innerHTML = d.timeline.map(t =>
-      `<div class="add-tl-item">
-        <div class="add-tl-dot ${t.sev}"></div>
-        <span class="add-tl-time">${t.time}</span>
-        <span class="add-tl-text">${t.text}</span>
-      </div>`
-    ).join('');
+    // footer action button
+    document.getElementById('addBtnPrimary').textContent = (d.action || 'Investigate') + ' →';
 
-    // primary action label
-    document.getElementById('addBtnPrimary').textContent = (d.primaryAction || 'Investigate') + ' →';
-
-    // slide in
+    // show drawer
     document.getElementById('anomalyDetailDrawer').classList.add('open');
   }
 
@@ -9752,7 +9703,7 @@
 
   function addDrawerPrimaryAction() {
     if (_addCurrentAnomaly) {
-      showToast(_addCurrentAnomaly.id + ': ' + (ANOMALY_DETAIL[_addCurrentAnomaly.id]?.primaryAction || 'Investigating') + ' initiated', 'blue');
+      showToast(_addCurrentAnomaly.id + ': ' + (ANOMALY_DETAIL[_addCurrentAnomaly.id]?.action || 'Investigating') + ' initiated', 'blue');
     }
     closeAnomalyDrawer();
   }
