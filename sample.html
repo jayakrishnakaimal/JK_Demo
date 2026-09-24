@@ -9681,9 +9681,12 @@
   let _addCurrentAnomaly = null;
 
   function openAnomalyDrawer(a) {
+    console.log('[openAnomalyDrawer] called', a.id);
     _addCurrentAnomaly = a;
     const d = ANOMALY_DETAIL[a.id];
-    if (!d) return;
+    if (!d) { console.warn('[openAnomalyDrawer] no detail data for', a.id); return; }
+    const el = document.getElementById('anomalyDetailDrawer');
+    console.log('[openAnomalyDrawer] drawer element:', el, 'computed display:', el ? window.getComputedStyle(el).display : 'N/A');
 
     // header
     document.getElementById('addDrawerId').textContent    = a.id;
@@ -9825,7 +9828,9 @@
 
       /* Click anywhere on item (not on slack btn) → open drawer */
       div.addEventListener('click', (e) => {
+        console.log('[anomaly click]', a.id, e.target);
         if (!e.target.closest('.anomaly-slack-btn')) {
+          console.log('[opening drawer for]', a.id);
           openAnomalyDrawer(a);
         }
       });
