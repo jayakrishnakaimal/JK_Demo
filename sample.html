@@ -5393,6 +5393,179 @@
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.05) !important;
   }
 
+  /* ── 32. Anomaly Detail Drawer ── */
+  .anomaly-detail-drawer {
+    position: absolute;
+    inset: 0;
+    background: rgba(4,4,14,0.82);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border-left: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    flex-direction: column;
+    z-index: 120;
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+    overflow: hidden;
+  }
+  .anomaly-detail-drawer.open {
+    transform: translateX(0);
+  }
+  /* header */
+  .add-drawer-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.02);
+  }
+  .add-drawer-back {
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 5px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.05);
+    color: #8d8d8d;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+  }
+  .add-drawer-back:hover { background: rgba(69,137,255,0.14); color: #4589ff; border-color: rgba(69,137,255,0.35); }
+  .add-drawer-id { font-size: 11px; font-weight: 600; color: #8d8d8d; font-family: 'IBM Plex Mono', monospace; }
+  .add-drawer-tag {
+    margin-left: auto;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
+    padding: 2px 8px; border-radius: 3px;
+    border: 1px solid;
+  }
+  .add-drawer-tag.critical { background: rgba(255,131,137,0.12); color: #ff8389; border-color: rgba(255,131,137,0.30); }
+  .add-drawer-tag.warning  { background: rgba(241,194,27,0.10);  color: #f1c21b; border-color: rgba(241,194,27,0.28); }
+  .add-drawer-tag.info     { background: rgba(69,137,255,0.10);  color: #4589ff; border-color: rgba(69,137,255,0.28); }
+  /* scrollable body */
+  .add-drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 14px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .add-drawer-body::-webkit-scrollbar { width: 3px; }
+  .add-drawer-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+  .add-drawer-title { font-size: 13px; font-weight: 500; color: #f4f4f4; line-height: 1.4; }
+  .add-drawer-location { font-size: 11px; color: #8d8d8d; }
+  /* kpi chips */
+  .add-kpi-row { display: flex; gap: 7px; flex-wrap: wrap; }
+  .add-kpi-chip {
+    display: flex; flex-direction: column; gap: 1px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    min-width: 70px; flex: 1;
+  }
+  .add-kpi-val { font-size: 15px; font-weight: 600; color: #f4f4f4; }
+  .add-kpi-val.red    { color: #ff8389; text-shadow: 0 0 10px rgba(255,131,137,0.35); }
+  .add-kpi-val.amber  { color: #f1c21b; text-shadow: 0 0 10px rgba(241,194,27,0.30); }
+  .add-kpi-val.blue   { color: #4589ff; text-shadow: 0 0 10px rgba(69,137,255,0.30); }
+  .add-kpi-val.green  { color: #42be65; text-shadow: 0 0 10px rgba(66,190,101,0.30); }
+  .add-kpi-label { font-size: 10px; color: #8d8d8d; }
+  /* chart */
+  .add-chart-wrap {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 10px 12px 8px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  .add-chart-label { font-size: 10px; color: #8d8d8d; margin-bottom: 8px; }
+  .add-chart-svg { width: 100%; height: 72px; display: block; overflow: visible; }
+  .add-chart-axis {
+    display: flex; justify-content: space-between;
+    font-size: 9px; color: rgba(141,141,141,0.55);
+    margin-top: 4px;
+  }
+  /* AI insight */
+  .add-insight-block {
+    background: rgba(69,137,255,0.06);
+    border: 1px solid rgba(69,137,255,0.20);
+    border-left: 3px solid #4589ff;
+    border-radius: 6px;
+    padding: 9px 11px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .add-insight-label {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 10px; font-weight: 600; color: #4589ff;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 5px;
+  }
+  .add-insight-text { font-size: 11px; color: #c6c6c6; line-height: 1.55; }
+  /* section titles */
+  .add-section-title { font-size: 10px; font-weight: 600; color: rgba(141,141,141,0.70); text-transform: uppercase; letter-spacing: 0.06em; }
+  /* nodes */
+  .add-nodes-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .add-node-chip {
+    font-size: 11px; font-weight: 500;
+    padding: 4px 9px; border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.05);
+    color: #c6c6c6;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .add-node-chip.affected { border-color: rgba(255,131,137,0.28); background: rgba(255,131,137,0.08); color: #ff8389; }
+  /* timeline */
+  .add-timeline { display: flex; flex-direction: column; gap: 0; }
+  .add-tl-item {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .add-tl-item:last-child { border-bottom: none; }
+  .add-tl-dot {
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 3px;
+  }
+  .add-tl-dot.critical { background: #ff8389; box-shadow: 0 0 6px rgba(255,131,137,0.55); }
+  .add-tl-dot.warning  { background: #f1c21b; box-shadow: 0 0 6px rgba(241,194,27,0.50); }
+  .add-tl-dot.info     { background: #4589ff; box-shadow: 0 0 6px rgba(69,137,255,0.45); }
+  .add-tl-dot.ok       { background: #42be65; box-shadow: 0 0 6px rgba(66,190,101,0.45); }
+  .add-tl-time { font-size: 10px; color: #8d8d8d; flex-shrink: 0; width: 44px; font-family: 'IBM Plex Mono', monospace; }
+  .add-tl-text { font-size: 11px; color: #c6c6c6; line-height: 1.4; flex: 1; }
+  /* footer */
+  .add-drawer-footer {
+    display: flex; gap: 8px;
+    padding: 10px 14px 14px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.02);
+  }
+  .add-btn-primary {
+    flex: 1; padding: 8px 0; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer;
+    background: rgba(69,137,255,0.12); color: #4589ff;
+    border: 1px solid rgba(69,137,255,0.35);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 0 12px rgba(69,137,255,0.15), inset 0 1px 0 rgba(255,255,255,0.08);
+    transition: background 0.15s, box-shadow 0.15s;
+  }
+  .add-btn-primary:hover { background: rgba(69,137,255,0.20); color: #fff; box-shadow: 0 0 20px rgba(69,137,255,0.28); }
+  .add-btn-secondary {
+    padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer;
+    background: rgba(255,255,255,0.05); color: #8d8d8d;
+    border: 1px solid rgba(255,255,255,0.10);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    transition: background 0.15s, color 0.15s;
+  }
+  .add-btn-secondary:hover { background: rgba(255,255,255,0.09); color: #c6c6c6; }
+
 </style>
 </head>
 <body>
@@ -6690,6 +6863,71 @@
 
           </div><!-- /settings-body -->
         </div><!-- /settings-panel-inner -->
+
+        <!-- ═══ Anomaly Detail Drawer ═══ -->
+        <div class="anomaly-detail-drawer" id="anomalyDetailDrawer">
+          <div class="add-drawer-header">
+            <div class="add-drawer-back" onclick="closeAnomalyDrawer()" title="Back to list">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </div>
+            <div class="add-drawer-id" id="addDrawerId">AN-091</div>
+            <span class="add-drawer-tag" id="addDrawerTag">CRITICAL</span>
+          </div>
+
+          <div class="add-drawer-body">
+            <div class="add-drawer-title" id="addDrawerTitle">BGP route flap — TK-01 ↔ HK-01</div>
+            <div class="add-drawer-location" id="addDrawerLocation">Tokyo Core · 2m ago</div>
+
+            <!-- Severity + key metrics row -->
+            <div class="add-kpi-row" id="addKpiRow">
+              <!-- populated by JS -->
+            </div>
+
+            <!-- Sparkline chart -->
+            <div class="add-chart-wrap">
+              <div class="add-chart-label" id="addChartLabel">Packet loss % — last 30 min</div>
+              <svg class="add-chart-svg" id="addChartSvg" viewBox="0 0 260 72" preserveAspectRatio="none">
+                <!-- grid lines -->
+                <line x1="0" y1="18" x2="260" y2="18" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                <line x1="0" y1="36" x2="260" y2="36" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                <line x1="0" y1="54" x2="260" y2="54" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                <!-- area fill -->
+                <path id="addChartArea" d="" fill="rgba(69,137,255,0.12)"/>
+                <!-- line -->
+                <path id="addChartLine" d="" fill="none" stroke="#4589ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- dot at latest point -->
+                <circle id="addChartDot" cx="0" cy="0" r="3.5" fill="#4589ff"/>
+              </svg>
+              <div class="add-chart-axis">
+                <span>30m ago</span><span>20m</span><span>10m</span><span>Now</span>
+              </div>
+            </div>
+
+            <!-- AI insight block -->
+            <div class="add-insight-block" id="addInsightBlock">
+              <div class="add-insight-label">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                AI Analysis
+              </div>
+              <div class="add-insight-text" id="addInsightText">Analysing…</div>
+            </div>
+
+            <!-- Impacted nodes -->
+            <div class="add-section-title">Impacted nodes</div>
+            <div class="add-nodes-row" id="addNodesRow"><!-- populated by JS --></div>
+
+            <!-- Timeline -->
+            <div class="add-section-title">Event timeline</div>
+            <div class="add-timeline" id="addTimeline"><!-- populated by JS --></div>
+          </div>
+
+          <!-- Action footer -->
+          <div class="add-drawer-footer">
+            <button class="add-btn-primary" id="addBtnPrimary" onclick="addDrawerPrimaryAction()">Investigate →</button>
+            <button class="add-btn-secondary" onclick="closeAnomalyDrawer()">Dismiss</button>
+          </div>
+        </div><!-- /anomaly-detail-drawer -->
+
       </div><!-- /settings-panel -->
 
     </div><!-- /body-layout -->
@@ -9432,6 +9670,281 @@
     { id:'AN-084', title:'Packet drop — SP-01 → NY-01',     region:'AMER',  severity:'info',     location:'São Paulo Hub',    meta:'Drop rate 0.8%',          ago:'1h ago'  },
   ];
 
+  /* ── Per-anomaly rich detail data ── */
+  const ANOMALY_DETAIL = {
+    'AN-091': {
+      chartLabel: 'Packet loss % — last 30 min',
+      chartColor: '#ff8389',
+      chartValues: [2,3,4,3,5,8,14,23,23],
+      kpis: [
+        { val:'23%', label:'Packet loss', cls:'red' },
+        { val:'420ms', label:'Latency p99', cls:'amber' },
+        { val:'TK-01', label:'Origin node', cls:'blue' },
+        { val:'2m', label:'Duration', cls:'amber' }
+      ],
+      insight: 'BGP session between TK-01 and HK-01 is experiencing repeated route flaps, likely caused by an unstable eBGP peering link. Packet loss has escalated from 2% to 23% in the last 30 minutes. Recommend enabling BFD hold-down timer and reviewing physical link integrity on the TK-01 uplink.',
+      nodes: [
+        { label:'TK-01', affected:true }, { label:'HK-01', affected:true },
+        { label:'OS-01', affected:false }, { label:'SG-01', affected:false }
+      ],
+      timeline: [
+        { time:'T-30m', sev:'ok',       text:'BGP session stable — TK-01 ↔ HK-01' },
+        { time:'T-18m', sev:'warning',  text:'First route flap detected, session reset' },
+        { time:'T-11m', sev:'warning',  text:'Second flap — packet loss reaches 8%' },
+        { time:'T-4m',  sev:'critical', text:'Rapid flapping — loss escalates to 23%' },
+        { time:'Now',   sev:'critical', text:'BGP session in HOLDDOWN state' }
+      ],
+      primaryAction: 'Open RCA'
+    },
+    'AN-090': {
+      chartLabel: 'CRC errors / min — NY-01 uplink',
+      chartColor: '#ff8389',
+      chartValues: [10,12,15,18,22,30,45,68,68],
+      kpis: [
+        { val:'68/min', label:'CRC errors', cls:'red' },
+        { val:'4th', label:'This week', cls:'amber' },
+        { val:'NY-01', label:'Affected node', cls:'blue' },
+        { val:'5m', label:'Duration', cls:'amber' }
+      ],
+      insight: 'Recurring CRC error bursts on the NY-01 uplink suggest a degraded physical cable or SFP transceiver. This is the 4th occurrence this week, pointing to hardware failure rather than a transient issue. Recommend SFP replacement during next maintenance window and enabling error-rate alerting thresholds.',
+      nodes: [
+        { label:'NY-01', affected:true }, { label:'SP-01', affected:true },
+        { label:'LD-01', affected:false }, { label:'FR-01', affected:false }
+      ],
+      timeline: [
+        { time:'T-60m', sev:'ok',       text:'NY-01 uplink operating normally' },
+        { time:'T-30m', sev:'info',     text:'Minor CRC uptick — 10 errors/min' },
+        { time:'T-15m', sev:'warning',  text:'Errors accelerating — 30/min' },
+        { time:'T-5m',  sev:'critical', text:'Burst peak — 68 errors/min' },
+        { time:'Now',   sev:'critical', text:'Error rate sustained — uplink degraded' }
+      ],
+      primaryAction: 'Schedule fix'
+    },
+    'AN-089': {
+      chartLabel: 'Latency p99 (ms) — LD-01 → FR-01',
+      chartColor: '#f1c21b',
+      chartValues: [120,130,145,160,200,280,360,420,420],
+      kpis: [
+        { val:'420ms', label:'Latency p99', cls:'amber' },
+        { val:'+210%', label:'vs baseline', cls:'red' },
+        { val:'LD-01', label:'Source node', cls:'blue' },
+        { val:'11m', label:'Duration', cls:'amber' }
+      ],
+      insight: 'Latency on the LD-01 → FR-01 path has risen 210% above the 200ms SLA threshold. Traffic analysis shows congestion on the intermediate cross-channel link. A large scheduled backup job from LD-01 is saturating 78% of available bandwidth. Consider traffic shaping or rerouting to the LD-01 → AMS-01 → FR-01 path.',
+      nodes: [
+        { label:'LD-01', affected:true }, { label:'FR-01', affected:true },
+        { label:'AMS-01', affected:false }, { label:'PAR-01', affected:false }
+      ],
+      timeline: [
+        { time:'T-60m', sev:'ok',      text:'LD-01 → FR-01 latency at 120ms baseline' },
+        { time:'T-40m', sev:'ok',      text:'Backup job started on LD-01' },
+        { time:'T-20m', sev:'warning', text:'Latency crosses 200ms SLA threshold' },
+        { time:'T-11m', sev:'warning', text:'p99 reaches 360ms — bandwidth at 78%' },
+        { time:'Now',   sev:'warning', text:'p99 = 420ms — SLA breach ongoing' }
+      ],
+      primaryAction: 'Reroute traffic'
+    },
+    'AN-088': {
+      chartLabel: 'CPU % — OS-01 control plane (15m avg)',
+      chartColor: '#f1c21b',
+      chartValues: [45,52,58,65,72,80,87,91,91],
+      kpis: [
+        { val:'91%', label:'CPU usage', cls:'amber' },
+        { val:'15m', label:'Avg window', cls:'blue' },
+        { val:'OS-01', label:'Node', cls:'blue' },
+        { val:'18m', label:'Duration', cls:'amber' }
+      ],
+      insight: 'OS-01 control plane CPU has been sustained above 90% for 18 minutes. Analysis shows BGP route refresh from 3 peers triggered a simultaneous RIB recomputation. Memory pressure is also elevated at 87%. If CPU stays above 95% for 5 more minutes, BGP sessions may drop. Recommend dampening route refresh rate.',
+      nodes: [
+        { label:'OS-01', affected:true }, { label:'TK-01', affected:false },
+        { label:'SG-01', affected:false }, { label:'HK-01', affected:false }
+      ],
+      timeline: [
+        { time:'T-60m', sev:'ok',      text:'CPU at 45% — normal operations' },
+        { time:'T-30m', sev:'info',    text:'Route refresh triggered by 3 BGP peers' },
+        { time:'T-20m', sev:'warning', text:'CPU crosses 80% — RIB recomputation' },
+        { time:'T-18m', sev:'warning', text:'CPU at 91% — memory pressure elevated' },
+        { time:'Now',   sev:'warning', text:'Sustained high CPU — BGP risk in 5m' }
+      ],
+      primaryAction: 'Mitigate now'
+    },
+    'AN-087': {
+      chartLabel: 'Asymmetric path score — HK-01',
+      chartColor: '#f1c21b',
+      chartValues: [0,0,1,1,2,3,5,7,7],
+      kpis: [
+        { val:'7/10', label:'Asym. score', cls:'amber' },
+        { val:'3', label:'Paths affected', cls:'amber' },
+        { val:'HK-01', label:'Node', cls:'blue' },
+        { val:'24m', label:'Duration', cls:'amber' }
+      ],
+      insight: 'HK-01 is forwarding traffic asymmetrically — return paths are diverging from forward paths on 3 prefixes. This was triggered by a route preference change on a peer 24 minutes ago. While connectivity is intact, this increases troubleshooting complexity and can mask real packet loss. Recommend synchronising route policies.',
+      nodes: [
+        { label:'HK-01', affected:true }, { label:'SG-01', affected:true },
+        { label:'TK-01', affected:false }, { label:'OS-01', affected:false }
+      ],
+      timeline: [
+        { time:'T-60m', sev:'ok',      text:'HK-01 routing symmetric on all paths' },
+        { time:'T-24m', sev:'info',    text:'Peer route preference change received' },
+        { time:'T-20m', sev:'warning', text:'2 prefixes showing asymmetric paths' },
+        { time:'T-10m', sev:'warning', text:'3rd prefix added — score rises to 7' },
+        { time:'Now',   sev:'warning', text:'Asymmetric routing ongoing — score 7/10' }
+      ],
+      primaryAction: 'Sync policies'
+    },
+    'AN-086': {
+      chartLabel: 'MTU mismatch events — SG-01',
+      chartColor: '#4589ff',
+      chartValues: [0,0,0,1,2,2,3,4,4],
+      kpis: [
+        { val:'1480', label:'SG-01 MTU', cls:'blue' },
+        { val:'1500', label:'Peer MTU', cls:'blue' },
+        { val:'4', label:'Drop events', cls:'amber' },
+        { val:'31m', label:'Duration', cls:'blue' }
+      ],
+      insight: 'SG-01 is advertising MTU 1480 to its peering partner which expects 1500. Packets larger than 1480 bytes are being silently dropped or fragmented, causing intermittent application-level timeouts for TCP sessions. Likely caused by a misconfigured interface after a recent firmware upgrade. Correcting the MTU setting will resolve this immediately.',
+      nodes: [
+        { label:'SG-01', affected:true }, { label:'Peer-SG', affected:true },
+        { label:'HK-01', affected:false }, { label:'OS-01', affected:false }
+      ],
+      timeline: [
+        { time:'T-2h',  sev:'ok',   text:'SG-01 firmware upgrade completed' },
+        { time:'T-31m', sev:'info', text:'First MTU mismatch drop event detected' },
+        { time:'T-20m', sev:'info', text:'2 more drop events logged' },
+        { time:'T-10m', sev:'info', text:'TCP timeouts reported by app team' },
+        { time:'Now',   sev:'info', text:'4 total drop events — MTU 1480 vs 1500' }
+      ],
+      primaryAction: 'Fix MTU'
+    },
+    'AN-085': {
+      chartLabel: 'Days until cert expiry — DU-01',
+      chartColor: '#4589ff',
+      chartValues: [30,28,26,24,22,14,10,6,6],
+      kpis: [
+        { val:'6 days', label:'Until expiry', cls:'amber' },
+        { val:'DU-01', label:'Node', cls:'blue' },
+        { val:'TLS 1.3', label:'Protocol', cls:'blue' },
+        { val:'1h', label:'Detected', cls:'blue' }
+      ],
+      insight: 'The TLS certificate on DU-01 will expire in 6 days. If not renewed, all encrypted sessions will fail with a certificate validation error, causing a full service outage for users routed through Dubai Hub. Auto-renewal is not configured. Manual renewal via the PKI portal should be initiated immediately.',
+      nodes: [
+        { label:'DU-01', affected:true }, { label:'AE-01', affected:false },
+        { label:'MU-01', affected:false }, { label:'IN-01', affected:false }
+      ],
+      timeline: [
+        { time:'T-30d', sev:'ok',   text:'Certificate renewed — 30 days validity' },
+        { time:'T-14d', sev:'info', text:'14-day expiry warning generated' },
+        { time:'T-6d',  sev:'info', text:'6-day critical threshold reached' },
+        { time:'T-1h',  sev:'info', text:'Anomaly surfaced in detection system' },
+        { time:'Now',   sev:'info', text:'Certificate expiry in 6 days — action needed' }
+      ],
+      primaryAction: 'Renew cert'
+    },
+    'AN-084': {
+      chartLabel: 'Packet drop rate % — SP-01 → NY-01',
+      chartColor: '#4589ff',
+      chartValues: [0,0,0.1,0.2,0.3,0.5,0.7,0.8,0.8],
+      kpis: [
+        { val:'0.8%', label:'Drop rate', cls:'blue' },
+        { val:'SP-01', label:'Source', cls:'blue' },
+        { val:'NY-01', label:'Destination', cls:'blue' },
+        { val:'1h', label:'Duration', cls:'blue' }
+      ],
+      insight: 'A steady 0.8% packet drop rate on the SP-01 → NY-01 transatlantic link has been present for 1 hour. This is below the 1% alert threshold but trending upward. The drop pattern correlates with peak trading hours in São Paulo. Monitoring closely — if rate exceeds 1%, automatic rerouting via LD-01 will be triggered.',
+      nodes: [
+        { label:'SP-01', affected:true }, { label:'NY-01', affected:true },
+        { label:'LD-01', affected:false }, { label:'MIA-01', affected:false }
+      ],
+      timeline: [
+        { time:'T-2h', sev:'ok',   text:'SP-01 → NY-01 link operating normally' },
+        { time:'T-1h', sev:'info', text:'Drop rate first detected at 0.1%' },
+        { time:'T-30m',sev:'info', text:'Drop rate increases to 0.5%' },
+        { time:'T-15m',sev:'info', text:'Drop rate at 0.7% — monitoring active' },
+        { time:'Now',  sev:'info', text:'Drop rate 0.8% — below threshold, trending up' }
+      ],
+      primaryAction: 'Monitor path'
+    }
+  };
+
+  /* ── Anomaly Drawer open / close / render ── */
+  let _addCurrentAnomaly = null;
+
+  function openAnomalyDrawer(a) {
+    _addCurrentAnomaly = a;
+    const d = ANOMALY_DETAIL[a.id];
+    if (!d) return;
+
+    // header
+    document.getElementById('addDrawerId').textContent    = a.id;
+    document.getElementById('addDrawerTitle').textContent = a.title;
+    document.getElementById('addDrawerLocation').textContent = a.location + ' · ' + a.ago;
+    const tagEl = document.getElementById('addDrawerTag');
+    tagEl.textContent = a.severity.toUpperCase();
+    tagEl.className = 'add-drawer-tag ' + a.severity;
+
+    // KPI chips
+    document.getElementById('addKpiRow').innerHTML = d.kpis.map(k =>
+      `<div class="add-kpi-chip">
+        <span class="add-kpi-val ${k.cls}">${k.val}</span>
+        <span class="add-kpi-label">${k.label}</span>
+      </div>`
+    ).join('');
+
+    // chart
+    document.getElementById('addChartLabel').textContent = d.chartLabel;
+    const vals = d.chartValues;
+    const W = 260, H = 68, pad = 4;
+    const minV = 0, maxV = Math.max(...vals) * 1.1;
+    const xs = vals.map((_, i) => (i / (vals.length - 1)) * W);
+    const ys = vals.map(v => H - pad - ((v - minV) / (maxV - minV || 1)) * (H - pad * 2));
+    const pts = xs.map((x, i) => [x, ys[i]]);
+    const lineD = 'M' + pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' L');
+    const areaD = lineD + ' L' + pts[pts.length-1][0].toFixed(1) + ',' + H + ' L0,' + H + ' Z';
+    const lp = pts[pts.length - 1];
+    document.getElementById('addChartLine').setAttribute('d', lineD);
+    document.getElementById('addChartLine').setAttribute('stroke', d.chartColor);
+    document.getElementById('addChartArea').setAttribute('d', areaD);
+    document.getElementById('addChartArea').setAttribute('fill', d.chartColor.replace(')', ',0.12)').replace('rgb', 'rgba'));
+    document.getElementById('addChartDot').setAttribute('cx', lp[0].toFixed(1));
+    document.getElementById('addChartDot').setAttribute('cy', lp[1].toFixed(1));
+    document.getElementById('addChartDot').setAttribute('fill', d.chartColor);
+
+    // AI insight
+    document.getElementById('addInsightText').textContent = d.insight;
+
+    // nodes
+    document.getElementById('addNodesRow').innerHTML = d.nodes.map(n =>
+      `<span class="add-node-chip${n.affected?' affected':''}">${n.label}</span>`
+    ).join('');
+
+    // timeline
+    document.getElementById('addTimeline').innerHTML = d.timeline.map(t =>
+      `<div class="add-tl-item">
+        <div class="add-tl-dot ${t.sev}"></div>
+        <span class="add-tl-time">${t.time}</span>
+        <span class="add-tl-text">${t.text}</span>
+      </div>`
+    ).join('');
+
+    // primary action label
+    document.getElementById('addBtnPrimary').textContent = (d.primaryAction || 'Investigate') + ' →';
+
+    // slide in
+    document.getElementById('anomalyDetailDrawer').classList.add('open');
+  }
+
+  function closeAnomalyDrawer() {
+    document.getElementById('anomalyDetailDrawer').classList.remove('open');
+    _addCurrentAnomaly = null;
+  }
+
+  function addDrawerPrimaryAction() {
+    if (_addCurrentAnomaly) {
+      showToast(_addCurrentAnomaly.id + ': ' + (ANOMALY_DETAIL[_addCurrentAnomaly.id]?.primaryAction || 'Investigating') + ' initiated', 'blue');
+    }
+    closeAnomalyDrawer();
+  }
+
   function renderAnomalyList(region) {
     const list = document.getElementById('anomalyList');
     if (!list) return;
@@ -9498,7 +10011,7 @@
         if (vp) vp.classList.remove('drag-over');
       });
 
-      div.addEventListener('click', () => showToast(`${a.id}: ${a.title} — drag onto the canvas to analyse`, a.severity==='critical'?'orange':'blue'));
+      div.addEventListener('click', () => openAnomalyDrawer(a));
       list.appendChild(div);
     });
     const critical = items.filter(a=>a.severity==='critical').length;
