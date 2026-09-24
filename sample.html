@@ -9681,12 +9681,10 @@
   let _addCurrentAnomaly = null;
 
   function openAnomalyDrawer(a) {
-    console.log('[openAnomalyDrawer] called', a.id);
+    if (!a) return;
     _addCurrentAnomaly = a;
     const d = ANOMALY_DETAIL[a.id];
-    if (!d) { console.warn('[openAnomalyDrawer] no detail data for', a.id); return; }
-    const el = document.getElementById('anomalyDetailDrawer');
-    console.log('[openAnomalyDrawer] drawer element:', el, 'computed display:', el ? window.getComputedStyle(el).display : 'N/A');
+    if (!d) return;
 
     // header
     document.getElementById('addDrawerId').textContent    = a.id;
@@ -9763,12 +9761,16 @@
     const list = document.getElementById('anomalyList');
     if (!list) return;
     const items = ALL_ANOMALIES.filter(a => region==='ALL' || a.region===region);
+    window._anomalyMap = {};
+    items.forEach(a => { window._anomalyMap[a.id] = a; });
     list.innerHTML = '';
     items.forEach((a, i) => {
       const div = document.createElement('div');
       div.className = 'anomaly-item';
       div.style.animationDelay = (i * 0.04) + 's';
+      div.style.cursor = 'pointer';
       div.dataset.anomalyId = a.id;
+      div.setAttribute('onclick', `openAnomalyDrawer(window._anomalyMap['${a.id}'])`);
       div.innerHTML = `
         <div class="anomaly-drag-handle" style="display:flex;align-items:center;gap:5px;flex-shrink:0;margin-right:2px;cursor:grab;">
           <svg width="9" height="12" viewBox="0 0 9 14" fill="none" style="opacity:0.35;flex-shrink:0">
@@ -9826,14 +9828,6 @@
         if (vp) vp.classList.remove('drag-over');
       });
 
-      /* Click anywhere on item (not on slack btn) → open drawer */
-      div.addEventListener('click', (e) => {
-        console.log('[anomaly click]', a.id, e.target);
-        if (!e.target.closest('.anomaly-slack-btn')) {
-          console.log('[opening drawer for]', a.id);
-          openAnomalyDrawer(a);
-        }
-      });
       list.appendChild(div);
     });
     const critical = items.filter(a=>a.severity==='critical').length;
