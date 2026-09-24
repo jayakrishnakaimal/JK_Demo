@@ -561,6 +561,8 @@
     border-bottom: 1px solid #e5e7eb;
     background: transparent;
     flex-shrink: 0;
+    min-width: 0;
+    overflow: hidden;
   }
   .stats-bar-actions {
     margin-left: auto;
@@ -603,6 +605,8 @@
     display: flex;
     align-items: flex-start;
     gap: 14px;
+    min-width: 0;
+    flex-shrink: 1;
   }
 
   .stat-icon {
@@ -618,6 +622,10 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
   }
 
   .badge-good {
@@ -641,6 +649,7 @@
     cursor: default;
     display: inline-block;
     position: relative;
+    white-space: nowrap;
   }
   .stat-value:hover {
     transform: scale(1.08);
@@ -4691,8 +4700,8 @@
                 <path d="M4 20h16" stroke-width="1.6"/>
               </svg>
             </div>
-            <div class="cdp-label">Drag anomaly cards here</div>
-            <div class="cdp-sub">Drop any alert from the network panel to expand it into a detail card</div>
+            <div class="cdp-label">Drag anomaly cards / alerts here</div>
+             <!--   <div class="cdp-sub">Drop any alert from the network panel to expand it into a detail card</div>-->
             <div class="cdp-chips">
               <div class="cdp-chip"><span style="background:#ef4444"></span> Critical alerts</div>
               <div class="cdp-chip"><span style="background:#f59e0b"></span> Warnings</div>
