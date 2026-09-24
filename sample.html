@@ -9562,12 +9562,20 @@
       if (tip) tip.classList.remove('visible');
     });
 
-    /* ── CLICK — show toast ── */
+    /* ── CLICK — open anomaly drawer for matching node, else show toast ── */
     c.addEventListener('click', e => {
       if (_moved) { _moved = false; return; }
       const rect = c.getBoundingClientRect();
       const hit = gmapNodeHit(e.clientX - rect.left, e.clientY - rect.top);
-      if (hit) showToast(`${hit.label} — ${hit.status.toUpperCase()} · ${hit.region}`, hit.status === 'critical' ? 'orange' : 'blue');
+      if (!hit) return;
+      /* Find anomalies for this node — prefer critical, then any severity */
+      const nodeAnomalies = (window.ALL_ANOMALIES || []).filter(a => a.location === hit.label);
+      const target = nodeAnomalies.find(a => a.severity === 'critical') || nodeAnomalies[0];
+      if (target && window.openAnomalyDrawer) {
+        window.openAnomalyDrawer(target);
+      } else {
+        showToast(`${hit.label} — ${hit.status.toUpperCase()} · ${hit.region}`, hit.status === 'critical' ? 'orange' : 'blue');
+      }
     });
 
     /* ── DOUBLE-CLICK — toggle spin ── */
