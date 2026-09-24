@@ -9801,7 +9801,9 @@
           </button>
         </div>`;
 
-      /* Send-to-Slack button click (stop propagation so anomaly click-toast doesn't fire) */
+      /* Send-to-Slack button — stop propagation so drawer doesn't open */
+      div.querySelector('.anomaly-slack-btn').addEventListener('mousedown', e => e.stopPropagation());
+      div.querySelector('.anomaly-slack-btn').addEventListener('mouseup',   e => e.stopPropagation());
       div.querySelector('.anomaly-slack-btn').addEventListener('click', e => {
         e.stopPropagation();
         sendAnomalyToSlack(a, e.currentTarget);
@@ -9822,7 +9824,15 @@
         if (vp) vp.classList.remove('drag-over');
       });
 
-      div.addEventListener('click', () => openAnomalyDrawer(a));
+      /* Use mousedown/mouseup to detect a click vs drag on draggable items */
+      let _addDragMoved = false;
+      div.addEventListener('mousedown', () => { _addDragMoved = false; });
+      div.addEventListener('mousemove', () => { _addDragMoved = true; });
+      div.addEventListener('mouseup', (e) => {
+        if (!_addDragMoved && !div.classList.contains('is-dragging')) {
+          openAnomalyDrawer(a);
+        }
+      });
       list.appendChild(div);
     });
     const critical = items.filter(a=>a.severity==='critical').length;
