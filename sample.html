@@ -796,7 +796,7 @@
     bottom: 28px;
     left: 28px;
     right: 28px;
-    z-index: 2;
+    z-index: 5;
   }
 
   .greeting h1 {
@@ -2865,16 +2865,19 @@
   /* ── canvas empty-state drop placeholder ── */
   #canvasDropPlaceholder {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 160px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0;
     pointer-events: none;
-    z-index: 4;
+    z-index: 3;
     transition: opacity 0.3s;
-    bottom:150px;
+    overflow: hidden;
   }
   #canvasDropPlaceholder.hidden { opacity: 0; pointer-events: none; }
 
