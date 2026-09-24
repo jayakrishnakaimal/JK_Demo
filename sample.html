@@ -9765,10 +9765,9 @@
       const div = document.createElement('div');
       div.className = 'anomaly-item';
       div.style.animationDelay = (i * 0.04) + 's';
-      div.draggable = true;
       div.dataset.anomalyId = a.id;
       div.innerHTML = `
-        <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;margin-right:2px;">
+        <div class="anomaly-drag-handle" style="display:flex;align-items:center;gap:5px;flex-shrink:0;margin-right:2px;cursor:grab;">
           <svg width="9" height="12" viewBox="0 0 9 14" fill="none" style="opacity:0.35;flex-shrink:0">
             <circle cx="2.5" cy="2"  r="1.5" fill="currentColor"/>
             <circle cx="6.5" cy="2"  r="1.5" fill="currentColor"/>
@@ -9801,35 +9800,32 @@
           </button>
         </div>`;
 
-      /* Send-to-Slack button — stop propagation so drawer doesn't open */
-      div.querySelector('.anomaly-slack-btn').addEventListener('mousedown', e => e.stopPropagation());
-      div.querySelector('.anomaly-slack-btn').addEventListener('mouseup',   e => e.stopPropagation());
+      /* Send-to-Slack — stop propagation */
       div.querySelector('.anomaly-slack-btn').addEventListener('click', e => {
         e.stopPropagation();
         sendAnomalyToSlack(a, e.currentTarget);
       });
 
-      /* drag events */
+      /* Drag only from the grip handle */
+      const handle = div.querySelector('.anomaly-drag-handle');
+      handle.addEventListener('mousedown', () => { div.draggable = true; });
       div.addEventListener('dragstart', e => {
         e.dataTransfer.setData('anomalyId', a.id);
         e.dataTransfer.effectAllowed = 'copy';
         setTimeout(() => div.classList.add('is-dragging'), 0);
-        /* highlight canvas viewport as the drop target */
         const vp = document.querySelector('.canvas-viewport');
         if (vp) vp.classList.add('drag-over');
       });
       div.addEventListener('dragend', () => {
+        div.draggable = false;
         div.classList.remove('is-dragging');
         const vp = document.querySelector('.canvas-viewport');
         if (vp) vp.classList.remove('drag-over');
       });
 
-      /* Use mousedown/mouseup to detect a click vs drag on draggable items */
-      let _addDragMoved = false;
-      div.addEventListener('mousedown', () => { _addDragMoved = false; });
-      div.addEventListener('mousemove', () => { _addDragMoved = true; });
-      div.addEventListener('mouseup', (e) => {
-        if (!_addDragMoved && !div.classList.contains('is-dragging')) {
+      /* Click anywhere on item (not on slack btn) → open drawer */
+      div.addEventListener('click', (e) => {
+        if (!e.target.closest('.anomaly-slack-btn')) {
           openAnomalyDrawer(a);
         }
       });
