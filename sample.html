@@ -565,6 +565,8 @@
     border-bottom: 1px solid #e5e7eb;
     background: transparent;
     flex-shrink: 0;
+    flex-wrap: wrap;
+    min-width: 0;
   }
   .stats-bar-actions {
     margin-left: auto;
@@ -607,6 +609,8 @@
     display: flex;
     align-items: flex-start;
     gap: 14px;
+    min-width: 0;
+    flex-shrink: 1;
   }
 
   .stat-icon {
@@ -622,6 +626,10 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
   }
 
   .badge-good {
@@ -645,6 +653,7 @@
     cursor: default;
     display: inline-block;
     position: relative;
+    white-space: nowrap;
   }
   .stat-value:hover {
     transform: scale(1.08);
