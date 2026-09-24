@@ -5396,23 +5396,25 @@
 
   /* ── 32. Anomaly Detail Drawer ── */
   .anomaly-detail-drawer {
-    position: absolute;
-    inset: 0;
-    background: rgba(4,4,14,0.88);
+    position: fixed;
+    top: 56px;      /* below topnav */
+    right: 0;
+    width: 500px;
+    bottom: 0;
+    background: rgba(4,4,14,0.95);
     backdrop-filter: blur(28px);
     -webkit-backdrop-filter: blur(28px);
-    border-left: 1px solid rgba(255,255,255,0.08);
+    border-left: 1px solid rgba(255,255,255,0.12);
+    box-shadow: -8px 0 40px rgba(0,0,0,0.60);
     flex-direction: column;
-    z-index: 120;
+    z-index: 500;
     overflow-y: auto;
     overflow-x: hidden;
-    opacity: 0;
-    pointer-events: none;
     display: none;
+    pointer-events: none;
   }
   .anomaly-detail-drawer.open {
     display: flex;
-    opacity: 1;
     pointer-events: all;
   }
   /* header */
@@ -6867,18 +6869,22 @@
 
           </div><!-- /settings-body -->
         </div><!-- /settings-panel-inner -->
+      </div><!-- /settings-panel -->
+    </div><!-- /body-layout -->
+  </div><!-- /dashboard -->
+</div><!-- /outer-chrome -->
 
-        <!-- ═══ Anomaly Detail Drawer ═══ -->
-        <div class="anomaly-detail-drawer" id="anomalyDetailDrawer">
-          <div class="add-drawer-header">
-            <div class="add-drawer-back" onclick="closeAnomalyDrawer()" title="Back to list">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-            </div>
-            <div class="add-drawer-id" id="addDrawerId">AN-091</div>
-            <span class="add-drawer-tag" id="addDrawerTag">CRITICAL</span>
-          </div>
+<!-- ═══ Anomaly Detail Drawer (fixed overlay, outside all panels) ═══ -->
+<div class="anomaly-detail-drawer" id="anomalyDetailDrawer">
+  <div class="add-drawer-header">
+    <div class="add-drawer-back" onclick="closeAnomalyDrawer()" title="Back to list">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </div>
+    <div class="add-drawer-id" id="addDrawerId">AN-091</div>
+    <span class="add-drawer-tag" id="addDrawerTag">CRITICAL</span>
+  </div>
 
-          <div class="add-drawer-body">
+  <div class="add-drawer-body">
             <div class="add-drawer-title" id="addDrawerTitle">BGP route flap — TK-01 ↔ HK-01</div>
             <div class="add-drawer-location" id="addDrawerLocation">Tokyo Core · 2m ago</div>
 
@@ -6925,18 +6931,13 @@
             <div class="add-timeline" id="addTimeline"><!-- populated by JS --></div>
           </div>
 
-          <!-- Action footer -->
-          <div class="add-drawer-footer">
-            <button class="add-btn-primary" id="addBtnPrimary" onclick="addDrawerPrimaryAction()">Investigate →</button>
-            <button class="add-btn-secondary" onclick="closeAnomalyDrawer()">Dismiss</button>
-          </div>
-        </div><!-- /anomaly-detail-drawer -->
+  <!-- Action footer -->
+  <div class="add-drawer-footer">
+    <button class="add-btn-primary" id="addBtnPrimary" onclick="addDrawerPrimaryAction()">Investigate →</button>
+    <button class="add-btn-secondary" onclick="closeAnomalyDrawer()">Dismiss</button>
+  </div>
+</div><!-- /anomaly-detail-drawer -->
 
-      </div><!-- /settings-panel -->
-
-    </div><!-- /body-layout -->
-  </div><!-- /dashboard -->
-</div><!-- /outer-chrome -->
 
 <script>
   /* ────────────────────────────────────────────
