@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Headless Ops — Full Vision</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: linear-gradient(160deg, #f8fafd 0%, #f3f6fb 25%, #ddeaf5 55%, #b8d4e8 75%, #9ec8e0 100%);
+    background-attachment: fixed;
+  }
+
+  /* ── layout ── */
+  .outer-chrome { width: 100%; height: 100vh; overflow: hidden; }
+  .dashboard { background: transparent; display: flex; flex-direction: column; height: 100vh; overflow: hidden; min-height: 0; }
+
+  /* ── topnav ── */
+  .topnav {
+    display: flex; align-items: center; padding: 0 20px; height: 56px;
+    border-bottom: 1px solid #e5e7eb; background: transparent; flex-shrink: 0; gap: 0;
+  }
+  .logo-area { display: flex; align-items: center; gap: 8px; margin-right: 24px; }
+  .logo-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #ffffff; border: 1.5px solid #e5e7eb;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden;
+  }
+  .logo-icon img { width: 28px; height: 28px; object-fit: contain; }
+  .logo-name { font-size: 14px; font-weight: 600; color: #111827; letter-spacing: -0.1px; white-space: nowrap; }
+
+  /* headless mode badge */
+  .headless-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 20px; margin-left: 10px;
+  }
+  .headless-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #16a34a; animation: hbPulse 2s ease-in-out infinite; }
+  @keyframes hbPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(22,163,74,0.5); } 50% { box-shadow: 0 0 0 5px rgba(22,163,74,0); } }
+
+  /* nav tabs */
+  .nav-tabs {
+    display: flex; align-items: center; gap: 2px;
+    background: #f3f4f6; border-radius: 6px; padding: 3px; margin: 0 auto;
+  }
+  .nav-tab {
+    padding: 6px 18px; border-radius: 4px; font-size: 13px; font-weight: 400;
+    cursor: pointer; border: none; background: transparent; color: #374151;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .nav-tab:hover { color: #111827; }
+  .nav-tab.active { background: #2563eb; color: #ffffff; font-weight: 500; }
+  .nav-sep { width: 1px; height: 20px; background: #d1d5db; margin: 0 2px; }
+
+  .nav-icons { display: flex; align-items: center; gap: 8px; margin-left: 24px; }
+  .nav-icon-btn {
+    width: 32px; height: 32px; border-radius: 4px; border: 1px solid #e5e7eb;
+    background: #ffffff; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: #374151; transition: all 0.15s;
+  }
+  .nav-icon-btn:hover { background: #f3f4f6; color: #111827; }
+  .nav-icon-btn svg { width: 16px; height: 16px; }
+
+  /* ── body layout ── */
+  .body-layout { display: flex; flex: 1; min-height: 0; overflow: hidden; background: transparent; }
+  .canvas-area { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+  .canvas-tab-content { display: none; }
+  .canvas-tab-content.active-tab { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+
+  /* ── toast ── */
+  .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .toast {
+    display: flex; align-items: center; gap: 10px;
+    background: #1e293b; color: #f8fafc;
+    border-radius: 8px; padding: 12px 16px;
+    font-size: 13px; line-height: 1.4; max-width: 340px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    animation: toastIn 0.3s cubic-bezier(.4,0,.2,1) forwards;
+    pointer-events: all;
+  }
+  .toast.green { border-left: 3px solid #22c55e; }
+  .toast.orange { border-left: 3px solid #f59e0b; }
+  .toast.blue { border-left: 3px solid #3b82f6; }
+  .toast.red { border-left: 3px solid #ef4444; }
+  @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes toastOut { to { opacity: 0; transform: translateX(20px); } }
+
+  /* ── modal ── */
+  .modal-backdrop {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(3px); z-index: 9000;
+    align-items: center; justify-content: center;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: #fff; border-radius: 12px; padding: 28px 28px 24px;
+    width: 480px; max-width: 94vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    animation: modalIn 0.2s cubic-bezier(.4,0,.2,1) forwards;
+  }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: none; } }
+  .modal-title { font-size: 17px; font-weight: 600; color: #111827; margin-bottom: 4px; }
+  .modal-sub { font-size: 13px; color: #6b7280; margin-bottom: 16px; line-height: 1.5; }
+  .modal-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #9ca3af; margin-bottom: 6px; }
+  .modal-trace {
+    background: #0f172a; color: #94a3b8; font-size: 11.5px; font-family: "SF Mono", "Fira Code", monospace;
+    border-radius: 6px; padding: 12px 14px; margin-bottom: 14px; line-height: 1.7; white-space: pre-wrap;
+  }
+  .modal-body { font-size: 13px; color: #374151; line-height: 1.6; margin-bottom: 20px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .modal-btn-cancel { padding: 8px 16px; border-radius: 6px; border: 1px solid #e5e7eb; background: #fff; color: #374151; font-size: 13px; cursor: pointer; }
+  .modal-btn-cancel:hover { background: #f3f4f6; }
+  .modal-btn-confirm { padding: 8px 18px; border-radius: 6px; border: none; background: #2563eb; color: #fff; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+  .modal-btn-confirm:hover { background: #1d4ed8; }
+
+  /* ════════════════════════════════════
+     TAB 1: GUARDRAIL STUDIO
+  ════════════════════════════════════ */
+  .gr-wrap { flex: 1; overflow-y: auto; padding: 28px 32px 40px; display: flex; flex-direction: column; gap: 20px; }
+  .gr-page-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .gr-page-title { font-size: 22px; font-weight: 400; color: #111827; margin-bottom: 3px; }
+  .gr-page-sub { font-size: 13px; color: #6b7280; max-width: 560px; line-height: 1.6; }
+  .gr-header-actions { display: flex; align-items: center; gap: 8px; }
+  .gr-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .gr-btn-primary { background: #2563eb; color: #fff; border: none; }
+  .gr-btn-primary:hover { background: #1d4ed8; }
+  .gr-btn-secondary { background: #fff; color: #374151; border: 1px solid #e5e7eb; }
+  .gr-btn-secondary:hover { background: #f3f4f6; }
+
+  /* summary cards */
+  .gr-summary-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .gr-sum-card {
+    flex: 1; min-width: 140px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .gr-sum-label { font-size: 11px; color: #9ca3af; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .gr-sum-val { font-size: 28px; font-weight: 300; color: #111827; line-height: 1; letter-spacing: -0.5px; margin-bottom: 3px; }
+  .gr-sum-sub { font-size: 11px; color: #9ca3af; }
+
+  /* guardrail table */
+  .gr-table-wrap { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; flex-shrink: 0; }
+  .gr-table-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; border-bottom: 1px solid #f0f0f0; background: #fafafa;
+    flex-shrink: 0;
+  }
+  .gr-table-title { font-size: 13px; font-weight: 600; color: #111827; }
+  .gr-table-scroll { overflow-y: auto; max-height: 420px; }
+  .gr-table-scroll::-webkit-scrollbar { width: 4px; }
+  .gr-table-scroll::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+  .gr-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .gr-table thead th { position: sticky; top: 0; z-index: 1; }
+  .gr-table th { padding: 10px 18px; text-align: left; font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid #f0f0f0; background: #fafafa; }
+  .gr-table td { padding: 14px 18px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; color: #111827; }
+  .gr-table tbody tr:last-child td { border-bottom: none; }
+  .gr-table tbody tr { cursor: pointer; transition: background 0.12s; }
+  .gr-table tbody tr:hover { background: #f9fafb; }
+  .gr-table tbody tr.gr-row-selected { background: #eff6ff; outline: 1.5px solid #2563eb; outline-offset: -1px; }
+
+  .gr-type-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 2px 8px; border-radius: 20px;
+  }
+  .gr-type-hard { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+  .gr-type-soft { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+  .gr-type-conf { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+  .gr-type-cost { background: #f5f3ff; color: #7c3aed; border: 1px solid #e9d5ff; }
+
+  .gr-status-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 500; padding: 2px 10px; border-radius: 20px;
+  }
+  .gr-status-active { background: #dcfce7; color: #166534; }
+  .gr-status-drift { background: #fef9c3; color: #854d0e; }
+  .gr-status-breached { background: #fee2e2; color: #dc2626; }
+
+  /* impact score bar */
+  .gr-impact-bar { display: flex; align-items: center; gap: 6px; }
+  .gr-impact-track { width: 60px; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden; }
+  .gr-impact-fill { height: 100%; border-radius: 2px; }
+  .gr-impact-low  .gr-impact-fill { background: #22c55e; }
+  .gr-impact-med  .gr-impact-fill { background: #f59e0b; }
+  .gr-impact-high .gr-impact-fill { background: #ef4444; }
+  .gr-impact-label { font-size: 11px; color: #6b7280; white-space: nowrap; }
+
+  /* edit drawer */
+  .gr-drawer {
+    position: fixed; top: 56px; right: 0; bottom: 0; width: 440px;
+    background: #fff; border-left: 1px solid #e5e7eb;
+    box-shadow: -6px 0 28px rgba(0,0,0,0.10);
+    display: flex; flex-direction: column;
+    transform: translateX(100%); transition: transform 0.25s cubic-bezier(.4,0,.2,1);
+    z-index: 500;
+  }
+  .gr-drawer.open { transform: translateX(0); }
+  .gr-drawer-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding: 20px 20px 16px; border-bottom: 1px solid #f0f0f0; flex-shrink: 0;
+  }
+  .gr-drawer-title { font-size: 15px; font-weight: 600; color: #111827; margin-bottom: 3px; }
+  .gr-drawer-sub { font-size: 12px; color: #6b7280; }
+  .gr-drawer-close { background: none; border: none; font-size: 16px; color: #9ca3af; cursor: pointer; padding: 2px 4px; border-radius: 3px; line-height: 1; }
+  .gr-drawer-close:hover { background: #f3f4f6; color: #374151; }
+  .gr-drawer-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .gr-field-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #6b7280; margin-bottom: 6px; }
+  .gr-field-input {
+    width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 12px;
+    font-size: 13px; color: #111827; outline: none; font-family: inherit;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .gr-field-input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+  .gr-impact-preview {
+    background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px 16px;
+  }
+  .gr-impact-preview-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #6b7280; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .gr-impact-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #f0f0f0; font-size: 12px; }
+  .gr-impact-row:last-child { border-bottom: none; }
+  .gr-impact-key { color: #6b7280; }
+  .gr-impact-val { font-weight: 600; color: #111827; }
+  .gr-impact-val.red { color: #dc2626; }
+  .gr-impact-val.amber { color: #d97706; }
+  .gr-impact-val.green { color: #16a34a; }
+  .gr-drawer-footer { padding: 16px 20px; border-top: 1px solid #f0f0f0; display: flex; gap: 8px; justify-content: flex-end; flex-shrink: 0; }
+
+  /* ════════════════════════════════════
+     TAB 2: HEALTH PULSE
+  ════════════════════════════════════ */
+  .hp-wrap { flex: 1; overflow-y: auto; padding: 28px 32px 40px; display: flex; flex-direction: column; gap: 20px; }
+  .hp-hero {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 28px 32px;
+    display: flex; align-items: center; gap: 32px;
+  }
+  .hp-orb-wrap { position: relative; flex-shrink: 0; }
+  .hp-orb {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    border: 2px solid #86efac;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 8px rgba(34,197,94,0.1);
+    animation: hpOrbPulse 3s ease-in-out infinite;
+  }
+  @keyframes hpOrbPulse { 0%,100% { box-shadow: 0 0 0 8px rgba(34,197,94,0.1); } 50% { box-shadow: 0 0 0 16px rgba(34,197,94,0.04); } }
+  .hp-orb.warn { background: linear-gradient(135deg, #fffbeb, #fde68a); border-color: #fcd34d; box-shadow: 0 0 0 8px rgba(245,158,11,0.1); animation: none; }
+  .hp-orb.crit { background: linear-gradient(135deg, #fee2e2, #fecaca); border-color: #fca5a5; box-shadow: 0 0 0 8px rgba(239,68,68,0.1); animation: hpCritPulse 1.4s ease-in-out infinite; }
+  @keyframes hpCritPulse { 0%,100% { box-shadow: 0 0 0 8px rgba(239,68,68,0.15); } 50% { box-shadow: 0 0 0 18px rgba(239,68,68,0.04); } }
+  .hp-hero-text { flex: 1; }
+  .hp-hero-status { font-size: 22px; font-weight: 400; color: #111827; margin-bottom: 4px; }
+  .hp-hero-sub { font-size: 13px; color: #6b7280; line-height: 1.6; margin-bottom: 14px; }
+  .hp-hero-meta { display: flex; gap: 20px; flex-wrap: wrap; }
+  .hp-meta-item { font-size: 12px; color: #6b7280; display: flex; align-items: center; gap: 5px; }
+  .hp-meta-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  /* channel routing */
+  .hp-channels-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .hp-channel-card {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px 18px;
+    cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .hp-channel-card:hover { border-color: #93c5fd; box-shadow: 0 2px 12px rgba(37,99,235,0.08); }
+  .hp-channel-card.connected { border-color: #bbf7d0; }
+  .hp-channel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .hp-channel-name { font-size: 13px; font-weight: 600; color: #111827; display: flex; align-items: center; gap: 7px; }
+  .hp-channel-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .hp-channel-status { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 7px; border-radius: 20px; }
+  .hp-cs-on { background: #dcfce7; color: #166534; }
+  .hp-cs-off { background: #f3f4f6; color: #9ca3af; }
+  .hp-channel-desc { font-size: 11px; color: #9ca3af; line-height: 1.5; margin-bottom: 10px; }
+  .hp-channel-rules { display: flex; flex-direction: column; gap: 4px; }
+  .hp-channel-rule { font-size: 11px; color: #374151; display: flex; align-items: center; gap: 5px; }
+  .hp-channel-rule::before { content: '·'; color: #9ca3af; }
+
+  /* notification log */
+  .hp-log-wrap { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; }
+  .hp-log-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #f0f0f0; background: #fafafa; }
+  .hp-log-title { font-size: 13px; font-weight: 600; color: #111827; }
+  .hp-log-clear { font-size: 11px; color: #6b7280; background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 3px; }
+  .hp-log-clear:hover { background: #f3f4f6; color: #111827; }
+  .hp-log-list { max-height: 280px; overflow-y: auto; }
+  .hp-log-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 18px; border-bottom: 1px solid #f5f5f5;
+    animation: logSlide 0.25s cubic-bezier(.4,0,.2,1) both;
+  }
+  .hp-log-item:last-child { border-bottom: none; }
+  @keyframes logSlide { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .hp-log-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .hp-log-content { flex: 1; }
+  .hp-log-msg { font-size: 12px; color: #111827; line-height: 1.5; margin-bottom: 2px; }
+  .hp-log-meta { font-size: 10px; color: #9ca3af; }
+  .hp-log-channel { display: inline-flex; align-items: center; gap: 3px; background: #f3f4f6; border-radius: 3px; padding: 1px 5px; font-size: 10px; color: #6b7280; margin-left: 6px; }
+
+  /* silence panel */
+  .hp-silence-panel {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 1px solid #86efac; border-radius: 10px; padding: 20px 24px;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .hp-silence-icon { width: 40px; height: 40px; border-radius: 50%; background: #dcfce7; border: 1.5px solid #86efac; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .hp-silence-text { flex: 1; }
+  .hp-silence-title { font-size: 14px; font-weight: 600; color: #166534; margin-bottom: 3px; }
+  /* BUG: #4ade80 is too light on white — use readable green */
+  .hp-silence-sub { font-size: 12px; color: #166534; line-height: 1.5; opacity: 0.8; }
+
+  /* ════════════════════════════════════
+     TAB 3: DECISION INBOX
+  ════════════════════════════════════ */
+  /* Decision inbox — independent column scrolls, not whole-page scroll */
+  .di-wrap { flex: 1; min-height: 0; overflow: hidden; display: flex; gap: 0; }
+  .di-list-col {
+    width: 320px; flex-shrink: 0;
+    overflow-y: auto;
+    padding: 24px 16px 40px 28px;
+    border-right: 1px solid #e5e7eb;
+    background: rgba(255,255,255,0.45);
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .di-detail-col {
+    flex: 1; min-width: 0; min-height: 0;
+    overflow-y: auto;
+    padding: 24px 28px 60px 24px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+
+  .di-list-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .di-list-title { font-size: 13px; font-weight: 600; color: #111827; }
+  .di-count-badge { font-size: 11px; font-weight: 700; background: #ef4444; color: #fff; border-radius: 10px; padding: 1px 7px; animation: diPulse 1.8s ease-in-out infinite; }
+  @keyframes diPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+  .di-card {
+    background: #fff; border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 14px 16px;
+    cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s;
+    flex-shrink: 0;
+  }
+  .di-card:hover { border-color: #93c5fd; box-shadow: 0 3px 12px rgba(37,99,235,0.1); }
+  .di-card.selected { border-color: #2563eb; box-shadow: 0 3px 16px rgba(37,99,235,0.15); background: #f8faff; }
+  .di-card.urgent { border-left: 3px solid #ef4444; }
+  .di-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+  .di-card-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 7px; border-radius: 4px; }
+  .di-tag-urgent { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+  .di-tag-warn { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+  .di-tag-info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .di-card-time { font-size: 10px; color: #9ca3af; }
+  .di-card-title { font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 4px; line-height: 1.4; }
+  .di-card-sub { font-size: 11px; color: #6b7280; display: flex; align-items: center; gap: 5px; }
+  .di-card-slo { font-size: 10px; color: #dc2626; font-weight: 600; margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+
+  /* decision card (detail) — flex-shrink:0 so card is never squished */
+  .dc-card {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: visible;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.06); flex-shrink: 0;
+  }
+  .dc-header {
+    padding: 18px 24px 14px; border-bottom: 1px solid #f0f0f0;
+    background: linear-gradient(135deg, #fef2f2 0%, #fff 100%);
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  }
+  .dc-header-left { flex: 1; }
+  .dc-header-badges { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+  .dc-action-req { display: inline-flex; align-items: center; gap: 5px; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; }
+  .dc-service-tag { font-size: 11px; color: #6b7280; }
+  .dc-title { font-size: 18px; font-weight: 500; color: #111827; line-height: 1.35; margin-bottom: 6px; }
+  .dc-summary { font-size: 13px; color: #374151; line-height: 1.65; }
+  .dc-slo-countdown {
+    flex-shrink: 0; text-align: right;
+    background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px;
+  }
+  .dc-slo-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #dc2626; margin-bottom: 3px; }
+  .dc-slo-time { font-size: 22px; font-weight: 300; color: #dc2626; letter-spacing: -0.5px; line-height: 1; }
+  .dc-slo-sub { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+
+  .dc-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+  .dc-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #9ca3af; margin-bottom: 8px; }
+  .dc-why-badge { display: inline-flex; align-items: center; gap: 6px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #92400e; line-height: 1.5; }
+
+  /* ranked options */
+  .dc-options { display: flex; flex-direction: column; gap: 8px; }
+  .dc-option {
+    display: flex; align-items: flex-start; gap: 12px;
+    border: 1.5px solid #e5e7eb; border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; transition: border-color 0.15s, background 0.15s;
+  }
+  .dc-option:hover { border-color: #93c5fd; background: #f8faff; }
+  .dc-option.recommended { border-color: #22c55e; background: #f0fdf4; }
+  .dc-option.destructive:hover { border-color: #fca5a5; background: #fef2f2; }
+  .dc-option-rank { width: 22px; height: 22px; border-radius: 50%; background: #e5e7eb; color: #374151; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .dc-option.recommended .dc-option-rank { background: #22c55e; color: #fff; }
+  .dc-option-content { flex: 1; }
+  .dc-option-title { font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 2px; }
+  .dc-option-desc { font-size: 12px; color: #6b7280; line-height: 1.5; }
+  .dc-option-badge { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 3px; margin-left: 6px; }
+  .dc-ob-rec { background: #dcfce7; color: #166534; }
+  .dc-ob-risk { background: #fee2e2; color: #dc2626; }
+
+  /* evidence expand — overflow:hidden clips rounded corners only */
+  .dc-evidence {
+    background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; flex-shrink: 0;
+  }
+  .dc-evidence-toggle {
+    width: 100%; display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; background: none; border: none; cursor: pointer;
+    font-size: 12px; font-weight: 500; color: #374151; font-family: inherit;
+    transition: background 0.15s;
+  }
+  .dc-evidence-toggle:hover { background: #f0f4f8; }
+  .dc-evidence-body { padding: 0 14px 14px; display: none; font-size: 11.5px; color: #374151; line-height: 1.7; }
+  .dc-evidence-body.open { display: block; }
+  .dc-evidence-item { display: flex; gap: 8px; padding: 4px 0; border-bottom: 1px solid #f0f0f0; }
+  .dc-evidence-item:last-child { border-bottom: none; }
+  .dc-ev-label { color: #9ca3af; min-width: 100px; }
+
+  /* action row */
+  .dc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .dc-act-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 9px 18px; border-radius: 7px; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .dc-act-approve { background: #16a34a; color: #fff; border: none; }
+  .dc-act-approve:hover { background: #15803d; }
+  .dc-act-override { background: #fff; color: #374151; border: 1.5px solid #e5e7eb; }
+  .dc-act-override:hover { background: #f3f4f6; border-color: #d1d5db; }
+  .dc-act-reject { background: #fff; color: #dc2626; border: 1.5px solid #fecaca; }
+  .dc-act-reject:hover { background: #fef2f2; }
+  .dc-act-modify { background: #eff6ff; color: #2563eb; border: 1.5px solid #bfdbfe; }
+  .dc-act-modify:hover { background: #dbeafe; }
+
+  /* empty state — min-height so it shows even when flex parent is short */
+  .di-empty {
+    min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+    padding: 40px; flex-shrink: 0;
+  }
+  .di-empty-icon { width: 48px; height: 48px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; }
+  .di-empty-title { font-size: 15px; font-weight: 600; color: #166534; }
+  .di-empty-sub { font-size: 13px; color: #9ca3af; text-align: center; max-width: 260px; }
+
+  /* ════════════════════════════════════
+     TAB 4: REMEDIATION
+  ════════════════════════════════════ */
+  .rm-wrap { flex: 1; min-height: 0; display: flex; overflow: hidden; }
+  .rm-list-col {
+    width: 280px; flex-shrink: 0;
+    overflow-y: auto;
+    padding: 24px 16px 40px 28px;
+    border-right: 1px solid #e5e7eb;
+    background: rgba(255,255,255,0.45);
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .rm-detail-col {
+    flex: 1; min-width: 0;
+    overflow-y: auto;
+    padding: 24px 28px 60px 24px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+
+  .rm-list-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .rm-list-title { font-size: 13px; font-weight: 600; color: #111827; }
+
+  .rm-item {
+    background: #fff; border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 14px 16px;
+    cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .rm-item:hover { border-color: #93c5fd; }
+  .rm-item.selected { border-color: #2563eb; background: #f8faff; }
+  .rm-item-id { font-size: 10px; font-weight: 700; color: #6366f1; letter-spacing: 0.5px; margin-bottom: 3px; }
+  .rm-item-title { font-size: 13px; font-weight: 500; color: #111827; margin-bottom: 6px; line-height: 1.4; }
+  .rm-item-footer { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+  .rm-stage-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap;
+  }
+  .rm-stage-invest { background: #fef2f2; color: #dc2626; }
+  .rm-stage-ticket { background: #fffbeb; color: #d97706; }
+  .rm-stage-cr { background: #eff6ff; color: #2563eb; }
+  .rm-stage-mw { background: #f5f3ff; color: #7c3aed; }
+  .rm-stage-deploy { background: #f0fdf4; color: #16a34a; }
+  .rm-stage-done { background: #dcfce7; color: #166534; }
+
+  /* workflow stepper */
+  .rm-stepper {
+    display: flex; align-items: stretch; gap: 0;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden;
+    flex-shrink: 0;
+  }
+  .rm-step {
+    flex: 1; padding: 14px 10px 12px; text-align: center; font-size: 11px; font-weight: 500;
+    color: #9ca3af; border-right: 1px solid #e5e7eb; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    transition: background 0.15s;
+  }
+  .rm-step:last-child { border-right: none; }
+  .rm-step:hover:not(.blocked) { background: #f9fafb; }
+  .rm-step.active { color: #111827; background: #f0f9ff; }
+  .rm-step.done { color: #16a34a; background: #f0fdf4; }
+  .rm-step.blocked { color: #d1d5db; background: #fafafa; cursor: not-allowed; }
+  .rm-step-num {
+    font-size: 10px; font-weight: 700;
+    width: 20px; height: 20px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    background: #e5e7eb; color: #9ca3af;
+  }
+  .rm-step.done .rm-step-num { background: #22c55e; color: #fff; }
+  .rm-step.active .rm-step-num { background: #2563eb; color: #fff; }
+  .rm-step.blocked .rm-step-num { background: #e5e7eb; color: #d1d5db; }
+  .rm-step-name { display: block; font-size: 11px; line-height: 1.3; }
+
+  /* detail panels */
+  .rm-detail-card {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
+    overflow: visible; flex-shrink: 0;
+  }
+  .rm-detail-card-header {
+    padding: 14px 18px 12px; border-bottom: 1px solid #f0f0f0; background: #fafafa;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .rm-detail-card-title { font-size: 13px; font-weight: 600; color: #111827; display: flex; align-items: center; gap: 8px; }
+  .rm-detail-card-body { padding: 16px 18px; }
+
+  .rm-field-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 12px; gap: 12px; }
+  .rm-field-row:last-child { border-bottom: none; }
+  .rm-field-key { color: #6b7280; min-width: 130px; flex-shrink: 0; }
+  .rm-field-val { color: #111827; font-weight: 500; text-align: right; flex: 1; }
+  .rm-field-val.mono { font-family: "SF Mono","Fira Code",monospace; font-size: 11px; }
+
+  /* timeline inside remediation */
+  .rm-timeline { display: flex; flex-direction: column; gap: 0; }
+  .rm-tl-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+  .rm-tl-item:last-child { border-bottom: none; }
+  .rm-tl-left { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+  .rm-tl-dot { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+  .rm-tl-line { width: 1px; flex: 1; background: #e5e7eb; margin-top: 3px; min-height: 20px; }
+  .rm-tl-item:last-child .rm-tl-line { display: none; }
+  .rm-tl-content { flex: 1; padding-top: 3px; }
+  .rm-tl-title { font-size: 12px; font-weight: 600; color: #111827; margin-bottom: 2px; }
+  .rm-tl-desc { font-size: 11px; color: #6b7280; line-height: 1.5; }
+  .rm-tl-time { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+
+  /* action buttons in remediation */
+  .rm-actions { display: flex; gap: 8px; flex-wrap: wrap; padding: 14px 18px; border-top: 1px solid #f0f0f0; }
+  .rm-act-btn { display: flex; align-items: center; gap: 5px; padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .rm-act-primary { background: #2563eb; color: #fff; border: none; }
+  .rm-act-primary:hover { background: #1d4ed8; }
+  .rm-act-secondary { background: #fff; color: #374151; border: 1px solid #e5e7eb; }
+  .rm-act-secondary:hover { background: #f3f4f6; }
+  .rm-act-danger { background: #fff; color: #dc2626; border: 1px solid #fecaca; }
+  .rm-act-danger:hover { background: #fef2f2; }
+
+  /* canary progress */
+  .rm-canary-bar { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+  .rm-canary-track { flex: 1; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+  .rm-canary-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #22c55e, #4ade80); transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+  .rm-canary-label { font-size: 11px; color: #6b7280; white-space: nowrap; }
+  .rm-canary-pct { font-size: 13px; font-weight: 600; color: #16a34a; }
+
+  /* section label */
+  .sec-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #9ca3af; margin-bottom: 10px; }
+
+  /* ── scrollbar tweaks — cover all scrollable cols ── */
+  .gr-wrap::-webkit-scrollbar, .hp-wrap::-webkit-scrollbar,
+  .gr-drawer-body::-webkit-scrollbar, .hp-log-list::-webkit-scrollbar,
+  .di-list-col::-webkit-scrollbar, .di-detail-col::-webkit-scrollbar,
+  .rm-list-col::-webkit-scrollbar, .rm-detail-col::-webkit-scrollbar,
+  .gr-table-scroll::-webkit-scrollbar { width: 4px; }
+  .gr-wrap::-webkit-scrollbar-thumb, .hp-wrap::-webkit-scrollbar-thumb,
+  .gr-drawer-body::-webkit-scrollbar-thumb, .hp-log-list::-webkit-scrollbar-thumb,
+  .di-list-col::-webkit-scrollbar-thumb, .di-detail-col::-webkit-scrollbar-thumb,
+  .rm-list-col::-webkit-scrollbar-thumb, .rm-detail-col::-webkit-scrollbar-thumb,
+  .gr-table-scroll::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Guardrail Edit Drawer -->
+<div class="gr-drawer" id="grDrawer">
+  <div class="gr-drawer-header">
+    <div>
+      <div class="gr-drawer-title" id="grDrawerTitle">Edit Guardrail</div>
+      <div class="gr-drawer-sub" id="grDrawerSub">Hard limit · Active</div>
+    </div>
+    <button class="gr-drawer-close" onclick="closeGrDrawer()">✕</button>
+  </div>
+  <div class="gr-drawer-body">
+    <div>
+      <div class="gr-field-label">Policy Name</div>
+      <input class="gr-field-input" id="grDrawerName" value="No prod restarts weekdays 14:00–16:00 UTC" />
+    </div>
+    <div>
+      <div class="gr-field-label">Threshold / Value</div>
+      <input class="gr-field-input" id="grDrawerVal" value="14:00–16:00 UTC Mon–Fri" />
+    </div>
+    <div>
+      <div class="gr-field-label">Auto-adjustable</div>
+      <select class="gr-field-input" id="grDrawerAuto">
+        <option>No — always requires human approval</option>
+        <option>Yes — within ±15% of threshold</option>
+      </select>
+    </div>
+    <!-- Impact Preview -->
+    <div class="gr-impact-preview">
+      <div class="gr-impact-preview-title">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2zm0 9.5V7.5m0-2.5v.01" stroke="#d97706" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Pre-flight Impact Score — if you loosen this guardrail
+      </div>
+      <div class="gr-impact-row"><span class="gr-impact-key">Services affected</span><span class="gr-impact-val amber" id="grImpactServices">14</span></div>
+      <div class="gr-impact-row"><span class="gr-impact-key">Blast radius</span><span class="gr-impact-val amber" id="grImpactBlast">Medium (2 300 sessions)</span></div>
+      <div class="gr-impact-row"><span class="gr-impact-key">Rollback confidence</span><span class="gr-impact-val green" id="grImpactRollback">94%</span></div>
+      <div class="gr-impact-row"><span class="gr-impact-key">User-hours at risk</span><span class="gr-impact-val amber" id="grImpactHours">~1.2 hrs/incident</span></div>
+      <div class="gr-impact-row"><span class="gr-impact-key">Similar past violations</span><span class="gr-impact-val red" id="grImpactPast">3 in last 30 days</span></div>
+    </div>
+    <div>
+      <div class="gr-field-label">Reason for change</div>
+      <input class="gr-field-input" placeholder="Required — added to audit log…" />
+    </div>
+  </div>
+  <div class="gr-drawer-footer">
+    <button class="gr-btn gr-btn-secondary" onclick="closeGrDrawer()">Cancel</button>
+    <button class="gr-btn gr-btn-primary" onclick="saveGuardrail()">Save &amp; Apply</button>
+  </div>
+</div>
+
+<!-- Approve Modal (Decision Inbox) -->
+<div class="modal-backdrop" id="approveModal">
+  <div class="modal">
+    <div class="modal-title">Confirm Action</div>
+    <div class="modal-sub" id="approveModalSub">Approve pool bump (+50 connections, 8-minute window)</div>
+    <div class="modal-label">Reasoning Trace</div>
+    <div class="modal-trace" id="approveModalTrace">→ DB connections peaked at 498/500 (99.6%)
+→ Cross-referenced 11 similar historical cases
+→ Confidence: 91% · Blast radius: payment-service only
+→ Recommended: Temporary pool +50 for 8 minutes
+→ Auto-reverts if connections drop below 300</div>
+    <div class="modal-body">This action is reversible. The system will auto-revert after 8 minutes or when connections normalise.</div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeModal('approveModal')">Cancel</button>
+      <button class="modal-btn-confirm" onclick="confirmApproveAction()">Confirm Approve</button>
+    </div>
+  </div>
+</div>
+
+<!-- Deploy Confirm Modal -->
+<div class="modal-backdrop" id="deployModal">
+  <div class="modal">
+    <div class="modal-title">Confirm Deployment</div>
+    <div class="modal-sub">Canary deployment — payment-service v2.4.1 · CR-2024-0147</div>
+    <div class="modal-label">Deployment Plan</div>
+    <div class="modal-trace">→ Strategy: Canary-first (5% → 25% → 100%)
+→ Gate 1: 5% traffic · observe 3 min → health check
+→ Gate 2: 25% traffic · observe 3 min → health check
+→ Gate 3: 100% traffic · observe 5 min
+→ Auto-rollback if error rate &gt; 0.5% at any gate
+→ Maintenance window: 22:00–23:00 UTC tonight</div>
+    <div class="modal-body">Proceeding will execute under approved CR-2024-0147. All actions are auditable and linked to INC-8841.</div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeModal('deployModal')">Cancel</button>
+      <button class="modal-btn-confirm" onclick="confirmDeploy()">Confirm Deploy</button>
+    </div>
+  </div>
+</div>
+
+<div class="outer-chrome">
+  <div class="dashboard">
+
+    <!-- TOP NAV -->
+    <div class="topnav">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <img src="ini_logo.png" alt="IBM Network Intelligence logo" onerror="this.style.display='none';this.parentNode.innerHTML='<svg width=22 height=22 viewBox=\'0 0 32 32\' fill=\'%230f62fe\'><path d=\'M16 2C8.3 2 2 8.3 2 16s6.3 14 14 14 14-6.3 14-14S23.7 2 16 2zm0 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm4 18h-8v-2h2v-7h-2v-2h6v9h2v2z\'/></svg>';"/>
+        </div>
+        <span class="logo-name">IBM Network Intelligence</span>
+        <span class="headless-badge"><span class="headless-badge-dot"></span>Headless</span>
+      </div>
+
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('guardrail', this)">Guardrail Studio</button>
+        <div class="nav-sep"></div>
+        <button class="nav-tab" onclick="switchTab('health', this)">Health Pulse</button>
+        <div class="nav-sep"></div>
+        <button class="nav-tab" onclick="switchTab('decision', this)">Decision Inbox <span id="inboxBadge" style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#ef4444;color:#fff;font-size:10px;font-weight:700;margin-left:5px;flex-shrink:0;animation:diPulse 1.8s ease-in-out infinite;">3</span></button>
+        <div class="nav-sep"></div>
+        <button class="nav-tab" onclick="switchTab('remediation', this)">Remediation</button>
+      </div>
+
+      <div class="nav-icons">
+        <a class="nav-icon-btn" href="headless.html" title="Back to main prototype" style="text-decoration:none;font-size:11px;font-weight:500;color:#374151;width:auto;padding:0 10px;gap:5px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          Back
+        </a>
+        <button class="nav-icon-btn" title="Simulate alert" onclick="simulateAlert()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </button>
+        <button class="nav-icon-btn" title="User profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="12" cy="7.5" r="3.5"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="body-layout">
+
+      <!-- ═══════════════════════════════════════
+           TAB 1: GUARDRAIL STUDIO
+      ═══════════════════════════════════════ -->
+      <div class="canvas-area canvas-tab-content active-tab" id="tab-guardrail">
+        <div class="gr-wrap">
+          <!-- header -->
+          <div class="gr-page-header">
+            <div>
+              <div class="gr-page-title">Guardrail Studio</div>
+              <div class="gr-page-sub">Define the envelope of autonomous action. Every guardrail change shows its pre-flight impact — blast radius, rollback confidence, and user-hours at risk — before you apply it.</div>
+            </div>
+            <div class="gr-header-actions">
+              <button class="gr-btn gr-btn-secondary" onclick="showToast('Exported guardrail policy to JSON', 'blue')">Export policy</button>
+              <button class="gr-btn gr-btn-primary" onclick="openGrDrawer('new')">+ New guardrail</button>
+            </div>
+          </div>
+
+          <!-- summary cards -->
+          <div class="gr-summary-row">
+            <div class="gr-sum-card">
+              <div class="gr-sum-label">Total guardrails</div>
+              <div class="gr-sum-val">12</div>
+              <div class="gr-sum-sub">Across 4 categories</div>
+            </div>
+            <div class="gr-sum-card">
+              <div class="gr-sum-label">Active &amp; healthy</div>
+              <div class="gr-sum-val" style="color:#16a34a;">9</div>
+              <div class="gr-sum-sub">No drift detected</div>
+            </div>
+            <div class="gr-sum-card">
+              <div class="gr-sum-label">Soft drift</div>
+              <div class="gr-sum-val" style="color:#d97706;">2</div>
+              <div class="gr-sum-sub">Review recommended</div>
+            </div>
+            <div class="gr-sum-card">
+              <div class="gr-sum-label">Auto-tuned (7d)</div>
+              <div class="gr-sum-val" style="color:#2563eb;">5</div>
+              <div class="gr-sum-sub">Within ±15% of threshold</div>
+            </div>
+            <div class="gr-sum-card">
+              <div class="gr-sum-label">Actions blocked</div>
+              <div class="gr-sum-val" style="color:#dc2626;">1</div>
+              <div class="gr-sum-sub">Awaiting override</div>
+            </div>
+          </div>
+
+          <!-- guardrail table -->
+          <div class="gr-table-wrap">
+            <div class="gr-table-header">
+              <span class="gr-table-title">All guardrails</span>
+              <span style="font-size:11px;color:#9ca3af;">Click a row to edit · Impact score runs pre-flight before any change is applied</span>
+            </div>
+            <div class="gr-table-scroll">
+              <table class="gr-table">
+                <thead>
+                  <tr>
+                    <th>Policy</th>
+                    <th>Type</th>
+                    <th>Current value</th>
+                    <th>Status</th>
+                    <th>Impact if changed</th>
+                    <th>Auto-tunable</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="grTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           TAB 2: HEALTH PULSE
+      ═══════════════════════════════════════ -->
+      <div class="canvas-area canvas-tab-content" id="tab-health">
+        <div class="hp-wrap">
+          <!-- hero silence panel -->
+          <div class="hp-silence-panel" id="hpSilencePanel">
+            <div class="hp-silence-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+            </div>
+            <div class="hp-silence-text">
+              <div class="hp-silence-title">All systems nominal — running silently</div>
+              <div class="hp-silence-sub">33 issues auto-resolved in the last 7 days. No alerts sent. Silence is the primary signal of health. You will only be notified when the system cannot resolve something autonomously.</div>
+            </div>
+          </div>
+
+          <!-- hero status -->
+          <div class="hp-hero">
+            <div class="hp-orb-wrap">
+              <div class="hp-orb" id="hpOrb">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+              </div>
+            </div>
+            <div class="hp-hero-text">
+              <div class="hp-hero-status" id="hpHeroStatus">Fleet Health — Good</div>
+              <div class="hp-hero-sub" id="hpHeroSub">94% agent fleet health · 95% confidence score · 1 soft breach auto-monitored · 0 open escalations</div>
+              <div class="hp-hero-meta">
+                <span class="hp-meta-item"><span class="hp-meta-dot" style="background:#22c55e;"></span>33 auto-resolved this week</span>
+                <span class="hp-meta-item"><span class="hp-meta-dot" style="background:#d97706;"></span>3 escalated to human</span>
+                <span class="hp-meta-item"><span class="hp-meta-dot" style="background:#9ca3af;"></span>Next digest: Mon 09:00 UTC</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- channel routing -->
+          <div>
+            <div class="sec-label">Notification channels — push only when needed</div>
+            <div class="hp-channels-grid">
+              <div class="hp-channel-card connected" onclick="showToast('Slack channel configured · auto-alert enabled', 'green')">
+                <div class="hp-channel-header">
+                  <div class="hp-channel-name">
+                    <div class="hp-channel-icon" style="background:#4a154b;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5zm2.5 1.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5H17v-1.5zM9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5zM7 12.5c0 .83-.67 1.5-1.5 1.5S4 13.33 4 12.5 4.67 11 5.5 11H7v1.5zM11.5 14c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V9c0-.83-.67-1.5-1.5-1.5S11.5 8.17 11.5 9v5z"/></svg>
+                    </div>
+                    Slack
+                  </div>
+                  <span class="hp-channel-status hp-cs-on">Connected</span>
+                </div>
+                <div class="hp-channel-desc">#ops-alerts channel · auto-alert enabled</div>
+                <div class="hp-channel-rules">
+                  <span class="hp-channel-rule">Hard guardrail crossed</span>
+                  <span class="hp-channel-rule">Autonomous action failed</span>
+                  <span class="hp-channel-rule">SLO breach imminent (&lt;15 min)</span>
+                  <span class="hp-channel-rule">Weekly digest (Mon 09:00)</span>
+                </div>
+              </div>
+              <div class="hp-channel-card" onclick="showToast('Teams webhook saved · connecting…', 'blue')">
+                <div class="hp-channel-header">
+                  <div class="hp-channel-name">
+                    <div class="hp-channel-icon" style="background:#5558af;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M20 2H8a2 2 0 0 0-2 2v2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2h2a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" opacity=".4"/><path d="M20 16H8V8h12v8z"/></svg>
+                    </div>
+                    Teams
+                  </div>
+                  <span class="hp-channel-status hp-cs-off">Not connected</span>
+                </div>
+                <div class="hp-channel-desc">Connect a Teams webhook to route alerts</div>
+                <div class="hp-channel-rules">
+                  <span class="hp-channel-rule">Approval requests</span>
+                  <span class="hp-channel-rule">Cost ceiling alerts</span>
+                  <span class="hp-channel-rule">Guardrail drift &gt; 10%</span>
+                </div>
+              </div>
+              <div class="hp-channel-card" onclick="showToast('PagerDuty integration key saved', 'orange')">
+                <div class="hp-channel-header">
+                  <div class="hp-channel-name">
+                    <div class="hp-channel-icon" style="background:#06ac38;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="12" r="10"/><path d="M12 7v6" stroke="#06ac38" stroke-width="2.5" stroke-linecap="round"/><circle cx="12" cy="16.5" r="1.5" fill="#06ac38"/></svg>
+                    </div>
+                    PagerDuty
+                  </div>
+                  <span class="hp-channel-status hp-cs-off">Not connected</span>
+                </div>
+                <div class="hp-channel-desc">High-urgency escalation only</div>
+                <div class="hp-channel-rules">
+                  <span class="hp-channel-rule">P1 SLO breach only</span>
+                  <span class="hp-channel-rule">Confidence below threshold</span>
+                  <span class="hp-channel-rule">Autonomous retry failed</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- notification log -->
+          <div class="hp-log-wrap">
+            <div class="hp-log-header">
+              <span class="hp-log-title">Recent notifications (last 24h)</span>
+              <button class="hp-log-clear" onclick="clearLog()">Clear</button>
+            </div>
+            <div class="hp-log-list" id="hpLogList">
+              <!-- populated by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           TAB 3: DECISION INBOX
+      ═══════════════════════════════════════ -->
+      <div class="canvas-area canvas-tab-content" id="tab-decision">
+        <div class="di-wrap">
+          <div class="di-list-col">
+            <div class="di-list-header">
+              <span class="di-list-title">Pending decisions</span>
+              <span class="di-count-badge" id="diBadge">3</span>
+            </div>
+            <div id="diList"></div>
+          </div>
+          <div class="di-detail-col" id="diDetail">
+            <!-- populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           TAB 4: REMEDIATION
+      ═══════════════════════════════════════ -->
+      <div class="canvas-area canvas-tab-content" id="tab-remediation">
+        <div class="rm-wrap">
+          <div class="rm-list-col">
+            <div class="rm-list-header">
+              <span class="rm-list-title">Active cases</span>
+            </div>
+            <div id="rmList"></div>
+          </div>
+          <div class="rm-detail-col" id="rmDetail">
+            <!-- populated by JS -->
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /body-layout -->
+  </div><!-- /dashboard -->
+</div><!-- /outer-chrome -->
+
+<script>
+/* ═══════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════ */
+function showToast(msg, type='blue') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.animation = 'toastOut 0.3s ease forwards'; setTimeout(() => t.remove(), 320); }, 3000);
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.canvas-tab-content').forEach(t => t.classList.remove('active-tab'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active-tab');
+  if (btn) btn.classList.add('active');
+}
+
+/* ═══════════════════════════════════════════
+   GUARDRAIL STUDIO
+═══════════════════════════════════════════ */
+const GUARDRAILS = [
+  { id:'G-01', name:'No prod restarts weekdays 14:00–16:00 UTC', type:'hard', val:'14:00–16:00 UTC Mon–Fri', status:'active', impactLevel:'high', impactW:85, auto:'No', category:'Availability' },
+  { id:'G-02', name:'Auto-scale ≤ 3 replicas without approval', type:'soft', val:'3 replicas max', status:'drift', impactLevel:'med', impactW:50, auto:'Yes ±15%', category:'Capacity' },
+  { id:'G-03', name:'Confidence threshold — escalate below 85%', type:'conf', val:'85% minimum', status:'active', impactLevel:'high', impactW:90, auto:'No', category:'Autonomy' },
+  { id:'G-04', name:'Cloud spend ceiling — auto-approve ≤ $50/hr', type:'cost', val:'$50 / hr', status:'active', impactLevel:'med', impactW:55, auto:'Yes up to 120%', category:'Cost' },
+  { id:'G-05', name:'BGP policy changes require Approval', type:'hard', val:'Approval required', status:'active', impactLevel:'high', impactW:95, auto:'No', category:'Network' },
+  { id:'G-06', name:'Pod restarts on non-protected workloads — Ask', type:'soft', val:'Ask mode', status:'active', impactLevel:'low', impactW:20, auto:'Yes ±15%', category:'Remediation' },
+  { id:'G-07', name:'Cross-tenant data correlation needs Approval', type:'hard', val:'Approval required', status:'active', impactLevel:'high', impactW:80, auto:'No', category:'Data' },
+  { id:'G-08', name:'Maintenance windows — no deploy Fri 17:00+ UTC', type:'hard', val:'Fri 17:00 UTC onwards', status:'drift', impactLevel:'med', impactW:60, auto:'No', category:'Change' },
+  { id:'G-09', name:'Blast radius cap — max 5% traffic affected', type:'conf', val:'5% traffic cap', status:'active', impactLevel:'high', impactW:88, auto:'No', category:'Autonomy' },
+];
+
+function buildGrTable() {
+  const tbody = document.getElementById('grTableBody');
+  tbody.innerHTML = GUARDRAILS.map(g => `
+    <tr onclick="openGrDrawer('${g.id}')" class="gr-table-row">
+      <td>
+        <div style="font-weight:500;color:#111827;font-size:13px;">${g.name}</div>
+        <div style="font-size:11px;color:#9ca3af;margin-top:2px;">${g.category} · ${g.id}</div>
+      </td>
+      <td><span class="gr-type-badge gr-type-${g.type}">${g.type==='hard'?'Hard limit':g.type==='soft'?'Soft limit':g.type==='conf'?'Confidence':'Cost ceiling'}</span></td>
+      <td style="font-size:12px;color:#374151;font-family:'SF Mono','Fira Code',monospace;">${g.val}</td>
+      <td><span class="gr-status-badge gr-status-${g.status}">${g.status==='active'?'Active':g.status==='drift'?'Drifting':'Breached'}</span></td>
+      <td>
+        <div class="gr-impact-bar gr-impact-${g.impactLevel}">
+          <div class="gr-impact-track"><div class="gr-impact-fill" style="width:${g.impactW}%"></div></div>
+          <span class="gr-impact-label">${g.impactLevel==='high'?'High':g.impactLevel==='med'?'Medium':'Low'}</span>
+        </div>
+      </td>
+      <td style="font-size:12px;color:#374151;">${g.auto}</td>
+      <td><button style="font-size:11px;color:#2563eb;background:none;border:none;cursor:pointer;padding:3px 8px;border-radius:3px;" onmouseenter="this.style.background='#eff6ff'" onmouseleave="this.style.background='none'">Edit</button></td>
+    </tr>
+  `).join('');
+}
+
+let grSelectedId = null;
+function openGrDrawer(id) {
+  grSelectedId = id;
+  const g = GUARDRAILS.find(x => x.id === id) || { name:'New guardrail', id:'new', type:'hard', val:'', status:'active', auto:'No', category:'Availability', impactLevel:'med', impactW:50 };
+  document.getElementById('grDrawerTitle').textContent = id === 'new' ? 'New Guardrail' : 'Edit Guardrail — ' + g.id;
+  document.getElementById('grDrawerSub').textContent = (id==='new'?'Creating new policy':'Editing: ') + (id!=='new'? g.category + ' · ' + (g.type==='hard'?'Hard limit':g.type==='soft'?'Soft limit':g.type==='conf'?'Confidence':'Cost ceiling') : '');
+  document.getElementById('grDrawerName').value = id === 'new' ? '' : g.name;
+  document.getElementById('grDrawerVal').value = id === 'new' ? '' : g.val;
+  document.getElementById('grDrawer').classList.add('open');
+}
+function closeGrDrawer() { document.getElementById('grDrawer').classList.remove('open'); }
+function saveGuardrail() {
+  closeGrDrawer();
+  showToast('Guardrail saved — impact recorded in audit log', 'green');
+}
+
+buildGrTable();
+
+/* ═══════════════════════════════════════════
+   HEALTH PULSE
+═══════════════════════════════════════════ */
+const LOG_ENTRIES = [
+  { dot:'#22c55e', msg:'<strong>Auto-resolved</strong> — BGP flap on NY-RTR-02 dampened autonomously. No alert sent.', time:'2 min ago', channel:null },
+  { dot:'#9ca3af', msg:'<strong>Silent</strong> — K8s pod restart on payment-service successful. 0 user impact.', time:'18 min ago', channel:null },
+  { dot:'#d97706', msg:'<strong>Guardrail drift alert</strong> — Auto-scale soft limit reached 2.8/3 replicas (93%). Trend: rising.', time:'1h ago', channel:'Slack' },
+  { dot:'#ef4444', msg:'<strong>Decision required</strong> — DB connection pool exhausted on payment-service. Hard guardrail blocks auto-restart. Approval card issued.', time:'2h ago', channel:'Slack + In-app' },
+  { dot:'#22c55e', msg:'<strong>Auto-resolved</strong> — CRC error on TVM-EDGE-04 cleared via restart sequence A→B→C. Recovery: 6 min.', time:'4h ago', channel:null },
+  { dot:'#3b82f6', msg:'<strong>Weekly digest</strong> — 33 resolved · 3 escalated · 0 SLO breaches · 2 guardrail drifts. Sent to #ops-alerts.', time:'Mon 09:00', channel:'Slack + Email' },
+];
+
+function buildHpLog() {
+  const list = document.getElementById('hpLogList');
+  list.innerHTML = LOG_ENTRIES.map(e => `
+    <div class="hp-log-item">
+      <div class="hp-log-dot" style="background:${e.dot};"></div>
+      <div class="hp-log-content">
+        <div class="hp-log-msg">${e.msg}</div>
+        <div class="hp-log-meta">${e.time}${e.channel ? `<span class="hp-log-channel">${e.channel}</span>` : '<span class="hp-log-channel" style="color:#16a34a;background:#f0fdf4;border-radius:3px;padding:1px 5px;">Silent</span>'}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function clearLog() {
+  document.getElementById('hpLogList').innerHTML = `<div style="padding:24px;text-align:center;font-size:12px;color:#9ca3af;">No recent notifications</div>`;
+}
+buildHpLog();
+
+/* ═══════════════════════════════════════════
+   DECISION INBOX
+═══════════════════════════════════════════ */
+const DECISIONS = [
+  {
+    id: 'DEC-001', urgency: 'urgent', title: 'DB connection pool exhausted — prod freeze blocks restart',
+    service: 'payment-service · us-east-1', sloLabel: 'SLO breach in 11 min', time: '2h ago',
+    summary: 'DB connections peaked at 498/500 (99.6%). Auto-restart is blocked by hard guardrail: <em>no restarts weekdays 14:00–16:00 UTC</em>. System recommends temporary pool limit increase as a non-restart alternative.',
+    why: 'Hard guardrail G-01 would be crossed — "No prod restarts weekdays 14:00–16:00 UTC"',
+    options: [
+      { rank:1, title:'Approve pool bump (+50, 8-min window)', desc:'Temporary connection limit increase. Auto-reverts when connections drop below 300 or after 8 minutes. No restart needed.', recommended:true, risk:'low' },
+      { rank:2, title:'Override freeze window and restart', desc:'Proceeds with restart despite the active freeze. Higher risk — override is audited and requires reason code.', recommended:false, risk:'high' },
+      { rank:3, title:'Reject — handle manually', desc:'System holds automated actions. You take direct control. All monitoring continues.', recommended:false, risk:'manual' },
+    ],
+    evidence: [
+      { key:'Connection peak', val:'498 / 500 (99.6%)' },
+      { key:'Rate of rise', val:'+12 connections/min' },
+      { key:'Blast radius', val:'payment-service only (1 service)' },
+      { key:'Historical matches', val:'11 similar cases — 9 resolved via pool bump' },
+      { key:'Rollback confidence', val:'94%' },
+      { key:'Guardrail blocking', val:'G-01 · Hard limit' },
+    ]
+  },
+  {
+    id: 'DEC-002', urgency: 'warn', title: 'Auto-scale approaching hard ceiling — capacity review',
+    service: 'checkout-service · eu-west-1', sloLabel: '23 min before breach', time: '45 min ago',
+    summary: 'checkout-service has scaled to 2.8 of 3 maximum replicas (soft limit G-02). Traffic is projected to require 4 replicas within 23 minutes. Current guardrail caps auto-scale at 3.',
+    why: 'Soft guardrail G-02 drift at 93% of threshold — recommended review before breach',
+    options: [
+      { rank:1, title:'Temporarily raise ceiling to 5 replicas', desc:'Extends auto-scale window for 4 hours. System will notify when traffic normalises.', recommended:true, risk:'low' },
+      { rank:2, title:'Keep current limit — accept possible degradation', desc:'System will queue excess requests. SLO may drift. User impact estimated at 3–5%.', recommended:false, risk:'med' },
+    ],
+    evidence: [
+      { key:'Current replicas', val:'2.8 / 3.0' },
+      { key:'Traffic trend', val:'+18% in last 30 min' },
+      { key:'Projected need', val:'4 replicas in 23 min' },
+      { key:'Similar past incidents', val:'6 — all resolved by ceiling raise' },
+    ]
+  },
+  {
+    id: 'DEC-003', urgency: 'info', title: 'Novel pattern — no historical match for routing anomaly',
+    service: 'api-gateway · ap-southeast-1', sloLabel: 'No immediate breach', time: '1h 20 min ago',
+    summary: 'Unusual latency spike pattern detected on api-gateway. Confidence score is 62% — below the 85% threshold required for autonomous action. No matching historical case found.',
+    why: 'Confidence score (62%) is below autonomous action threshold (G-03 · 85%)',
+    options: [
+      { rank:1, title:'Approve investigation — read-only diagnostic run', desc:'Agent performs full diagnostic (no changes). Returns root-cause report within 3 minutes.', recommended:true, risk:'low' },
+      { rank:2, title:'Escalate to Level-2 NOC', desc:'Human engineer takes over investigation. System provides all gathered evidence.', recommended:false, risk:'manual' },
+    ],
+    evidence: [
+      { key:'Confidence score', val:'62% (threshold: 85%)' },
+      { key:'Pattern type', val:'Novel — no historical match' },
+      { key:'Current impact', val:'P95 latency +140ms (within SLO)' },
+      { key:'Guardrail', val:'G-03 · Confidence threshold' },
+    ]
+  }
+];
+
+let selectedDecision = 0;
+
+function buildDiList() {
+  const list = document.getElementById('diList');
+  list.innerHTML = DECISIONS.map((d, i) => `
+    <div class="di-card ${d.urgency === 'urgent' ? 'urgent' : ''} ${i === selectedDecision ? 'selected' : ''}" onclick="selectDecision(${i})">
+      <div class="di-card-header">
+        <span class="di-card-tag di-tag-${d.urgency === 'urgent' ? 'urgent' : d.urgency === 'warn' ? 'warn' : 'info'}">${d.urgency === 'urgent' ? '⚡ Urgent' : d.urgency === 'warn' ? 'Review' : 'Info'}</span>
+        <span class="di-card-time">${d.time}</span>
+      </div>
+      <div class="di-card-title">${d.title}</div>
+      <div class="di-card-sub">${d.service}</div>
+      ${d.urgency === 'urgent' ? `<div class="di-card-slo">⏱ ${d.sloLabel}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function selectDecision(i) {
+  selectedDecision = i;
+  buildDiList();
+  renderDecisionDetail(DECISIONS[i]);
+}
+
+function renderDecisionDetail(d) {
+  const isUrgent = d.urgency === 'urgent';
+  document.getElementById('diDetail').innerHTML = `
+    <div class="dc-card">
+      <div class="dc-header">
+        <div class="dc-header-left">
+          <div class="dc-header-badges">
+            <span class="dc-action-req">⚡ Action Required</span>
+            <span class="dc-service-tag">${d.service}</span>
+          </div>
+          <div class="dc-title">${d.title}</div>
+          <div class="dc-summary">${d.summary}</div>
+        </div>
+        ${isUrgent ? `
+        <div class="dc-slo-countdown">
+          <div class="dc-slo-label">SLO breach in</div>
+          <div class="dc-slo-time" id="dcSloTimer">11:00</div>
+          <div class="dc-slo-sub">minutes remaining</div>
+        </div>` : ''}
+      </div>
+      <div class="dc-body">
+        <div>
+          <div class="dc-section-title">Why this was escalated</div>
+          <div class="dc-why-badge">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2zm0 9.5V7.5m0-2.5v.01" stroke="#d97706" stroke-width="1.5" stroke-linecap="round"/></svg>
+            ${d.why}
+          </div>
+        </div>
+        <div>
+          <div class="dc-section-title">Recommended options</div>
+          <div class="dc-options">
+            ${d.options.map(o => `
+              <div class="dc-option ${o.recommended ? 'recommended' : ''} ${o.risk === 'high' ? 'destructive' : ''}" onclick="selectOption(this, ${DECISIONS.indexOf(d)}, ${o.rank})">
+                <div class="dc-option-rank">${o.rank}</div>
+                <div class="dc-option-content">
+                  <div class="dc-option-title">${o.title}${o.recommended ? '<span class="dc-option-badge dc-ob-rec">Recommended</span>' : ''}${o.risk === 'high' ? '<span class="dc-option-badge dc-ob-risk">High risk</span>' : ''}</div>
+                  <div class="dc-option-desc">${o.desc}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="dc-evidence">
+          <button class="dc-evidence-toggle" onclick="toggleEvidence(this)">
+            <span>Supporting evidence (${d.evidence.length} items)</span>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="ev-caret"><path d="M4 6l4 4 4-4"/></svg>
+          </button>
+          <div class="dc-evidence-body" id="evidenceBody">
+            ${d.evidence.map(e => `<div class="dc-evidence-item"><span class="dc-ev-label">${e.key}</span><span>${e.val}</span></div>`).join('')}
+          </div>
+        </div>
+        <div>
+          <div class="dc-section-title">Actions</div>
+          <div class="dc-actions">
+            <button class="dc-act-btn dc-act-approve" onclick="actApprove(${DECISIONS.indexOf(d)})">✓ Approve recommended</button>
+            <button class="dc-act-btn dc-act-modify" onclick="actModify(${DECISIONS.indexOf(d)})">✎ Modify &amp; approve</button>
+            <button class="dc-act-btn dc-act-override" onclick="showToast('Override freeze window — audit entry created', 'orange')">⚡ Override guardrail</button>
+            <button class="dc-act-btn dc-act-reject" onclick="actReject(${DECISIONS.indexOf(d)})">✕ Reject</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  if (isUrgent) startSloTimer();
+}
+
+function toggleEvidence(btn) {
+  const body = document.getElementById('evidenceBody');
+  body.classList.toggle('open');
+  btn.querySelector('.ev-caret').style.transform = body.classList.contains('open') ? 'rotate(180deg)' : '';
+}
+
+function selectOption(el, decIdx, rank) {
+  el.closest('.dc-options').querySelectorAll('.dc-option').forEach(o => { o.style.borderColor = ''; o.style.background = ''; });
+  el.style.borderColor = '#2563eb'; el.style.background = '#f0f5ff';
+}
+
+function actApprove(i) {
+  openModal('approveModal');
+}
+function confirmDeploy() {
+  closeModal('deployModal');
+  advanceCanary();
+}
+
+function confirmApproveAction() {
+  closeModal('approveModal');
+  DECISIONS.splice(selectedDecision, 1);
+  selectedDecision = 0;
+  document.getElementById('diBadge').textContent = DECISIONS.length;
+  document.getElementById('inboxBadge').textContent = DECISIONS.length;
+  if (DECISIONS.length === 0) {
+    buildDiList();
+    document.getElementById('diDetail').innerHTML = `
+      <div class="di-empty">
+        <div class="di-empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg></div>
+        <div class="di-empty-title">All decisions resolved</div>
+        <div class="di-empty-sub">System running autonomously. You will be notified when a decision is required.</div>
+      </div>`;
+  } else {
+    buildDiList();
+    renderDecisionDetail(DECISIONS[0]);
+  }
+  showToast('Decision approved — system proceeding with recommended action', 'green');
+}
+
+function actReject(i) {
+  DECISIONS.splice(i, 1);
+  selectedDecision = 0;
+  document.getElementById('diBadge').textContent = DECISIONS.length;
+  document.getElementById('inboxBadge').textContent = DECISIONS.length;
+  buildDiList();
+  if (DECISIONS.length > 0) renderDecisionDetail(DECISIONS[0]);
+  else document.getElementById('diDetail').innerHTML = `<div class="di-empty"><div class="di-empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg></div><div class="di-empty-title">Inbox clear</div><div class="di-empty-sub">System running silently.</div></div>`;
+  showToast('Decision rejected — system holding automated actions', 'orange');
+}
+
+function actModify(i) {
+  showToast('Modify mode — adjust the action parameters then approve', 'blue');
+}
+
+let sloInterval = null;
+function startSloTimer() {
+  let secs = 660;
+  if (sloInterval) clearInterval(sloInterval);
+  sloInterval = setInterval(() => {
+    secs = Math.max(0, secs - 1);
+    const el = document.getElementById('dcSloTimer');
+    if (!el) { clearInterval(sloInterval); return; }
+    const m = Math.floor(secs/60), s = secs % 60;
+    el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if (secs === 0) clearInterval(sloInterval);
+  }, 1000);
+}
+
+buildDiList();
+renderDecisionDetail(DECISIONS[0]);
+
+/* ═══════════════════════════════════════════
+   REMEDIATION
+═══════════════════════════════════════════ */
+const RM_CASES = [
+  {
+    id: 'INC-8841', title: 'DB connection pool exhausted — payment-service',
+    stage: 'deploy', priority: 'P1', agent: 'Remediation Agent',
+    investigation: {
+      rootCause: 'Connection leak in payment-service v2.3.9 under high-load conditions (>400 concurrent requests). Third-party ORM library not releasing connections on timeout.',
+      confidence: '91%', blastRadius: 'payment-service only', affectedServices: 1, affectedSessions: 2300,
+      timeline: [
+        { dot:'#ef4444', title:'Anomaly detected', desc:'Connection pool at 92% · Alert suppressed (auto-monitoring)', time:'14:03 UTC' },
+        { dot:'#f59e0b', title:'Pattern matched', desc:'14 similar historical cases matched · confidence 91%', time:'14:04 UTC' },
+        { dot:'#ef4444', title:'Guardrail block', desc:'Auto-restart blocked by G-01 (freeze window) · escalated to human', time:'14:05 UTC' },
+        { dot:'#22c55e', title:'Human approved', desc:'Pool bump +50 approved · applied · connections stabilised at 340', time:'14:07 UTC' },
+      ]
+    },
+    ticket: { id:'NOC-4421', system:'ServiceNow', severity:'P1', title:'DB connection leak · payment-service v2.3.9', assignee:'Platform SRE Team', sla:'4h resolution', created:'14:06 UTC' },
+    cr: { id:'CR-2024-0147', status:'Approved', riskRating:'Medium', approver:'Jane Park (SRE Lead)', rollbackPlan:'Revert to v2.3.9 via Helm rollback · ETA < 3 min', window:'22:00–23:00 UTC tonight' },
+    maintenanceWindow: { start:'22:00 UTC', end:'23:00 UTC', reason:'Low traffic window · 94% SLO headroom · no downstream freeze', alternatives:['22:00–23:00 UTC (selected)', '02:00–03:00 UTC (+4h)'] },
+    deploy: { strategy:'Canary', status:'in-progress', progress:25, gates:[ { pct:5, status:'passed', errorRate:'0.0%' }, { pct:25, status:'active' }, { pct:100, status:'pending' } ] }
+  },
+  {
+    id: 'INC-8839', title: 'Recurring CRC error — TVM-EDGE-04 optic port 7/4',
+    stage: 'cr', priority: 'P2', agent: 'Fault Detection Agent',
+    investigation: {
+      rootCause: 'Hardware degradation confirmed on optic port 7/4 — 4th failure in 7 days. Intermittent signal loss averaging 3.1 hours apart.',
+      confidence: '87%', blastRadius: '1200 subscribers (no drop)', affectedServices: 2, affectedSessions: 1200,
+      timeline: [
+        { dot:'#f59e0b', title:'4th CRC burst detected', desc:'Port 7/4 · hardware degradation pattern confirmed', time:'Yesterday 11:22 UTC' },
+        { dot:'#22c55e', title:'Restart sequence applied', desc:'Sequence A→B→C · 1200 subs restored · 6 min recovery', time:'Yesterday 11:30 UTC' },
+        { dot:'#3b82f6', title:'Investigation opened', desc:'Hardware replacement recommended · L2 NOC notified', time:'Yesterday 12:00 UTC' },
+      ]
+    },
+    ticket: { id:'NOC-4419', system:'Jira', severity:'P2', title:'Optic replacement · TVM-EDGE-04 port 7/4', assignee:'NOC L2 Team', sla:'8h resolution', created:'Yesterday 12:01 UTC' },
+    cr: { id:'CR-2024-0145', status:'Pending approval', riskRating:'Low', approver:'Awaiting NOC Manager', rollbackPlan:'Revert to previous optic · ETA < 10 min', window:'Pending' },
+    maintenanceWindow: null,
+    deploy: null
+  },
+  {
+    id: 'INC-8835', title: 'MTU mismatch — SG-01 peering interface',
+    stage: 'ticket', priority: 'P3', agent: 'Network Agent',
+    investigation: {
+      rootCause: 'MTU mismatch: SG-01 configured at 1480 vs peer 1500. Fragmentation rate 0.3% — low impact. Fix: align MTU at next maintenance window.',
+      confidence: '94%', blastRadius: 'SG-01 peering only', affectedServices: 1, affectedSessions: 0,
+      timeline: [
+        { dot:'#3b82f6', title:'MTU mismatch detected', desc:'SG-01 port 2/1 · fragmentation rate 0.3%', time:'2 days ago 08:44 UTC' },
+        { dot:'#22c55e', title:'Auto-analysis complete', desc:'Root cause identified · low urgency · ticket queued', time:'2 days ago 08:45 UTC' },
+      ]
+    },
+    ticket: { id:'NOC-4412', system:'ServiceNow', severity:'P3', title:'MTU align · SG-01 peering', assignee:'Network Ops', sla:'24h resolution', created:'2 days ago 08:46 UTC' },
+    cr: null, maintenanceWindow: null, deploy: null
+  }
+];
+
+let selectedCase = 0;
+
+const STAGE_ORDER = ['invest', 'ticket', 'cr', 'mw', 'deploy'];
+const STAGE_NAMES = { invest:'Investigation', ticket:'Ticket', cr:'Change Request', mw:'Maint. Window', deploy:'Deploy' };
+
+function buildRmList() {
+  const list = document.getElementById('rmList');
+  list.innerHTML = RM_CASES.map((c, i) => `
+    <div class="rm-item ${i === selectedCase ? 'selected' : ''}" onclick="selectCase(${i})">
+      <div class="rm-item-id">${c.id}</div>
+      <div class="rm-item-title">${c.title}</div>
+      <div class="rm-item-footer">
+        <span class="rm-stage-pill rm-stage-${c.stage}">${STAGE_NAMES[c.stage] || c.stage}</span>
+        <span style="font-size:10px;color:#9ca3af;">${c.priority} · ${c.agent}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectCase(i) {
+  selectedCase = i;
+  buildRmList();
+  renderRmDetail(RM_CASES[i]);
+}
+
+function renderRmDetail(c) {
+  const stageIdx = STAGE_ORDER.indexOf(c.stage);
+
+  const stepperHTML = STAGE_ORDER.map((s, i) => {
+    const cls = i < stageIdx ? 'done' : i === stageIdx ? 'active' : 'blocked';
+    return `<div class="rm-step ${cls}" onclick="${i <= stageIdx ? `showToast('Viewing: ${STAGE_NAMES[s]}','blue')` : `showToast('Stage not reached yet','orange')`}">
+      <div class="rm-step-num">${cls === 'done' ? '✓' : i+1}</div>
+      <span class="rm-step-name">${STAGE_NAMES[s]}</span>
+    </div>`;
+  }).join('');
+
+  const inv = c.investigation;
+  const invHTML = `
+    <div class="rm-detail-card">
+      <div class="rm-detail-card-header">
+        <div class="rm-detail-card-title">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#dc2626" stroke-width="1.4"/><path d="M8 5v3.5M8 10.5v.01" stroke="#dc2626" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Investigation · ${c.id}
+        </div>
+        <span class="rm-stage-pill rm-stage-invest" style="font-size:10px;">AI-driven</span>
+      </div>
+      <div class="rm-detail-card-body">
+        <div class="rm-field-row"><span class="rm-field-key">Root cause</span><span class="rm-field-val" style="max-width:360px;text-align:left;">${inv.rootCause}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Confidence</span><span class="rm-field-val" style="color:#16a34a;">${inv.confidence}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Blast radius</span><span class="rm-field-val">${inv.blastRadius}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Affected services</span><span class="rm-field-val">${inv.affectedServices}</span></div>
+        <div style="margin-top:14px;">
+          <div class="sec-label">Event timeline</div>
+          <div class="rm-timeline">
+            ${inv.timeline.map(t => `
+              <div class="rm-tl-item">
+                <div class="rm-tl-left">
+                  <div class="rm-tl-dot" style="background:${t.dot}20;border:1.5px solid ${t.dot};color:${t.dot};">●</div>
+                  <div class="rm-tl-line"></div>
+                </div>
+                <div class="rm-tl-content">
+                  <div class="rm-tl-title">${t.title}</div>
+                  <div class="rm-tl-desc">${t.desc}</div>
+                  <div class="rm-tl-time">${t.time}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  const tkt = c.ticket;
+  const ticketHTML = `
+    <div class="rm-detail-card">
+      <div class="rm-detail-card-header">
+        <div class="rm-detail-card-title">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="#d97706" stroke-width="1.4"/><path d="M5 7h6M5 9.5h4" stroke="#d97706" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Ticket · ${tkt.id}
+        </div>
+        <span class="rm-stage-pill rm-stage-ticket" style="font-size:10px;">Auto + approve</span>
+      </div>
+      <div class="rm-detail-card-body">
+        <div class="rm-field-row"><span class="rm-field-key">System</span><span class="rm-field-val">${tkt.system}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Ticket ID</span><span class="rm-field-val mono">${tkt.id}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Title</span><span class="rm-field-val" style="text-align:left;">${tkt.title}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Severity</span><span class="rm-field-val" style="color:${tkt.severity==='P1'?'#dc2626':tkt.severity==='P2'?'#d97706':'#374151'};">${tkt.severity}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Assigned to</span><span class="rm-field-val">${tkt.assignee}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">SLA target</span><span class="rm-field-val">${tkt.sla}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Created</span><span class="rm-field-val">${tkt.created}</span></div>
+      </div>
+      <div class="rm-actions">
+        <button class="rm-act-btn rm-act-primary" onclick="showToast('Opening ${tkt.id} in ${tkt.system}','blue')">Open in ${tkt.system}</button>
+        <button class="rm-act-btn rm-act-secondary" onclick="showToast('Ticket updated','green')">Update ticket</button>
+      </div>
+    </div>`;
+
+  const crHTML = c.cr ? `
+    <div class="rm-detail-card">
+      <div class="rm-detail-card-header">
+        <div class="rm-detail-card-title">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l4 2v5c0 2.5-4 5-4 5S4 11.5 4 9V4l4-2z" stroke="#3b82f6" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          Change Request · ${c.cr.id}
+        </div>
+        <span class="rm-stage-pill rm-stage-cr" style="font-size:10px;">${c.cr.status}</span>
+      </div>
+      <div class="rm-detail-card-body">
+        <div class="rm-field-row"><span class="rm-field-key">CR ID</span><span class="rm-field-val mono">${c.cr.id}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Risk rating</span><span class="rm-field-val" style="color:${c.cr.riskRating==='High'?'#dc2626':c.cr.riskRating==='Medium'?'#d97706':'#16a34a'};">${c.cr.riskRating}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Approver</span><span class="rm-field-val">${c.cr.approver}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Rollback plan</span><span class="rm-field-val" style="text-align:left;">${c.cr.rollbackPlan}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Maintenance window</span><span class="rm-field-val">${c.cr.window}</span></div>
+      </div>
+      <div class="rm-actions">
+        ${c.cr.status === 'Pending approval' ? `<button class="rm-act-btn rm-act-primary" onclick="showToast('CR-2024-0145 approved — proceeding to maintenance window','green')">Approve CR</button>` : `<span style="font-size:12px;color:#16a34a;padding:7px 0;">✓ CR Approved</span>`}
+        <button class="rm-act-btn rm-act-secondary" onclick="showToast('CR details opened','blue')">View full CR</button>
+      </div>
+    </div>` : '';
+
+  const mwHTML = c.maintenanceWindow ? `
+    <div class="rm-detail-card">
+      <div class="rm-detail-card-header">
+        <div class="rm-detail-card-title">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#7c3aed" stroke-width="1.4"/><path d="M8 5v3l2 2" stroke="#7c3aed" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Maintenance Window
+        </div>
+        <span class="rm-stage-pill rm-stage-mw" style="font-size:10px;">AI-proposed</span>
+      </div>
+      <div class="rm-detail-card-body">
+        <div class="rm-field-row"><span class="rm-field-key">Window start</span><span class="rm-field-val">${c.maintenanceWindow.start}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Window end</span><span class="rm-field-val">${c.maintenanceWindow.end}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Selection rationale</span><span class="rm-field-val" style="text-align:left;">${c.maintenanceWindow.reason}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Alternatives</span><span class="rm-field-val">${c.maintenanceWindow.alternatives.join(' · ')}</span></div>
+      </div>
+    </div>` : '';
+
+  const deployHTML = c.deploy ? `
+    <div class="rm-detail-card">
+      <div class="rm-detail-card-header">
+        <div class="rm-detail-card-title">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#16a34a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Deployment · Canary Strategy
+        </div>
+        <span class="rm-stage-pill rm-stage-deploy" style="font-size:10px;">In progress</span>
+      </div>
+      <div class="rm-detail-card-body">
+        <div class="sec-label">Canary progress</div>
+        <div class="rm-canary-bar" style="margin-bottom:14px;">
+          <div class="rm-canary-track"><div class="rm-canary-fill" id="rmCanaryFill" style="width:${c.deploy.progress}%;"></div></div>
+          <div class="rm-canary-pct">${c.deploy.progress}%</div>
+          <div class="rm-canary-label">traffic shifted</div>
+        </div>
+        ${c.deploy.gates.map(g => `
+          <div class="rm-field-row">
+            <span class="rm-field-key">Gate ${g.pct}% traffic</span>
+            <span class="rm-field-val" style="color:${g.status==='passed'?'#16a34a':g.status==='active'?'#2563eb':'#9ca3af'};">
+              ${g.status==='passed'?'✓ Passed — error rate '+g.errorRate:g.status==='active'?'⏳ Observing (3 min gate)':'Pending'}
+            </span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="rm-actions">
+        <button class="rm-act-btn rm-act-primary" onclick="advanceCanary()">Advance to 100%</button>
+        <button class="rm-act-btn rm-act-danger" onclick="showToast('Auto-rollback triggered — reverting to v2.3.9','red')">⚡ Rollback now</button>
+      </div>
+    </div>` : '';
+
+  document.getElementById('rmDetail').innerHTML = `
+    <div class="rm-stepper">${stepperHTML}</div>
+    ${invHTML}
+    ${ticketHTML}
+    ${crHTML}
+    ${mwHTML}
+    ${deployHTML}
+  `;
+}
+
+function advanceCanary() {
+  const c = RM_CASES[selectedCase];
+  if (!c.deploy) return;
+  c.deploy.progress = 100;
+  c.deploy.gates[1] = { pct:25, status:'passed', errorRate:'0.0%' };
+  c.deploy.gates[2] = { pct:100, status:'passed', errorRate:'0.1%' };
+  c.stage = 'done';
+  buildRmList();
+  renderRmDetail(c);
+  showToast('Deployment successful — 100% traffic shifted · INC-8841 resolved', 'green');
+}
+
+buildRmList();
+renderRmDetail(RM_CASES[0]);
+
+/* ═══════════════════════════════════════════
+   SIMULATE ALERT (bell button)
+═══════════════════════════════════════════ */
+const ALERT_TYPES = [
+  { msg:'⚡ SLO breach imminent — api-gateway latency P95 rising · Decision required', type:'red' },
+  { msg:'🔔 Guardrail drift — auto-scale soft limit at 94% on checkout-service', type:'orange' },
+  { msg:'✓ Auto-resolved — pod restart on logging-service successful · no user impact', type:'green' },
+  { msg:'🔒 Hard guardrail blocked — BGP policy change queued for human approval', type:'orange' },
+];
+let alertIdx = 0;
+function simulateAlert() {
+  const a = ALERT_TYPES[alertIdx % ALERT_TYPES.length];
+  alertIdx++;
+  showToast(a.msg, a.type);
+  // also add to health log
+  const dot = a.type === 'red' ? '#ef4444' : a.type === 'orange' ? '#d97706' : '#22c55e';
+  const entry = { dot, msg:`<strong>Simulated alert</strong> — ${a.msg}`, time:'just now', channel: a.type !== 'green' ? 'Slack' : null };
+  LOG_ENTRIES.unshift(entry);
+  buildHpLog();
+}
+</script>
+</body>
+</html>
