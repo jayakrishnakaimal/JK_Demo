@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>IBM Network Intelligence — Headless Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; }
+  body {
+    font-family: 'IBM Plex Sans', -apple-system, "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: linear-gradient(160deg, #f8fafd 0%, #f3f6fb 25%, #ddeaf5 55%, #b8d4e8 75%, #9ec8e0 100%);
+    background-attachment: fixed;
+  }
+
+  /* ── layout ── */
+  .outer-chrome { width: 100%; height: 100vh; overflow: hidden; }
+  .dashboard { background: transparent; display: flex; flex-direction: column; height: 100vh; overflow: hidden; min-height: 0; }
+
+  /* ── topnav ── */
+  .topnav {
+    display: flex; align-items: center; padding: 0 20px; height: 56px;
+    border-bottom: 1px solid #e5e7eb; background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(12px); flex-shrink: 0; gap: 0;
+  }
+  .logo-area { display: flex; align-items: center; gap: 8px; margin-right: 24px; }
+  .logo-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #ffffff; border: 1.5px solid #e5e7eb;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden;
+  }
+  .logo-icon svg { width: 22px; height: 22px; }
+  .logo-name { font-size: 14px; font-weight: 600; color: #111827; letter-spacing: -0.1px; white-space: nowrap; }
+  .logo-sub { font-size: 11px; color: #6b7280; white-space: nowrap; margin-left: 2px; }
+
+  .headless-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 20px; margin-left: 10px;
+  }
+  .headless-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #16a34a; animation: hbPulse 2s ease-in-out infinite; }
+  @keyframes hbPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(22,163,74,0.5); } 50% { box-shadow: 0 0 0 5px rgba(22,163,74,0); } }
+
+  .nav-tabs {
+    display: flex; align-items: center; gap: 2px;
+    background: #f3f4f6; border-radius: 6px; padding: 3px; margin: 0 auto;
+  }
+  .nav-tab {
+    padding: 6px 18px; border-radius: 4px; font-size: 13px; font-weight: 400;
+    cursor: pointer; border: none; background: transparent; color: #374151;
+    transition: all 0.15s; white-space: nowrap; font-family: inherit;
+  }
+  .nav-tab:hover { color: #111827; }
+  .nav-tab.active { background: #2563eb; color: #ffffff; font-weight: 500; }
+  .nav-sep { width: 1px; height: 20px; background: #d1d5db; margin: 0 2px; }
+
+  .nav-icons { display: flex; align-items: center; gap: 8px; margin-left: 24px; }
+  .nav-icon-btn {
+    width: 32px; height: 32px; border-radius: 4px; border: 1px solid #e5e7eb;
+    background: #ffffff; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: #374151; transition: all 0.15s;
+  }
+  .nav-icon-btn:hover { background: #f3f4f6; color: #111827; }
+  .nav-icon-btn svg { width: 16px; height: 16px; }
+
+  /* ── body layout ── */
+  .body-layout { display: flex; flex: 1; min-height: 0; overflow: hidden; background: transparent; }
+  .canvas-area { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+  .canvas-tab-content { display: none; }
+  .canvas-tab-content.active-tab { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+
+  /* ── toast ── */
+  .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .toast {
+    display: flex; align-items: center; gap: 10px;
+    background: #1e293b; color: #f8fafc;
+    border-radius: 8px; padding: 12px 16px;
+    font-size: 13px; line-height: 1.4; max-width: 340px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    animation: toastIn 0.3s cubic-bezier(.4,0,.2,1) forwards;
+    pointer-events: all;
+  }
+  .toast.green { border-left: 3px solid #22c55e; }
+  .toast.orange { border-left: 3px solid #f59e0b; }
+  .toast.blue { border-left: 3px solid #3b82f6; }
+  .toast.red { border-left: 3px solid #ef4444; }
+  @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes toastOut { to { opacity: 0; transform: translateX(20px); } }
+
+  /* ── modal ── */
+  .modal-backdrop {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(3px); z-index: 9000;
+    align-items: center; justify-content: center;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: #fff; border-radius: 12px; padding: 28px 28px 24px;
+    width: 480px; max-width: 94vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    animation: modalIn 0.2s cubic-bezier(.4,0,.2,1) forwards;
+  }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: none; } }
+  .modal-title { font-size: 17px; font-weight: 600; color: #111827; margin-bottom: 4px; }
+  .modal-sub { font-size: 13px; color: #6b7280; margin-bottom: 16px; line-height: 1.5; }
+  .modal-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #9ca3af; margin-bottom: 6px; }
+  .modal-trace {
+    background: #0f172a; color: #94a3b8; font-size: 11.5px; font-family: 'IBM Plex Mono', 'Fira Code', monospace;
+    border-radius: 6px; padding: 12px 14px; margin-bottom: 14px; line-height: 1.7; white-space: pre-wrap;
+  }
+  .modal-body { font-size: 13px; color: #374151; line-height: 1.6; margin-bottom: 20px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .modal-btn-cancel { padding: 8px 16px; border-radius: 6px; border: 1px solid #e5e7eb; background: #fff; color: #374151; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .modal-btn-cancel:hover { background: #f3f4f6; }
+  .modal-btn-confirm { padding: 8px 18px; border-radius: 6px; border: none; background: #2563eb; color: #fff; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.15s; font-family: inherit; }
+  .modal-btn-confirm:hover { background: #1d4ed8; }
+
+  /* ════════════════════════════
+     PILLAR 1: TOPOLOGY INTELLIGENCE
+  ════════════════════════════ */
+  .topo-wrap { flex: 1; overflow-y: auto; padding: 28px 32px 40px; display: flex; flex-direction: column; gap: 20px; }
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .page-title { font-size: 22px; font-weight: 400; color: #111827; margin-bottom: 3px; }
+  .page-sub { font-size: 13px; color: #6b7280; max-width: 600px; line-height: 1.6; }
+  .header-actions { display: flex; align-items: center; gap: 8px; }
+  .btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: background 0.15s, border-color 0.15s; font-family: inherit;
+  }
+  .btn-primary { background: #2563eb; color: #fff; border: none; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-secondary { background: #fff; color: #374151; border: 1px solid #e5e7eb; }
+  .btn-secondary:hover { background: #f3f4f6; }
+
+  .summary-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .sum-card {
+    flex: 1; min-width: 130px;
+    background: rgba(255,255,255,0.88); border: 1px solid #e5e7eb; border-radius: 10px;
+    padding: 14px 16px; backdrop-filter: blur(8px);
+  }
+  .sum-label { font-size: 11px; color: #9ca3af; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .sum-val { font-size: 28px; font-weight: 300; color: #111827; line-height: 1; letter-spacing: -0.5px; margin-bottom: 3px; }
+  .sum-sub { font-size: 11px; color: #9ca3af; }
+
+  .topo-map-wrap {
+    background: #0f172a; border-radius: 12px; overflow: hidden; flex-shrink: 0;
+    border: 1px solid #1e293b; position: relative;
+  }
+  .topo-map-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px; background: rgba(15,23,42,0.9); border-bottom: 1px solid #1e293b;
+  }
+  .topo-map-bar-title { font-size: 12px; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+  .topo-map-bar-actions { display: flex; gap: 6px; }
+  .topo-ctrl-btn {
+    padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 500;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(148,163,184,0.2);
+    color: #94a3b8; cursor: pointer; transition: all 0.15s; font-family: inherit;
+  }
+  .topo-ctrl-btn:hover { background: rgba(37,99,235,0.3); color: #fff; border-color: #3b82f6; }
+  .topo-ctrl-btn.active { background: rgba(37,99,235,0.4); color: #60a5fa; border-color: #3b82f6; }
+
+  canvas#topoCanvas { display: block; width: 100%; }
+
+  .topo-legend {
+    display: flex; gap: 16px; padding: 8px 16px; background: rgba(15,23,42,0.85);
+    border-top: 1px solid #1e293b; flex-wrap: wrap;
+  }
+  .topo-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #64748b; }
+  .topo-legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .topo-anomaly-panel { background: rgba(255,255,255,0.88); border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; backdrop-filter: blur(8px); }
+  .topo-anomaly-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 18px; border-bottom: 1px solid #f0f0f0; background: #fafafa;
+  }
+  .topo-anomaly-title { font-size: 13px; font-weight: 600; color: #111827; display: flex; align-items: center; gap: 8px; }
+  .anomaly-count-badge { font-size: 10px; font-weight: 700; background: #ef4444; color: #fff; border-radius: 10px; padding: 1px 7px; animation: diPulse 1.8s ease-in-out infinite; }
+  @keyframes diPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+  .topo-anomaly-list { max-height: 200px; overflow-y: auto; }
+  .topo-anomaly-item {
+    display: flex; align-items: flex-start; gap: 10px; padding: 10px 18px;
+    border-bottom: 1px solid #f5f5f5; cursor: pointer; transition: background 0.12s;
+  }
+  .topo-anomaly-item:hover { background: #f9fafb; }
+  .topo-anomaly-item:last-child { border-bottom: none; }
+  .anomaly-sev-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .anomaly-sev-dot.crit { background: #ef4444; animation: dotPulse 1.4s ease-in-out infinite; }
+  .anomaly-sev-dot.warn { background: #f59e0b; animation: dotPulseAmber 2s ease-in-out infinite; }
+  .anomaly-sev-dot.info { background: #3b82f6; }
+  @keyframes dotPulse { 0%,100% { box-shadow: 0 0 0 3px rgba(239,68,68,0.2); } 50% { box-shadow: 0 0 0 6px rgba(239,68,68,0.04); } }
+  @keyframes dotPulseAmber { 0%,100% { box-shadow: 0 0 0 3px rgba(245,158,11,0.2); } 50% { box-shadow: 0 0 0 6px rgba(245,158,11,0.04); } }
+  .anomaly-item-content { flex: 1; }
+  .anomaly-item-title { font-size: 12px; font-weight: 600; color: #111827; margin-bottom: 2px; }
+  .anomaly-item-meta { font-size: 11px; color: #6b7280; display: flex; gap: 8px; flex-wrap: wrap; }
+  .anomaly-sev-tag { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px; flex-shrink: 0; margin-top: 2px; }
+  .anomaly-sev-tag.crit { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+  .anomaly-sev-tag.warn { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+  .anomaly-sev-tag.info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .anomaly-item-time { font-size: 10px; color: #9ca3af; flex-shrink: 0; margin-top: 3px; }
+
+  /* ════════════════════════════
+     PILLAR 2: PERFORMANCE ANALYTICS
+  ════════════════════════════ */
+  .perf-wrap { flex: 1; overflow-y: auto; padding: 28px 32px 40px; display: flex; flex-direction: column; gap: 20px; }
+  .perf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .perf-card {
+    background: rgba(255,255,255,0.88); border: 1px solid #e5e7eb; border-radius: 12px;
+    padding: 18px 20px; backdrop-filter: blur(8px); flex-shrink: 0;
+  }
+  .perf-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .perf-card-title { font-size: 12px; font-weight: 600; color: #374151; display: flex; align-items: center; gap: 6px; }
+  .perf-card-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+  .pcb-green { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+  .pcb-amber { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+  .pcb-red { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+  .pcb-blue { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .perf-big-val { font-size: 36px; font-weight: 300; color: #111827; line-height: 1; letter-spacing: -1px; margin-bottom: 4px; }
+  .perf-sub { font-size: 11px; color: #9ca3af; margin-bottom: 10px; }
+  .perf-sparkline-wrap { height: 40px; position: relative; }
+  canvas.sparkline { width: 100%; height: 40px; display: block; }
+
+  .perf-table-wrap { background: rgba(255,255,255,0.88); border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; backdrop-filter: blur(8px); }
+  .perf-table-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #f0f0f0; background: #fafafa; }
+  .perf-table-title { font-size: 13px; font-weight: 600; color: #111827; }
+  .perf-table-scroll { overflow-y: auto; max-height: 280px; }
+  .perf-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .perf-table thead th { position: sticky; top: 0; z-index: 1; }
+  .perf-table th { padding: 10px 18px; text-align: left; font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid #f0f0f0; background: #fafafa; }
+  .perf-table td { padding: 12px 18px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; color: #111827; }
+  .perf-table tbody tr:last-child td { border-bottom: none; }
+  .perf-table tbody tr { cursor: pointer; transition: background 0.12s; }
+  .perf-table tbody tr:hover { background: #f9fafb; }
+  .perf-bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .perf-bar-track { width: 80px; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden; }
+  .perf-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
+  .perf-bar-green .perf-bar-fill { background: #22c55e; }
+  .perf-bar-amber .perf-bar-fill { background: #f59e0b; }
+  .perf-bar-red .perf-bar-fill { background: #ef4444; }
+
+  /* ════════════════════════════
+     PILLAR 3: GUARDRAIL STUDIO
+  ════════════════════════════ */
+  .gr-wrap { flex: 1; overflow-y: auto; padding: 28px 32px 40px; display: flex; flex-direction: column; gap: 20px; }
+  .gr-table-wrap { background: rgba(255,255,255,0.88); border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; backdrop-filter: blur(8px); }
+  .gr-table-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #f0f0f0; background: #fafafa; }
+  .gr-table-title { font-size: 13px; font-weight: 600; color: #111827; }
+  .gr-table-scroll { overflow-y: auto; max-height: 380px; }
+  .gr-table-scroll::-webkit-scrollbar { width: 4px; }
+  .gr-table-scroll::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+  .gr-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .gr-table thead th { position: sticky; top: 0; z-index: 1; }
+  .gr-table th { padding: 10px 18px; text-align: left; font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid #f0f0f0; background: #fafafa; }
+  .gr-table td { padding: 14px 18px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; color: #111827; }
+  .gr-table tbody tr:last-child td { border-bottom: none; }
+  .gr-table tbody tr { cursor: pointer; transition: background 0.12s; }
+  .gr-table tbody tr:hover { background: #f9fafb; }
+  .gr-type-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 2px 8px; border-radius: 20px;
+  }
+  .gr-type-hard { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+  .gr-type-soft { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+  .gr-type-conf { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+  .gr-type-cost { background: #f5f3ff; color: #7c3aed; border: 1px solid #e9d5ff; }
+  .gr-status-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 2px 10px; border-radius: 20px; }
+  .gr-status-active { background: #dcfce7; color: #166534; }
+  .gr-status-drift { background: #fef9c3; color: #854d0e; }
+  .gr-status-breached { background: #fee2e2; color: #dc2626; }
+  .gr-impact-bar { display: flex; align-items: center; gap: 6px; }
+  .gr-impact-track { width: 60px; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden; }
+  .gr-impact-fill { height: 100%; border-radius: 2px; }
+  .gr-impact-low .gr-impact-fill { background: #22c55e; }
+  .gr-impact-med .gr-impact-fill { background: #f59e0b; }
+  .gr-impact-high .gr-impact-fill { background: #ef4444; }
+  .gr-impact-label { font-size: 11px; color: #6b7280; white-space: nowrap; }
+
+  /* Guardrail drawer */
+  .gr-drawer {
+    position: fixed; top: 56px; right: 0; bottom: 0; width: 440px;
+    background: #fff; border-left: 1px solid #e5e7eb;
+    box-shadow: -6px 0 28px rgba(0,0,0,0.10);
+    display: flex; flex-direction: column;
+    transform: translateX(100%); transition: transform 0.25s cubic-bezier(.4,0,.2,1);
+    z-index: 500;
+  }
+  .gr-drawer.open { transform: translateX(0); }
+  .gr-drawer-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 20px 20px 16px; border-bottom: 1px solid #f0f0f0; flex-shrink: 0; }
+  .gr-drawer-title { font-size: 15px; font-weight: 600; color: #111827; margin-bottom: 3px; }
+  .gr-drawer-sub { font-size: 12px; color: #6b7280; }
+  .gr-drawer-close { background: none; border: none; font-size: 16px; color: #9ca3af; cursor: pointer; padding: 2px 4px; border-radius: 3px; line-height: 1; }
+  .gr-drawer-close:hover { background: #f3f4f6; color: #374151; }
+  .gr-drawer-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .gr-field-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #6b7280; margin-bottom: 6px; }
+  .gr-field-input { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 12px; font-size: 13px; color: #111827; outline: none; font-family: inherit; transition: border-color 0.15s, box-shadow 0.15s; }
+  .gr-field-input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+  .gr-impact-preview { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px 16px; }
+  .gr-impact-preview-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #6b7280; margin-bottom: 10px; }
+  .gr-impact-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #f0f0f0; font-size: 12px; }
+  .gr-impact-row:last-child { border-bottom: none; }
+  .gr-impact-key { color: #6b7280; }
+  .gr-impact-val { font-weight: 600; color: #111827; }
+  .gr-impact-val.red { color: #dc2626; }
+  .gr-impact-val.amber { color: #d97706; }
+  .gr-impact-val.green { color: #16a34a; }
+  .gr-drawer-footer { padding: 16px 20px; border-top: 1px solid #f0f0f0; display: flex; gap: 8px; justify-content: flex-end; flex-shrink: 0; }
+
+  /* ════════════════════════════
+     PILLAR 4: DECISION INBOX
+  ════════════════════════════ */
+  .di-wrap { flex: 1; min-height: 0; overflow: hidden; display: flex; gap: 0; }
+  .di-list-col {
+    width: 320px; flex-shrink: 0; overflow-y: auto;
+    padding: 24px 16px 40px 28px; border-right: 1px solid #e5e7eb;
+    background: rgba(255,255,255,0.45); display: flex; flex-direction: column; gap: 10px;
+  }
+  .di-detail-col { flex: 1; min-width: 0; min-height: 0; overflow-y: auto; padding: 24px 28px 60px 24px; display: flex; flex-direction: column; gap: 16px; }
+  .di-list-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .di-list-title { font-size: 13px; font-weight: 600; color: #111827; }
+  .di-count-badge { font-size: 11px; font-weight: 700; background: #ef4444; color: #fff; border-radius: 10px; padding: 1px 7px; animation: diPulse 1.8s ease-in-out infinite; }
+  .di-card {
+    background: rgba(255,255,255,0.9); border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 14px 16px;
+    cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; flex-shrink: 0;
+  }
+  .di-card:hover { border-color: #93c5fd; box-shadow: 0 3px 12px rgba(37,99,235,0.1); }
+  .di-card.selected { border-color: #2563eb; box-shadow: 0 3px 16px rgba(37,99,235,0.15); background: #f8faff; }
+  .di-card.urgent { border-left: 3px solid #ef4444; }
+  .di-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+  .di-card-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 7px; border-radius: 4px; }
+  .di-tag-urgent { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+  .di-tag-warn { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+  .di-tag-info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .di-card-time { font-size: 10px; color: #9ca3af; }
+  .di-card-title { font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 4px; line-height: 1.4; }
+  .di-card-sub { font-size: 11px; color: #6b7280; }
+  .di-card-slo { font-size: 10px; color: #dc2626; font-weight: 600; margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+  .dc-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: visible; box-shadow: 0 2px 20px rgba(0,0,0,0.06); flex-shrink: 0; }
+  .dc-header { padding: 18px 24px 14px; border-bottom: 1px solid #f0f0f0; background: linear-gradient(135deg, #fef2f2 0%, #fff 100%); display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+  .dc-header-left { flex: 1; }
+  .dc-header-badges { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+  .dc-action-req { display: inline-flex; align-items: center; gap: 5px; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; }
+  .dc-service-tag { font-size: 11px; color: #6b7280; }
+  .dc-title { font-size: 18px; font-weight: 500; color: #111827; line-height: 1.35; margin-bottom: 6px; }
+  .dc-summary { font-size: 13px; color: #374151; line-height: 1.65; }
+  .dc-slo-countdown { flex-shrink: 0; text-align: right; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; }
+  .dc-slo-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #dc2626; margin-bottom: 3px; }
+  .dc-slo-time { font-size: 22px; font-weight: 300; color: #dc2626; letter-spacing: -0.5px; line-height: 1; }
+  .dc-slo-sub { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+  .dc-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+  .dc-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #9ca3af; margin-bottom: 8px; }
+  .dc-why-badge { display: inline-flex; align-items: center; gap: 6px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #92400e; line-height: 1.5; }
+  .dc-options { display: flex; flex-direction: column; gap: 8px; }
+  .dc-option { display: flex; align-items: flex-start; gap: 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+  .dc-option:hover { border-color: #93c5fd; background: #f8faff; }
+  .dc-option.recommended { border-color: #22c55e; background: #f0fdf4; }
+  .dc-option-rank { width: 22px; height: 22px; border-radius: 50%; background: #e5e7eb; color: #374151; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .dc-option.recommended .dc-option-rank { background: #22c55e; color: #fff; }
+  .dc-option-content { flex: 1; }
+  .dc-option-title { font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 2px; }
+  .dc-option-desc { font-size: 12px; color: #6b7280; line-height: 1.5; }
+  .dc-option-badge { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 3px; margin-left: 6px; }
+  .dc-ob-rec { background: #dcfce7; color: #166534; }
+  .dc-ob-risk { background: #fee2e2; color: #dc2626; }
+  .dc-evidence { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+  .dc-evidence-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: none; border: none; cursor: pointer; font-size: 12px; font-weight: 500; color: #374151; font-family: inherit; transition: background 0.15s; }
+  .dc-evidence-toggle:hover { background: #f0f4f8; }
+  .dc-evidence-body { padding: 0 14px 14px; display: none; font-size: 11.5px; color: #374151; line-height: 1.7; }
+  .dc-evidence-body.open { display: block; }
+  .dc-evidence-item { display: flex; gap: 8px; padding: 4px 0; border-bottom: 1px solid #f0f0f0; }
+  .dc-evidence-item:last-child { border-bottom: none; }
+  .dc-ev-label { color: #9ca3af; min-width: 130px; }
+  .dc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .dc-act-btn { display: flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 7px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; white-space: nowrap; font-family: inherit; }
+  .dc-act-approve { background: #16a34a; color: #fff; border: none; }
+  .dc-act-approve:hover { background: #15803d; }
+  .dc-act-override { background: #fff; color: #374151; border: 1.5px solid #e5e7eb; }
+  .dc-act-override:hover { background: #f3f4f6; border-color: #d1d5db; }
+  .dc-act-reject { background: #fff; color: #dc2626; border: 1.5px solid #fecaca; }
+  .dc-act-reject:hover { background: #fef2f2; }
+  .dc-act-modify { background: #eff6ff; color: #2563eb; border: 1.5px solid #bfdbfe; }
+  .dc-act-modify:hover { background: #dbeafe; }
+  .di-empty { min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: rgba(255,255,255,0.88); border: 1px solid #e5e7eb; border-radius: 12px; padding: 40px; flex-shrink: 0; }
+  .di-empty-icon { width: 48px; height: 48px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; }
+  .di-empty-title { font-size: 15px; font-weight: 600; color: #166534; }
+  .di-empty-sub { font-size: 13px; color: #9ca3af; text-align: center; max-width: 260px; }
+
+  /* ════════════════════════════
+     PILLAR 5: REMEDIATION ENGINE
+  ════════════════════════════ */
+  .rm-wrap { flex: 1; min-height: 0; display: flex; overflow: hidden; }
+  .rm-list-col { width: 280px; flex-shrink: 0; overflow-y: auto; padding: 24px 16px 40px 28px; border-right: 1px solid #e5e7eb; background: rgba(255,255,255,0.45); display: flex; flex-direction: column; gap: 10px; }
+  .rm-detail-col { flex: 1; min-width: 0; overflow-y: auto; padding: 24px 28px 60px 24px; display: flex; flex-direction: column; gap: 16px; }
+  .rm-list-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .rm-list-title { font-size: 13px; font-weight: 600; color: #111827; }
+  .rm-item { background: rgba(255,255,255,0.9); border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 14px 16px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+  .rm-item:hover { border-color: #93c5fd; }
+  .rm-item.selected { border-color: #2563eb; background: #f8faff; }
+  .rm-item-id { font-size: 10px; font-weight: 700; color: #6366f1; letter-spacing: 0.5px; margin-bottom: 3px; }
+  .rm-item-title { font-size: 13px; font-weight: 500; color: #111827; margin-bottom: 6px; line-height: 1.4; }
+  .rm-item-footer { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .rm-stage-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+  .rm-stage-invest { background: #fef2f2; color: #dc2626; }
+  .rm-stage-ticket { background: #fffbeb; color: #d97706; }
+  .rm-stage-cr { background: #eff6ff; color: #2563eb; }
+  .rm-stage-mw { background: #f5f3ff; color: #7c3aed; }
+  .rm-stage-deploy { background: #f0fdf4; color: #16a34a; }
+  .rm-stepper { display: flex; align-items: stretch; gap: 0; background: rgba(255,255,255,0.88); border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; flex-shrink: 0; }
+  .rm-step { flex: 1; padding: 14px 10px 12px; text-align: center; font-size: 11px; font-weight: 500; color: #9ca3af; border-right: 1px solid #e5e7eb; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: background 0.15s; }
+  .rm-step:last-child { border-right: none; }
+  .rm-step:hover:not(.blocked) { background: #f9fafb; }
+  .rm-step.active { color: #111827; background: #f0f9ff; }
+  .rm-step.done { color: #16a34a; background: #f0fdf4; }
+  .rm-step.blocked { color: #d1d5db; background: #fafafa; cursor: not-allowed; }
+  .rm-step-num { font-size: 10px; font-weight: 700; width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; background: #e5e7eb; color: #9ca3af; }
+  .rm-step.done .rm-step-num { background: #22c55e; color: #fff; }
+  .rm-step.active .rm-step-num { background: #2563eb; color: #fff; }
+  .rm-step.blocked .rm-step-num { background: #e5e7eb; color: #d1d5db; }
+  .rm-step-name { display: block; font-size: 11px; line-height: 1.3; }
+  .rm-detail-card { background: rgba(255,255,255,0.88); border: 1px solid #e5e7eb; border-radius: 10px; overflow: visible; flex-shrink: 0; backdrop-filter: blur(8px); }
+  .rm-detail-card-header { padding: 14px 18px 12px; border-bottom: 1px solid #f0f0f0; background: #fafafa; display: flex; align-items: center; justify-content: space-between; }
+  .rm-detail-card-title { font-size: 13px; font-weight: 600; color: #111827; display: flex; align-items: center; gap: 8px; }
+  .rm-detail-card-body { padding: 16px 18px; }
+  .rm-field-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 12px; gap: 12px; }
+  .rm-field-row:last-child { border-bottom: none; }
+  .rm-field-key { color: #6b7280; min-width: 140px; flex-shrink: 0; }
+  .rm-field-val { color: #111827; font-weight: 500; text-align: right; flex: 1; }
+  .rm-field-val.mono { font-family: 'IBM Plex Mono', 'Fira Code', monospace; font-size: 11px; }
+  .rm-timeline { display: flex; flex-direction: column; gap: 0; }
+  .rm-tl-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+  .rm-tl-item:last-child { border-bottom: none; }
+  .rm-tl-left { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+  .rm-tl-dot { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+  .rm-tl-line { width: 1px; flex: 1; background: #e5e7eb; margin-top: 3px; min-height: 20px; }
+  .rm-tl-item:last-child .rm-tl-line { display: none; }
+  .rm-tl-content { flex: 1; padding-top: 3px; }
+  .rm-tl-title { font-size: 12px; font-weight: 600; color: #111827; margin-bottom: 2px; }
+  .rm-tl-desc { font-size: 11px; color: #6b7280; line-height: 1.5; }
+  .rm-tl-time { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+  .rm-actions { display: flex; gap: 8px; flex-wrap: wrap; padding: 14px 18px; border-top: 1px solid #f0f0f0; }
+  .rm-act-btn { display: flex; align-items: center; gap: 5px; padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .rm-act-primary { background: #2563eb; color: #fff; border: none; }
+  .rm-act-primary:hover { background: #1d4ed8; }
+  .rm-act-secondary { background: #fff; color: #374151; border: 1px solid #e5e7eb; }
+  .rm-act-secondary:hover { background: #f3f4f6; }
+  .rm-act-danger { background: #fff; color: #dc2626; border: 1px solid #fecaca; }
+  .rm-act-danger:hover { background: #fef2f2; }
+  .rm-canary-bar { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+  .rm-canary-track { flex: 1; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+  .rm-canary-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #22c55e, #4ade80); transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+  .rm-canary-label { font-size: 11px; color: #6b7280; white-space: nowrap; }
+  .rm-canary-pct { font-size: 13px; font-weight: 600; color: #16a34a; }
+
+  /* health pulse */
+  .hp-wrap { flex: 1; overflow-y: auto; padding: 28px 32px 40px; display: flex; flex-direction: column; gap: 20px; }
+  .hp-silence-panel {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 1px solid #86efac; border-radius: 10px; padding: 20px 24px;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .hp-silence-icon { width: 40px; height: 40px; border-radius: 50%; background: #dcfce7; border: 1.5px solid #86efac; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .hp-silence-text { flex: 1; }
+  .hp-silence-title { font-size: 14px; font-weight: 600; color: #166534; margin-bottom: 3px; }
+  .hp-silence-sub { font-size: 12px; color: #166534; line-height: 1.5; opacity: 0.8; }
+  .hp-hero { background: rgba(255,255,255,0.88); border: 1px solid #e5e7eb; border-radius: 12px; padding: 28px 32px; display: flex; align-items: center; gap: 32px; backdrop-filter: blur(8px); }
+  .hp-orb-wrap { position: relative; flex-shrink: 0; }
+  .hp-orb { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border: 2px solid #86efac; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 8px rgba(34,197,94,0.1); animation: hpOrbPulse 3s ease-in-out infinite; }
+  @keyframes hpOrbPulse { 0%,100% { box-shadow: 0 0 0 8px rgba(34,197,94,0.1); } 50% { box-shadow: 0 0 0 16px rgba(34,197,94,0.04); } }
+  .hp-hero-text { flex: 1; }
+  .hp-hero-status { font-size: 22px; font-weight: 400; color: #111827; margin-bottom: 4px; }
+  .hp-hero-sub { font-size: 13px; color: #6b7280; line-height: 1.6; margin-bottom: 14px; }
+  .hp-hero-meta { display: flex; gap: 20px; flex-wrap: wrap; }
+  .hp-meta-item { font-size: 12px; color: #6b7280; display: flex; align-items: center; gap: 5px; }
+  .hp-meta-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .hp-channels-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .hp-channel-card { background: rgba(255,255,255,0.88); border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px 18px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; backdrop-filter: blur(8px); }
+  .hp-channel-card:hover { border-color: #93c5fd; box-shadow: 0 2px 12px rgba(37,99,235,0.08); }
+  .hp-channel-card.connected { border-color: #bbf7d0; }
+  .hp-channel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .hp-channel-name { font-size: 13px; font-weight: 600; color: #111827; display: flex; align-items: center; gap: 7px; }
+  .hp-channel-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .hp-channel-status { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 7px; border-radius: 20px; }
+  .hp-cs-on { background: #dcfce7; color: #166534; }
+  .hp-cs-off { background: #f3f4f6; color: #9ca3af; }
+  .hp-channel-desc { font-size: 11px; color: #9ca3af; line-height: 1.5; margin-bottom: 10px; }
+  .hp-channel-rules { display: flex; flex-direction: column; gap: 4px; }
+  .hp-channel-rule { font-size: 11px; color: #374151; display: flex; align-items: center; gap: 5px; }
+  .hp-channel-rule::before { content: '·'; color: #9ca3af; }
+  .hp-log-wrap { background: rgba(255,255,255,0.88); border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; backdrop-filter: blur(8px); }
+  .hp-log-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #f0f0f0; background: #fafafa; }
+  .hp-log-title { font-size: 13px; font-weight: 600; color: #111827; }
+  .hp-log-clear { font-size: 11px; color: #6b7280; background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 3px; font-family: inherit; }
+  .hp-log-clear:hover { background: #f3f4f6; color: #111827; }
+  .hp-log-list { max-height: 280px; overflow-y: auto; }
+  .hp-log-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 18px; border-bottom: 1px solid #f5f5f5; animation: logSlide 0.25s cubic-bezier(.4,0,.2,1) both; }
+  .hp-log-item:last-child { border-bottom: none; }
+  @keyframes logSlide { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .hp-log-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .hp-log-content { flex: 1; }
+  .hp-log-msg { font-size: 12px; color: #111827; line-height: 1.5; margin-bottom: 2px; }
+  .hp-log-meta { font-size: 10px; color: #9ca3af; }
+  .hp-log-channel { display: inline-flex; align-items: center; gap: 3px; background: #f3f4f6; border-radius: 3px; padding: 1px 5px; font-size: 10px; color: #6b7280; margin-left: 6px; }
+
+  .sec-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #9ca3af; margin-bottom: 10px; }
+
+  /* scrollbars */
+  .topo-wrap::-webkit-scrollbar, .perf-wrap::-webkit-scrollbar, .gr-wrap::-webkit-scrollbar,
+  .hp-wrap::-webkit-scrollbar, .di-list-col::-webkit-scrollbar, .di-detail-col::-webkit-scrollbar,
+  .rm-list-col::-webkit-scrollbar, .rm-detail-col::-webkit-scrollbar,
+  .gr-drawer-body::-webkit-scrollbar, .topo-anomaly-list::-webkit-scrollbar,
+  .perf-table-scroll::-webkit-scrollbar, .gr-table-scroll::-webkit-scrollbar,
+  .hp-log-list::-webkit-scrollbar { width: 4px; }
+  .topo-wrap::-webkit-scrollbar-thumb, .perf-wrap::-webkit-scrollbar-thumb, .gr-wrap::-webkit-scrollbar-thumb,
+  .hp-wrap::-webkit-scrollbar-thumb, .di-list-col::-webkit-scrollbar-thumb, .di-detail-col::-webkit-scrollbar-thumb,
+  .rm-list-col::-webkit-scrollbar-thumb, .rm-detail-col::-webkit-scrollbar-thumb,
+  .gr-drawer-body::-webkit-scrollbar-thumb, .topo-anomaly-list::-webkit-scrollbar-thumb,
+  .perf-table-scroll::-webkit-scrollbar-thumb, .gr-table-scroll::-webkit-scrollbar-thumb,
+  .hp-log-list::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ── TOAST CONTAINER ── -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ── GUARDRAIL DRAWER ── -->
+<div class="gr-drawer" id="grDrawer">
+  <div class="gr-drawer-header">
+    <div>
+      <div class="gr-drawer-title" id="grDrawerTitle">Edit Policy</div>
+      <div class="gr-drawer-sub" id="grDrawerSub">Hard limit · Active</div>
+    </div>
+    <button class="gr-drawer-close" onclick="closeGrDrawer()">✕</button>
+  </div>
+  <div class="gr-drawer-body">
+    <div>
+      <div class="gr-field-label">Policy Name</div>
+      <input class="gr-field-input" id="grDrawerName" value="" />
+    </div>
+    <div>
+      <div class="gr-field-label">Threshold / Value</div>
+      <input class="gr-field-input" id="grDrawerVal" value="" />
+    </div>
+    <div>
+      <div class="gr-field-label">Auto-adjustable</div>
+      <select class="gr-field-input" id="grDrawerAuto">
+        <option>No — always requires human approval</option>
+        <option>Yes — within ±15% of threshold</option>
+      </select>
+    </div>
+    <div class="gr-impact-preview">
+      <div class="gr-impact-preview-title">Pre-flight Impact Score — if you loosen this policy</div>
+      <div class="gr-impact-row"><span class="gr-impact-key">Devices affected</span><span class="gr-impact-val amber" id="grImpactDevices">34</span></div>
+      <div class="gr-impact-row"><span class="gr-impact-key">Blast radius</span><span class="gr-impact-val amber" id="grImpactBlast">Medium (core routing domain)</span></div>
+      <div class="gr-impact-row"><span class="gr-impact-key">Rollback confidence</span><span class="gr-impact-val green" id="grImpactRollback">96%</span></div>
+      <div class="gr-impact-row"><span class="gr-impact-key">Traffic at risk</span><span class="gr-impact-val amber" id="grImpactTraffic">~2.1 Gbps</span></div>
+      <div class="gr-impact-row"><span class="gr-impact-key">Similar past violations</span><span class="gr-impact-val red" id="grImpactPast">2 in last 30 days</span></div>
+    </div>
+    <div>
+      <div class="gr-field-label">Reason for change</div>
+      <input class="gr-field-input" placeholder="Required — added to audit log…" />
+    </div>
+  </div>
+  <div class="gr-drawer-footer">
+    <button class="btn btn-secondary" onclick="closeGrDrawer()">Cancel</button>
+    <button class="btn btn-primary" onclick="savePolicy()">Save &amp; Apply</button>
+  </div>
+</div>
+
+<!-- ── APPROVE MODAL ── -->
+<div class="modal-backdrop" id="approveModal">
+  <div class="modal">
+    <div class="modal-title">Confirm Network Action</div>
+    <div class="modal-sub" id="approveModalSub">Apply BGP route dampening on CORE-RTR-01</div>
+    <div class="modal-label">Reasoning Trace</div>
+    <div class="modal-trace" id="approveModalTrace">→ BGP flap rate: 14/min on peer 10.0.0.1 (AS 65002)
+→ Cross-referenced 9 similar historical cases
+→ Confidence: 93% · Blast radius: 1 BGP peer session
+→ Recommended: Apply dampening (half-life 15 min)
+→ Auto-clears when flap rate drops below 2/min</div>
+    <div class="modal-body">This action is reversible. The dampening policy auto-clears once the peer stabilises or after 30 minutes.</div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeModal('approveModal')">Cancel</button>
+      <button class="modal-btn-confirm" onclick="confirmApproveAction()">Confirm Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── OUTER CHROME ── -->
+<div class="outer-chrome">
+  <div class="dashboard">
+
+    <!-- TOP NAV -->
+    <div class="topnav">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="14" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+            <circle cx="16" cy="16" r="6" fill="none" stroke="#2563eb" stroke-width="1.5"/>
+            <circle cx="16" cy="16" r="1.5" fill="#2563eb"/>
+            <line x1="16" y1="2" x2="16" y2="8" stroke="#2563eb" stroke-width="1.5"/>
+            <line x1="16" y1="24" x2="16" y2="30" stroke="#2563eb" stroke-width="1.5"/>
+            <line x1="2" y1="16" x2="8" y2="16" stroke="#2563eb" stroke-width="1.5"/>
+            <line x1="24" y1="16" x2="30" y2="16" stroke="#2563eb" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div>
+          <span class="logo-name">IBM Network Intelligence</span>
+          <span class="logo-sub"> · SaaS</span>
+        </div>
+        <span class="headless-badge"><span class="headless-badge-dot"></span>Headless</span>
+      </div>
+
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('topology', this)">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline;margin-right:4px;vertical-align:-1px;"><circle cx="3" cy="8" r="2"/><circle cx="13" cy="3" r="2"/><circle cx="13" cy="13" r="2"/><line x1="5" y1="7" x2="11" y2="4"/><line x1="5" y1="9" x2="11" y2="12"/></svg>
+          Topology
+        </button>
+        <div class="nav-sep"></div>
+        <button class="nav-tab" onclick="switchTab('performance', this)">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline;margin-right:4px;vertical-align:-1px;"><polyline points="1,12 5,7 9,9 13,4"/><line x1="1" y1="14" x2="15" y2="14"/></svg>
+          Performance
+        </button>
+        <div class="nav-sep"></div>
+        <button class="nav-tab" onclick="switchTab('guardrail', this)">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline;margin-right:4px;vertical-align:-1px;"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3 1.5.5-3.5L3 5.5 6.5 5z"/></svg>
+          Policy Studio
+        </button>
+        <div class="nav-sep"></div>
+        <button class="nav-tab" onclick="switchTab('decision', this)">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline;margin-right:4px;vertical-align:-1px;"><rect x="2" y="3" width="12" height="10" rx="1.5"/><line x1="5" y1="7" x2="11" y2="7"/><line x1="5" y1="9.5" x2="8" y2="9.5"/></svg>
+          Decision Inbox <span id="inboxBadge" style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#ef4444;color:#fff;font-size:10px;font-weight:700;margin-left:5px;flex-shrink:0;animation:diPulse 1.8s ease-in-out infinite;">3</span>
+        </button>
+        <div class="nav-sep"></div>
+        <button class="nav-tab" onclick="switchTab('health', this)">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline;margin-right:4px;vertical-align:-1px;"><path d="M1 8h3l2-5 3 9 2-4h4"/></svg>
+          Health Pulse
+        </button>
+        <div class="nav-sep"></div>
+        <button class="nav-tab" onclick="switchTab('remediation', this)">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline;margin-right:4px;vertical-align:-1px;"><path d="M13 8A5 5 0 1 1 8 3"/><path d="M10 1l3 2-2 3"/></svg>
+          Remediation
+        </button>
+      </div>
+
+      <div class="nav-icons">
+        <button class="nav-icon-btn" title="Simulate network alert" onclick="simulateAlert()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </button>
+        <button class="nav-icon-btn" title="Export report" onclick="showToast('Network intelligence report exported to PDF', 'blue')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+        <button class="nav-icon-btn" title="User profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="12" cy="7.5" r="3.5"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="body-layout">
+
+      <!-- ═══════════════════════════════════════
+           PILLAR 1: TOPOLOGY INTELLIGENCE
+      ═══════════════════════════════════════ -->
+      <div class="canvas-area canvas-tab-content active-tab" id="tab-topology">
+        <div class="topo-wrap">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Network Topology Intelligence</div>
+              <div class="page-sub">Real-time layer-2/3 topology discovery across your entire estate. AI continuously maps device relationships, detects topology drift, and surfaces anomalies before they impact services — all without human polling.</div>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-secondary" onclick="showToast('Topology snapshot exported to JSON', 'blue')">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 10v3H3v-3M8 2v8M5 7l3 3 3-3"/></svg>
+                Export
+              </button>
+              <button class="btn btn-primary" onclick="runDiscovery()">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2"/></svg>
+                Run Discovery
+              </button>
+            </div>
+          </div>
+
+          <div class="summary-row">
+            <div class="sum-card">
+              <div class="sum-label">Managed Devices</div>
+              <div class="sum-val">2,847</div>
+              <div class="sum-sub">Routers, switches, firewalls</div>
+            </div>
+            <div class="sum-card">
+              <div class="sum-label">Network Links</div>
+              <div class="sum-val" style="color:#2563eb;">4,312</div>
+              <div class="sum-sub">L2 + L3 adjacencies</div>
+            </div>
+            <div class="sum-card">
+              <div class="sum-label">Healthy Links</div>
+              <div class="sum-val" style="color:#16a34a;">4,287</div>
+              <div class="sum-sub">99.4% link health</div>
+            </div>
+            <div class="sum-card">
+              <div class="sum-label">Anomalies Detected</div>
+              <div class="sum-val" style="color:#dc2626;">7</div>
+              <div class="sum-sub">4 auto-resolving</div>
+            </div>
+            <div class="sum-card">
+              <div class="sum-label">Topology Changes (24h)</div>
+              <div class="sum-val" style="color:#d97706;">23</div>
+              <div class="sum-sub">18 expected, 5 drift</div>
+            </div>
+            <div class="sum-card">
+              <div class="sum-label">Last Discovery</div>
+              <div class="sum-val" style="font-size:18px;letter-spacing:0;">2m ago</div>
+              <div class="sum-sub">Auto-interval: 5 min</div>
+            </div>
+          </div>
+
+          <!-- Topology Map Canvas -->
+          <div class="topo-map-wrap">
+            <div class="topo-map-bar">
+              <div class="topo-map-bar-title">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#94a3b8" stroke-width="1.4"><circle cx="3" cy="8" r="2"/><circle cx="13" cy="3" r="2"/><circle cx="13" cy="13" r="2"/><circle cx="8" cy="13" r="2"/><line x1="5" y1="7" x2="11" y2="4"/><line x1="5" y1="9" x2="11" y2="12"/><line x1="8" y1="11" x2="13" y2="5"/></svg>
+                Live Network Topology — Core + Edge Layer
+                <span style="font-size:10px;color:#4ade80;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);border-radius:3px;padding:1px 6px;">LIVE</span>
+              </div>
+              <div class="topo-map-bar-actions">
+                <button class="topo-ctrl-btn active" onclick="this.classList.toggle('active')">L3 View</button>
+                <button class="topo-ctrl-btn" onclick="this.classList.toggle('active')">L2 View</button>
+                <button class="topo-ctrl-btn" onclick="this.classList.toggle('active')">BGP Peers</button>
+                <button class="topo-ctrl-btn" onclick="this.classList.toggle('active')">Traffic Flow</button>
+                <button class="topo-ctrl-btn" onclick="showToast('Anomaly overlay toggled', 'blue'); this.classList.toggle('active')">Anomalies</button>
+              </div>
+            </div>
+            <canvas id="topoCanvas" width="1200" height="320"></canvas>
+            <div class="topo-legend">
+              <div class="topo-legend-item"><div class="topo-legend-dot" style="background:#22c55e;"></div>Healthy Device</div>
+              <div class="topo-legend-item"><div class="topo-legend-dot" style="background:#f59e0b;"></div>Warning / Degraded</div>
+              <div class="topo-legend-item"><div class="topo-legend-dot" style="background:#ef4444;"></div>Critical / Down</div>
+              <div class="topo-legend-item"><div class="topo-legend-dot" style="background:#3b82f6;border-radius:0;width:16px;height:3px;"></div>Healthy Link</div>
+              <div class="topo-legend-item"><div class="topo-legend-dot" style="background:#f59e0b;border-radius:0;width:16px;height:3px;"></div>Degraded Link</div>
+              <div class="topo-legend-item"><div class="topo-legend-dot" style="background:#94a3b8;"></div>Edge Device</div>
+            </div>
+          </div>
+
+          <!-- Anomaly List -->
+          <div class="topo-anomaly-panel">
+            <div class="topo-anomaly-header">
+              <div class="topo-anomaly-title">
+                Active Anomalies
+                <span class="anomaly-count-badge">7</span>
+              </div>
+              <button class="btn btn-secondary" style="padding:5px 12px;font-size:11px;" onclick="showToast('Deep scan initiated — results in ~90s', 'blue')">Deep Scan</button>
+            </div>
+            <div class="topo-anomaly-list" id="topoAnomalyList"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           PILLAR 2: PERFORMANCE ANALYTICS
+      ═══════════════════════════════════════ -->
+      <div class="canvas-area canvas-tab-content" id="tab-performance">
+        <div class="perf-wrap">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Performance Analytics</div>
+              <div class="page-sub">AI-driven traffic analysis across all network segments. Automatic baselining, deviation scoring, and predictive capacity insights — surfaced only when they matter.</div>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-secondary" onclick="showToast('Performance report scheduled for 08:00 UTC', 'blue')">Schedule Report</button>
+              <button class="btn btn-primary" onclick="showToast('Live traffic analysis refreshed', 'green')">Refresh Now</button>
+            </div>
+          </div>
+
+          <div class="perf-grid">
+            <div class="perf-card">
+              <div class="perf-card-header">
+                <div class="perf-card-title">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#3b82f6" stroke-width="1.5"><path d="M1 12l4-5 4 2 4-6"/></svg>
+                  Aggregate Throughput
+                </div>
+                <span class="perf-card-badge pcb-blue">+3.2%</span>
+              </div>
+              <div class="perf-big-val">847<span style="font-size:18px;color:#6b7280;"> Gbps</span></div>
+              <div class="perf-sub">Peak today: 1.2 Tbps at 14:32 UTC</div>
+              <div class="perf-sparkline-wrap"><canvas class="sparkline" id="spark1"></canvas></div>
+            </div>
+            <div class="perf-card">
+              <div class="perf-card-header">
+                <div class="perf-card-title">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#22c55e" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3.5M8 10.5v.01" stroke-linecap="round"/></svg>
+                  Network Availability
+                </div>
+                <span class="perf-card-badge pcb-green">Nominal</span>
+              </div>
+              <div class="perf-big-val" style="color:#16a34a;">99.97<span style="font-size:18px;">%</span></div>
+              <div class="perf-sub">SLA target: 99.95% · 14 min downtime this month</div>
+              <div class="perf-sparkline-wrap"><canvas class="sparkline" id="spark2"></canvas></div>
+            </div>
+            <div class="perf-card">
+              <div class="perf-card-header">
+                <div class="perf-card-title">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#f59e0b" stroke-width="1.5"><path d="M8 2v4M8 10v4M2 8h4M10 8h4" stroke-linecap="round"/></svg>
+                  Avg Round-Trip Latency
+                </div>
+                <span class="perf-card-badge pcb-amber">+8ms spike</span>
+              </div>
+              <div class="perf-big-val" style="color:#d97706;">4.2<span style="font-size:18px;color:#6b7280;"> ms</span></div>
+              <div class="perf-sub">Baseline: 3.8ms · Spike on NY-CHI corridor</div>
+              <div class="perf-sparkline-wrap"><canvas class="sparkline" id="spark3"></canvas></div>
+            </div>
+            <div class="perf-card">
+              <div class="perf-card-header">
+                <div class="perf-card-title">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#6366f1" stroke-width="1.5"><rect x="2" y="10" width="3" height="4"/><rect x="6.5" y="7" width="3" height="7"/><rect x="11" y="4" width="3" height="10"/></svg>
+                  Packet Loss Rate
+                </div>
+                <span class="perf-card-badge pcb-green">Within SLA</span>
+              </div>
+              <div class="perf-big-val" style="color:#16a34a;">0.003<span style="font-size:18px;color:#6b7280;">%</span></div>
+              <div class="perf-sub">SLA ceiling: 0.1% · 3 links above baseline</div>
+              <div class="perf-sparkline-wrap"><canvas class="sparkline" id="spark4"></canvas></div>
+            </div>
+            <div class="perf-card">
+              <div class="perf-card-header">
+                <div class="perf-card-title">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#ec4899" stroke-width="1.5"><path d="M2 14l3-8 3 4 3-6 3 10"/></svg>
+                  BGP Route Stability
+                </div>
+                <span class="perf-card-badge pcb-amber">1 flapping</span>
+              </div>
+              <div class="perf-big-val">98.7<span style="font-size:18px;color:#6b7280;">%</span></div>
+              <div class="perf-sub">482 peers stable · 1 flapping on AS 65002</div>
+              <div class="perf-sparkline-wrap"><canvas class="sparkline" id="spark5"></canvas></div>
+            </div>
+            <div class="perf-card">
+              <div class="perf-card-header">
+                <div class="perf-card-title">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#14b8a6" stroke-width="1.5"><path d="M8 2a6 6 0 0 1 6 6M8 2a6 6 0 0 0-6 6" stroke-linecap="round"/><circle cx="8" cy="8" r="2"/></svg>
+                  QoS Policy Adherence
+                </div>
+                <span class="perf-card-badge pcb-green">100%</span>
+              </div>
+              <div class="perf-big-val" style="color:#16a34a;">100<span style="font-size:18px;color:#6b7280;">%</span></div>
+              <div class="perf-sub">All 127 QoS policies enforced · 0 violations</div>
+              <div class="perf-sparkline-wrap"><canvas class="sparkline" id="spark6"></canvas></div>
+            </div>
+          </div>
+
+          <!-- Interface performance table -->
+          <div class="perf-table-wrap">
+            <div class="perf-table-header">
+              <span class="perf-table-title">Top Interface Performance — Last 1 Hour</span>
+              <span style="font-size:11px;color:#9ca3af;">AI-ranked by deviation from baseline · Click row for deep drill-down</span>
+            </div>
+            <div class="perf-table-scroll">
+              <table class="perf-table" id="perfTable">
+                <thead>
+                  <tr>
+                    <th>Interface</th>
+                    <th>Device</th>
+                    <th>Throughput</th>
+                    <th>Utilisation</th>
+                    <th>Latency</th>
+                    <th>Errors</th>
+                    <th>AI Score</th>
+                  </tr>
+                </thead>
+                <tbody id="perfTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           PILLAR 3: POLICY STUDIO (GUARDRAILS)
+      ═══════════════════════════════════════ -->
+      <div class="canvas-area canvas-tab-content" id="tab-guardrail">
+        <div class="gr-wrap">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Policy Studio</div>
+              <div class="page-sub">Define the envelope of autonomous network action. Every policy change shows its pre-flight impact — blast radius, rollback confidence, and traffic at risk — before you apply it. Hard limits are never auto-crossed.</div>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-secondary" onclick="showToast('Policy set exported to YAML', 'blue')">Export Policy</button>
+              <button class="btn btn-primary" onclick="openGrDrawer('new')">+ New Policy</button>
+            </div>
+          </div>
+
+          <div class="summary-row">
+            <div class="sum-card">
+              <div class="sum-label">Total Policies</div>
+              <div class="sum-val">18</div>
+              <div class="sum-sub">Across 5 categories</div>
+            </div>
+            <div class="sum-card">
+              <div class="sum-label">Active &amp; Healthy</div>
+              <div class="sum-val" style="color:#16a34a;">14</div>
+              <div class="sum-sub">No drift detected</div>
+            </div>
+            <div class="sum-card">
+              <div class="sum-label">Soft Drift</div>
+              <div class="sum-val" style="color:#d97706;">3</div>
+              <div class="sum-sub">Review recommended</div>
+            </div>
+            <div class="sum-card">
+              <div class="sum-label">Auto-tuned (7d)</div>
+              <div class="sum-val" style="color:#2563eb;">6</div>
+              <div class="sum-sub">Within ±15% of threshold</div>
+            </div>
+            <div class="sum-card">
+              <div class="sum-label">Actions Blocked</div>
+              <div class="sum-val" style="color:#dc2626;">1</div>
+              <div class="sum-sub">Awaiting override</div>
+            </div>
+          </div>
+
+          <div class="gr-table-wrap">
+            <div class="gr-table-header">
+              <span class="gr-table-title">All network policies</span>
+              <span style="font-size:11px;color:#9ca3af;">Click a row to edit · Pre-flight impact runs before any change is applied</span>
+            </div>
+            <div class="gr-table-scroll">
+              <table class="gr-table">
+                <thead>
+                  <tr>
+                    <th>Policy</th>
+                    <th>Type</th>
+                    <th>Current Value</th>
+                    <th>Status</th>
+                    <th>Impact if Changed</th>
+                    <th>Auto-tunable</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="grTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           PILLAR 4: DECISION INBOX
+      ═══════════════════════════════════════ -->
+      <div class="canvas-area canvas-tab-content" id="tab-decision">
+        <div class="di-wrap">
+          <div class="di-list-col">
+            <div class="di-list-header">
+              <span class="di-list-title">Pending decisions</span>
+              <span class="di-count-badge" id="diBadge">3</span>
+            </div>
+            <div id="diList"></div>
+          </div>
+          <div class="di-detail-col" id="diDetail"></div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           PILLAR 5a: HEALTH PULSE
+      ═══════════════════════════════════════ -->
+      <div class="canvas-area canvas-tab-content" id="tab-health">
+        <div class="hp-wrap">
+          <div class="hp-silence-panel">
+            <div class="hp-silence-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+            </div>
+            <div class="hp-silence-text">
+              <div class="hp-silence-title">Network fleet nominal — running silently</div>
+              <div class="hp-silence-sub">47 issues auto-resolved in the last 7 days. No escalations sent. Silence is the primary signal of network health. You will only be notified when autonomous resolution is blocked.</div>
+            </div>
+          </div>
+
+          <div class="hp-hero">
+            <div class="hp-orb-wrap">
+              <div class="hp-orb">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+              </div>
+            </div>
+            <div class="hp-hero-text">
+              <div class="hp-hero-status">Network Health — Excellent</div>
+              <div class="hp-hero-sub">99.97% fleet availability · 93% AI confidence score · 1 BGP flap auto-monitored · 0 open P1 escalations</div>
+              <div class="hp-hero-meta">
+                <span class="hp-meta-item"><span class="hp-meta-dot" style="background:#22c55e;"></span>47 auto-resolved this week</span>
+                <span class="hp-meta-item"><span class="hp-meta-dot" style="background:#d97706;"></span>2 escalated to NOC</span>
+                <span class="hp-meta-item"><span class="hp-meta-dot" style="background:#9ca3af;"></span>Next digest: Mon 09:00 UTC</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="sec-label">Notification channels — alert only when autonomous resolution fails</div>
+            <div class="hp-channels-grid">
+              <div class="hp-channel-card connected" onclick="showToast('Slack #noc-alerts configured · connected', 'green')">
+                <div class="hp-channel-header">
+                  <div class="hp-channel-name">
+                    <div class="hp-channel-icon" style="background:#4a154b;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5zm2.5 1.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5H17v-1.5zM9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5zM7 12.5c0 .83-.67 1.5-1.5 1.5S4 13.33 4 12.5 4.67 11 5.5 11H7v1.5zM11.5 14c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V9c0-.83-.67-1.5-1.5-1.5S11.5 8.17 11.5 9v5z"/></svg>
+                    </div>
+                    Slack
+                  </div>
+                  <span class="hp-channel-status hp-cs-on">Connected</span>
+                </div>
+                <div class="hp-channel-desc">#noc-alerts · auto-escalation on hard policy block</div>
+                <div class="hp-channel-rules">
+                  <span class="hp-channel-rule">Hard policy crossed</span>
+                  <span class="hp-channel-rule">Autonomous action failed</span>
+                  <span class="hp-channel-rule">P1 SLA breach &lt;15 min</span>
+                  <span class="hp-channel-rule">Weekly digest (Mon 09:00)</span>
+                </div>
+              </div>
+              <div class="hp-channel-card" onclick="showToast('ServiceNow integration key saved · testing…', 'blue')">
+                <div class="hp-channel-header">
+                  <div class="hp-channel-name">
+                    <div class="hp-channel-icon" style="background:#293e40;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="#81b9a7"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+                    </div>
+                    ServiceNow
+                  </div>
+                  <span class="hp-channel-status hp-cs-off">Not connected</span>
+                </div>
+                <div class="hp-channel-desc">Auto-ticket creation for P1/P2 incidents</div>
+                <div class="hp-channel-rules">
+                  <span class="hp-channel-rule">P1/P2 incidents only</span>
+                  <span class="hp-channel-rule">Approval requests</span>
+                  <span class="hp-channel-rule">Policy drift &gt; 10%</span>
+                </div>
+              </div>
+              <div class="hp-channel-card" onclick="showToast('PagerDuty integration key saved', 'orange')">
+                <div class="hp-channel-header">
+                  <div class="hp-channel-name">
+                    <div class="hp-channel-icon" style="background:#06ac38;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="12" r="10"/><path d="M12 7v6" stroke="#06ac38" stroke-width="2.5" stroke-linecap="round"/><circle cx="12" cy="16.5" r="1.5" fill="#06ac38"/></svg>
+                    </div>
+                    PagerDuty
+                  </div>
+                  <span class="hp-channel-status hp-cs-off">Not connected</span>
+                </div>
+                <div class="hp-channel-desc">High-urgency escalation for critical outages only</div>
+                <div class="hp-channel-rules">
+                  <span class="hp-channel-rule">Core route loss</span>
+                  <span class="hp-channel-rule">Confidence below threshold</span>
+                  <span class="hp-channel-rule">Autonomous retry failed 3×</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hp-log-wrap">
+            <div class="hp-log-header">
+              <span class="hp-log-title">Recent network events (last 24h)</span>
+              <button class="hp-log-clear" onclick="clearHpLog()">Clear</button>
+            </div>
+            <div class="hp-log-list" id="hpLogList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           PILLAR 5b: REMEDIATION ENGINE
+      ═══════════════════════════════════════ -->
+      <div class="canvas-area canvas-tab-content" id="tab-remediation">
+        <div class="rm-wrap">
+          <div class="rm-list-col">
+            <div class="rm-list-header">
+              <span class="rm-list-title">Active cases</span>
+            </div>
+            <div id="rmList"></div>
+          </div>
+          <div class="rm-detail-col" id="rmDetail"></div>
+        </div>
+      </div>
+
+    </div><!-- /body-layout -->
+  </div><!-- /dashboard -->
+</div><!-- /outer-chrome -->
+
+<script>
+/* ══════════════════════════════════
+   UTILITIES
+══════════════════════════════════ */
+function showToast(msg, type='blue') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.animation = 'toastOut 0.3s ease forwards'; setTimeout(() => t.remove(), 320); }, 3200);
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.canvas-tab-content').forEach(t => t.classList.remove('active-tab'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active-tab');
+  if (btn) btn.classList.add('active');
+}
+
+/* ══════════════════════════════════
+   PILLAR 1: TOPOLOGY CANVAS
+══════════════════════════════════ */
+const TOPO_NODES = [
+  // Core layer
+  { id:'CORE-01', label:'CORE-RTR-01', x:0.35, y:0.18, type:'core', status:'healthy' },
+  { id:'CORE-02', label:'CORE-RTR-02', x:0.65, y:0.18, type:'core', status:'healthy' },
+  { id:'CORE-03', label:'CORE-RTR-03', x:0.50, y:0.30, type:'core', status:'healthy' },
+  // Distribution layer
+  { id:'DIST-01', label:'DIST-SW-01', x:0.18, y:0.44, type:'dist', status:'healthy' },
+  { id:'DIST-02', label:'DIST-SW-02', x:0.35, y:0.44, type:'dist', status:'warning' },
+  { id:'DIST-03', label:'DIST-SW-03', x:0.65, y:0.44, type:'dist', status:'healthy' },
+  { id:'DIST-04', label:'DIST-SW-04', x:0.82, y:0.44, type:'dist', status:'healthy' },
+  // Aggregation / Edge
+  { id:'EDGE-01', label:'EDGE-FW-01', x:0.10, y:0.68, type:'edge', status:'healthy' },
+  { id:'EDGE-02', label:'EDGE-FW-02', x:0.28, y:0.68, type:'edge', status:'critical' },
+  { id:'EDGE-03', label:'EDGE-SW-03', x:0.50, y:0.68, type:'edge', status:'healthy' },
+  { id:'EDGE-04', label:'EDGE-SW-04', x:0.72, y:0.68, type:'edge', status:'healthy' },
+  { id:'EDGE-05', label:'EDGE-FW-05', x:0.90, y:0.68, type:'edge', status:'healthy' },
+  // Internet / WAN
+  { id:'WAN-01', label:'ISP-A', x:0.25, y:0.06, type:'wan', status:'healthy' },
+  { id:'WAN-02', label:'ISP-B', x:0.75, y:0.06, type:'wan', status:'healthy' },
+  { id:'WAN-03', label:'MPLS-GW', x:0.50, y:0.06, type:'wan', status:'healthy' },
+];
+
+const TOPO_LINKS = [
+  { a:'WAN-01', b:'CORE-01', status:'healthy' }, { a:'WAN-02', b:'CORE-02', status:'healthy' },
+  { a:'WAN-03', b:'CORE-03', status:'healthy' },
+  { a:'CORE-01', b:'CORE-02', status:'healthy' }, { a:'CORE-01', b:'CORE-03', status:'healthy' },
+  { a:'CORE-02', b:'CORE-03', status:'healthy' },
+  { a:'CORE-01', b:'DIST-01', status:'healthy' }, { a:'CORE-01', b:'DIST-02', status:'warning' },
+  { a:'CORE-02', b:'DIST-03', status:'healthy' }, { a:'CORE-02', b:'DIST-04', status:'healthy' },
+  { a:'CORE-03', b:'DIST-02', status:'warning' }, { a:'CORE-03', b:'DIST-03', status:'healthy' },
+  { a:'DIST-01', b:'EDGE-01', status:'healthy' }, { a:'DIST-01', b:'EDGE-02', status:'healthy' },
+  { a:'DIST-02', b:'EDGE-02', status:'healthy' }, { a:'DIST-02', b:'EDGE-03', status:'healthy' },
+  { a:'DIST-03', b:'EDGE-03', status:'healthy' }, { a:'DIST-03', b:'EDGE-04', status:'healthy' },
+  { a:'DIST-04', b:'EDGE-04', status:'healthy' }, { a:'DIST-04', b:'EDGE-05', status:'healthy' },
+];
+
+function drawTopology() {
+  const canvas = document.getElementById('topoCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || canvas.width;
+  const H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(148,163,184,0.06)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  function nodePos(id) {
+    const n = TOPO_NODES.find(n => n.id === id);
+    return n ? { x: n.x * W, y: n.y * H } : null;
+  }
+
+  // Draw links
+  TOPO_LINKS.forEach(l => {
+    const a = nodePos(l.a), b = nodePos(l.b);
+    if (!a || !b) return;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+    ctx.strokeStyle = l.status === 'healthy' ? 'rgba(59,130,246,0.45)' : l.status === 'warning' ? 'rgba(245,158,11,0.7)' : 'rgba(239,68,68,0.7)';
+    ctx.lineWidth = l.status === 'healthy' ? 1.5 : 2;
+    if (l.status !== 'healthy') { ctx.setLineDash([5,3]); } else { ctx.setLineDash([]); }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  // Draw nodes
+  TOPO_NODES.forEach(n => {
+    const x = n.x * W, y = n.y * H;
+    const r = n.type === 'core' ? 10 : n.type === 'dist' ? 8 : n.type === 'wan' ? 9 : 7;
+    const fillColor = n.status === 'healthy' ? '#22c55e' : n.status === 'warning' ? '#f59e0b' : '#ef4444';
+    const ringColor = n.status === 'healthy' ? 'rgba(34,197,94,0.25)' : n.status === 'warning' ? 'rgba(245,158,11,0.25)' : 'rgba(239,68,68,0.3)';
+
+    // Glow ring
+    ctx.beginPath(); ctx.arc(x, y, r + 6, 0, Math.PI*2);
+    ctx.fillStyle = ringColor; ctx.fill();
+
+    // Node
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2);
+    ctx.fillStyle = fillColor; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // Label
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '10px IBM Plex Sans, system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(n.label, x, y + r + 14);
+  });
+
+  // Layer labels
+  ctx.font = '10px IBM Plex Sans, system-ui, sans-serif';
+  ctx.fillStyle = 'rgba(148,163,184,0.5)';
+  ctx.textAlign = 'left';
+  ctx.fillText('WAN / ISP', 8, 0.06 * H + 4);
+  ctx.fillText('CORE', 8, 0.18 * H + 4);
+  ctx.fillText('DISTRIBUTION', 8, 0.44 * H + 4);
+  ctx.fillText('EDGE / ACCESS', 8, 0.68 * H + 4);
+}
+
+setTimeout(drawTopology, 100);
+window.addEventListener('resize', () => setTimeout(drawTopology, 50));
+
+const TOPO_ANOMALIES = [
+  { sev:'crit', title:'BGP peer flapping — AS 65002 on CORE-RTR-01', device:'CORE-RTR-01 · Gi0/0/1', meta:'14 flaps/min · dampening applied', time:'8 min ago' },
+  { sev:'crit', title:'Optic Rx power below threshold — DIST-SW-02 port 1/2', device:'DIST-SW-02 · Port 1/2', meta:'-28 dBm · threshold -26 dBm · error rate rising', time:'23 min ago' },
+  { sev:'warn', title:'Interface utilisation >90% — EDGE-FW-02 Gi0/1', device:'EDGE-FW-02 · Gi0/1', meta:'93% utilisation · 10G link · trending up', time:'31 min ago' },
+  { sev:'warn', title:'MTU mismatch on DIST-SW-02 peer — fragmentation detected', device:'DIST-SW-02 · Port 2/1', meta:'MTU 1480 vs peer 1500 · frag rate 0.4%', time:'1h ago' },
+  { sev:'warn', title:'Spanning-tree topology change flood on DIST-SW-01', device:'DIST-SW-01', meta:'42 TCN events in last 10 min · investigating', time:'1h 12 min ago' },
+  { sev:'info', title:'CDP neighbour mismatch — unexpected device on CORE-RTR-03', device:'CORE-RTR-03 · Gi0/2', meta:'Unknown device fingerprint · catalogued for review', time:'2h ago' },
+  { sev:'info', title:'Route table change — 3 new prefixes from MPLS-GW', device:'CORE-RTR-01 / RTR-02', meta:'3 new /24 prefixes imported · verified against policy', time:'3h ago' },
+];
+
+function buildTopoAnomalyList() {
+  const el = document.getElementById('topoAnomalyList');
+  el.innerHTML = TOPO_ANOMALIES.map(a => `
+    <div class="topo-anomaly-item" onclick="showToast('Opening detail for: ${a.title.substring(0,40)}…', 'blue')">
+      <div class="anomaly-sev-dot ${a.sev}"></div>
+      <div class="anomaly-item-content">
+        <div class="anomaly-item-title">${a.title}</div>
+        <div class="anomaly-item-meta">${a.device} · ${a.meta}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+        <span class="anomaly-sev-tag ${a.sev}">${a.sev === 'crit' ? 'Critical' : a.sev === 'warn' ? 'Warning' : 'Info'}</span>
+        <span class="anomaly-item-time">${a.time}</span>
+      </div>
+    </div>
+  `).join('');
+}
+buildTopoAnomalyList();
+
+function runDiscovery() {
+  showToast('Full topology discovery initiated — scanning 2,847 devices…', 'blue');
+  setTimeout(() => showToast('Discovery complete · 2 new adjacencies found · 1 link state change', 'green'), 2800);
+}
+
+/* ══════════════════════════════════
+   PILLAR 2: PERFORMANCE
+══════════════════════════════════ */
+function drawSparkline(canvasId, data, color) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 200, H = 40;
+  ctx.clearRect(0, 0, W, H);
+  const mn = Math.min(...data), mx = Math.max(...data);
+  const range = mx - mn || 1;
+  const pts = data.map((v, i) => ({ x: (i / (data.length-1)) * W, y: H - ((v - mn) / range) * (H - 6) - 3 }));
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0, color + '40'); grad.addColorStop(1, color + '00');
+  ctx.beginPath(); ctx.moveTo(pts[0].x, H);
+  pts.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(pts[pts.length-1].x, H); ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+  pts.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.stroke();
+}
+
+setTimeout(() => {
+  const rnd = (n, v, d) => Array.from({length:n},()=> v + (Math.random()-0.5)*d);
+  drawSparkline('spark1', rnd(20, 847, 120), '#3b82f6');
+  drawSparkline('spark2', rnd(20, 99.97, 0.04), '#22c55e');
+  drawSparkline('spark3', rnd(20, 4.2, 2), '#f59e0b');
+  drawSparkline('spark4', rnd(20, 0.003, 0.002), '#22c55e');
+  drawSparkline('spark5', rnd(20, 98.7, 1.2), '#f59e0b');
+  drawSparkline('spark6', rnd(20, 100, 0), '#22c55e');
+}, 150);
+
+const PERF_DATA = [
+  { iface:'Gi0/0/1', device:'CORE-RTR-01', throughput:'98.4 Gbps', util:92, latency:'1.2 ms', errors:'0.00%', score:82, scoreColor:'#f59e0b' },
+  { iface:'Gi0/0/2', device:'CORE-RTR-02', throughput:'87.1 Gbps', util:81, latency:'1.4 ms', errors:'0.00%', score:76, scoreColor:'#f59e0b' },
+  { iface:'Port 1/2', device:'DIST-SW-02', throughput:'9.3 Gbps', util:93, latency:'3.1 ms', errors:'0.04%', score:91, scoreColor:'#ef4444' },
+  { iface:'Gi0/1', device:'EDGE-FW-02', throughput:'9.1 Gbps', util:91, latency:'2.8 ms', errors:'0.01%', score:88, scoreColor:'#ef4444' },
+  { iface:'Te1/0/1', device:'DIST-SW-01', throughput:'45.2 Gbps', util:56, latency:'0.9 ms', errors:'0.00%', score:24, scoreColor:'#22c55e' },
+  { iface:'Gi0/0/1', device:'CORE-RTR-03', throughput:'72.8 Gbps', util:68, latency:'1.1 ms', errors:'0.00%', score:31, scoreColor:'#22c55e' },
+  { iface:'Te0/0/0', device:'DIST-SW-03', throughput:'38.4 Gbps', util:44, latency:'1.0 ms', errors:'0.00%', score:18, scoreColor:'#22c55e' },
+];
+
+function buildPerfTable() {
+  const tbody = document.getElementById('perfTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = PERF_DATA.map(r => {
+    const utilClass = r.util >= 90 ? 'perf-bar-red' : r.util >= 70 ? 'perf-bar-amber' : 'perf-bar-green';
+    return `<tr onclick="showToast('Deep drill-down: ${r.device} ${r.iface}', 'blue')">
+      <td style="font-family:'IBM Plex Mono',monospace;font-size:12px;">${r.iface}</td>
+      <td>${r.device}</td>
+      <td style="font-size:12px;color:#374151;">${r.throughput}</td>
+      <td>
+        <div class="perf-bar-wrap ${utilClass}">
+          <div class="perf-bar-track"><div class="perf-bar-fill" style="width:${r.util}%"></div></div>
+          <span style="font-size:11px;color:#374151;">${r.util}%</span>
+        </div>
+      </td>
+      <td style="font-size:12px;color:#374151;">${r.latency}</td>
+      <td style="font-size:12px;color:${r.errors !== '0.00%' ? '#dc2626':'#374151'};">${r.errors}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:40px;height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;">
+            <div style="width:${r.score}%;height:100%;background:${r.scoreColor};border-radius:2px;"></div>
+          </div>
+          <span style="font-size:11px;font-weight:600;color:${r.scoreColor};">${r.score}</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+buildPerfTable();
+
+/* ══════════════════════════════════
+   PILLAR 3: POLICY STUDIO
+══════════════════════════════════ */
+const GUARDRAILS = [
+  { id:'P-01', name:'BGP policy changes require human approval', type:'hard', val:'Approval required', status:'active', impactLevel:'high', impactW:95, auto:'No', category:'Routing' },
+  { id:'P-02', name:'No core router restarts Mon–Fri 08:00–20:00 UTC', type:'hard', val:'08:00–20:00 UTC Mon–Fri', status:'active', impactLevel:'high', impactW:90, auto:'No', category:'Availability' },
+  { id:'P-03', name:'Confidence threshold — escalate below 85%', type:'conf', val:'85% minimum', status:'active', impactLevel:'high', impactW:88, auto:'No', category:'Autonomy' },
+  { id:'P-04', name:'Auto-add ACL entries ≤ 5 rules without approval', type:'soft', val:'5 rules max', status:'drift', impactLevel:'med', impactW:55, auto:'Yes ±15%', category:'Security' },
+  { id:'P-05', name:'Interface shutdown on >95% utilisation (non-critical)', type:'soft', val:'95% threshold', status:'active', impactLevel:'med', impactW:60, auto:'Yes ±10%', category:'Capacity' },
+  { id:'P-06', name:'Cross-region traffic steering needs approval', type:'hard', val:'Approval required', status:'active', impactLevel:'high', impactW:85, auto:'No', category:'Traffic' },
+  { id:'P-07', name:'Blast radius cap — max 1% traffic affected per action', type:'conf', val:'1% traffic cap', status:'active', impactLevel:'high', impactW:92, auto:'No', category:'Autonomy' },
+  { id:'P-08', name:'Maintenance windows — no deploys Fri 17:00+ UTC', type:'hard', val:'Fri 17:00 UTC onwards', status:'drift', impactLevel:'med', impactW:58, auto:'No', category:'Change' },
+  { id:'P-09', name:'Cloud bandwidth ceiling — auto-approve ≤ 100 Gbps', type:'cost', val:'100 Gbps burst cap', status:'active', impactLevel:'med', impactW:48, auto:'Yes up to 120%', category:'Cost' },
+  { id:'P-10', name:'Spanning-tree topology changes — ask on >10 TCNs/min', type:'soft', val:'10 TCN/min threshold', status:'drift', impactLevel:'low', impactW:28, auto:'Yes ±20%', category:'Stability' },
+  { id:'P-11', name:'Firmware upgrades require Change Request approval', type:'hard', val:'CR approval required', status:'active', impactLevel:'high', impactW:88, auto:'No', category:'Change' },
+  { id:'P-12', name:'OSPF neighbour drops — auto-restart below 3 events/hr', type:'soft', val:'3 events/hr max', status:'active', impactLevel:'low', impactW:22, auto:'Yes ±15%', category:'Routing' },
+];
+
+function buildGrTable() {
+  const tbody = document.getElementById('grTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = GUARDRAILS.map(g => `
+    <tr onclick="openGrDrawer('${g.id}')">
+      <td>
+        <div style="font-weight:500;color:#111827;font-size:13px;">${g.name}</div>
+        <div style="font-size:11px;color:#9ca3af;margin-top:2px;">${g.category} · ${g.id}</div>
+      </td>
+      <td><span class="gr-type-badge gr-type-${g.type}">${g.type==='hard'?'Hard limit':g.type==='soft'?'Soft limit':g.type==='conf'?'Confidence':'Cost ceiling'}</span></td>
+      <td style="font-size:12px;color:#374151;font-family:'IBM Plex Mono','Fira Code',monospace;">${g.val}</td>
+      <td><span class="gr-status-badge gr-status-${g.status}">${g.status==='active'?'Active':g.status==='drift'?'Drifting':'Breached'}</span></td>
+      <td>
+        <div class="gr-impact-bar gr-impact-${g.impactLevel}">
+          <div class="gr-impact-track"><div class="gr-impact-fill" style="width:${g.impactW}%"></div></div>
+          <span class="gr-impact-label">${g.impactLevel==='high'?'High':g.impactLevel==='med'?'Medium':'Low'}</span>
+        </div>
+      </td>
+      <td style="font-size:12px;color:#374151;">${g.auto}</td>
+      <td><button style="font-size:11px;color:#2563eb;background:none;border:none;cursor:pointer;padding:3px 8px;border-radius:3px;font-family:inherit;" onmouseenter="this.style.background='#eff6ff'" onmouseleave="this.style.background='none'">Edit</button></td>
+    </tr>
+  `).join('');
+}
+buildGrTable();
+
+function openGrDrawer(id) {
+  const g = GUARDRAILS.find(x => x.id === id) || { name:'', val:'', type:'hard', status:'active', auto:'No', category:'Routing', impactLevel:'med' };
+  document.getElementById('grDrawerTitle').textContent = id === 'new' ? 'New Policy' : 'Edit Policy — ' + g.id;
+  document.getElementById('grDrawerSub').textContent = id === 'new' ? 'Creating new network policy' : g.category + ' · ' + (g.type==='hard'?'Hard limit':g.type==='soft'?'Soft limit':g.type==='conf'?'Confidence':'Cost ceiling');
+  document.getElementById('grDrawerName').value = id === 'new' ? '' : g.name;
+  document.getElementById('grDrawerVal').value = id === 'new' ? '' : g.val;
+  document.getElementById('grDrawer').classList.add('open');
+}
+function closeGrDrawer() { document.getElementById('grDrawer').classList.remove('open'); }
+function savePolicy() { closeGrDrawer(); showToast('Policy saved — pre-flight impact logged to audit trail', 'green'); }
+
+/* ══════════════════════════════════
+   PILLAR 4: DECISION INBOX
+══════════════════════════════════ */
+const DECISIONS = [
+  {
+    id:'DEC-001', urgency:'urgent', title:'BGP peer flapping — auto-dampening blocked by hard policy',
+    service:'CORE-RTR-01 · Gi0/0/1 · AS 65002', sloLabel:'SLO breach in 9 min', time:'8 min ago',
+    summary:'BGP peer on AS 65002 is flapping at 14 events/min. Autonomous dampening is blocked by hard policy P-01 (BGP policy changes require human approval). System recommends applying route dampening (half-life 15 min) to stabilise the peer without a hard reset.',
+    why:'Hard policy P-01 prevents autonomous BGP configuration changes without human approval',
+    options:[
+      { rank:1, title:'Apply BGP route dampening (half-life 15 min)', desc:'Suppresses route advertisements from flapping peer. Auto-clears when flap rate drops below 2/min or after 30 minutes. No link reset needed.', recommended:true, risk:'low' },
+      { rank:2, title:'Hard-reset BGP session with AS 65002', desc:'Clears the BGP session and re-establishes. Higher risk — brief traffic black-hole during reconvergence (~45 sec).', recommended:false, risk:'high' },
+      { rank:3, title:'Reject — handle manually via CLI', desc:'System holds automated actions. You take direct control. All monitoring continues.', recommended:false, risk:'manual' },
+    ],
+    evidence:[
+      { key:'Flap rate', val:'14 events/min (threshold: 5/min)' },
+      { key:'Peer', val:'AS 65002 · 10.0.0.1' },
+      { key:'Blast radius', val:'1 BGP peer · 42 affected prefixes' },
+      { key:'Historical matches', val:'9 similar cases — 8 resolved via dampening' },
+      { key:'Rollback confidence', val:'97%' },
+      { key:'Policy blocking', val:'P-01 · Hard limit' },
+    ]
+  },
+  {
+    id:'DEC-002', urgency:'warn', title:'Interface utilisation approaching hard ceiling — DIST-SW-02',
+    service:'DIST-SW-02 · Port 1/2 · Core distribution', sloLabel:'18 min before SLA breach', time:'23 min ago',
+    summary:'DIST-SW-02 port 1/2 is at 93% utilisation (soft policy P-05 threshold: 95%). Traffic is trending up at +2%/min. System projects breach within 18 minutes. Recommends redistributing 20% of traffic to DIST-SW-03 via ECMP weight adjustment.',
+    why:'Soft policy P-05 drift at 98% of threshold — review recommended before breach',
+    options:[
+      { rank:1, title:'Redistribute 20% traffic via ECMP to DIST-SW-03', desc:'Adjusts ECMP weights to shift ~18 Gbps to the parallel path. Non-disruptive. Reverts automatically if DIST-SW-03 utilisation exceeds 80%.', recommended:true, risk:'low' },
+      { rank:2, title:'Accept degradation — monitor only', desc:'System will continue monitoring. If utilisation hits 95%, autonomous shutdown will engage per P-05.', recommended:false, risk:'med' },
+    ],
+    evidence:[
+      { key:'Current utilisation', val:'93% (threshold: 95%)' },
+      { key:'Traffic trend', val:'+2%/min · 9.3 Gbps' },
+      { key:'Projected breach', val:'~18 min at current rate' },
+      { key:'DIST-SW-03 headroom', val:'56% utilisation — 44% available' },
+    ]
+  },
+  {
+    id:'DEC-003', urgency:'info', title:'Novel topology pattern — no historical match for CDP mismatch',
+    service:'CORE-RTR-03 · Gi0/2 · Core layer', sloLabel:'No immediate breach', time:'2h ago',
+    summary:'CDP neighbour on CORE-RTR-03 Gi0/2 does not match the device inventory. Confidence is 68% — below the 85% threshold for autonomous action. No matching historical pattern. System recommends a read-only diagnostic scan to identify the device.',
+    why:'Confidence score (68%) is below the 85% autonomous action threshold (P-03)',
+    options:[
+      { rank:1, title:'Approve read-only diagnostic scan', desc:'Agent queries the unknown device via SNMP + CDP. No configuration changes made. Returns device identity and risk assessment within 2 minutes.', recommended:true, risk:'low' },
+      { rank:2, title:'Escalate to NOC security team', desc:'Flag for manual investigation. Agent provides all gathered evidence. Monitoring continues.', recommended:false, risk:'manual' },
+    ],
+    evidence:[
+      { key:'Confidence score', val:'68% (threshold: 85%)' },
+      { key:'Pattern type', val:'Novel — no historical match' },
+      { key:'Device fingerprint', val:'Unknown · MAC: 00:1A:2B:3C:4D:5E' },
+      { key:'Policy blocking', val:'P-03 · Confidence threshold' },
+    ]
+  }
+];
+
+let selectedDecision = 0;
+
+function buildDiList() {
+  const list = document.getElementById('diList');
+  list.innerHTML = DECISIONS.map((d, i) => `
+    <div class="di-card ${d.urgency==='urgent'?'urgent':''} ${i===selectedDecision?'selected':''}" onclick="selectDecision(${i})">
+      <div class="di-card-header">
+        <span class="di-card-tag di-tag-${d.urgency==='urgent'?'urgent':d.urgency==='warn'?'warn':'info'}">${d.urgency==='urgent'?'⚡ Urgent':d.urgency==='warn'?'Review':'Info'}</span>
+        <span class="di-card-time">${d.time}</span>
+      </div>
+      <div class="di-card-title">${d.title}</div>
+      <div class="di-card-sub">${d.service}</div>
+      ${d.urgency==='urgent'?`<div class="di-card-slo">⏱ ${d.sloLabel}</div>`:''}
+    </div>
+  `).join('');
+}
+
+function selectDecision(i) {
+  selectedDecision = i;
+  buildDiList();
+  renderDecisionDetail(DECISIONS[i]);
+}
+
+function renderDecisionDetail(d) {
+  const isUrgent = d.urgency === 'urgent';
+  document.getElementById('diDetail').innerHTML = `
+    <div class="dc-card">
+      <div class="dc-header">
+        <div class="dc-header-left">
+          <div class="dc-header-badges">
+            <span class="dc-action-req">⚡ Action Required</span>
+            <span class="dc-service-tag">${d.service}</span>
+          </div>
+          <div class="dc-title">${d.title}</div>
+          <div class="dc-summary">${d.summary}</div>
+        </div>
+        ${isUrgent?`<div class="dc-slo-countdown"><div class="dc-slo-label">SLO breach in</div><div class="dc-slo-time" id="dcSloTimer">09:00</div><div class="dc-slo-sub">minutes remaining</div></div>`:''}
+      </div>
+      <div class="dc-body">
+        <div>
+          <div class="dc-section-title">Why this was escalated</div>
+          <div class="dc-why-badge">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2zm0 9.5V7.5m0-2.5v.01" stroke="#d97706" stroke-width="1.5" stroke-linecap="round"/></svg>
+            ${d.why}
+          </div>
+        </div>
+        <div>
+          <div class="dc-section-title">Recommended options</div>
+          <div class="dc-options">
+            ${d.options.map(o=>`
+              <div class="dc-option ${o.recommended?'recommended':''} ${o.risk==='high'?'destructive':''}" onclick="selectOption(this)">
+                <div class="dc-option-rank">${o.rank}</div>
+                <div class="dc-option-content">
+                  <div class="dc-option-title">${o.title}${o.recommended?'<span class="dc-option-badge dc-ob-rec">Recommended</span>':''}${o.risk==='high'?'<span class="dc-option-badge dc-ob-risk">High risk</span>':''}</div>
+                  <div class="dc-option-desc">${o.desc}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="dc-evidence">
+          <button class="dc-evidence-toggle" onclick="toggleEvidence(this)">
+            <span>Supporting evidence (${d.evidence.length} items)</span>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="ev-caret"><path d="M4 6l4 4 4-4"/></svg>
+          </button>
+          <div class="dc-evidence-body" id="evidenceBody">
+            ${d.evidence.map(e=>`<div class="dc-evidence-item"><span class="dc-ev-label">${e.key}</span><span>${e.val}</span></div>`).join('')}
+          </div>
+        </div>
+        <div>
+          <div class="dc-section-title">Actions</div>
+          <div class="dc-actions">
+            <button class="dc-act-btn dc-act-approve" onclick="actApprove()">✓ Approve recommended</button>
+            <button class="dc-act-btn dc-act-modify" onclick="showToast('Modify mode — adjust parameters then approve', 'blue')">✎ Modify &amp; approve</button>
+            <button class="dc-act-btn dc-act-override" onclick="showToast('Policy override logged — audit entry created', 'orange')">⚡ Override policy</button>
+            <button class="dc-act-btn dc-act-reject" onclick="actReject(${DECISIONS.indexOf(d)})">✕ Reject</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  if (isUrgent) startSloTimer();
+}
+
+function toggleEvidence(btn) {
+  const body = document.getElementById('evidenceBody');
+  body.classList.toggle('open');
+  btn.querySelector('.ev-caret').style.transform = body.classList.contains('open') ? 'rotate(180deg)' : '';
+}
+function selectOption(el) {
+  el.closest('.dc-options').querySelectorAll('.dc-option').forEach(o => { o.style.borderColor=''; o.style.background=''; });
+  el.style.borderColor = '#2563eb'; el.style.background = '#f0f5ff';
+}
+function actApprove() { openModal('approveModal'); }
+function confirmApproveAction() {
+  closeModal('approveModal');
+  DECISIONS.splice(selectedDecision, 1);
+  selectedDecision = 0;
+  const badge = document.getElementById('diBadge');
+  const inboxBadge = document.getElementById('inboxBadge');
+  if (badge) badge.textContent = DECISIONS.length;
+  if (inboxBadge) inboxBadge.textContent = DECISIONS.length;
+  if (DECISIONS.length === 0) {
+    buildDiList();
+    document.getElementById('diDetail').innerHTML = `<div class="di-empty"><div class="di-empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg></div><div class="di-empty-title">All decisions resolved</div><div class="di-empty-sub">Network running autonomously. You will be notified when a decision is required.</div></div>`;
+  } else { buildDiList(); renderDecisionDetail(DECISIONS[0]); }
+  showToast('Decision approved — network agent applying recommended action', 'green');
+}
+function actReject(i) {
+  DECISIONS.splice(i, 1); selectedDecision = 0;
+  const badge = document.getElementById('diBadge');
+  const inboxBadge = document.getElementById('inboxBadge');
+  if (badge) badge.textContent = DECISIONS.length;
+  if (inboxBadge) inboxBadge.textContent = DECISIONS.length;
+  buildDiList();
+  if (DECISIONS.length > 0) renderDecisionDetail(DECISIONS[0]);
+  else document.getElementById('diDetail').innerHTML = `<div class="di-empty"><div class="di-empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg></div><div class="di-empty-title">Inbox clear</div><div class="di-empty-sub">System running silently.</div></div>`;
+  showToast('Decision rejected — system holding automated actions', 'orange');
+}
+
+let sloInterval = null;
+function startSloTimer() {
+  let secs = 540;
+  if (sloInterval) clearInterval(sloInterval);
+  sloInterval = setInterval(() => {
+    secs = Math.max(0, secs - 1);
+    const el = document.getElementById('dcSloTimer');
+    if (!el) { clearInterval(sloInterval); return; }
+    const m = Math.floor(secs/60), s = secs % 60;
+    el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if (secs === 0) clearInterval(sloInterval);
+  }, 1000);
+}
+
+buildDiList();
+renderDecisionDetail(DECISIONS[0]);
+
+/* ══════════════════════════════════
+   HEALTH PULSE LOG
+══════════════════════════════════ */
+const HP_LOG = [
+  { dot:'#22c55e', msg:'<strong>Auto-resolved</strong> — BGP micro-flap on CORE-RTR-02 dampened autonomously. No alert sent.', time:'4 min ago', channel:null },
+  { dot:'#9ca3af', msg:'<strong>Silent fix</strong> — OSPF neighbour drop on DIST-SW-01 restarted successfully. 0 traffic impact.', time:'22 min ago', channel:null },
+  { dot:'#d97706', msg:'<strong>Policy drift alert</strong> — ACL soft limit P-04 reached 4/5 rules (80%). Trend: rising.', time:'1h ago', channel:'Slack' },
+  { dot:'#ef4444', msg:'<strong>Decision required</strong> — BGP peer AS 65002 flapping. Hard policy P-01 blocks dampening. Approval card issued.', time:'8 min ago', channel:'Slack + In-app' },
+  { dot:'#22c55e', msg:'<strong>Auto-resolved</strong> — Spanning-tree TCN flood on DIST-SW-01 dampened via STP timer adjustment. Recovery: 3 min.', time:'1h 12 min ago', channel:null },
+  { dot:'#3b82f6', msg:'<strong>Weekly digest</strong> — 47 resolved · 2 escalated · 0 SLA breaches · 3 policy drifts. Sent to #noc-alerts.', time:'Mon 09:00', channel:'Slack + Email' },
+];
+
+function buildHpLog() {
+  const list = document.getElementById('hpLogList');
+  if (!list) return;
+  list.innerHTML = HP_LOG.map(e => `
+    <div class="hp-log-item">
+      <div class="hp-log-dot" style="background:${e.dot};"></div>
+      <div class="hp-log-content">
+        <div class="hp-log-msg">${e.msg}</div>
+        <div class="hp-log-meta">${e.time}${e.channel ? `<span class="hp-log-channel">${e.channel}</span>` : '<span class="hp-log-channel" style="color:#16a34a;background:#f0fdf4;">Silent</span>'}</div>
+      </div>
+    </div>
+  `).join('');
+}
+buildHpLog();
+function clearHpLog() {
+  document.getElementById('hpLogList').innerHTML = `<div style="padding:24px;text-align:center;font-size:12px;color:#9ca3af;">No recent events</div>`;
+}
+
+/* ══════════════════════════════════
+   PILLAR 5: REMEDIATION ENGINE
+══════════════════════════════════ */
+const RM_CASES = [
+  {
+    id:'INC-9201', title:'BGP peer flapping — CORE-RTR-01 / AS 65002',
+    stage:'deploy', priority:'P1', agent:'Routing Agent',
+    investigation:{
+      rootCause:'BGP peer AS 65002 on CORE-RTR-01 experiencing micro-flaps due to physical layer instability on Gi0/0/1. CRC errors correlate with optic Rx degradation. Root: optic SFP approaching end-of-life.',
+      confidence:'93%', blastRadius:'1 BGP peer · 42 prefixes', affectedServices:1, affectedSessions:0,
+      timeline:[
+        { dot:'#ef4444', title:'BGP flap burst detected', desc:'14 flaps/min · alert suppressed — auto-monitoring', time:'08:12 UTC' },
+        { dot:'#f59e0b', title:'Pattern matched', desc:'9 similar historical cases · confidence 93%', time:'08:13 UTC' },
+        { dot:'#ef4444', title:'Hard policy block', desc:'P-01 prevents autonomous BGP change · escalated', time:'08:14 UTC' },
+        { dot:'#22c55e', title:'Human approved dampening', desc:'Dampening applied · flap rate reduced to 0/min · stable', time:'08:16 UTC' },
+        { dot:'#3b82f6', title:'Optic replacement scheduled', desc:'SFP order raised · CR-2024-0312 approved · maintenance window: tonight 22:00 UTC', time:'09:00 UTC' },
+      ]
+    },
+    ticket:{ id:'NOC-5112', system:'ServiceNow', severity:'P1', title:'BGP flap CORE-RTR-01 Gi0/0/1 · AS 65002', assignee:'NOC L2 Routing Team', sla:'4h resolution', created:'08:15 UTC' },
+    cr:{ id:'CR-2024-0312', status:'Approved', riskRating:'Low', approver:'Alex Kim (NOC Lead)', rollbackPlan:'Restore original SFP · BGP session auto-recovers', window:'22:00–23:00 UTC tonight' },
+    deploy:{ strategy:'Maintenance window', status:'in-progress', progress:35, gates:[{ pct:10, status:'passed', note:'Pre-check complete' },{ pct:35, status:'active', note:'SFP procurement' },{ pct:100, status:'pending', note:'Install + verify' }] }
+  },
+  {
+    id:'INC-9197', title:'Optic Rx degradation — DIST-SW-02 port 1/2',
+    stage:'cr', priority:'P2', agent:'Fault Detection Agent',
+    investigation:{
+      rootCause:'Rx optical power on DIST-SW-02 port 1/2 has degraded to -28 dBm (threshold: -26 dBm). Fourth incident in 14 days. SFP hardware replacement required.',
+      confidence:'89%', blastRadius:'DIST-SW-02 uplink · 93% utilisation', affectedServices:2, affectedSessions:0,
+      timeline:[
+        { dot:'#f59e0b', title:'Rx power below threshold', desc:'Port 1/2 · -28 dBm · 4th incident in 14 days', time:'Yesterday 14:22 UTC' },
+        { dot:'#22c55e', title:'Auto-rerouted traffic', desc:'ECMP weight adjusted · traffic shifted to DIST-SW-03 · 0 packet loss', time:'Yesterday 14:23 UTC' },
+        { dot:'#3b82f6', title:'Hardware replacement queued', dest:'SFP order placed · CR pending NOC manager approval', time:'Yesterday 15:00 UTC' },
+      ]
+    },
+    ticket:{ id:'NOC-5109', system:'Jira', severity:'P2', title:'SFP replacement DIST-SW-02 port 1/2', assignee:'NOC L2 Hardware Team', sla:'8h resolution', created:'Yesterday 15:01 UTC' },
+    cr:{ id:'CR-2024-0310', status:'Pending approval', riskRating:'Low', approver:'Awaiting NOC Manager', rollbackPlan:'Re-enable ECMP fallback · auto-shift to DIST-SW-03', window:'Pending' },
+    deploy:null
+  },
+  {
+    id:'INC-9192', title:'MTU mismatch — DIST-SW-02 port 2/1 peering',
+    stage:'ticket', priority:'P3', agent:'Network Agent',
+    investigation:{
+      rootCause:'MTU mismatch: DIST-SW-02 port 2/1 configured at 1480 vs peer 1500. Fragmentation rate 0.4% — low impact. Fix: align MTU at next maintenance window.',
+      confidence:'96%', blastRadius:'DIST-SW-02 port 2/1 only', affectedServices:1, affectedSessions:0,
+      timeline:[
+        { dot:'#3b82f6', title:'MTU mismatch detected', desc:'DIST-SW-02 port 2/1 · frag rate 0.4%', time:'2 days ago 10:18 UTC' },
+        { dot:'#22c55e', title:'Auto-analysis complete', desc:'Root cause confirmed · low urgency · ticket raised', time:'2 days ago 10:19 UTC' },
+      ]
+    },
+    ticket:{ id:'NOC-5104', system:'ServiceNow', severity:'P3', title:'MTU align DIST-SW-02 port 2/1', assignee:'Network Ops', sla:'24h resolution', created:'2 days ago 10:20 UTC' },
+    cr:null, deploy:null
+  }
+];
+
+let selectedCase = 0;
+const STAGE_ORDER = ['invest', 'ticket', 'cr', 'mw', 'deploy'];
+const STAGE_NAMES = { invest:'Investigation', ticket:'Ticket', cr:'Change Request', mw:'Maint. Window', deploy:'Deploy' };
+
+function buildRmList() {
+  const list = document.getElementById('rmList');
+  if (!list) return;
+  list.innerHTML = RM_CASES.map((c, i) => `
+    <div class="rm-item ${i===selectedCase?'selected':''}" onclick="selectCase(${i})">
+      <div class="rm-item-id">${c.id}</div>
+      <div class="rm-item-title">${c.title}</div>
+      <div class="rm-item-footer">
+        <span class="rm-stage-pill rm-stage-${c.stage}">${STAGE_NAMES[c.stage] || c.stage}</span>
+        <span style="font-size:10px;color:#9ca3af;">${c.priority} · ${c.agent}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectCase(i) { selectedCase = i; buildRmList(); renderRmDetail(RM_CASES[i]); }
+
+function renderRmDetail(c) {
+  const stageIdx = STAGE_ORDER.indexOf(c.stage);
+  const stepperHTML = STAGE_ORDER.map((s, i) => {
+    const cls = i < stageIdx ? 'done' : i === stageIdx ? 'active' : 'blocked';
+    return `<div class="rm-step ${cls}" onclick="${i<=stageIdx?`showToast('Viewing: ${STAGE_NAMES[s]}','blue')`:`showToast('Stage not reached yet','orange')`}">
+      <div class="rm-step-num">${cls==='done'?'✓':i+1}</div>
+      <span class="rm-step-name">${STAGE_NAMES[s]}</span>
+    </div>`;
+  }).join('');
+
+  const inv = c.investigation;
+  const invHTML = `
+    <div class="rm-detail-card">
+      <div class="rm-detail-card-header">
+        <div class="rm-detail-card-title">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#dc2626" stroke-width="1.4"/><path d="M8 5v3.5M8 10.5v.01" stroke="#dc2626" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Investigation · ${c.id}
+        </div>
+        <span class="rm-stage-pill rm-stage-invest">AI-driven</span>
+      </div>
+      <div class="rm-detail-card-body">
+        <div class="rm-field-row"><span class="rm-field-key">Root cause</span><span class="rm-field-val" style="max-width:360px;text-align:left;">${inv.rootCause}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">AI confidence</span><span class="rm-field-val" style="color:#16a34a;">${inv.confidence}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Blast radius</span><span class="rm-field-val">${inv.blastRadius}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Affected services</span><span class="rm-field-val">${inv.affectedServices}</span></div>
+        <div style="margin-top:14px;">
+          <div class="sec-label">Event timeline</div>
+          <div class="rm-timeline">
+            ${inv.timeline.map(t=>`
+              <div class="rm-tl-item">
+                <div class="rm-tl-left">
+                  <div class="rm-tl-dot" style="background:${t.dot}20;border:1.5px solid ${t.dot};color:${t.dot};">●</div>
+                  <div class="rm-tl-line"></div>
+                </div>
+                <div class="rm-tl-content">
+                  <div class="rm-tl-title">${t.title}</div>
+                  <div class="rm-tl-desc">${t.desc}</div>
+                  <div class="rm-tl-time">${t.time}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  const tkt = c.ticket;
+  const ticketHTML = `
+    <div class="rm-detail-card">
+      <div class="rm-detail-card-header">
+        <div class="rm-detail-card-title">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="#d97706" stroke-width="1.4"/><path d="M5 7h6M5 9.5h4" stroke="#d97706" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Ticket · ${tkt.id}
+        </div>
+        <span class="rm-stage-pill rm-stage-ticket">Auto-raised</span>
+      </div>
+      <div class="rm-detail-card-body">
+        <div class="rm-field-row"><span class="rm-field-key">System</span><span class="rm-field-val">${tkt.system}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Ticket ID</span><span class="rm-field-val mono">${tkt.id}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Title</span><span class="rm-field-val" style="text-align:left;">${tkt.title}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Severity</span><span class="rm-field-val" style="color:${tkt.severity==='P1'?'#dc2626':tkt.severity==='P2'?'#d97706':'#374151'};">${tkt.severity}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Assigned to</span><span class="rm-field-val">${tkt.assignee}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">SLA target</span><span class="rm-field-val">${tkt.sla}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Created</span><span class="rm-field-val">${tkt.created}</span></div>
+      </div>
+      <div class="rm-actions">
+        <button class="rm-act-btn rm-act-secondary" onclick="showToast('Opening ${tkt.id} in ${tkt.system}…', 'blue')">Open in ${tkt.system}</button>
+        <button class="rm-act-btn rm-act-secondary" onclick="showToast('Ticket updated with latest evidence', 'green')">Update ticket</button>
+      </div>
+    </div>`;
+
+  const crHTML = c.cr ? `
+    <div class="rm-detail-card">
+      <div class="rm-detail-card-header">
+        <div class="rm-detail-card-title">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="#2563eb" stroke-width="1.4"/><path d="M5 8h6M8 5v6" stroke="#2563eb" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Change Request · ${c.cr.id}
+        </div>
+        <span class="rm-stage-pill rm-stage-cr" style="font-size:10px;">${c.cr.status}</span>
+      </div>
+      <div class="rm-detail-card-body">
+        <div class="rm-field-row"><span class="rm-field-key">Status</span><span class="rm-field-val" style="color:${c.cr.status==='Approved'?'#16a34a':'#d97706'};">${c.cr.status}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Risk rating</span><span class="rm-field-val">${c.cr.riskRating}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Approver</span><span class="rm-field-val">${c.cr.approver}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Rollback plan</span><span class="rm-field-val" style="text-align:left;">${c.cr.rollbackPlan}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Maint. window</span><span class="rm-field-val">${c.cr.window}</span></div>
+      </div>
+      ${c.cr.status === 'Pending approval' ? `<div class="rm-actions"><button class="rm-act-btn rm-act-primary" onclick="showToast('CR approval request sent to NOC Manager', 'blue')">Request approval</button></div>` : ''}
+    </div>` : '';
+
+  const deployHTML = c.deploy ? `
+    <div class="rm-detail-card">
+      <div class="rm-detail-card-header">
+        <div class="rm-detail-card-title">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3h3.5l-2.5 2 1 3.5L8 9l-3.5 1.5 1-3.5L3 5h3.5z" stroke="#16a34a" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          Deployment · ${c.cr ? c.cr.id : 'N/A'}
+        </div>
+        <span class="rm-stage-pill rm-stage-deploy">In progress</span>
+      </div>
+      <div class="rm-detail-card-body">
+        <div class="rm-field-row"><span class="rm-field-key">Strategy</span><span class="rm-field-val">${c.deploy.strategy}</span></div>
+        <div class="rm-field-row"><span class="rm-field-key">Progress</span><span class="rm-field-val">${c.deploy.progress}%</span></div>
+        <div class="rm-canary-bar">
+          <div class="rm-canary-track"><div class="rm-canary-fill" style="width:${c.deploy.progress}%;"></div></div>
+          <span class="rm-canary-pct">${c.deploy.progress}%</span>
+        </div>
+        <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px;">
+          ${c.deploy.gates.map(g=>`
+            <div style="display:flex;align-items:center;gap:10px;font-size:12px;">
+              <div style="width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;background:${g.status==='passed'?'#22c55e':g.status==='active'?'#2563eb':'#e5e7eb'};color:${g.status==='pending'?'#9ca3af':'#fff'};flex-shrink:0;">${g.status==='passed'?'✓':g.status==='active'?'▶':'○'}</div>
+              <span style="color:${g.status==='pending'?'#9ca3af':'#111827'};">${g.note}</span>
+              ${g.pct?`<span style="font-size:10px;color:#9ca3af;margin-left:auto;">${g.pct}%</span>`:''}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="rm-actions">
+        <button class="rm-act-btn rm-act-primary" onclick="showToast('Next deployment gate advanced', 'green')">Advance gate</button>
+        <button class="rm-act-btn rm-act-danger" onclick="showToast('Rollback initiated — restoring previous config', 'orange')">Rollback</button>
+      </div>
+    </div>` : '';
+
+  document.getElementById('rmDetail').innerHTML = `
+    <div class="rm-stepper">${stepperHTML}</div>
+    ${invHTML}
+    ${ticketHTML}
+    ${crHTML}
+    ${deployHTML}
+  `;
+}
+
+buildRmList();
+renderRmDetail(RM_CASES[0]);
+
+/* ══════════════════════════════════
+   SIMULATE ALERT
+══════════════════════════════════ */
+function simulateAlert() {
+  const alerts = [
+    ['OSPF neighbour down on DIST-SW-03 Gi1/0/1 — auto-recovery in progress', 'orange'],
+    ['Traffic spike detected: EDGE-FW-02 +34% above baseline — AI monitoring', 'orange'],
+    ['BGP prefix count anomaly on CORE-RTR-01 — 12 new routes from AS 65010', 'blue'],
+    ['New device discovered on DIST-SW-01 port 3/4 — identity scan queued', 'blue'],
+    ['MPLS path switchover: primary MPLS-GW → backup route — auto-handled', 'green'],
+  ];
+  const [msg, type] = alerts[Math.floor(Math.random() * alerts.length)];
+  showToast(msg, type);
+}
+</script>
+</body>
+</html>

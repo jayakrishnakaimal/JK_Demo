@@ -567,6 +567,34 @@
   /* section label */
   .sec-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #9ca3af; margin-bottom: 10px; }
 
+  /* ── slack deep-link banner ── */
+  .slack-banner {
+    display: none;
+    align-items: center; gap: 10px;
+    background: #f0fdf4; border-bottom: 2px solid #22c55e;
+    padding: 8px 20px; font-size: 13px; color: #166534;
+    flex-shrink: 0; z-index: 100;
+  }
+  .slack-banner.visible { display: flex; }
+  .slack-banner-icon { flex-shrink: 0; }
+  .slack-banner-text { flex: 1; line-height: 1.4; }
+  .slack-banner-text strong { font-weight: 700; }
+  .slack-banner-back {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px; background: #fff; border: 1px solid #bbf7d0;
+    border-radius: 5px; font-size: 12px; font-weight: 600; color: #166534;
+    cursor: pointer; text-decoration: none; transition: background 0.12s;
+    flex-shrink: 0;
+  }
+  .slack-banner-back:hover { background: #dcfce7; }
+  .slack-banner-close {
+    width: 24px; height: 24px; border: none; background: transparent;
+    color: #4ade80; cursor: pointer; font-size: 16px; line-height: 1;
+    display: flex; align-items: center; justify-content: center; border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .slack-banner-close:hover { background: #dcfce7; color: #166534; }
+
   /* ── scrollbar tweaks — cover all scrollable cols ── */
   .gr-wrap::-webkit-scrollbar, .hp-wrap::-webkit-scrollbar,
   .gr-drawer-body::-webkit-scrollbar, .hp-log-list::-webkit-scrollbar,
@@ -578,6 +606,95 @@
   .di-list-col::-webkit-scrollbar-thumb, .di-detail-col::-webkit-scrollbar-thumb,
   .rm-list-col::-webkit-scrollbar-thumb, .rm-detail-col::-webkit-scrollbar-thumb,
   .gr-table-scroll::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+
+  /* ══════════════════════════════════════════
+     STORY MODE
+  ══════════════════════════════════════════ */
+  .story-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 8000;
+    pointer-events: none;
+  }
+  .story-overlay.active { display: block; }
+
+  /* dark vignette around the spotlight */
+  .story-mask {
+    position: absolute; inset: 0;
+    background: rgba(10, 15, 30, 0.62);
+    pointer-events: all;
+  }
+
+  /* cut-out spotlight hole */
+  .story-spotlight {
+    position: absolute;
+    border-radius: 10px;
+    box-shadow: 0 0 0 9999px rgba(10, 15, 30, 0.62);
+    border: 2px solid rgba(99, 162, 255, 0.7);
+    transition: all 0.45s cubic-bezier(.4,0,.2,1);
+    pointer-events: none;
+    z-index: 8001;
+  }
+
+  /* tooltip card */
+  .story-card {
+    position: absolute;
+    background: #0f172a;
+    color: #f1f5f9;
+    border: 1px solid rgba(99, 162, 255, 0.35);
+    border-radius: 12px;
+    padding: 20px 22px 16px;
+    width: 320px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    transition: all 0.45s cubic-bezier(.4,0,.2,1);
+    z-index: 8002;
+    pointer-events: all;
+  }
+  .story-card-step {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #60a5fa; margin-bottom: 6px;
+  }
+  .story-card-title {
+    font-size: 15px; font-weight: 700; color: #f8fafc;
+    line-height: 1.35; margin-bottom: 8px;
+  }
+  .story-card-body {
+    font-size: 13px; color: #94a3b8; line-height: 1.6; margin-bottom: 16px;
+  }
+  .story-card-body strong { color: #e2e8f0; font-weight: 600; }
+  .story-card-actions {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .story-btn-next {
+    flex: 1; padding: 8px 14px; background: #2563eb; color: #fff;
+    border: none; border-radius: 6px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .story-btn-next:hover { background: #1d4ed8; }
+  .story-btn-skip {
+    padding: 8px 12px; background: transparent; color: #64748b;
+    border: 1px solid #334155; border-radius: 6px; font-size: 12px;
+    cursor: pointer; white-space: nowrap; transition: all 0.15s;
+  }
+  .story-btn-skip:hover { color: #94a3b8; border-color: #475569; }
+  .story-dots {
+    display: flex; gap: 5px; align-items: center; margin-right: auto;
+  }
+  .story-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: #334155;
+    transition: background 0.2s;
+  }
+  .story-dot.active { background: #3b82f6; width: 16px; border-radius: 3px; }
+
+  /* story launch button in nav */
+  .story-launch-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 12px; background: #2563eb; color: #fff;
+    border: none; border-radius: 6px; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: background 0.15s; flex-shrink: 0;
+    margin-left: 8px;
+  }
+  .story-launch-btn:hover { background: #1d4ed8; }
+  .story-launch-btn svg { flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -698,6 +815,10 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
           Back
         </a>
+        <button class="story-launch-btn" onclick="startStory()" title="Start guided story">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.5l9 5.5-9 5.5V2.5z"/></svg>
+          Story
+        </button>
         <button class="nav-icon-btn" title="Simulate alert" onclick="simulateAlert()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         </button>
@@ -705,6 +826,21 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="12" cy="7.5" r="3.5"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/></svg>
         </button>
       </div>
+    </div>
+
+    <!-- Slack deep-link banner (shown when ?from=slack) -->
+    <div class="slack-banner" id="slackBanner">
+      <div class="slack-banner-icon">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M6.5 1a1.5 1.5 0 0 0 0 3H7v1H3.5A1.5 1.5 0 0 0 2 6.5v.5h-.5a1.5 1.5 0 0 0 0 3H2v3.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V10h.5a1.5 1.5 0 0 0 0-3H14v-.5A1.5 1.5 0 0 0 12.5 5H9V4h.5a1.5 1.5 0 0 0 0-3H6.5z" fill="#22c55e"/></svg>
+      </div>
+      <div class="slack-banner-text">
+        <strong>Opened from Slack · #ops-alerts</strong> — You were directed here from an IBM NI alert in Slack. The relevant decision is pre-loaded below.
+      </div>
+      <a class="slack-banner-back" href="slack-sim.html">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M6.5 1a1.5 1.5 0 0 0 0 3H7v1H3.5A1.5 1.5 0 0 0 2 6.5v.5h-.5a1.5 1.5 0 0 0 0 3H2v3.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V10h.5a1.5 1.5 0 0 0 0-3H14v-.5A1.5 1.5 0 0 0 12.5 5H9V4h.5a1.5 1.5 0 0 0 0-3H6.5z" fill="#22c55e"/></svg>
+        Back to Slack
+      </a>
+      <button class="slack-banner-close" onclick="document.getElementById('slackBanner').classList.remove('visible')" title="Dismiss">✕</button>
     </div>
 
     <!-- BODY -->
@@ -926,6 +1062,22 @@
     </div><!-- /body-layout -->
   </div><!-- /dashboard -->
 </div><!-- /outer-chrome -->
+
+<!-- Story Mode Overlay -->
+<div class="story-overlay" id="storyOverlay">
+  <div class="story-mask" onclick="storySkip()"></div>
+  <div class="story-spotlight" id="storySpotlight"></div>
+  <div class="story-card" id="storyCard">
+    <div class="story-card-step" id="storyStep"></div>
+    <div class="story-card-title" id="storyTitle"></div>
+    <div class="story-card-body" id="storyBody"></div>
+    <div class="story-card-actions">
+      <div class="story-dots" id="storyDots"></div>
+      <button class="story-btn-skip" onclick="storySkip()">Exit</button>
+      <button class="story-btn-next" id="storyNextBtn" onclick="storyNext()">Next →</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ═══════════════════════════════════════════
@@ -1521,6 +1673,200 @@ function simulateAlert() {
   LOG_ENTRIES.unshift(entry);
   buildHpLog();
 }
+
+/* ═══════════════════════════════════════════
+   STORY MODE ENGINE
+═══════════════════════════════════════════ */
+const STORY_STEPS = [
+  {
+    tab: 'guardrail',
+    targetId: null,
+    targetSelector: '.topnav',
+    title: 'Welcome to IBM Network Intelligence',
+    body: 'This is a <strong>headless ops platform</strong> — an AI agent that runs your network operations autonomously, 24/7, within the boundaries you define. Let\'s walk through a real incident, start to finish.',
+  },
+  {
+    tab: 'guardrail',
+    targetSelector: '.gr-wrap',
+    title: 'Step 1 · Guardrail Studio',
+    body: 'Before the AI acts, <strong>you define the rules</strong>. Guardrails are the envelope of autonomous action — hard limits the AI can never cross, soft limits it can flex within, and confidence thresholds that trigger human review.',
+  },
+  {
+    tab: 'guardrail',
+    targetSelector: '#grTableBody tr:first-child',
+    title: 'The critical guardrail: G-01',
+    body: '<strong>"No prod restarts weekdays 14:00–16:00 UTC"</strong> — a hard limit protecting your peak-traffic window. The AI knows this rule, and when it detects an incident at 14:03, it cannot restart automatically.',
+  },
+  {
+    tab: 'health',
+    targetSelector: '.hp-log-list',
+    title: 'Step 2 · Health Pulse',
+    body: 'The AI is always watching. Most events are <strong>resolved silently</strong> — pod restarts, BGP flaps, CRC errors — handled with zero noise. Only exceptions surface to you. This log shows everything: green = silent, orange = drift, red = escalated.',
+  },
+  {
+    tab: 'health',
+    targetSelector: '.hp-log-item:nth-child(4)',
+    title: 'The moment of escalation',
+    body: 'At 14:05 UTC, the AI detects DB connections at <strong>498/500 (99.6%)</strong>. It wants to restart payment-service — but G-01 blocks it. Instead of acting, it escalates instantly: an approval card lands in your Decision Inbox.',
+  },
+  {
+    tab: 'decision',
+    targetSelector: '.di-card.urgent',
+    title: 'Step 3 · Decision Inbox',
+    body: 'The AI surfaces the decision with full context: root cause, 3 ranked options, blast radius, rollback confidence, and a <strong>live SLO countdown</strong>. You have 11 minutes before a breach. Everything you need — nothing you don\'t.',
+  },
+  {
+    tab: 'decision',
+    targetSelector: '.dc-options',
+    title: 'The recommended action',
+    body: 'Option 1: <strong>Approve a temporary pool bump (+50 connections, 8-min window)</strong>. No restart needed — the guardrail is respected. The AI matched 11 historical cases; 9 were resolved this way. One click.',
+  },
+  {
+    tab: 'remediation',
+    targetSelector: '.rm-wrap',
+    title: 'Step 4 · Remediation Pipeline',
+    body: 'Once approved, the AI executes the full fix: investigation → ticket creation → change request → canary deployment. The <strong>canary is live at 25%</strong> — error rate 0.0%, gates passing. Click "Advance canary" to push to 100% and close the incident.',
+  },
+];
+
+let storyIdx = 0;
+
+function startStory() {
+  storyIdx = 0;
+  document.getElementById('storyOverlay').classList.add('active');
+  renderStoryStep();
+}
+
+function storyNext() {
+  storyIdx++;
+  if (storyIdx >= STORY_STEPS.length) { storySkip(); return; }
+  renderStoryStep();
+}
+
+function storySkip() {
+  document.getElementById('storyOverlay').classList.remove('active');
+  document.getElementById('storySpotlight').style.cssText = '';
+  document.getElementById('storyCard').style.cssText = '';
+}
+
+function renderStoryStep() {
+  const step = STORY_STEPS[storyIdx];
+  const total = STORY_STEPS.length;
+
+  // switch tab if needed
+  const tabBtn = document.querySelector(`.nav-tab[onclick*="switchTab('${step.tab}'"]`);
+  if (tabBtn && !tabBtn.classList.contains('active')) {
+    document.querySelectorAll('.canvas-tab-content').forEach(t => t.classList.remove('active-tab'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + step.tab).classList.add('active-tab');
+    tabBtn.classList.add('active');
+  }
+
+  // update card text
+  document.getElementById('storyStep').textContent = `Step ${storyIdx + 1} of ${total}`;
+  document.getElementById('storyTitle').textContent = step.title;
+  document.getElementById('storyBody').innerHTML = step.body;
+  document.getElementById('storyNextBtn').textContent = storyIdx === total - 1 ? 'Finish ✓' : 'Next →';
+
+  // dots
+  document.getElementById('storyDots').innerHTML = STORY_STEPS.map((_, i) =>
+    `<div class="story-dot ${i === storyIdx ? 'active' : ''}"></div>`
+  ).join('');
+
+  // wait a frame for tab paint, then position spotlight + card
+  requestAnimationFrame(() => {
+    positionStory(step);
+  });
+}
+
+function positionStory(step) {
+  const spotlight = document.getElementById('storySpotlight');
+  const card = document.getElementById('storyCard');
+  const PAD = 10;
+
+  let targetEl = step.targetSelector ? document.querySelector(step.targetSelector) : null;
+  // fallback: spotlight the whole canvas area
+  if (!targetEl) targetEl = document.querySelector('.topnav');
+
+  const rect = targetEl.getBoundingClientRect();
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  // spotlight position
+  spotlight.style.left   = (rect.left - PAD) + 'px';
+  spotlight.style.top    = (rect.top - PAD) + 'px';
+  spotlight.style.width  = (rect.width + PAD * 2) + 'px';
+  spotlight.style.height = (rect.height + PAD * 2) + 'px';
+
+  // card position — prefer right of target, else left, else below
+  const CARD_W = 336; // 320 + some buffer
+  const CARD_H = 230;
+  let left, top;
+
+  if (rect.right + PAD + CARD_W + 16 < vw) {
+    // place to the right
+    left = rect.right + PAD + 10;
+    top  = Math.max(12, Math.min(rect.top, vh - CARD_H - 12));
+  } else if (rect.left - PAD - CARD_W - 16 > 0) {
+    // place to the left
+    left = rect.left - PAD - CARD_W - 10;
+    top  = Math.max(12, Math.min(rect.top, vh - CARD_H - 12));
+  } else {
+    // place below
+    left = Math.max(12, Math.min(rect.left, vw - CARD_W - 12));
+    top  = rect.bottom + PAD + 10;
+    if (top + CARD_H > vh - 12) top = rect.top - PAD - CARD_H - 10;
+  }
+
+  card.style.left = left + 'px';
+  card.style.top  = top  + 'px';
+}
+
+/* ═══════════════════════════════════════════
+   SLACK DEEP-LINK HANDLER
+   Reads ?from=slack&dec=DEC-xxx&mode=approve|review
+   on page load and navigates straight to the right decision
+═══════════════════════════════════════════ */
+(function handleSlackDeepLink() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('from') !== 'slack') return;
+
+  const decId = params.get('dec');   // e.g. "DEC-001"
+  const mode  = params.get('mode');  // "approve" | "review"
+
+  // show the Slack origin banner
+  document.getElementById('slackBanner').classList.add('visible');
+
+  // wait for DECISIONS array to exist (it's defined later in this script, but
+  // this IIFE runs at parse time — use a tiny defer to let the rest of the
+  // script finish initialising first)
+  setTimeout(function() {
+    // find the decision index
+    const idx = DECISIONS.findIndex(d => d.id === decId);
+    if (idx === -1) return;
+
+    // switch to Decision Inbox tab
+    document.querySelectorAll('.canvas-tab-content').forEach(t => t.classList.remove('active-tab'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-decision').classList.add('active-tab');
+    const decTabBtn = document.querySelector('.nav-tab[onclick*="switchTab(\'decision\'"]');
+    if (decTabBtn) decTabBtn.classList.add('active');
+
+    // select and render the right decision
+    selectDecision(idx);
+
+    // if user clicked "Approve recommended" in Slack, pre-select option 1 and
+    // fire the approve modal straight away so they just need to confirm
+    if (mode === 'approve') {
+      setTimeout(function() {
+        const firstOpt = document.querySelector('.dc-option');
+        if (firstOpt) firstOpt.click();
+        showToast('Slack shortcut: recommended action pre-selected — confirm below', 'blue');
+        setTimeout(() => openModal('approveModal'), 600);
+      }, 300);
+    }
+  }, 0);
+})();
 </script>
 </body>
 </html>

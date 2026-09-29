@@ -1,0 +1,575 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Headless Operations Blueprint</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    background: #ffffff;
+    color: #1f2328;
+  }
+  .page { max-width: 760px; margin: 0 auto; padding: 48px 24px 64px; }
+
+  /* ── header ── */
+  .page-header { margin-bottom: 40px; border-bottom: 2px solid #e5e7eb; padding-bottom: 24px; }
+  .page-header-eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #3b82d4; margin-bottom: 8px;
+  }
+  .page-header h1 {
+    font-size: 26px; font-weight: 600; color: #1f2328; line-height: 1.25;
+    margin-bottom: 10px;
+  }
+  .page-header p { font-size: 14px; color: #57606a; max-width: 620px; }
+
+  /* ── section ── */
+  .section { margin-bottom: 44px; }
+  .section-number {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #1f2328; color: #fff;
+    font-size: 12px; font-weight: 700;
+    margin-right: 10px; flex-shrink: 0;
+  }
+  .section-heading {
+    display: flex; align-items: center;
+    font-size: 16px; font-weight: 600; color: #1f2328;
+    margin-bottom: 6px;
+  }
+  .section-sub {
+    font-size: 13px; color: #57606a;
+    margin-bottom: 16px;
+    padding-left: 36px;
+  }
+
+  /* ── card grid ── */
+  .card-grid { display: grid; gap: 12px; }
+  .card-grid-2 { grid-template-columns: 1fr 1fr; }
+  .card-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .card {
+    background: #f7f8fa; border: 1px solid #e5e7eb;
+    border-radius: 8px; padding: 14px 16px;
+  }
+  .card-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.07em; color: #57606a; margin-bottom: 6px;
+  }
+  .card-title {
+    font-size: 13px; font-weight: 600; color: #1f2328; margin-bottom: 4px;
+  }
+  .card-body { font-size: 12px; color: #57606a; line-height: 1.55; }
+
+  /* ── accent card ── */
+  .card-accent-blue  { border-left: 3px solid #3b82d4; background: #f0f5ff; }
+  .card-accent-green { border-left: 3px solid #16a34a; background: #f0fdf4; }
+  .card-accent-amber { border-left: 3px solid #d97706; background: #fffbeb; }
+  .card-accent-red   { border-left: 3px solid #dc2626; background: #fef2f2; }
+  .card-accent-purple{ border-left: 3px solid #7c5cd8; background: #faf5ff; }
+
+  /* ── flow strip ── */
+  .flow-strip {
+    display: flex; align-items: stretch; gap: 0;
+    border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .flow-step {
+    flex: 1; padding: 12px 14px; font-size: 12px; color: #1f2328;
+    background: #f7f8fa; border-right: 1px solid #e5e7eb;
+    position: relative;
+  }
+  .flow-step:last-child { border-right: none; }
+  .flow-step-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: #57606a; margin-bottom: 4px;
+  }
+  .flow-step-body { font-size: 12px; line-height: 1.5; }
+  .flow-step-arrow {
+    position: absolute; right: -9px; top: 50%;
+    transform: translateY(-50%);
+    width: 18px; height: 18px;
+    background: #e5e7eb; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: #57606a;
+    z-index: 2; border: 1px solid #d1d5db;
+  }
+
+  /* ── status row ── */
+  .status-row {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;
+  }
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 500;
+    padding: 3px 10px; border-radius: 20px;
+    border: 1px solid #e5e7eb;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green  { background: #16a34a; }
+  .dot-amber  { background: #d97706; }
+  .dot-red    { background: #dc2626; }
+  .dot-blue   { background: #3b82d4; }
+  .dot-grey   { background: #9ca3af; }
+
+  /* ── table ── */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .data-table th {
+    text-align: left; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: #57606a; padding: 6px 12px; background: #f7f8fa;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .data-table td {
+    padding: 8px 12px; border-bottom: 1px solid #f0f0f0;
+    color: #1f2328; vertical-align: top;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+
+  /* ── timeline ── */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .tl-item {
+    display: flex; gap: 12px; position: relative;
+    padding-bottom: 18px;
+  }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-left { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+  .tl-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0;
+  }
+  .tl-line {
+    width: 1px; flex: 1; background: #e5e7eb; margin-top: 4px;
+  }
+  .tl-item:last-child .tl-line { display: none; }
+  .tl-content { flex: 1; padding-top: 4px; }
+  .tl-title { font-size: 13px; font-weight: 600; color: #1f2328; margin-bottom: 2px; }
+  .tl-desc { font-size: 12px; color: #57606a; line-height: 1.55; }
+  .tl-tag {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    padding: 1px 7px; border-radius: 4px; margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  /* ── divider ── */
+  .divider { border: none; border-top: 1px solid #e5e7eb; margin: 32px 0; }
+
+  /* ── note box ── */
+  .note {
+    background: #f0f5ff; border: 1px solid #bfdbfe;
+    border-left: 3px solid #3b82d4;
+    border-radius: 6px; padding: 12px 16px;
+    font-size: 12px; color: #1f2328; line-height: 1.6;
+    margin-top: 12px;
+  }
+  .note strong { color: #1d4ed8; }
+
+  /* ── footer ── */
+  .footer {
+    border-top: 1px solid #e5e7eb; margin-top: 48px;
+    padding-top: 16px; text-align: center;
+    font-size: 12px; color: #9ca3af;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  
+  <div class="page-header">
+    <div class="page-header-eyebrow">Design Blueprint · Headless Operations</div>
+    <h1>Going Headless — Five Pillars of an Autonomous Operations Model</h1>
+    <p>A systems-thinking view of how users set guardrails, how the AI operates autonomously in the backend, how health is surfaced only when necessary, how users are pulled in for critical decisions, and how the full remediation workflow unfolds end-to-end.</p>
+  </div>
+
+  
+  <div class="section">
+    <div class="section-heading">
+      <span class="section-number">1</span>
+      Guardrails — Setting Boundaries &amp; Adjusting with Impact Awareness
+    </div>
+    <div class="section-sub">
+      Users define the envelope of autonomous action once. The system continuously monitors whether its own behaviour is pushing against those edges — and proactively surfaces the cost of keeping or loosening each boundary.
+    </div>
+
+    <div class="card-grid card-grid-2" style="margin-bottom:12px">
+      <div class="card card-accent-blue">
+        <div class="card-label">How the user sets it</div>
+        <div class="card-title">Policy-as-Intent, not Rules</div>
+        <div class="card-body">User expresses intent in plain language or structured policy templates: <em>"Never restart prod between 09:00–18:00 UTC"</em> or <em>"Auto-scale ≤ 3 replicas, flag beyond that."</em> The system canonicalises into versioned policy objects stored in a guardrail registry.</div>
+      </div>
+      <div class="card card-accent-purple">
+        <div class="card-label">How the system surfaces impact</div>
+        <div class="card-title">Pre-flight Impact Scoring</div>
+        <div class="card-body">Before any change crosses a guardrail, the system runs a dry-run simulation and scores: <strong>blast radius</strong> (services affected), <strong>rollback confidence</strong> (%), and <strong>estimated user-hours at risk</strong>. The score is attached to every proposed guardrail change request.</div>
+      </div>
+    </div>
+
+    <table class="data-table" style="margin-bottom:12px">
+      <thead>
+        <tr>
+          <th>Guardrail Type</th>
+          <th>Auto-adjustable?</th>
+          <th>System Behaviour at Boundary</th>
+          <th>User Prompt Trigger</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Soft limit</strong> (e.g. CPU &gt; 70%)</td>
+          <td>Yes — within ±15%</td>
+          <td>Auto-tune, log delta, silent</td>
+          <td>Weekly drift summary</td>
+        </tr>
+        <tr>
+          <td><strong>Hard limit</strong> (e.g. no prod deploy Fri 17:00)</td>
+          <td>No</td>
+          <td>Block action, queue for next window</td>
+          <td>Immediate approval request</td>
+        </tr>
+        <tr>
+          <td><strong>Confidence threshold</strong> (e.g. &lt;85% certainty)</td>
+          <td>Read-only, never auto-tuned</td>
+          <td>Escalate to human, explain reasoning</td>
+          <td>Pull-in with evidence bundle</td>
+        </tr>
+        <tr>
+          <td><strong>Cost ceiling</strong> (e.g. $50/hr cloud spend)</td>
+          <td>Yes — temporary override with audit log</td>
+          <td>Auto-approve up to 120%, flag at 120–150%</td>
+          <td>Alert at 150%+ with P&amp;L estimate</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note"><strong>Key principle:</strong> The system never silently crosses a hard guardrail. Every proposed adjustment arrives with a plain-language explanation of <em>why</em> the current boundary is causing friction and what the specific impact of loosening it would be — measured in concrete business units (errors, latency, cost, user sessions), not just technical metrics.</div>
+  </div>
+
+  <hr class="divider" />
+
+  
+  <div class="section">
+    <div class="section-heading">
+      <span class="section-number">2</span>
+      Backend — How the System Handles Things Effectively
+    </div>
+    <div class="section-sub">
+      The majority of operations run end-to-end without any human involvement. The backend operates as a layered decision engine — observe, classify, plan, act, verify — with full audit trails at every step.
+    </div>
+
+    <div class="flow-strip">
+      <div class="flow-step">
+        <div class="flow-step-label">Observe</div>
+        <div class="flow-step-body">Continuous telemetry ingestion. Anomaly detection on signals (metrics, logs, traces, events). Pattern classification against historical baselines.</div>
+        <div class="flow-step-arrow">→</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-label">Classify</div>
+        <div class="flow-step-body">Root-cause model assigns severity, blast-radius estimate, and confidence score. Determines autonomous vs escalate path.</div>
+        <div class="flow-step-arrow">→</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-label">Plan</div>
+        <div class="flow-step-body">Generates ranked remediation candidates. Validates each against active guardrails. Selects highest-confidence action within policy envelope.</div>
+        <div class="flow-step-arrow">→</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-label">Act</div>
+        <div class="flow-step-body">Executes change via controlled API calls. Canary-first where applicable. All actions are idempotent and rollback-tagged.</div>
+        <div class="flow-step-arrow">→</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-label">Verify</div>
+        <div class="flow-step-body">Post-action health check against expected outcome. If signal doesn't recover within SLO window, escalates automatically.</div>
+      </div>
+    </div>
+
+    <div class="card-grid card-grid-3">
+      <div class="card card-accent-green">
+        <div class="card-label">Fully autonomous (no pull-in)</div>
+        <div class="card-title">High-confidence, low-radius</div>
+        <div class="card-body">Pod restarts, config refreshes, cache clears, auto-scaling within soft limits, cert rotations, known-pattern rollbacks.</div>
+      </div>
+      <div class="card card-accent-amber">
+        <div class="card-label">Supervised (watch-and-hold)</div>
+        <div class="card-title">Medium confidence or novel pattern</div>
+        <div class="card-body">System queues the action, proceeds with canary, monitors for 5 min. If stable → commits. If degraded → auto-reverts + notifies.</div>
+      </div>
+      <div class="card card-accent-red">
+        <div class="card-label">Escalate (human required)</div>
+        <div class="card-title">Hard guardrail or low confidence</div>
+        <div class="card-body">Action is staged but not executed. User is pulled in with full context. System holds all parallel remediation threads until decision received.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  
+  <div class="section">
+    <div class="section-heading">
+      <span class="section-number">3</span>
+      Health Communication — Signal, Not Noise
+    </div>
+    <div class="section-sub">
+      The user should not watch a dashboard. Health is pushed only when the system cannot resolve something autonomously, when a guardrail is drifting, or when a periodic digest is due. The channel is wherever the user already works.
+    </div>
+
+    <div class="card-grid card-grid-2" style="margin-bottom:14px">
+      <div class="card">
+        <div class="card-label">No-alert baseline (all is well)</div>
+        <div class="card-title">Silent running</div>
+        <div class="card-body">System resolves issues autonomously. No Slack message, no email. The dashboard exists as an on-demand window, not a required task surface. Silence is signal of health.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Periodic digest (scheduled)</div>
+        <div class="card-title">Weekly health summary</div>
+        <div class="card-body">Delivered to preferred channel (Slack, Teams, email) every Monday 09:00: incidents resolved autonomously, guardrail drift, trend forecast, any open approvals pending.</div>
+      </div>
+    </div>
+
+    <table class="data-table" style="margin-bottom:12px">
+      <thead>
+        <tr>
+          <th>Trigger Condition</th>
+          <th>Channel</th>
+          <th>Message Format</th>
+          <th>User Action Required</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Issue resolved autonomously</td>
+          <td>None (logged only)</td>
+          <td>—</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td>Guardrail soft-limit drift &gt; 10%</td>
+          <td>Slack / Teams thread</td>
+          <td>1-line + sparkline trend</td>
+          <td>Acknowledge or adjust</td>
+        </tr>
+        <tr>
+          <td>Action requires human approval</td>
+          <td>Slack / Teams + in-app</td>
+          <td>Evidence card with approve/reject</td>
+          <td><strong>Decision required</strong></td>
+        </tr>
+        <tr>
+          <td>SLO breach imminent (&lt; 15 min)</td>
+          <td>PagerDuty + Slack + in-app</td>
+          <td>Urgency card with context + options</td>
+          <td><strong>Decision required</strong></td>
+        </tr>
+        <tr>
+          <td>Autonomous action failed or reverted</td>
+          <td>Slack + in-app</td>
+          <td>Failure summary + suggested next step</td>
+          <td>Confirm next step</td>
+        </tr>
+        <tr>
+          <td>Weekly digest</td>
+          <td>Email + Slack</td>
+          <td>Structured summary report</td>
+          <td>Optional review</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note"><strong>Channel philosophy:</strong> The UI is not the primary communication surface in headless mode. It's the <em>deep-dive surface</em> — available on demand, pre-loaded with context when the user arrives. Notifications carry enough information to act without ever opening the UI.</div>
+  </div>
+
+  <hr class="divider" />
+
+  
+  <div class="section">
+    <div class="section-heading">
+      <span class="section-number">4</span>
+      Human Pull-in — Decision Surface &amp; Context Sufficiency
+    </div>
+    <div class="section-sub">
+      When the user is pulled in, the system must ensure they can make the right decision <em>without needing to investigate further</em>. The pull-in moment is a decision card, not a dashboard redirect.
+    </div>
+
+    <div class="card-grid card-grid-2" style="margin-bottom:14px">
+      <div class="card card-accent-blue">
+        <div class="card-label">Pull-in trigger</div>
+        <div class="card-title">What brings the user in</div>
+        <div class="card-body">
+          · Hard guardrail would be crossed<br />
+          · Confidence score below threshold<br />
+          · Novel pattern with no precedent<br />
+          · Multi-service blast radius detected<br />
+          · Autonomous action failed twice<br />
+          · Cost ceiling approaching
+        </div>
+      </div>
+      <div class="card card-accent-purple">
+        <div class="card-label">Decision card content</div>
+        <div class="card-title">What the user sees on arrival</div>
+        <div class="card-body">
+          · <strong>What happened</strong> — 2-sentence plain-language summary<br />
+          · <strong>What the system recommends</strong> — ranked options (1–3)<br />
+          · <strong>Why it escalated</strong> — specific guardrail or confidence reason<br />
+          · <strong>Impact if delayed</strong> — time-boxed SLO countdown<br />
+          · <strong>Approve / Reject / Modify</strong> — inline actions
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-label">Decision card anatomy — example</div>
+      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin-top:8px;font-size:12px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700">ACTION REQUIRED</span>
+          <span style="color:#57606a">payment-service · us-east-1</span>
+          <span style="color:#9ca3af;margin-left:auto">SLO breach in <strong style="color:#dc2626">11 min</strong></span>
+        </div>
+        <div style="font-weight:600;color:#1f2328;margin-bottom:4px">DB connection pool exhausted — restart would violate prod freeze window</div>
+        <div style="color:#57606a;margin-bottom:12px;line-height:1.6">Connections peaked at 498/500 (99.6%). Auto-restart blocked by hard guardrail: <em>no restarts weekdays 14:00–16:00 UTC</em>. Recommends temporary pool limit increase as a non-restart alternative.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span style="background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;border-radius:4px;padding:4px 12px;font-size:11px;font-weight:600">✓ Approve pool bump (+50, 8 min window)</span>
+          <span style="background:#f7f8fa;border:1px solid #e5e7eb;color:#374151;border-radius:4px;padding:4px 12px;font-size:11px">⚡ Override freeze &amp; restart</span>
+          <span style="background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;border-radius:4px;padding:4px 12px;font-size:11px">✗ Reject — I'll handle manually</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="note"><strong>Sufficiency test:</strong> A user should be able to read the card in under 30 seconds and make a confident decision. If a decision card requires the user to open a separate tool, run a query, or ask a colleague — the card has failed its design goal. All supporting evidence (logs excerpt, metric trend, similar past incidents) is accessible inline via expand, not via redirect.</div>
+  </div>
+
+  <hr class="divider" />
+
+  
+  <div class="section">
+    <div class="section-heading">
+      <span class="section-number">5</span>
+      Remediation Workflow — From Detection to Deployment
+    </div>
+    <div class="section-sub">
+      Remediation is a structured workflow where the AI drives orchestration and the user approves at defined checkpoints. Each stage produces a versioned artifact that chains into the next.
+    </div>
+
+    <div class="timeline">
+
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-dot" style="background:#fef2f2;color:#dc2626;border:1.5px solid #fecaca">1</div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-content">
+          <div class="tl-title">Investigation
+            <span class="tl-tag" style="background:#fef2f2;color:#b91c1c;border:1px solid #fecaca">AI-driven</span>
+          </div>
+          <div class="tl-desc">System automatically assembles an investigation record: correlated signals, root-cause hypothesis (with confidence %), blast radius map, timeline of events, and similar past incidents with their resolutions. Stored as a structured investigation object, not a free-text dump. User can review and annotate, but does not need to drive this step.</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-dot" style="background:#fffbeb;color:#d97706;border:1.5px solid #fde68a">2</div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-content">
+          <div class="tl-title">Ticket Creation
+            <span class="tl-tag" style="background:#fffbeb;color:#92400e;border:1px solid #fde68a">Auto + approve</span>
+          </div>
+          <div class="tl-desc">From the investigation object, the system drafts a fully populated ServiceNow / Jira ticket: severity, affected components, reproduction steps, proposed resolution, assignee recommendation. User receives a preview with inline edit before submission. One-click approval routes it to the correct team with SLA clock started.</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-dot" style="background:#f0f5ff;color:#3b82d4;border:1.5px solid #bfdbfe">3</div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-content">
+          <div class="tl-title">Change Request (CR)
+            <span class="tl-tag" style="background:#f0f5ff;color:#1d4ed8;border:1px solid #bfdbfe">Human approval</span>
+          </div>
+          <div class="tl-desc">System generates a structured CR with: change description, rollback plan, risk rating (auto-calculated from blast radius + confidence), required approvers (ITSM-sourced), and linked investigation. CR is pre-filled; human reviews, adjusts risk classification if needed, and approves. System attaches the CR number to all subsequent actions for full traceability.</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-dot" style="background:#faf5ff;color:#7c5cd8;border:1.5px solid #e9d5ff">4</div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-content">
+          <div class="tl-title">Maintenance Window
+            <span class="tl-tag" style="background:#faf5ff;color:#6d28d9;border:1px solid #e9d5ff">AI-proposed</span>
+          </div>
+          <div class="tl-desc">System recommends the optimal maintenance window by analysing: current traffic patterns, downstream dependency availability, existing calendar freeze windows, and SLO headroom. Proposes 2–3 ranked options with projected user impact per slot. User selects (or accepts the top recommendation). System books the window, notifies stakeholders, and sets pre-change health baselines.</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-dot" style="background:#f0fdf4;color:#16a34a;border:1.5px solid #bbf7d0">5</div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-content">
+          <div class="tl-title">Deploy
+            <span class="tl-tag" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0">Automated + gated</span>
+          </div>
+          <div class="tl-desc">Deployment executes under the approved CR and maintenance window. System uses canary-first strategy: 5% traffic → observe 3 min → 25% → observe → 100%. Each gate is auto-evaluated against pre-defined health criteria. If any gate fails, automated rollback triggers and a pull-in is sent to the user with the failure evidence and next-step options. Post-deploy, the investigation record is closed with resolution notes and added to the knowledge base for future pattern matching.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="status-row" style="margin-top:16px">
+      <div class="status-pill"><span class="dot dot-red"></span> Investigation open</div>
+      <div class="status-pill"><span class="dot dot-amber"></span> Ticket created</div>
+      <div class="status-pill"><span class="dot dot-blue"></span> CR approved</div>
+      <div class="status-pill"><span class="dot dot-blue"></span> Window booked</div>
+      <div class="status-pill"><span class="dot dot-green"></span> Deployed · resolved</div>
+    </div>
+
+    <div class="note" style="margin-top:14px"><strong>Traceability thread:</strong> Every artifact — investigation, ticket, CR, deploy log — is linked by a single incident ID. At any point, the user or an auditor can pull the full chain: <em>what was observed → what was decided → what was changed → what was verified</em>. The system never orphans an action from its context.</div>
+  </div>
+
+  <hr class="divider" />
+
+  
+  <div class="section">
+    <div class="section-heading">
+      <span class="section-number" style="background:#3b82d4">✦</span>
+      The Headless Contract — What the System Promises
+    </div>
+    <div class="card-grid card-grid-2">
+      <div class="card card-accent-green">
+        <div class="card-label">System does autonomously</div>
+        <div class="card-body" style="line-height:1.9">
+          · Detect, classify, and act on known patterns<br />
+          · Auto-tune soft guardrails with logged rationale<br />
+          · Generate investigation, ticket, and CR drafts<br />
+          · Select and book optimal maintenance windows<br />
+          · Execute canary deployments with auto-gating<br />
+          · Roll back on failure without human trigger
+        </div>
+      </div>
+      <div class="card card-accent-red">
+        <div class="card-label">System always waits for human</div>
+        <div class="card-body" style="line-height:1.9">
+          · Cross any hard guardrail<br />
+          · Submit a CR to change management<br />
+          · Approve a full production deployment<br />
+          · Modify cost ceilings or policy scope<br />
+          · Act when confidence is below threshold<br />
+          · Proceed after a failed autonomous retry
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Made with IBM Bob</div>
+</div>
+</body>
+</html>
