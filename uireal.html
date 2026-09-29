@@ -1865,8 +1865,107 @@ function positionStory(step) {
         setTimeout(() => openModal('approveModal'), 600);
       }, 300);
     }
+
+    // resume guided story if ?story= param is present
+    const storyStart = parseInt(params.get('story') || '0', 10);
+    if (storyStart > 0) {
+      setTimeout(() => resumeStory(storyStart), 400);
+    }
   }, 0);
 })();
+
+/* ═══════════════════════════════════════════
+   STORY CONTINUATION (from Slack, steps 5–8)
+   Global step numbers match slack-sim.html
+═══════════════════════════════════════════ */
+const TOTAL_STORY_STEPS = 8;
+
+const NI_STORY_STEPS = [
+  // global step 5
+  {
+    globalStep: 5,
+    targetSelector: '.slack-banner',
+    title: 'You\'re now in IBM Network Intelligence',
+    body: 'You arrived here from Slack. The banner confirms the handoff. The relevant decision is already loaded — the AI brought you straight to what matters. No hunting through menus.',
+  },
+  // global step 6
+  {
+    globalStep: 6,
+    targetSelector: '.di-card.urgent',
+    title: 'Decision Inbox — the full picture',
+    body: 'The AI surfaces every detail: service, root cause, blast radius, rollback confidence, and a <strong>live SLO countdown</strong>. Three ranked options. You have 11 minutes. Everything you need is here — nothing you don\'t.',
+  },
+  // global step 7
+  {
+    globalStep: 7,
+    targetSelector: '.dc-options',
+    title: 'Approve and watch the AI act',
+    body: 'Option 1: <strong>temporary pool bump (+50, 8-min window)</strong>. No restart, no guardrail breach. The AI matched 11 historical cases — 9 resolved this way. Once you approve, it hands control to the Remediation pipeline.',
+  },
+  // global step 8
+  {
+    globalStep: 8,
+    targetSelector: '.rm-wrap',
+    title: 'Investigation complete — root cause found',
+    body: 'The AI\'s Remediation Agent traced the issue: <strong>connection leak in payment-service v2.3.9</strong> under high load — ORM library not releasing connections on timeout. Confidence: 91%. A canary deploy of the fix is already running at 25%.',
+  },
+];
+
+let niStoryIdx = 0;
+
+function resumeStory(globalStartStep) {
+  niStoryIdx = NI_STORY_STEPS.findIndex(s => s.globalStep === globalStartStep);
+  if (niStoryIdx < 0) niStoryIdx = 0;
+  document.getElementById('storyOverlay').classList.add('active');
+  renderNiStep();
+}
+
+function renderNiStep() {
+  const step = NI_STORY_STEPS[niStoryIdx];
+  const total = TOTAL_STORY_STEPS;
+
+  // switch to the right tab if needed
+  const tabMap = {
+    '.slack-banner': 'decision',
+    '.di-card.urgent': 'decision',
+    '.dc-options': 'decision',
+    '.rm-wrap': 'remediation',
+  };
+  const tabId = tabMap[step.targetSelector];
+  if (tabId) {
+    document.querySelectorAll('.canvas-tab-content').forEach(t => t.classList.remove('active-tab'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + tabId).classList.add('active-tab');
+    const btn = document.querySelector(`.nav-tab[onclick*="switchTab('${tabId}'"]`);
+    if (btn) btn.classList.add('active');
+    // re-render lists after tab switch so elements exist
+    if (tabId === 'decision') { buildDiList(); renderDecisionDetail(DECISIONS[0]); }
+    if (tabId === 'remediation') { buildRmList(); renderRmDetail(RM_CASES[0]); }
+  }
+
+  document.getElementById('storyStep').textContent = `Step ${step.globalStep} of ${total}`;
+  document.getElementById('storyTitle').textContent = step.title;
+  document.getElementById('storyBody').innerHTML = step.body;
+  document.getElementById('storyNextBtn').textContent = niStoryIdx === NI_STORY_STEPS.length - 1 ? 'Finish ✓' : 'Next →';
+
+  document.getElementById('storyDots').innerHTML = Array.from({length: total}, (_, i) =>
+    `<div class="story-dot ${i === (step.globalStep - 1) ? 'active' : ''}"></div>`
+  ).join('');
+
+  // override next button behaviour for NI steps
+  document.getElementById('storyNextBtn').onclick = niStoryNext;
+
+  requestAnimationFrame(() => {
+    // reuse existing positionStory from the uireal story engine
+    positionStory({ targetSelector: step.targetSelector });
+  });
+}
+
+function niStoryNext() {
+  niStoryIdx++;
+  if (niStoryIdx >= NI_STORY_STEPS.length) { storySkip(); return; }
+  renderNiStep();
+}
 </script>
 </body>
 </html>
