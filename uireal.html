@@ -1781,42 +1781,50 @@ function renderStoryStep() {
 
 function positionStory(step) {
   const spotlight = document.getElementById('storySpotlight');
-  const card = document.getElementById('storyCard');
-  const PAD = 10;
+  const card      = document.getElementById('storyCard');
+  const MARGIN = 12;
+  const GAP    = 14;
+  const PAD    = 10;
 
   let targetEl = step.targetSelector ? document.querySelector(step.targetSelector) : null;
-  // fallback: spotlight the whole canvas area
   if (!targetEl) targetEl = document.querySelector('.topnav');
 
-  const rect = targetEl.getBoundingClientRect();
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
+  const rect  = targetEl.getBoundingClientRect();
+  const vw    = window.innerWidth;
+  const vh    = window.innerHeight;
+  const cardW = card.offsetWidth  || 320;
+  const cardH = card.offsetHeight || 220;
 
-  // spotlight position
+  // spotlight
   spotlight.style.left   = (rect.left - PAD) + 'px';
-  spotlight.style.top    = (rect.top - PAD) + 'px';
-  spotlight.style.width  = (rect.width + PAD * 2) + 'px';
+  spotlight.style.top    = (rect.top  - PAD) + 'px';
+  spotlight.style.width  = (rect.width  + PAD * 2) + 'px';
   spotlight.style.height = (rect.height + PAD * 2) + 'px';
 
-  // card position — prefer right of target, else left, else below
-  const CARD_W = 336; // 320 + some buffer
-  const CARD_H = 230;
-  let left, top;
+  // try: right → left → below → above
+  const spRight  = rect.right  + PAD;
+  const spLeft   = rect.left   - PAD;
+  const spBottom = rect.bottom + PAD;
+  const spTop    = rect.top    - PAD;
 
-  if (rect.right + PAD + CARD_W + 16 < vw) {
-    // place to the right
-    left = rect.right + PAD + 10;
-    top  = Math.max(12, Math.min(rect.top, vh - CARD_H - 12));
-  } else if (rect.left - PAD - CARD_W - 16 > 0) {
-    // place to the left
-    left = rect.left - PAD - CARD_W - 10;
-    top  = Math.max(12, Math.min(rect.top, vh - CARD_H - 12));
+  let left, top;
+  if (spRight + GAP + cardW + MARGIN <= vw) {
+    left = spRight + GAP;
+    top  = rect.top + rect.height / 2 - cardH / 2;
+  } else if (spLeft - GAP - cardW - MARGIN >= 0) {
+    left = spLeft - GAP - cardW;
+    top  = rect.top + rect.height / 2 - cardH / 2;
+  } else if (spBottom + GAP + cardH + MARGIN <= vh) {
+    top  = spBottom + GAP;
+    left = rect.left + rect.width / 2 - cardW / 2;
   } else {
-    // place below
-    left = Math.max(12, Math.min(rect.left, vw - CARD_W - 12));
-    top  = rect.bottom + PAD + 10;
-    if (top + CARD_H > vh - 12) top = rect.top - PAD - CARD_H - 10;
+    top  = spTop - GAP - cardH;
+    left = rect.left + rect.width / 2 - cardW / 2;
   }
+
+  // hard-clamp — card never exits viewport
+  left = Math.max(MARGIN, Math.min(left, vw - cardW - MARGIN));
+  top  = Math.max(MARGIN, Math.min(top,  vh - cardH - MARGIN));
 
   card.style.left = left + 'px';
   card.style.top  = top  + 'px';
