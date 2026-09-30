@@ -39,6 +39,7 @@ A dedicated synthesis page mapping the qualitative research across the 4 core pi
 - **Needs Statements vs. Pain Points & Tactical Needs**: Comprehensive 8-domain mapping linking legacy operational pain points to explicit user need statements, concrete UI/tactical requirements, and architectural headless solutions.
 - **Big Ideas**: The 6 foundational concepts (Immune System, Decision Cards, Permission Matrix as Spec, Humility as Feature, Consequence Visualization, Contextual Chat as Emergency Hatch) paired with dedicated **AI Architecture Ideas** and **Go-To-Market (GTM) Strategy & Positioning**.
 - **4-Pillar Synthesis Matrix**: Detailed cross-mapping of Scope & Policy, Trace View, Contextual Chat, and Agent Identity to prototype artifacts and operator needs.
+- **Project Hub (`hub.html`)**: The unified central navigation portal grouping all 10+ interactive HTML prototypes, frameworks, storyboards, case studies, and research plans in one place with a guided presentation flow.
 - **Interactive Storyline & Network Map Model**: 4-Act operational narrative featuring real-time interactive SVG topology maps, policy intercept diagrams, Block Kit decision models, and state progression.
 - **Data Ingested, Carried & Transformed**: 3-stage data lifecycle from raw telemetry streams to carried execution memory and high-order decision artifacts.
 - **Phases (Day 0 / Day 1 / Day 2)**: Progressive maturity model from boundary definition & simulation (Day 0) to supervised Slack triage (Day 1) and autonomous self-healing (Day 2).
