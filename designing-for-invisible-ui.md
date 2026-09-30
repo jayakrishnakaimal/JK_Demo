@@ -31,6 +31,22 @@
 
 ---
 
+## Stakeholder Research & Framework Synthesis — `personas-framework-synthesis.html`
+
+A dedicated synthesis page mapping the qualitative research across the 4 core pillars and 5 design directions:
+- **Personas**: Priya Sharma (Senior SRE), Jamie Park (NOC Responder), Elena Morales (Compliance Officer), Marcus Vance (Platform Director).
+- **Stakeholder Interview Quotes**: Direct qualitative evidence parsed from regional NOC leads, security architects, operations managers, and compliance auditors.
+- **Needs Statements vs. Pain Points & Tactical Needs**: Comprehensive 8-domain mapping linking legacy operational pain points to explicit user need statements, concrete UI/tactical requirements, and architectural headless solutions.
+- **Big Ideas**: The 6 foundational concepts (Immune System, Decision Cards, Permission Matrix as Spec, Humility as Feature, Consequence Visualization, Contextual Chat as Emergency Hatch) paired with dedicated **AI Architecture Ideas** and **Go-To-Market (GTM) Strategy & Positioning**.
+- **4-Pillar Synthesis Matrix**: Detailed cross-mapping of Scope & Policy, Trace View, Contextual Chat, and Agent Identity to prototype artifacts and operator needs.
+- **Interactive Storyline & Network Map Model**: 4-Act operational narrative featuring real-time interactive SVG topology maps, policy intercept diagrams, Block Kit decision models, and state progression.
+- **Data Ingested, Carried & Transformed**: 3-stage data lifecycle from raw telemetry streams to carried execution memory and high-order decision artifacts.
+- **Phases (Day 0 / Day 1 / Day 2)**: Progressive maturity model from boundary definition & simulation (Day 0) to supervised Slack triage (Day 1) and autonomous self-healing (Day 2).
+- **Competitive Differentiation**: Side-by-side comparison matrix vs. Traditional Monitoring (Datadog/Dynatrace) and Generic Copilots across 5 dimensions.
+- **UXR Validation Loop**: 5 testing scenarios directly validating framework hypotheses.
+
+---
+
 ## Page Structure — 5-Panel Stepper
 
 Each panel is a full-viewport section (`.panel`). Only the active panel is visible; transitions are driven by `goToStep(n)`. A fixed **stepper bar** beneath the top nav shows the current step via filled indicator dots.

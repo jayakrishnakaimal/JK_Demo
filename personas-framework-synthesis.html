@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Headless AI — Personas, Needs, Pain Points &amp; Strategic Framework</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230f62fe'/><circle cx='16' cy='16' r='5' fill='none' stroke='%23fff' stroke-width='2' opacity='0.9'/><circle cx='16' cy='16' r='1.5' fill='%23fff'/><circle cx='16' cy='7' r='1.8' fill='%23fff' opacity='0.6'/><circle cx='16' cy='25' r='1.8' fill='%23fff' opacity='0.6'/><circle cx='7' cy='16' r='1.8' fill='%23fff' opacity='0.6'/><circle cx='25' cy='16' r='1.8' fill='%23fff' opacity='0.6'/></svg>"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:      #0f62fe;
+      --blue-h:    #0043ce;
+      --blue-lt:   #edf5ff;
+      --blue-md:   #97c1ff;
+      --purple:    #6929c4;
+      --purple-lt: #f6f2ff;
+      --purple-md: #d4bbff;
+      --teal:      #007d79;
+      --teal-lt:   #d9fbfb;
+      --green:     #198038;
+      --green-lt:  #defbe6;
+      --amber:     #d97706;
+      --amber-lt:  #fef3c7;
+      --red:       #da1e28;
+      --red-lt:    #fee2e2;
+      --text:      #161616;
+      --sub:       #525252;
+      --muted:     #6f6f6f;
+      --border:    #e0e0e0;
+      --bg:        #ffffff;
+      --surface:   #f4f4f4;
+      --surface-2: #f8f9fa;
+      --font:      'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── TOP NAV (Matches index.html) ── */
+    .top-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+      height: 48px; background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: stretch; justify-content: space-between;
+      padding: 0 1.5rem;
+    }
+    .tn-brand {
+      display: flex; align-items: center; gap: 10px;
+      font-size: .875rem; font-weight: 600; color: var(--text);
+    }
+    .tn-brand-logo img { width: 22px; height: 22px; object-fit: contain; }
+    .tn-tabs {
+      display: flex; list-style: none; margin: 0; padding: 0;
+      height: 100%;
+    }
+    .tn-tabs li a {
+      display: flex; align-items: center; height: 100%;
+      padding: 0 1.1rem; font-size: .84rem; color: var(--sub);
+      border-bottom: 2px solid transparent; transition: all .15s;
+    }
+    .tn-tabs li a:hover { color: var(--text); }
+    .tn-tabs li a.active {
+      color: var(--blue); border-bottom-color: var(--blue); font-weight: 500;
+    }
+    .tn-right {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .tn-badge {
+      font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+      background: var(--blue-lt); color: var(--blue); border: 1px solid var(--blue-md);
+      padding: 2px 8px; border-radius: 4px;
+    }
+
+    /* ── HERO BANNER ── */
+    .hero {
+      margin-top: 48px;
+      background: linear-gradient(135deg, #0b1528 0%, #112340 50%, #0d2c54 100%);
+      color: #ffffff;
+      padding: 56px 2rem 48px;
+      border-bottom: 1px solid #203a61;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -120px; right: -80px; width: 440px; height: 440px;
+      border-radius: 50%; background: radial-gradient(circle, rgba(15,98,254,0.3) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+    .hero-eyebrow {
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+      color: #74b1ff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    }
+    .hero-title {
+      font-size: 34px; font-weight: 300; line-height: 1.2; margin-bottom: 12px; color: #ffffff;
+    }
+    .hero-title strong { font-weight: 600; color: #a6c8ff; }
+    .hero-desc {
+      font-size: 15px; color: #c0d8ff; max-width: 820px; line-height: 1.6; margin-bottom: 28px;
+      font-weight: 300;
+    }
+    .hero-meta-strip {
+      display: flex; gap: 28px; flex-wrap: wrap; padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+    }
+    .hero-stat { display: flex; flex-direction: column; gap: 2px; }
+    .hero-stat-num { font-size: 22px; font-weight: 600; color: #ffffff; font-family: var(--font-mono); }
+    .hero-stat-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #8ab4f8; }
+
+    /* ── QUICK SECTION JUMP ── */
+    .jump-nav {
+      position: sticky; top: 48px; z-index: 200;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border); padding: 0 1.5rem;
+    }
+    .jump-nav-inner {
+      max-width: 1200px; margin: 0 auto; display: flex; gap: 6px; overflow-x: auto;
+      padding: 8px 0; scrollbar-width: none;
+    }
+    .jump-nav-inner::-webkit-scrollbar { display: none; }
+    .jump-btn {
+      padding: 6px 14px; border-radius: 20px; font-size: 12.5px; font-weight: 500;
+      color: var(--sub); background: var(--surface); border: 1px solid var(--border);
+      white-space: nowrap; transition: all .15s;
+    }
+    .jump-btn:hover { color: var(--blue); background: var(--blue-lt); border-color: var(--blue-md); text-decoration: none; }
+
+    /* ── MAIN CONTENT CONTAINER ── */
+    .content-wrap { max-width: 1200px; margin: 0 auto; padding: 48px 1.5rem 80px; }
+
+    /* ── SECTION SHELL ── */
+    .sec { margin-bottom: 64px; scroll-margin-top: 110px; }
+    .sec-header {
+      margin-bottom: 24px; padding-bottom: 14px; border-bottom: 2px solid var(--border);
+      display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px;
+    }
+    .sec-tag-group { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .sec-tag {
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+      padding: 3px 8px; border-radius: 4px;
+    }
+    .sec-tag-blue { background: var(--blue-lt); color: var(--blue); border: 1px solid var(--blue-md); }
+    .sec-tag-purple { background: var(--purple-lt); color: var(--purple); border: 1px solid var(--purple-md); }
+    .sec-tag-teal { background: var(--teal-lt); color: var(--teal); border: 1px solid #7be3e3; }
+    .sec-tag-green { background: var(--green-lt); color: var(--green); border: 1px solid #a7f3d0; }
+    .sec-tag-amber { background: var(--amber-lt); color: var(--amber); border: 1px solid #fde68a; }
+
+    .sec-title { font-size: 24px; font-weight: 400; color: var(--text); line-height: 1.25; }
+    .sec-title strong { font-weight: 600; }
+    .sec-sub { font-size: 14px; color: var(--sub); max-width: 780px; margin-top: 4px; }
+
+    /* ── CARDS & GRIDS ── */
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+    @media (max-width: 980px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 24px; position: relative; transition: box-shadow .2s;
+    }
+    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+
+    /* ── PERSONA CARD STYLING ── */
+    .persona-card {
+      border: 1px solid var(--border); border-radius: 8px; background: #ffffff;
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+    .persona-card-header {
+      padding: 20px; display: flex; align-items: center; gap: 14px;
+      border-bottom: 1px solid var(--border); background: var(--surface-2);
+    }
+    .persona-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700; color: #ffffff; flex-shrink: 0;
+    }
+    .persona-info { flex: 1; min-width: 0; }
+    .persona-name { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.3; }
+    .persona-role { font-size: 12px; color: var(--sub); margin-top: 2px; }
+    .persona-body { padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+    .persona-section-lbl {
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+    }
+    .persona-quote {
+      font-size: 13.5px; font-style: italic; color: #1e293b; background: var(--surface);
+      border-left: 3px solid var(--blue); padding: 10px 14px; border-radius: 0 4px 4px 0;
+    }
+    .persona-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .persona-list li {
+      font-size: 13px; color: var(--sub); display: flex; align-items: flex-start; gap: 8px; line-height: 1.5;
+    }
+    .persona-list li strong { color: var(--text); }
+    .persona-list li::before {
+      content: '•'; color: var(--blue); font-weight: bold; font-size: 16px; line-height: 1; margin-top: -1px;
+    }
+
+    /* ── INTERVIEW HIGHLIGHT CALLOUTS ── */
+    .interview-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .interview-item {
+      background: #ffffff; border: 1px solid var(--border); border-radius: 6px;
+      padding: 18px 20px; border-left: 4px solid var(--blue);
+    }
+    .interview-item.purple { border-left-color: var(--purple); }
+    .interview-item.teal { border-left-color: var(--teal); }
+    .interview-item.amber { border-left-color: var(--amber); }
+    .interview-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+    .interview-source { font-size: 12px; font-weight: 700; color: var(--text); text-transform: uppercase; letter-spacing: 0.06em; }
+    .interview-topic { font-size: 11px; color: var(--muted); background: var(--surface); padding: 2px 6px; border-radius: 3px; }
+    .interview-quote { font-size: 13.5px; color: var(--text); line-height: 1.55; margin-bottom: 8px; font-style: italic; }
+    .interview-takeaway { font-size: 12.5px; color: var(--sub); border-top: 1px dashed var(--border); padding-top: 8px; }
+    .interview-takeaway strong { color: var(--text); }
+
+    /* ── BIG IDEAS TABLE & MATRICES ── */
+    .idea-card {
+      border: 1px solid var(--border); border-radius: 8px; padding: 22px;
+      background: #ffffff; position: relative; overflow: hidden; display: flex; flex-direction: column;
+    }
+    .idea-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--blue); }
+    .idea-card:nth-child(2)::before { background: var(--purple); }
+    .idea-card:nth-child(3)::before { background: var(--teal); }
+    .idea-card:nth-child(4)::before { background: var(--green); }
+    .idea-card:nth-child(5)::before { background: var(--amber); }
+    .idea-card:nth-child(6)::before { background: var(--red); }
+    .idea-num { font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+    .idea-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 8px; line-height: 1.3; }
+    .idea-plain {
+      font-size: 13px; color: var(--text); background: var(--surface);
+      padding: 10px 12px; border-radius: 6px; margin-bottom: 12px; line-height: 1.5;
+      border-left: 3px solid var(--blue);
+    }
+    .idea-card:nth-child(2) .idea-plain { border-left-color: var(--purple); }
+    .idea-card:nth-child(3) .idea-plain { border-left-color: var(--teal); }
+    .idea-card:nth-child(4) .idea-plain { border-left-color: var(--green); }
+    .idea-card:nth-child(5) .idea-plain { border-left-color: var(--amber); }
+    .idea-card:nth-child(6) .idea-plain { border-left-color: var(--red); }
+
+    .idea-ext-box {
+      display: flex; flex-direction: column; gap: 8px; margin-top: auto;
+    }
+    .idea-ext-row {
+      font-size: 12.5px; line-height: 1.5; border-radius: 6px; padding: 10px 12px;
+    }
+    .idea-ai-box { background: #f0f7ff; border: 1px solid #c8e1ff; }
+    .idea-gtm-box { background: #fbf5ff; border: 1px solid #e8daff; }
+    .idea-ext-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+      display: block; margin-bottom: 3px;
+    }
+    .idea-ai-box .idea-ext-label { color: #0f62fe; }
+    .idea-gtm-box .idea-ext-label { color: #6929c4; }
+    .idea-ext-text { color: #161616; }
+    .idea-ext-text strong { color: #000; font-weight: 600; }
+
+    /* ── NEEDS VS PAIN POINTS TABLE ── */
+    .compare-table {
+      width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13.5px;
+      border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+    }
+    .compare-table th {
+      background: var(--surface); padding: 12px 16px; text-align: left;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text); border-bottom: 2px solid var(--border);
+    }
+    .compare-table td {
+      padding: 14px 16px; border-bottom: 1px solid var(--border); vertical-align: top;
+      color: var(--sub); line-height: 1.55;
+    }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table tr:hover td { background: rgba(15,98,254,0.02); }
+    .compare-table td strong { color: var(--text); }
+
+    /* ── STORYLINE & MAP STYLING ── */
+    .storyline-container {
+      background: #ffffff; border: 1px solid var(--border); border-radius: 8px;
+      overflow: hidden; margin-bottom: 24px;
+    }
+    .story-nav-bar {
+      display: flex; background: var(--surface-2); border-bottom: 1px solid var(--border);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .story-nav-btn {
+      padding: 14px 20px; font-size: 13px; font-weight: 500; color: var(--sub);
+      border: none; background: transparent; cursor: pointer; border-bottom: 2px solid transparent;
+      display: flex; align-items: center; gap: 8px; white-space: nowrap; transition: all .15s;
+    }
+    .story-nav-btn:hover { color: var(--text); background: rgba(0,0,0,0.02); }
+    .story-nav-btn.active {
+      color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; background: #ffffff;
+    }
+    .story-pane { display: none; padding: 28px; }
+    .story-pane.active { display: block; animation: fadeIn .25s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .story-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; }
+    @media (max-width: 960px) { .story-grid { grid-template-columns: 1fr; } }
+
+    .map-box {
+      background: #0d1527; border-radius: 8px; padding: 18px; color: #ffffff;
+      border: 1px solid #1e2c4f; position: relative; overflow: hidden;
+    }
+    .map-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+      padding-bottom: 8px; border-bottom: 1px solid #1e2c4f;
+    }
+    .map-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #74b1ff; }
+    .map-live-dot { width: 7px; height: 7px; border-radius: 50%; background: #24a148; display: inline-block; animation: pulse 1.8s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    .story-step-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .story-step-item {
+      display: flex; gap: 12px; background: var(--surface-2); padding: 12px 14px; border-radius: 6px;
+      border-left: 3px solid var(--border); font-size: 13px; line-height: 1.5;
+    }
+    .story-step-item.active-step { border-left-color: var(--blue); background: var(--blue-lt); }
+    .story-step-item.warn-step { border-left-color: var(--amber); background: var(--amber-lt); }
+    .story-step-item.good-step { border-left-color: var(--green); background: var(--green-lt); }
+    .story-time-badge { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--muted); flex-shrink: 0; }
+    .badge-pain { display: inline-block; padding: 2px 8px; border-radius: 4px; background: var(--red-lt); color: var(--red); font-size: 11px; font-weight: 700; }
+    .badge-need { display: inline-block; padding: 2px 8px; border-radius: 4px; background: var(--green-lt); color: var(--green); font-size: 11px; font-weight: 700; }
+    .badge-pillar { display: inline-block; padding: 2px 8px; border-radius: 4px; background: var(--blue-lt); color: var(--blue); font-size: 11px; font-weight: 700; }
+
+    /* ── FRAMEWORK SYNTHESIS MATRIX ── */
+    .matrix-box {
+      border: 1px solid var(--border); border-radius: 8px; background: #ffffff;
+      padding: 24px; margin-bottom: 20px;
+    }
+    .matrix-title { font-size: 17px; font-weight: 600; margin-bottom: 14px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .matrix-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    @media (max-width: 900px) { .matrix-grid { grid-template-columns: 1fr; } }
+    .matrix-col {
+      background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 16px;
+    }
+    .matrix-col-header {
+      font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 10px;
+      padding-bottom: 8px; border-bottom: 2px solid var(--blue); display: flex; justify-content: space-between;
+    }
+    .matrix-col:nth-child(2) .matrix-col-header { border-bottom-color: var(--purple); }
+    .matrix-col:nth-child(3) .matrix-col-header { border-bottom-color: var(--teal); }
+    .matrix-col:nth-child(4) .matrix-col-header { border-bottom-color: var(--green); }
+    .matrix-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .matrix-col li { font-size: 12.5px; color: var(--sub); line-height: 1.45; }
+    .matrix-col li strong { color: var(--text); }
+
+    /* ── FOOTER (Matches index.html) ── */
+    .dark-footer {
+      background: #161616; color: #c6c6c6; padding: 40px 1.5rem;
+      border-top: 1px solid #393939; display: flex; flex-wrap: wrap;
+      align-items: center; justify-content: space-between; gap: 20px;
+    }
+    .df-brand { font-size: 14px; font-weight: 600; color: #ffffff; letter-spacing: 0.05em; }
+    .df-flow { font-size: 12.5px; color: #8d8d8d; }
+    .df-flow span { color: var(--blue); margin: 0 4px; }
+    .df-credit { font-size: 12px; color: #6f6f6f; }
+    .df-credit strong { color: #f4f4f4; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ TOP NAVIGATION ═══ -->
+  <nav class="top-nav">
+    <div class="tn-brand">
+      <div class="tn-brand-logo"><img src="ini_logo.png" alt="IBM Network Intelligence logo" onerror="this.style.display='none'"/></div>
+      IBM Network Intelligence
+    </div>
+    <ul class="tn-tabs">
+      <li><a href="index.html">Today · Invisible UI</a></li>
+      <li><a href="headless.html">Headless Concept</a></li>
+      <li><a href="headless-ai-case-study.html">Case Study</a></li>
+      <li><a href="uxr_plan.html">UXR Plan</a></li>
+      <li><a href="#" class="active">Personas &amp; Framework Synthesis</a></li>
+    </ul>
+    <div class="tn-right">
+      <span class="tn-badge">Research Synthesis</span>
+    </div>
+  </nav>
+
+  <!-- ═══ HERO BANNER ═══ -->
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">
+        <span>Strategic Framework &amp; Stakeholder Parsing</span>
+        <span>/</span>
+        <span>IBM Design Research</span>
+      </div>
+      <h1 class="hero-title">Parsing the Finer Points: <strong>Personas, Needs &amp; Big Ideas</strong></h1>
+      <p class="hero-desc">
+        A cross-stakeholder synthesis mapping raw findings from operator interviews, UXR protocol scenarios, production telemetry cases, and our 4-pillar headless AI framework. This page bridges human mental models with invisible agent architecture.
+      </p>
+      <div class="hero-meta-strip">
+        <div class="hero-stat">
+          <span class="hero-stat-num">4</span>
+          <span class="hero-stat-lbl">Primary Personas</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num">12+</span>
+          <span class="hero-stat-lbl">Parsed Interview Quotes</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num">6</span>
+          <span class="hero-stat-lbl">Strategic Big Ideas</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num">4 Pillars</span>
+          <span class="hero-stat-lbl">Architectural Anchors</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num">5</span>
+          <span class="hero-stat-lbl">Design Directions Grounded</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ STICKY JUMP BAR ═══ -->
+  <div class="jump-nav">
+    <div class="jump-nav-inner">
+      <a href="#sec-personas" class="jump-btn">01 Personas &amp; Mental Models</a>
+      <a href="#sec-interviews" class="jump-btn">02 Stakeholder Interviews &amp; Quotes</a>
+      <a href="#sec-needs-pains" class="jump-btn">03 Needs Statements vs. Pain Points</a>
+      <a href="#sec-big-ideas" class="jump-btn">04 Big Ideas &amp; Paradigm Shifts</a>
+      <a href="#sec-framework-synthesis" class="jump-btn">05 4-Pillar Synthesis Matrix</a>
+      <a href="#sec-storyline-map" class="jump-btn" style="background: #edf5ff; color: #0f62fe; border-color: #97c1ff; font-weight: 600;">06 Interactive Storyline &amp; Network Map</a>
+      <a href="#sec-data-flow" class="jump-btn">07 Data Ingested &amp; Transformed</a>
+      <a href="#sec-phases" class="jump-btn">08 Day 0 / Day 1 / Day 2 Phases</a>
+      <a href="#sec-differentiation" class="jump-btn">09 Competitive Differentiation</a>
+      <a href="#sec-uxr-mapping" class="jump-btn">10 UXR Testing &amp; Validation Loop</a>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <main class="content-wrap">
+
+    <!-- ──────────────────────────────────────────
+         SECTION 01: PERSONAS & MENTAL MODELS
+    ────────────────────────────────────────── -->
+    <section class="sec" id="sec-personas">
+      <div class="sec-header">
+        <div>
+          <div class="sec-tag-group">
+            <span class="sec-tag sec-tag-blue">Stakeholder Spectrum</span>
+            <span class="sec-tag sec-tag-purple">4 Core Archetypes</span>
+          </div>
+          <h2 class="sec-title">01. <strong>Personas &amp; Operational Archetypes</strong></h2>
+          <p class="sec-sub">Synthesized from NOC field studies, SRE on-call rotations, compliance audits, and engineering leadership interviews.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+
+        <!-- PERSONA 1 -->
+        <div class="persona-card">
+          <div class="persona-card-header">
+            <div class="persona-avatar" style="background: linear-gradient(135deg, #0f62fe, #0043ce);">PS</div>
+            <div class="persona-info">
+              <div class="persona-name">Priya Sharma — Senior SRE &amp; Platform Engineer</div>
+              <div class="persona-role">Manages 14 autonomous agents · Japan &amp; US-East regions · Focus: Uptime &amp; SLOs</div>
+            </div>
+          </div>
+          <div class="persona-body">
+            <div class="persona-quote">
+              "Silence is the signal that everything is working. If I get paged during a meeting, don't give me a dashboard with 10 charts — give me a 30-second decision card with ranked options."
+            </div>
+            <div>
+              <div class="persona-section-lbl">Primary Needs</div>
+              <ul class="persona-list">
+                <li><strong>Self-contained escalation cards:</strong> Needs root cause, ranked fix options, rollback risk, and SLO countdown in one notification.</li>
+                <li><strong>Predictable guardrails:</strong> Must be 100% confident the AI will never perform hard production restarts during peak traffic windows without human sign-off.</li>
+                <li><strong>Zero proactive dashboard fatigue:</strong> Dashboards should only be deep-dive investigation surfaces, never attention monitors.</li>
+              </ul>
+            </div>
+            <div>
+              <div class="persona-section-lbl">Core Pain Points</div>
+              <ul class="persona-list">
+                <li>Alert fatigue from non-actionable telemetry alarms that do not correlate root causes.</li>
+                <li>Black-box automation tools that make unexpected changes with no reversible audit trail.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- PERSONA 2 -->
+        <div class="persona-card">
+          <div class="persona-card-header">
+            <div class="persona-avatar" style="background: linear-gradient(135deg, #6929c4, #491d8b);">JP</div>
+            <div class="persona-info">
+              <div class="persona-name">Jamie Park — Tier-2 NOC / Incident Responder</div>
+              <div class="persona-role">Frontline triage · Slack/Mobile primary responder · Focus: MTTR &amp; Blast Radius</div>
+            </div>
+          </div>
+          <div class="persona-body">
+            <div class="persona-quote">
+              "When an incident strikes at 2 AM, I don't have time to log into 4 portals to pull logs. I need the AI to have already gathered the trace, drafted the ticket, and staged the fix."
+            </div>
+            <div>
+              <div class="persona-section-lbl">Primary Needs</div>
+              <ul class="persona-list">
+                <li><strong>Mobile &amp; Chat Execution:</strong> Ability to approve, escalate, or modify agent actions directly in Slack with single-click Block Kit actions.</li>
+                <li><strong>Historical Pattern Matching:</strong> Needs to see similar historical cases (e.g., "Matched 14 cases, 9 resolved via pool bump") to validate recommendations.</li>
+                <li><strong>Automatic Ticketing &amp; Hand-off:</strong> Auto-generation of Jira/ServiceNow tickets (NOC-4421) and pre-filled Change Requests (CR-2024-0147).</li>
+              </ul>
+            </div>
+            <div>
+              <div class="persona-section-lbl">Core Pain Points</div>
+              <ul class="persona-list">
+                <li>High context-switching costs between monitoring tools, terminal consoles, and ticketing platforms.</li>
+                <li>Fear of approving an AI action when blast radius or rollback mechanisms are ambiguous.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- PERSONA 3 -->
+        <div class="persona-card">
+          <div class="persona-card-header">
+            <div class="persona-avatar" style="background: linear-gradient(135deg, #007d79, #005d5d);">EM</div>
+            <div class="persona-info">
+              <div class="persona-name">Elena Morales — Compliance &amp; Security Risk Officer</div>
+              <div class="persona-role">Governance &amp; Audit Oversight · Regulated infrastructure · Focus: Policy &amp; Provenance</div>
+            </div>
+          </div>
+          <div class="persona-body">
+            <div class="persona-quote">
+              "If an autonomous system touches customer data or firewall rules, I must be able to prove to external auditors exactly who authorized the policy, what confidence score it had, and why."
+            </div>
+            <div>
+              <div class="persona-section-lbl">Primary Needs</div>
+              <ul class="persona-list">
+                <li><strong>Tamper-Proof Audit History:</strong> A clear, unchangeable record of every decision, showing who approved what and when.</li>
+                <li><strong>Hard vs. Soft Guardrail Enforcement:</strong> Absolute guarantees that high-risk permissions (cross-tenant routing, firewall mutation) require multi-factor human approval.</li>
+                <li><strong>Visual Consequence Modeling:</strong> Real-time radar visualization showing how policy adjustments affect security posture vs. automation velocity.</li>
+              </ul>
+            </div>
+            <div>
+              <div class="persona-section-lbl">Core Pain Points</div>
+              <ul class="persona-list">
+                <li>Lack of lineage in LLM/agent pipelines making regulatory compliance (SOC2, ISO27001, FedRAMP) nearly impossible.</li>
+                <li>Unclear division between AI autonomy and operator legal accountability.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- PERSONA 4 -->
+        <div class="persona-card">
+          <div class="persona-card-header">
+            <div class="persona-avatar" style="background: linear-gradient(135deg, #198038, #0e6027);">MV</div>
+            <div class="persona-info">
+              <div class="persona-name">Marcus Vance — Director of Platform Engineering</div>
+              <div class="persona-role">Engineering Executive · Tooling Procurement &amp; SRE Strategy · Focus: Fleet Health &amp; Trust</div>
+            </div>
+          </div>
+          <div class="persona-body">
+            <div class="persona-quote">
+              "We cannot scale infrastructure by hiring more NOC operators linear to our traffic growth. We need autonomous agents, but leadership needs proof of fleet health before giving them the keys."
+            </div>
+            <div>
+              <div class="persona-section-lbl">Primary Needs</div>
+              <ul class="persona-list">
+                <li><strong>Pre-flight Digital Twin Sandboxing:</strong> Ability to simulate new agent policies on historical traffic replay before promoting to production.</li>
+                <li><strong>Composite Posture &amp; Delegation Metrics:</strong> Executive-level dashboard tracking auto-resolution rate (target &gt;80%), escalation frequency, and delegation trust score.</li>
+                <li><strong>Gradual Autonomy Scaling:</strong> Seamless progression from Supervised &rarr; Assisted &rarr; Autonomous as confidence grows.</li>
+              </ul>
+            </div>
+            <div>
+              <div class="persona-section-lbl">Core Pain Points</div>
+              <ul class="persona-list">
+                <li>Risk of runaway cascading failures if autonomous agents enter recursive restart loops.</li>
+                <li>Vendor hype around "AI automation" that lacks transparent policy governance or safety limits.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────
+         SECTION 02: STAKEHOLDER INTERVIEWS & QUOTES
+    ────────────────────────────────────────── -->
+    <section class="sec" id="sec-interviews">
+      <div class="sec-header">
+        <div>
+          <div class="sec-tag-group">
+            <span class="sec-tag sec-tag-purple">Qualitative Evidence</span>
+            <span class="sec-tag sec-tag-blue">Field Insights</span>
+          </div>
+          <h2 class="sec-title">02. <strong>Stakeholder Interviews &amp; Finer Qualitative Points</strong></h2>
+          <p class="sec-sub">Direct quotes and thematic breakdowns parsed from 12+ stakeholder discussions across operations, engineering, and compliance.</p>
+        </div>
+      </div>
+
+      <div class="interview-grid">
+
+        <div class="interview-item">
+          <div class="interview-header">
+            <span class="interview-source">SRE Lead &middot; Japan Region</span>
+            <span class="interview-topic">Attention Economy</span>
+          </div>
+          <div class="interview-quote">
+            "We have 8 monitors in the NOC, but 90% of the time they just show green graphs. The moment an incident happens, nobody looks at the graphs — we scramble through terminals. If the agent can do the triage, I just want the conclusion and the blast radius."
+          </div>
+          <div class="interview-takeaway">
+            <strong>Design Takeaway:</strong> Ambient presence by default. Traditional dashboard monitoring is dead in agentic workflows; interfaces must "deform" only when human attention is required.
+          </div>
+        </div>
+
+        <div class="interview-item purple">
+          <div class="interview-header">
+            <span class="interview-source">Principal Security Architect &middot; US East</span>
+            <span class="interview-topic">Humility Boundaries</span>
+          </div>
+          <div class="interview-quote">
+            "An agent that always takes action even when its confidence is 60% is a liability. I respect an agent much more when it explicitly says: 'I haven't seen this pattern in 4,800 historical cases, so I'm holding back and asking you'."
+          </div>
+          <div class="interview-takeaway">
+            <strong>Design Takeaway:</strong> Guardrail G-03 (Confidence Boundary) is not a restriction; it's a foundational trust builder. Transparent uncertainty prevents catastrophic hallucinations.
+          </div>
+        </div>
+
+        <div class="interview-item teal">
+          <div class="interview-header">
+            <span class="interview-source">NOC Operations Manager</span>
+            <span class="interview-topic">Pattern Intelligence</span>
+          </div>
+          <div class="interview-quote">
+            "Automated restart is fine once or twice. But if a server restarts 4 times in a week, that's not a transient glitch — it's hardware rot. The system must recognize the loop and escalate for a Change Request instead of endlessly rebooting."
+          </div>
+          <div class="interview-takeaway">
+            <strong>Design Takeaway:</strong> INC-8839 demonstrates repetitive failure detection. Autonomy must recognize cyclical degradation and automatically transition from silent auto-fix to structured CR generation.
+          </div>
+        </div>
+
+        <div class="interview-item amber">
+          <div class="interview-header">
+            <span class="interview-source">Enterprise Compliance Auditor</span>
+            <span class="interview-topic">Accountability &amp; Lineage</span>
+          </div>
+          <div class="interview-quote">
+            "Saying 'the AI did it' doesn't hold up in court or during a SOC2 audit. I need to know which version of the agent ran, what prompt/policy hash it was bound to, and which engineering lead enabled that rule."
+          </div>
+          <div class="interview-takeaway">
+            <strong>Design Takeaway:</strong> Pillar 4 (Agent Identity) must treat permission matrices and policy snapshots as immutable, sealed product specifications.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────
+         SECTION 03: NEEDS STATEMENTS VS PAIN POINTS
+    ────────────────────────────────────────── -->
+    <section class="sec" id="sec-needs-pains">
+      <div class="sec-header">
+        <div>
+          <div class="sec-tag-group">
+            <span class="sec-tag sec-tag-teal">Problem Definition</span>
+            <span class="sec-tag sec-tag-amber">Needs Mapping</span>
+          </div>
+          <h2 class="sec-title">03. <strong>Needs Statements vs. Operator Pain Points</strong></h2>
+          <p class="sec-sub">Mapping the friction in legacy operations to explicit user needs and our architectural headless design solutions.</p>
+        </div>
+      </div>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th style="width: 16%;">Domain</th>
+            <th style="width: 22%;">Current Operator Pain Point</th>
+            <th style="width: 24%;">User Need Statement</th>
+            <th style="width: 20%;">Tactical Needs (What the UI/System Must Provide)</th>
+            <th style="width: 18%;">Headless Solution</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 01 -->
+          <tr>
+            <td><strong>Alert Triage &amp; Noise</strong></td>
+            <td>Overwhelmed by 400+ noisy alerts/day with no root-cause correlation; 90% are false alarms or self-resolving blips.</td>
+            <td><em>"As an on-call engineer, I need noise filtered out so that I am only interrupted when a human decision is strictly necessary."</em></td>
+            <td>
+              <ul class="persona-list" style="gap:4px;">
+                <li>Ambient status indicators rather than persistent alarm banners.</li>
+                <li>Zero notifications for self-healing actions within safety limits.</li>
+                <li>Notification grouping by incident root cause, not symptom alerts.</li>
+              </ul>
+            </td>
+            <td><span class="badge-pillar">Pillar 1 &amp; 3</span> Silent self-healing loop for 99% of routine telemetry; push only on boundary breaches.</td>
+          </tr>
+          <!-- 02 -->
+          <tr>
+            <td><strong>Decision Context Under Fire</strong></td>
+            <td>Wasting 10–15 minutes during P1 outages hopping across 4 tools (logs, CMDB, APM, ticketing) to assemble context.</td>
+            <td><em>"As an incident responder, I need the complete evidence bundle, blast radius, and SLO countdown in one view so I can decide in under 30 seconds."</em></td>
+            <td>
+              <ul class="persona-list" style="gap:4px;">
+                <li>Live SLO breach countdown timer (e.g. <em>"11 min to breach"</em>).</li>
+                <li>Top-3 ranked remediation actions with historical success rates.</li>
+                <li>Explicit single-service vs. multi-tenant blast radius indicator.</li>
+              </ul>
+            </td>
+            <td><span class="badge-pillar">Pillar 2: Trace View</span> Self-contained Block Kit card pushed to Slack with 1-click ranked approval options.</td>
+          </tr>
+          <!-- 03 -->
+          <tr>
+            <td><strong>Safety &amp; Guardrails</strong></td>
+            <td>Fear that autonomous agents will execute dangerous actions (e.g. mid-day DB restarts or route changes) without a safety net.</td>
+            <td><em>"As a platform owner, I need hard guardrails that the AI cannot override regardless of its confidence score."</em></td>
+            <td>
+              <ul class="persona-list" style="gap:4px;">
+                <li>Deterministic freeze-window enforcement (e.g. 14:00–16:00 UTC).</li>
+                <li>60-second auto-revert timer on all automated state changes.</li>
+                <li>Multi-factor sign-off requirement for destructive write operations.</li>
+              </ul>
+            </td>
+            <td><span class="badge-pillar">Pillar 1: Scope &amp; Policy</span> Hard Policy Firewall (G-01 freeze, G-07 cross-tenant) blocks execution at the runtime layer.</td>
+          </tr>
+          <!-- 04 -->
+          <tr>
+            <td><strong>Humility &amp; Edge Cases</strong></td>
+            <td>Black-box automation tools guess and take destructive actions on novel, unclassified anomalies instead of pausing.</td>
+            <td><em>"As an SRE lead, I need the system to know its own limits and pause when facing unknown patterns so it doesn't cause outages."</em></td>
+            <td>
+              <ul class="persona-list" style="gap:4px;">
+                <li>Explicit confidence score display with historical sample count.</li>
+                <li>Confidence threshold gate (e.g. &lt;85% automatically halts autonomy).</li>
+                <li>Read-only diagnostic recommendation when confidence is low.</li>
+              </ul>
+            </td>
+            <td><span class="badge-pillar">Pillar 1: Policy (G-03)</span> Confidence Humility Boundary: system pauses and queues an informational card instead of guessing.</td>
+          </tr>
+          <!-- 05 -->
+          <tr>
+            <td><strong>Pattern &amp; Hardware Loops</strong></td>
+            <td>Scripts endlessly reboot failing hardware (transient loop) without recognizing cyclical hardware degradation.</td>
+            <td><em>"As a NOC manager, I need the system to recognize repeat failure patterns and escalate for permanent repair rather than looping reboots."</em></td>
+            <td>
+              <ul class="persona-list" style="gap:4px;">
+                <li>Cycle frequency counter (e.g. <em>"4th CRC burst in 7 days"</em>).</li>
+                <li>Automated loop-breaker that transitions from restart to replacement.</li>
+                <li>Auto-drafted Change Request with pre-calculated risk rating.</li>
+              </ul>
+            </td>
+            <td><span class="badge-pillar">Pillar 2 &amp; 3</span> Incident pattern intelligence escalates from silent auto-fix to structured CR generation (INC-8839).</td>
+          </tr>
+          <!-- 06 -->
+          <tr>
+            <td><strong>Mid-Flight Intervention</strong></td>
+            <td>When an automation script is stuck, operators must kill the process entirely and start over from scratch in terminal.</td>
+            <td><em>"As an operator, I need to guide a stuck agent mid-run using natural language without losing the work it already completed."</em></td>
+            <td>
+              <ul class="persona-list" style="gap:4px;">
+                <li>Trace-anchored prompt input popping up only at blocked steps.</li>
+                <li>Inline execution branching (e.g. <em>"Flag item #4821 and continue other 31"</em>).</li>
+                <li>State preservation without requiring a cold container restart.</li>
+              </ul>
+            </td>
+            <td><span class="badge-pillar">Pillar 3: Contextual Chat</span> Ephemeral chat emergency hatch anchored directly to live execution trace nodes.</td>
+          </tr>
+          <!-- 07 -->
+          <tr>
+            <td><strong>Auditability &amp; Blame</strong></td>
+            <td>When an automated action triggers a downstream issue, blame is ambiguous and stitching audit logs across systems takes days.</td>
+            <td><em>"As a compliance officer, I need an unchangeable decision trace showing every rule, input, and human approval for regulatory audits."</em></td>
+            <td>
+              <ul class="persona-list" style="gap:4px;">
+                <li>Sealed trace records with agent build version &amp; policy hash.</li>
+                <li>Timestamped operator ID capture on every approval click.</li>
+                <li>1-click exportable audit logs for SOC2, ISO27001, and FedRAMP.</li>
+              </ul>
+            </td>
+            <td><span class="badge-pillar">Pillar 4: Identity</span> Tamper-proof activity ledger providing cryptographic provenance and full legal accountability.</td>
+          </tr>
+          <!-- 08 -->
+          <tr>
+            <td><strong>Policy Tuning &amp; Risk Testing</strong></td>
+            <td>Engineers fear adjusting automation rules because they cannot predict the blast radius or risk impact before going live.</td>
+            <td><em>"As an engineering lead, I need to see the consequence of policy changes before they go live so I don't trigger cascading outages."</em></td>
+            <td>
+              <ul class="persona-list" style="gap:4px;">
+                <li>Interactive posture radar showing security vs. speed trade-offs.</li>
+                <li>Composite score indicator (0–100 benchmark) updating in real time.</li>
+                <li>Digital twin historical replay sandbox to test policies pre-flight.</li>
+              </ul>
+            </td>
+            <td><span class="badge-pillar">Digital Twin Simulator</span> Consequence visualization on Posture Radar + historical traffic replay before rollout.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ──────────────────────────────────────────
+         SECTION 04: BIG IDEAS & PARADIGM SHIFTS
+    ────────────────────────────────────────── -->
+    <section class="sec" id="sec-big-ideas">
+      <div class="sec-header">
+        <div>
+          <div class="sec-tag-group">
+            <span class="sec-tag sec-tag-green">Strategic Vision</span>
+            <span class="sec-tag sec-tag-blue">Paradigm Shifts</span>
+          </div>
+          <h2 class="sec-title">04. <strong>Big Ideas &amp; Fundamental UX Paradigm Shifts</strong></h2>
+          <p class="sec-sub">The six breakthrough conceptual shifts that elevate invisible UI from a technical gimmick to enterprise-grade operations.</p>
+        </div>
+      </div>
+
+      <div class="grid-3">
+
+        <!-- BIG IDEA 01 -->
+        <div class="idea-card">
+          <div class="idea-num">BIG IDEA 01</div>
+          <div class="idea-title">The "Immune System" Model</div>
+          <div class="idea-plain">
+            <strong>Simple Idea:</strong> Fix routine glitches silently in the background. Only alert humans when something is truly serious.
+          </div>
+          <div class="idea-ext-box">
+            <div class="idea-ext-row idea-ai-box">
+              <span class="idea-ext-label">🤖 AI Idea (How it works)</span>
+              <div class="idea-ext-text"><strong>Self-Healing Loop:</strong> The AI detects a minor issue, applies a safe fix, and auto-reverts if it fails — with zero human clicks required.</div>
+            </div>
+            <div class="idea-ext-row idea-gtm-box">
+              <span class="idea-ext-label">💼 GTM Idea (How to sell it)</span>
+              <div class="idea-ext-text"><strong>"Sleep Through the Night":</strong> Market to IT Directors as the only tool that stops 80% of middle-of-the-night alert pages.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BIG IDEA 02 -->
+        <div class="idea-card">
+          <div class="idea-num">BIG IDEA 02</div>
+          <div class="idea-title">Decision Cards, Not Dashboards</div>
+          <div class="idea-plain">
+            <strong>Simple Idea:</strong> Don't make engineers dig through messy charts. Send a 1-click decision card straight to Slack or mobile.
+          </div>
+          <div class="idea-ext-box">
+            <div class="idea-ext-row idea-ai-box">
+              <span class="idea-ext-label">🤖 AI Idea (How it works)</span>
+              <div class="idea-ext-text"><strong>1-Click Context Bundler:</strong> When human sign-off is needed, AI prepares root cause + 3 ranked fixes with confidence scores in one Slack card.</div>
+            </div>
+            <div class="idea-ext-row idea-gtm-box">
+              <span class="idea-ext-label">💼 GTM Idea (How to sell it)</span>
+              <div class="idea-ext-text"><strong>"Slack-First IT":</strong> Sell as a no-training-required Slack app that reduces incident response time from 30 minutes to 30 seconds.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BIG IDEA 03 -->
+        <div class="idea-card">
+          <div class="idea-num">BIG IDEA 03</div>
+          <div class="idea-title">Guardrails Over Free Reign</div>
+          <div class="idea-plain">
+            <strong>Simple Idea:</strong> Set clear rules on what AI can do alone (Read, Restart) vs. what always needs human approval (Database drops, Firewall edits).
+          </div>
+          <div class="idea-ext-box">
+            <div class="idea-ext-row idea-ai-box">
+              <span class="idea-ext-label">🤖 AI Idea (How it works)</span>
+              <div class="idea-ext-text"><strong>Hard Policy Firewall:</strong> Built-in safety boundaries that physically prevent the AI model from running high-risk commands without verified approval.</div>
+            </div>
+            <div class="idea-ext-row idea-gtm-box">
+              <span class="idea-ext-label">💼 GTM Idea (How to sell it)</span>
+              <div class="idea-ext-text"><strong>"Compliance-Ready AI":</strong> Win banks and healthcare clients by offering guaranteed audit compliance and zero unmonitored risk.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BIG IDEA 04 -->
+        <div class="idea-card">
+          <div class="idea-num">BIG IDEA 04</div>
+          <div class="idea-title">Humility: Knowing When to Ask</div>
+          <div class="idea-plain">
+            <strong>Simple Idea:</strong> If the AI is unsure (<85% confidence), it pauses and asks instead of guessing and breaking things.
+          </div>
+          <div class="idea-ext-box">
+            <div class="idea-ext-row idea-ai-box">
+              <span class="idea-ext-label">🤖 AI Idea (How it works)</span>
+              <div class="idea-ext-text"><strong>Confidence Radar:</strong> AI compares every issue against past history; if it sees a brand-new anomaly, it automatically yields to a human.</div>
+            </div>
+            <div class="idea-ext-row idea-gtm-box">
+              <span class="idea-ext-label">💼 GTM Idea (How to sell it)</span>
+              <div class="idea-ext-text"><strong>"Hallucination-Proof Guarantee":</strong> Reassure skeptical CTOs that this AI will never take blind risks with enterprise infrastructure.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BIG IDEA 05 -->
+        <div class="idea-card">
+          <div class="idea-num">BIG IDEA 05</div>
+          <div class="idea-title">Visual "What-If" Testing</div>
+          <div class="idea-plain">
+            <strong>Simple Idea:</strong> Show visually what happens before turning on autonomy (e.g. "Changing this rule reduces risk by 20%").
+          </div>
+          <div class="idea-ext-box">
+            <div class="idea-ext-row idea-ai-box">
+              <span class="idea-ext-label">🤖 AI Idea (How it works)</span>
+              <div class="idea-ext-text"><strong>Digital Twin Sandbox:</strong> Replays past network traffic to prove how the AI policy will perform before going live in production.</div>
+            </div>
+            <div class="idea-ext-row idea-gtm-box">
+              <span class="idea-ext-label">💼 GTM Idea (How to sell it)</span>
+              <div class="idea-ext-text"><strong>"Pre-Flight Simulator" Premium Tier:</strong> Upsell enterprise risk teams on an interactive sandbox simulator for safe policy rollouts.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BIG IDEA 06 -->
+        <div class="idea-card">
+          <div class="idea-num">BIG IDEA 06</div>
+          <div class="idea-title">Chat as an Emergency Hatch</div>
+          <div class="idea-plain">
+            <strong>Simple Idea:</strong> Chat is not a generic gimmick — it pops up only when an agent is stuck so you can give it quick instructions.
+          </div>
+          <div class="idea-ext-box">
+            <div class="idea-ext-row idea-ai-box">
+              <span class="idea-ext-label">🤖 AI Idea (How it works)</span>
+              <div class="idea-ext-text"><strong>Live State Steering:</strong> The chat opens right where the agent paused, letting you say <em>"Skip step 2 and continue"</em> without restarting.</div>
+            </div>
+            <div class="idea-ext-row idea-gtm-box">
+              <span class="idea-ext-label">💼 GTM Idea (How to sell it)</span>
+              <div class="idea-ext-text"><strong>"Steerable Autonomy":</strong> Position against rigid bots as the only system where humans can guide AI mid-flight in natural language.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────
+         SECTION 05: 4-PILLAR SYNTHESIS MATRIX
+    ────────────────────────────────────────── -->
+    <section class="sec" id="sec-framework-synthesis">
+      <div class="sec-header">
+        <div>
+          <div class="sec-tag-group">
+            <span class="sec-tag sec-tag-blue">Architectural Core</span>
+            <span class="sec-tag sec-tag-purple">Cross-Mapping</span>
+          </div>
+          <h2 class="sec-title">05. <strong>The 4-Pillar Strategic Synthesis Matrix</strong></h2>
+          <p class="sec-sub">How our core architectural framework directly answers persona needs, enforces safety guardrails, and maps to the live design prototype.</p>
+        </div>
+      </div>
+
+      <div class="matrix-box">
+        <div class="matrix-title">
+          <svg width="20" height="20" viewBox="0 0 32 32" fill="var(--blue)"><path d="M16 2a14 14 0 1014 14A14 14 0 0016 2zm1 5v4.28l3.45-3.45 1.42 1.42L18.4 12.68A6 6 0 0122 18h4v2h-4a6 6 0 01-3.6 5.32l3.47 3.47-1.42 1.42L17 27.17V30h-2v-2.83l-3.45 3.45-1.42-1.42L13.6 25.32A6 6 0 0110 20H6v-2h4a6 6 0 013.6-5.32L10.13 9.21l1.42-1.42L15 11.22V7zm-1 7a4 4 0 100 8 4 4 0 000-8z"/></svg>
+          Integrated Framework Synthesis
+        </div>
+
+        <div class="matrix-grid">
+
+          <!-- PILLAR 1 -->
+          <div class="matrix-col">
+            <div class="matrix-col-header">
+              <span>01. Scope &amp; Policy</span>
+              <span class="sec-tag sec-tag-blue" style="font-size: 10px;">Immune Blueprint</span>
+            </div>
+            <ul>
+              <li><strong>What it is:</strong> Pre-operational boundaries defining goals, hard/soft guardrails, and trigger schedules.</li>
+              <li><strong>Operator Need:</strong> Guarantees that AI will never perform unauthorized destructive operations.</li>
+              <li><strong>Key Artifacts:</strong> Permission Matrix (`network-agent v2.4.1`), Posture Radar, Freeze Window rules.</li>
+              <li><strong>Prototype View:</strong> Policy Studio (`ini3.png`, `ini4.png`) &amp; Edit Mode in `headless.html`.</li>
+            </ul>
+          </div>
+
+          <!-- PILLAR 2 -->
+          <div class="matrix-col">
+            <div class="matrix-col-header">
+              <span>02. Trace View</span>
+              <span class="sec-tag sec-tag-purple" style="font-size: 10px;">Thought Journal</span>
+            </div>
+            <ul>
+              <li><strong>What it is:</strong> Granular, step-by-step reasoning log showing how decisions were reached, not just outcomes.</li>
+              <li><strong>Operator Need:</strong> Instant comprehension of confidence trajectory, historical matches, and decision nodes.</li>
+              <li><strong>Key Artifacts:</strong> Case Detail Page (`C-2837`), Stage Gate Ledger, Blast Radius calculation.</li>
+              <li><strong>Prototype View:</strong> Agentic Trace Tab (`02.png`, `11.png`, `12.png`) with interactive timeline.</li>
+            </ul>
+          </div>
+
+          <!-- PILLAR 3 -->
+          <div class="matrix-col">
+            <div class="matrix-col-header">
+              <span>03. Contextual Chat</span>
+              <span class="sec-tag sec-tag-teal" style="font-size: 10px;">Emergency Hatch</span>
+            </div>
+            <ul>
+              <li><strong>What it is:</strong> Ephemeral communication layer summoned when the agent is blocked or requires policy elevation.</li>
+              <li><strong>Operator Need:</strong> Direct interaction anchored to specific trace steps without losing runtime state.</li>
+              <li><strong>Key Artifacts:</strong> Trace-anchored chat prompts, Slack Block Kit notifications, Quick-Action panel.</li>
+              <li><strong>Prototype View:</strong> AI Voice/Chat panel (`10.png`) &amp; Slack simulator (`slack-sim.html`).</li>
+            </ul>
+          </div>
+
+          <!-- PILLAR 4 -->
+          <div class="matrix-col">
+            <div class="matrix-col-header">
+              <span>04. Agent Identity</span>
+              <span class="sec-tag sec-tag-green" style="font-size: 10px;">Accountability</span>
+            </div>
+            <ul>
+              <li><strong>What it is:</strong> Verifiable provenance linking agent version, authorizing manager, policy hash, and audit logs.</li>
+              <li><strong>Operator Need:</strong> Clear answers to who acted, under what authority, and whether it's legally compliant.</li>
+              <li><strong>Key Artifacts:</strong> Verified Identity Card, Permanent Audit Trail, Multi-Tenant Session Context.</li>
+              <li><strong>Prototype View:</strong> Identity badges, compliance cards, and exportable audit logs.</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────
+         SECTION 06: CONNECTED STORYLINE MODEL WITH MAP
+    ────────────────────────────────────────── -->
+    <section class="sec" id="sec-storyline-map">
+      <div class="sec-header">
+        <div>
+          <div class="sec-tag-group">
+            <span class="sec-tag sec-tag-blue">End-to-End Incident Lifecycle</span>
+            <span class="sec-tag sec-tag-purple">Visual State Flow Model</span>
+          </div>
+          <h2 class="sec-title">06. <strong>The Connected Storyline Model: From Detection to Resolution</strong></h2>
+          <p class="sec-sub">A simple, connected visual flow showing what the system detects on the global map, how safety guardrails react, and how Priya resolves a P1 outage in 30 seconds.</p>
+        </div>
+      </div>
+
+      <!-- VISUAL 4-STAGE CONNECTED STORY PIPELINE -->
+      <div class="matrix-box" style="margin-bottom: 24px; padding: 24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+          <span style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text);">Connected Incident Story Pipeline (INC-8841)</span>
+          <span style="font-size:11px; color:var(--muted); font-family:var(--font-mono);">Total Human Involvement: 30 Seconds</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 12px; position:relative;">
+          <!-- STAGE 1 -->
+          <div style="background:var(--surface-2); border:1px solid var(--border); border-top:3px solid var(--blue); border-radius:6px; padding:14px; position:relative;">
+            <div style="font-size:10px; font-weight:700; color:var(--blue); text-transform:uppercase; margin-bottom:4px;">Step 1 · 14:03 UTC</div>
+            <div style="font-size:14px; font-weight:600; color:var(--text); margin-bottom:6px;">1. Silent Detection</div>
+            <div style="font-size:12px; color:var(--sub); line-height:1.45;">AI senses memory spike on <code>payment-service</code> in US East (99.6%). Matches 14 past cases (91% confidence).</div>
+            <div style="margin-top:8px; font-size:10.5px; font-weight:600; color:var(--blue); background:var(--blue-lt); padding:2px 6px; border-radius:3px; display:inline-block;">⚡ System Acting Silently</div>
+          </div>
+
+          <!-- STAGE 2 -->
+          <div style="background:var(--surface-2); border:1px solid var(--border); border-top:3px solid var(--amber); border-radius:6px; padding:14px; position:relative;">
+            <div style="font-size:10px; font-weight:700; color:var(--amber); text-transform:uppercase; margin-bottom:4px;">Step 2 · 14:05 UTC</div>
+            <div style="font-size:14px; font-weight:600; color:var(--text); margin-bottom:6px;">2. Guardrail Intercept</div>
+            <div style="font-size:12px; color:var(--sub); line-height:1.45;">AI proposes pod reboot. <strong>Guardrail G-01 blocks it</strong> (Peak hour freeze). AI halts and prepares a safe alternative.</div>
+            <div style="margin-top:8px; font-size:10.5px; font-weight:600; color:var(--amber); background:var(--amber-lt); padding:2px 6px; border-radius:3px; display:inline-block;">🛡️ Safety Wall Triggered</div>
+          </div>
+
+          <!-- STAGE 3 -->
+          <div style="background:var(--surface-2); border:1px solid var(--border); border-top:3px solid var(--purple); border-radius:6px; padding:14px; position:relative;">
+            <div style="font-size:10px; font-weight:700; color:var(--purple); text-transform:uppercase; margin-bottom:4px;">Step 3 · 14:06 UTC</div>
+            <div style="font-size:14px; font-weight:600; color:var(--text); margin-bottom:6px;">3. 30s Slack Approval</div>
+            <div style="font-size:12px; color:var(--sub); line-height:1.45;">Priya's phone buzzes. She reads 1 Slack card with ranked fixes and taps <strong>"Approve Pool Bump (+50)"</strong>.</div>
+            <div style="margin-top:8px; font-size:10.5px; font-weight:600; color:var(--purple); background:var(--purple-lt); padding:2px 6px; border-radius:3px; display:inline-block;">👤 Human Sign-Off (25s)</div>
+          </div>
+
+          <!-- STAGE 4 -->
+          <div style="background:var(--surface-2); border:1px solid var(--border); border-top:3px solid var(--green); border-radius:6px; padding:14px; position:relative;">
+            <div style="font-size:10px; font-weight:700; color:var(--green); text-transform:uppercase; margin-bottom:4px;">Step 4 · 22:00 UTC</div>
+            <div style="font-size:14px; font-weight:600; color:var(--text); margin-bottom:6px;">4. Permanent Canary</div>
+            <div style="font-size:12px; color:var(--sub); line-height:1.45;">Tonight's window auto-deploys patch <code>v2.4.1</code> via canary. Error rate 0.0%. Ticket <code>NOC-4421</code> auto-closed.</div>
+            <div style="margin-top:8px; font-size:10.5px; font-weight:600; color:var(--green); background:var(--green-lt); padding:2px 6px; border-radius:3px; display:inline-block;">✅ Closed &amp; Sealed</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE MAP & STATE DRILL-DOWN -->
+      <div class="storyline-container">
+        <!-- Storyline Stepper Tabs -->
+        <div class="story-nav-bar">
+          <button class="story-nav-btn active" onclick="switchStoryTab(0, this)">
+            <span style="font-weight:700;">Act 1</span> · 14:03 Map: US East Spike
+          </button>
+          <button class="story-nav-btn" onclick="switchStoryTab(1, this)">
+            <span style="font-weight:700;">Act 2</span> · 14:05 Model: Guardrail Wall
+          </button>
+          <button class="story-nav-btn" onclick="switchStoryTab(2, this)">
+            <span style="font-weight:700;">Act 3</span> · 14:06 UI: Priya's Slack Card
+          </button>
+          <button class="story-nav-btn" onclick="switchStoryTab(3, this)">
+            <span style="font-weight:700;">Act 4</span> · 22:00 Map: Green Steady-State
+          </button>
+        </div>
+
+        <!-- ACT 1 PANE -->
+        <div class="story-pane active" id="story-pane-0">
+          <div class="story-grid">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;margin-bottom:4px;">Act 1 · 14:03 UTC · The Anomaly Map</div>
+              <h3 style="font-size:17px;font-weight:600;margin-bottom:8px;">Priya is in a meeting; the AI senses a leak in US East</h3>
+              <p style="font-size:13px;color:var(--sub);line-height:1.55;margin-bottom:12px;">
+                Priya's laptop is closed. She doesn't have to look at dashboards. The system is watching 14 agents globally. While Japan and EU are green, US-East suddenly spikes to 498/500 database connections (+12/min).
+              </p>
+              <div class="idea-plain" style="font-size:12.5px;margin-bottom:0;">
+                <strong>What the system does:</strong> Calculates the blast radius instantly (isolated to <code>payment-service</code>). Matches 14 historical cases (91% confidence).
+              </div>
+            </div>
+
+            <!-- MAP 1 -->
+            <div class="map-box">
+              <div class="map-header">
+                <span class="map-title">Global Fleet State · Live Anomaly</span>
+                <span><span class="map-live-dot"></span> <span style="font-size:11px;color:#ff8389;font-weight:600;">US-East-1 Spike</span></span>
+              </div>
+              <svg viewBox="0 0 400 190" style="width:100%;height:auto;">
+                <rect width="400" height="190" fill="#0d1527" rx="6"/>
+                <!-- US East (Pulsing Red) -->
+                <circle cx="85" cy="95" r="24" fill="rgba(218,30,40,0.2)"/>
+                <circle cx="85" cy="95" r="16" fill="#112340" stroke="#da1e28" stroke-width="2.5"/>
+                <text x="85" y="99" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">US-EAST</text>
+                <text x="85" y="126" fill="#ff8389" font-size="8.5" text-anchor="middle" font-weight="600">payment-service (99.6%)</text>
+
+                <!-- EU West -->
+                <line x1="85" y1="95" x2="200" y2="75" stroke="#da1e28" stroke-width="1.5" stroke-dasharray="3 3"/>
+                <circle cx="200" cy="75" r="15" fill="#112340" stroke="#24a148" stroke-width="2"/>
+                <text x="200" y="79" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="600">EU-W</text>
+                <text x="200" y="99" fill="#24a148" font-size="8" text-anchor="middle">Normal · 96%</text>
+
+                <!-- Japan -->
+                <line x1="200" y1="75" x2="315" y2="115" stroke="#203a61" stroke-width="1.5"/>
+                <circle cx="315" cy="115" r="15" fill="#112340" stroke="#24a148" stroke-width="2"/>
+                <text x="315" y="119" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="600">JAPAN</text>
+                <text x="315" y="139" fill="#24a148" font-size="8" text-anchor="middle">Normal · 98%</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACT 2 PANE -->
+        <div class="story-pane" id="story-pane-1">
+          <div class="story-grid">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--amber);text-transform:uppercase;margin-bottom:4px;">Act 2 · 14:05 UTC · The Guardrail Safety Wall</div>
+              <h3 style="font-size:17px;font-weight:600;margin-bottom:8px;">The AI wants to reboot, but Guardrail G-01 blocks it</h3>
+              <p style="font-size:13px;color:var(--sub);line-height:1.55;margin-bottom:12px;">
+                The AI's first instinct is to restart the pod. But rule <strong>G-01 forbids peak-hour restarts (14:00–16:00 UTC)</strong>. The system doesn't gamble; it stops at the safety firewall and synthesizes a safe alternative.
+              </p>
+              <div class="idea-plain" style="font-size:12.5px;border-left-color:var(--amber);margin-bottom:0;">
+                <strong>What the system does:</strong> Generates a safe option: <em>Temporary pool bump (+50 connections, 8-min auto-revert)</em>. Packages everything into an approval card.
+              </div>
+            </div>
+
+            <!-- MODEL 2 -->
+            <div class="map-box">
+              <div class="map-header">
+                <span class="map-title">Guardrail Decision Firewall</span>
+                <span><span style="font-size:11px;color:#f1c21b;font-weight:600;">G-01 Intercept Active</span></span>
+              </div>
+              <svg viewBox="0 0 400 190" style="width:100%;height:auto;">
+                <rect width="400" height="190" fill="#0d1527" rx="6"/>
+                <!-- Box 1 -->
+                <rect x="15" y="70" width="95" height="50" rx="4" fill="#112340" stroke="#0f62fe" stroke-width="1.5"/>
+                <text x="62" y="91" fill="#74b1ff" font-size="9" text-anchor="middle" font-weight="700">AI PROPOSAL</text>
+                <text x="62" y="106" fill="#ffffff" font-size="8.5" text-anchor="middle">Restart Pods</text>
+
+                <!-- Arrow -->
+                <line x1="110" y1="95" x2="145" y2="95" stroke="#8ab4f8" stroke-width="1.5"/>
+
+                <!-- Guardrail Wall -->
+                <rect x="145" y="50" width="105" height="90" rx="4" fill="#241113" stroke="#da1e28" stroke-width="2"/>
+                <text x="197" y="74" fill="#ff8389" font-size="9" text-anchor="middle" font-weight="700">GUARDRAIL G-01</text>
+                <text x="197" y="92" fill="#ffffff" font-size="8.5" text-anchor="middle">Peak Hour Freeze</text>
+                <text x="197" y="108" fill="#ffb3b8" font-size="8" text-anchor="middle">(14:00–16:00 UTC)</text>
+                <text x="197" y="126" fill="#da1e28" font-size="8.5" text-anchor="middle" font-weight="700">BLOCKED</text>
+
+                <!-- Arrow -->
+                <line x1="250" y1="95" x2="285" y2="95" stroke="#f1c21b" stroke-width="1.5"/>
+
+                <!-- Box 3 -->
+                <rect x="285" y="70" width="100" height="50" rx="4" fill="#112340" stroke="#f1c21b" stroke-width="1.5"/>
+                <text x="335" y="91" fill="#fde68a" font-size="9" text-anchor="middle" font-weight="700">SAFE ALTERNATIVE</text>
+                <text x="335" y="106" fill="#ffffff" font-size="8.5" text-anchor="middle">Pool Bump (+50)</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACT 3 PANE -->
+        <div class="story-pane" id="story-pane-2">
+          <div class="story-grid">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;margin-bottom:4px;">Act 3 · 14:06 UTC · The 30-Second Human Decision</div>
+              <h3 style="font-size:17px;font-weight:600;margin-bottom:8px;">Priya gets 1 Slack message, reads it in 25s, and taps Approve</h3>
+              <p style="font-size:13px;color:var(--sub);line-height:1.55;margin-bottom:12px;">
+                Instead of paging Priya with cryptic logs, the AI sends a self-contained card. She sees: <em>9 mins to breach, pool bump recommended, zero restart needed</em>. She clicks Approve on her phone and goes back to her meeting.
+              </p>
+              <div class="idea-plain" style="font-size:12.5px;border-left-color:var(--purple);margin-bottom:0;">
+                <strong>What the system does:</strong> Applies the pool bump. Connections drop to 340. Ticket <code>NOC-4421</code> auto-created; Change Request <code>CR-2024-0147</code> auto-drafted.
+              </div>
+            </div>
+
+            <!-- SLACK CARD MODEL -->
+            <div style="background:#ffffff;border:1px solid #e0e0e0;border-left:4px solid #da1e28;border-radius:6px;padding:16px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <span style="font-size:11px;font-weight:700;color:#da1e28;text-transform:uppercase;">INC-8841 · P1 · payment-service</span>
+                <span style="font-size:10px;background:#fee2e2;color:#da1e28;padding:2px 6px;border-radius:10px;font-weight:700;">⏱ 9m to SLO breach</span>
+              </div>
+              <div style="font-size:13px;font-weight:600;color:#161616;margin-bottom:4px;">DB Connection Saturation (498/500)</div>
+              <div style="font-size:11.5px;color:#525252;line-height:1.45;margin-bottom:12px;">
+                G-01 blocked restart. Recommended: Pool bump (+50, 8-min auto-revert). Blast radius: 1 service.
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button style="background:#0f62fe;color:#fff;border:none;padding:6px 12px;border-radius:4px;font-size:11.5px;font-weight:600;cursor:pointer;">✓ Approve Pool Bump</button>
+                <button style="background:#f4f4f4;color:#161616;border:1px solid #e0e0e0;padding:6px 12px;border-radius:4px;font-size:11.5px;cursor:pointer;">Escalate</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACT 4 PANE -->
+        <div class="story-pane" id="story-pane-3">
+          <div class="story-grid">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;margin-bottom:4px;">Act 4 · 22:00 UTC · Permanent Patch &amp; All-Green Map</div>
+              <h3 style="font-size:17px;font-weight:600;margin-bottom:8px;">Tonight's window deploys v2.4.1; total human time spent: 30s</h3>
+              <p style="font-size:13px;color:var(--sub);line-height:1.55;margin-bottom:12px;">
+                During the pre-scheduled 22:00 maintenance window, the system canary-deploys the permanent patch (5% &rarr; 25% &rarr; 100%). Error rates stay at 0.0%. INC-8841 is sealed in the permanent audit trail.
+              </p>
+              <div class="idea-plain" style="font-size:12.5px;border-left-color:var(--green);margin-bottom:0;">
+                <strong>Key Takeaway:</strong> An 8-hour incident cycle resolved cleanly with only <strong>30 seconds of human cognitive time</strong>.
+              </div>
+            </div>
+
+            <!-- MAP 4 -->
+            <div class="map-box">
+              <div class="map-header">
+                <span class="map-title">Global Fleet State · All Systems Green</span>
+                <span><span class="map-live-dot"></span> <span style="font-size:11px;color:#6fdc8c;font-weight:600;">Fleet Health 99.4%</span></span>
+              </div>
+              <svg viewBox="0 0 400 190" style="width:100%;height:auto;">
+                <rect width="400" height="190" fill="#0d1527" rx="6"/>
+                <!-- US East -->
+                <circle cx="85" cy="95" r="15" fill="#112340" stroke="#24a148" stroke-width="2"/>
+                <text x="85" y="99" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="600">US-EAST</text>
+                <text x="85" y="120" fill="#24a148" font-size="8" text-anchor="middle">v2.4.1 · 100%</text>
+
+                <!-- EU West -->
+                <line x1="85" y1="95" x2="200" y2="75" stroke="#24a148" stroke-width="1.5"/>
+                <circle cx="200" cy="75" r="15" fill="#112340" stroke="#24a148" stroke-width="2"/>
+                <text x="200" y="79" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="600">EU-W</text>
+                <text x="200" y="99" fill="#24a148" font-size="8" text-anchor="middle">Normal · 99%</text>
+
+                <!-- Japan -->
+                <line x1="200" y1="75" x2="315" y2="115" stroke="#24a148" stroke-width="1.5"/>
+                <circle cx="315" cy="115" r="15" fill="#112340" stroke="#24a148" stroke-width="2"/>
+                <text x="315" y="119" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="600">JAPAN</text>
+                <text x="315" y="139" fill="#24a148" font-size="8" text-anchor="middle">Normal · 98%</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────
+         SECTION 07: DATA INGESTED & TRANSFORMED
+    ────────────────────────────────────────── -->
+    <section class="sec" id="sec-data-flow">
+      <div class="sec-header">
+        <div>
+          <div class="sec-tag-group">
+            <span class="sec-tag sec-tag-blue">Data Pipeline</span>
+            <span class="sec-tag sec-tag-teal">State Transformation</span>
+          </div>
+          <h2 class="sec-title">07. <strong>Data Ingested, Carried &amp; Transformed</strong></h2>
+          <p class="sec-sub">How noisy raw enterprise signals are ingested, enriched through state layers, and transformed into high-order decision objects.</p>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom: 20px;">
+        <div class="card">
+          <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;margin-bottom:4px;">Stage 1 · Ingested Data</div>
+          <h3 style="font-size:15px;font-weight:600;margin-bottom:8px;">Raw Signals Ingested</h3>
+          <ul class="persona-list">
+            <li><strong>Live Telemetry:</strong> Prometheus/Instana time-series (CPU, DB pool saturation, latency P95, CRC optic error bursts).</li>
+            <li><strong>Topology &amp; CMDB:</strong> Service maps, cluster dependency graphs, hardware lineage (port 7/4 on TVM-EDGE-04).</li>
+            <li><strong>Vector Case Archive:</strong> 4,800+ historical incident resolutions with vector similarity embeddings.</li>
+            <li><strong>Policy Directives:</strong> Active guardrail rules (G-01 freeze windows, G-03 confidence cutoffs, G-07 tenant boundaries).</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div style="font-size:11px;font-weight:700;color:var(--purple);text-transform:uppercase;margin-bottom:4px;">Stage 2 · Carried State</div>
+          <h3 style="font-size:15px;font-weight:600;margin-bottom:8px;">Context Carried Across Steps</h3>
+          <ul class="persona-list">
+            <li><strong>Execution Memory Stack:</strong> Serialized scratchpad variables, hypothesis rankings, and step-by-step reasoning nodes.</li>
+            <li><strong>Blast Radius Bounds:</strong> Dynamic downstream dependency evaluation (e.g., <em>"Affects payment-service only, 1 pod"</em>).</li>
+            <li><strong>Confidence Trajectory:</strong> Historical match probability trajectory (e.g. 91% &rarr; 62% drop on novel pattern).</li>
+            <li><strong>Tamper-Proof Identity:</strong> Agent ID, rule version, exact timestamp, and human sign-off stamp.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;margin-bottom:4px;">Stage 3 · Output Transformation</div>
+          <h3 style="font-size:15px;font-weight:600;margin-bottom:8px;">Transformed Artifacts</h3>
+          <ul class="persona-list">
+            <li><strong>Raw Noise &rarr; Silent Fix:</strong> 33 silent self-healing actions/week with auto-rollback safety timers.</li>
+            <li><strong>Alert Spam &rarr; 1-Click Card:</strong> Block Kit Slack decision cards with ranked fixes &amp; live SLO countdowns.</li>
+            <li><strong>Manual Triage &rarr; Pre-filled CR:</strong> Auto-drafted Jira tickets (NOC-4421) and Change Requests (CR-2024-0147).</li>
+            <li><strong>Opaque Policy &rarr; Visual Radar:</strong> Consequence-projected posture radar scores (85/100 composite index).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────
+         SECTION 07: DAY 0 / DAY 1 / DAY 2 PHASES
+    ────────────────────────────────────────── -->
+    <section class="sec" id="sec-phases">
+      <div class="sec-header">
+        <div>
+          <div class="sec-tag-group">
+            <span class="sec-tag sec-tag-purple">Adoption Lifecycle</span>
+            <span class="sec-tag sec-tag-green">Maturity Model</span>
+          </div>
+          <h2 class="sec-title">07. <strong>Phases (Day 0 / Day 1 / Day 2): The Headless AI Journey</strong></h2>
+          <p class="sec-sub">How an enterprise progressively moves from initial setup to supervised rollout, and finally to full autonomous steady-state.</p>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom: 20px;">
+
+        <!-- DAY 0 -->
+        <div class="card" style="border-top: 3px solid var(--blue);">
+          <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;margin-bottom:4px;">Day 0 · Design &amp; Setup</div>
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:8px;">Boundary Definition &amp; Simulation</h3>
+          <div class="idea-plain" style="margin-bottom:12px;font-size:12.5px;">
+            <strong>Core Focus:</strong> Define what the AI is allowed to do before it touches any live network traffic.
+          </div>
+          <ul class="persona-list">
+            <li><strong>Define Guardrails:</strong> Set freeze windows (e.g. <em>G-01: no peak-hour restarts</em>) and confidence cutoffs (<em>G-03: &gt;85%</em>).</li>
+            <li><strong>Connect Telemetry:</strong> Ingest metrics from Prometheus, Instana, and CMDB service maps.</li>
+            <li><strong>Digital Twin Pre-Flight:</strong> Replay past 30 days of incident history in sandbox to verify safety on the posture radar.</li>
+            <li><strong>Operator Milestone:</strong> Compliance &amp; SRE sign off on the Permission Matrix.</li>
+          </ul>
+        </div>
+
+        <!-- DAY 1 -->
+        <div class="card" style="border-top: 3px solid var(--purple);">
+          <div style="font-size:11px;font-weight:700;color:var(--purple);text-transform:uppercase;margin-bottom:4px;">Day 1 · Deployment &amp; Supervised Ops</div>
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:8px;">Slack Cards &amp; Assisted Triage</h3>
+          <div class="idea-plain" style="margin-bottom:12px;font-size:12.5px;border-left-color:var(--purple);">
+            <strong>Core Focus:</strong> AI does 100% of the investigation; humans verify with 1-click approvals.
+          </div>
+          <ul class="persona-list">
+            <li><strong>1-Click Decision Cards:</strong> AI sends Slack Block Kit cards with root cause, 3 ranked fixes, and SLO countdown.</li>
+            <li><strong>Auto-Drafted Tickets:</strong> Jira tickets (`NOC-4421`) and Change Requests (`CR-2024-0147`) pre-filled automatically.</li>
+            <li><strong>Contextual Chat Hatch:</strong> Operators steer paused agents mid-flight in Slack/chat if adjustments are needed.</li>
+            <li><strong>Operator Milestone:</strong> On-call SRE triage time drops from 30 mins to 30 seconds.</li>
+          </ul>
+        </div>
+
+        <!-- DAY 2 -->
+        <div class="card" style="border-top: 3px solid var(--green);">
+          <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;margin-bottom:4px;">Day 2 · Steady-State &amp; Self-Healing</div>
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:8px;">Invisible Autonomy &amp; Fleet Health</h3>
+          <div class="idea-plain" style="margin-bottom:12px;font-size:12.5px;border-left-color:var(--green);">
+            <strong>Core Focus:</strong> True headless mode — silent self-healing for 99% of routine operations.
+          </div>
+          <ul class="persona-list">
+            <li><strong>Silent Remediation:</strong> 33+ routine incidents auto-resolved silently each week with auto-rollback safety timers.</li>
+            <li><strong>Pattern Intelligence:</strong> AI detects hardware degradation loops (e.g. 4 reboots in 7 days) and auto-generates replacement CRs.</li>
+            <li><strong>Continuous Drift Monitoring:</strong> Posture radar continuously recalculates fleet health &amp; delegation trust metrics.</li>
+            <li><strong>Operator Milestone:</strong> Operators never stare at dashboards; silence is the signal that everything is working.</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- DETAILED ARCHITECTURAL LIFECYCLE MODEL -->
+      <div class="matrix-box" style="margin-top: 24px; padding: 28px; background: #ffffff;">
+        <div class="matrix-title" style="font-size: 18px; margin-bottom: 20px;">
+          <svg width="22" height="22" viewBox="0 0 32 32" fill="var(--blue)"><path d="M16 2a14 14 0 1014 14A14 14 0 0016 2zm1 5v4.28l3.45-3.45 1.42 1.42L18.4 12.68A6 6 0 0122 18h4v2h-4a6 6 0 01-3.6 5.32l3.47 3.47-1.42 1.42L17 27.17V30h-2v-2.83l-3.45 3.45-1.42-1.42L13.6 25.32A6 6 0 0110 20H6v-2h4a6 6 0 013.6-5.32L10.13 9.21l1.42-1.42L15 11.22V7zm-1 7a4 4 0 100 8 4 4 0 000-8z"/></svg>
+          System Operating Model: How Data, Decisions &amp; Actions Flow (Day 0 &rarr; Day 1 &rarr; Day 2)
+        </div>
+
+        <table class="compare-table" style="margin: 0; font-size: 13px;">
+          <thead>
+            <tr>
+              <th style="width: 14%;">Architecture Layer</th>
+              <th style="width: 28%; border-top: 3px solid var(--blue);">Day 0 · Design &amp; Setup<br><span style="font-size:11px;font-weight:400;text-transform:none;color:var(--muted);">"Define Boundaries"</span></th>
+              <th style="width: 29%; border-top: 3px solid var(--purple);">Day 1 · Supervised Rollout<br><span style="font-size:11px;font-weight:400;text-transform:none;color:var(--muted);">"Human-in-the-Loop"</span></th>
+              <th style="width: 29%; border-top: 3px solid var(--green);">Day 2 · Autonomous Steady-State<br><span style="font-size:11px;font-weight:400;text-transform:none;color:var(--muted);">"Headless Self-Healing"</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1. Ingestion &amp; Sensing</strong></td>
+              <td>• Stream baseline metrics from Instana/Prometheus.<br>• Ingest CMDB service topology.<br>• Index 4,800+ historical incident resolutions.</td>
+              <td>• Real-time streaming anomaly detection.<br>• Graph pattern correlation (e.g. <em>DB pool at 498/500</em>).<br>• Real-time confidence scoring (&gt;85% vs. &lt;85%).</td>
+              <td>• Continuous event-driven streaming without dashboards.<br>• Cross-region anomaly recognition (Japan + US East).<br>• Hardware wear-out &amp; cyclical loop detection.</td>
+            </tr>
+            <tr>
+              <td><strong>2. Evaluation &amp; Policy Gates</strong></td>
+              <td>• Define Policy Matrix (Read, Write, Ask, Hard Block).<br>• Set freeze windows (G-01: 14:00–16:00 UTC).<br>• Calibrate confidence cutoffs (G-03: &gt;85%).</td>
+              <td>• Policy engine intercepts recommended fix.<br>• Checks guardrail rules in runtime memory.<br>• If blocked by hard policy (G-01) &rarr; pauses action.</td>
+              <td>• Autonomous execution approved for safe permissions (Read/Restart).<br>• Zero-trust cryptographic verification of agent token.<br>• Instant escalation if unknown pattern occurs.</td>
+            </tr>
+            <tr>
+              <td><strong>3. Human Interaction Surface</strong></td>
+              <td>• <strong>Policy Studio UI:</strong> Adjust permission sliders.<br>• <strong>Digital Twin Sandbox:</strong> Replay past 30 days of traffic to preview posture radar score.</td>
+              <td>• <strong>Slack Block Kit Card:</strong> 1-click card sent to SRE mobile.<br>• Shows root cause, 3 ranked options, blast radius &amp; SLO timer.<br>• <strong>Contextual Chat Hatch:</strong> Steer paused agent inline.</td>
+              <td>• <strong>Invisible UI (Zero Clicks):</strong> 99% of actions happen silently.<br>• <strong>Ambient Monitor:</strong> Subtle green heartbeat signal.<br>• <strong>Decision Inbox:</strong> Non-urgent informational cards only.</td>
+            </tr>
+            <tr>
+              <td><strong>4. Execution &amp; Rollback</strong></td>
+              <td>• Dry-run sandbox testing only.<br>• No write commands dispatched to live cluster.</td>
+              <td>• Human taps <em>"Approve Pool Bump (+50)"</em>.<br>• System applies temporary change.<br>• Arm 60-second auto-rollback timer if metrics degrade.</td>
+              <td>• Sub-second autonomous remediation executed.<br>• Auto-revert safety window runs in background.<br>• If 4th consecutive failure detected &rarr; breaks restart loop.</td>
+            </tr>
+            <tr>
+              <td><strong>5. Audit &amp; Documentation</strong></td>
+              <td>• Cryptographic hash of policy matrix sealed (e.g. <code>corp-access-v3</code>).<br>• Signed off by Platform Director &amp; Compliance.</td>
+              <td>• Auto-generates ServiceNow ticket (<code>NOC-4421</code>).<br>• Auto-drafts Change Request (<code>CR-2024-0147</code>).<br>• Logs operator approval stamp in audit trail.</td>
+              <td>• 33 silent resolutions logged to immutable ledger weekly.<br>• Auto-adds new resolution vectors to knowledge base.<br>• Real-time composite fleet health score: 94%.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────
+         SECTION 08: COMPETITIVE DIFFERENTIATION
+    ────────────────────────────────────────── -->
+    <section class="sec" id="sec-differentiation">
+      <div class="sec-header">
+        <div>
+          <div class="sec-tag-group">
+            <span class="sec-tag sec-tag-green">Market Moat</span>
+            <span class="sec-tag sec-tag-purple">Enterprise Value</span>
+          </div>
+          <h2 class="sec-title">08. <strong>Competitive Positioning &amp; Market Differentiation</strong></h2>
+          <p class="sec-sub">Why this Headless Architecture wins against Legacy Dashboards, Black-Box RPA, and Generic Copilots.</p>
+        </div>
+      </div>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th style="width: 22%;">Dimension</th>
+            <th style="width: 26%;">Traditional Tools (Datadog, Dynatrace, RPA)</th>
+            <th style="width: 26%;">Generic AI Copilots (ChatBots, Copilot)</th>
+            <th style="width: 26%;">IBM Headless AI (Invisible UI)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Operating Paradigm</strong></td>
+            <td><strong>Attention-Hungry:</strong> Requires operators to stare at wallboard charts and manually interpret telemetry graphs.</td>
+            <td><strong>Chat-Dependent:</strong> Requires human to write prompts, wait for text replies, and manually execute commands.</td>
+            <td><strong>Invisible &amp; Autonomous:</strong> Runs 99% silently in background. Pulls human in only when safety guardrails trigger.</td>
+          </tr>
+          <tr>
+            <td><strong>Safety &amp; Guardrails</strong></td>
+            <td><strong>Brittle Scripts:</strong> Hardcoded rules that fail on edge cases or execute blindly without rollback.</td>
+            <td><strong>Black-Box Hallucinations:</strong> LLMs guess outputs with no deterministic boundary enforcement.</td>
+            <td><strong>Hard Safety Firewall:</strong> Built-in rules stop dangerous actions automatically — the AI cannot bypass them even if it is 100% confident.</td>
+          </tr>
+          <tr>
+            <td><strong>Operator Interface</strong></td>
+            <td><strong>Multi-Portal Hop:</strong> 15 mins context switching across CMDB, Grafana, AWS console, and ServiceNow.</td>
+            <td><strong>Generic Text Box:</strong> Chat window detached from live runtime system state and infrastructure topologies.</td>
+            <td><strong>1-Click Decision Card:</strong> Self-contained cards delivered to Slack/mobile with ranked options &amp; SLO timer.</td>
+          </tr>
+          <tr>
+            <td><strong>Audit &amp; Compliance</strong></td>
+            <td><strong>Fragmented Logs:</strong> Manual log reconstruction across syslog, Kubernetes audit, and change records.</td>
+            <td><strong>Non-Deterministic:</strong> No cryptographic audit ledger of why the model suggested a given action.</td>
+            <td><strong>Tamper-Proof Activity Log:</strong> An unchangeable paper trail proving exactly which AI version ran, what rules applied, and who clicked approve.</td>
+          </tr>
+          <tr>
+            <td><strong>Pre-flight Confidence</strong></td>
+            <td><strong>Test in Production:</strong> Deploy rules live and monitor for breakage.</td>
+            <td><strong>No Simulation:</strong> Prompts are executed directly with zero consequence modeling.</td>
+            <td><strong>Digital Twin Sandbox:</strong> Replays past network history to prove safety on posture radar before going live.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ──────────────────────────────────────────
+         SECTION 08: UXR TESTING & VALIDATION LOOP
+    ────────────────────────────────────────── -->
+    <section class="sec" id="sec-uxr-mapping">
+      <div class="sec-header">
+        <div>
+          <div class="sec-tag-group">
+            <span class="sec-tag sec-tag-amber">Empirical Validation</span>
+            <span class="sec-tag sec-tag-blue">UXR Testing Plan</span>
+          </div>
+          <h2 class="sec-title">08. <strong>UXR Validation Loop: Testing Framework Hypotheses</strong></h2>
+          <p class="sec-sub">How our 5 usability testing scenarios directly validate the parsed needs, pain points, and framework pillars with real operators.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+
+        <div class="card">
+          <div style="font-size:12px;font-weight:700;color:var(--blue);text-transform:uppercase;margin-bottom:6px;">UXR Task 1 &middot; Screen 01 (Canvas)</div>
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:8px;">Mental Model &amp; Ambient Presence</h3>
+          <p style="font-size:13px;color:var(--sub);line-height:1.55;margin-bottom:12px;">
+            <strong>Test Goal:</strong> Validate whether operators understand that "95% confidence" and a calm canvas represent silent, safe operation rather than hidden system errors.
+          </p>
+          <div style="font-size:12px;background:var(--surface);padding:8px 12px;border-radius:4px;border-left:3px solid var(--blue);">
+            <strong>Success Metric:</strong> &gt;80% of participants correctly describe the AI's autonomous role within 2 minutes of first exposure without facilitation.
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-size:12px;font-weight:700;color:var(--purple);text-transform:uppercase;margin-bottom:6px;">UXR Tasks 2 &amp; 3 &middot; Screens 02 &amp; 03 (Trace)</div>
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:8px;">Reasoning Audit &amp; Blame Attribution</h3>
+          <p style="font-size:13px;color:var(--sub);line-height:1.55;margin-bottom:12px;">
+            <strong>Test Goal:</strong> Ensure operators and auditors can reconstruct the decision path for incident C-2837 and identify exactly why the AI held at the approval gate.
+          </p>
+          <div style="font-size:12px;background:var(--surface);padding:8px 12px;border-radius:4px;border-left:3px solid var(--purple);">
+            <strong>Success Metric:</strong> 100% of compliance participants reconstruct the AI decision sequence using the gate ledger without external guidance.
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-size:12px;font-weight:700;color:var(--teal);text-transform:uppercase;margin-bottom:6px;">UXR Task 4 &middot; Screen 04 (Policy Studio)</div>
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:8px;">Consequence Comprehension via Posture Radar</h3>
+          <p style="font-size:13px;color:var(--sub);line-height:1.55;margin-bottom:12px;">
+            <strong>Test Goal:</strong> Verify whether adjusting permission toggles (e.g. firewall rule approval) creates immediate comprehension of safety trade-offs through radar shifts.
+          </p>
+          <div style="font-size:12px;background:var(--surface);padding:8px 12px;border-radius:4px;border-left:3px solid var(--teal);">
+            <strong>Success Metric:</strong> Participants achieve zero error-recovery assistance when configuring security-mandated guardrails.
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-size:12px;font-weight:700;color:var(--green);text-transform:uppercase;margin-bottom:6px;">UXR Task 5 &middot; Screen 05 (Digital Twin)</div>
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:8px;">Pre-flight Delegation Confidence</h3>
+          <p style="font-size:13px;color:var(--sub);line-height:1.55;margin-bottom:12px;">
+            <strong>Test Goal:</strong> Test whether reviewing dry-run historical simulation results gives engineering leads the psychological confidence to approve production rollout.
+          </p>
+          <div style="font-size:12px;background:var(--surface);padding:8px 12px;border-radius:4px;border-left:3px solid var(--green);">
+            <strong>Success Metric:</strong> &gt;75% of engineering leads state they would approve deployment based solely on the digital twin verification report.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="dark-footer">
+    <span class="df-brand">IBM Network Intelligence &middot; Headless AI Research</span>
+    <div class="df-flow">
+      Recognition <span>&rarr;</span> Words <span>&rarr;</span> Agreement <span>&rarr;</span> Evidence
+    </div>
+    <div class="df-credit">Designed &amp; synthesized by <strong>JK</strong> with <strong>Bob</strong></div>
+  </footer>
+
+  <script>
+    function switchStoryTab(idx, btn) {
+      document.querySelectorAll('.story-nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.story-pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const target = document.getElementById('story-pane-' + idx);
+      if (target) target.classList.add('active');
+    }
+  </script>
+
+</body>
+</html>
