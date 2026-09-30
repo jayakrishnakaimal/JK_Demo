@@ -145,42 +145,6 @@
       color: rgba(255,255,255,0.7);
     }
 
-    .bx--header__nav {
-      display: flex;
-      align-items: center;
-      height: 100%;
-      padding: 0;
-      margin: 0;
-      list-style: none;
-      flex: 1;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .bx--header__nav::-webkit-scrollbar { display: none; }
-
-    .bx--header__menu-item {
-      display: flex;
-      align-items: center;
-      height: 100%;
-      padding: 0 var(--cds-spacing-05);
-      font-size: 0.875rem;
-      color: rgba(255,255,255,0.7);
-      text-decoration: none;
-      white-space: nowrap;
-      border-bottom: 3px solid transparent;
-      transition: background 0.15s ease, color 0.15s ease;
-    }
-    .bx--header__menu-item:hover {
-      color: #ffffff;
-      background: #262626;
-      text-decoration: none;
-    }
-    .bx--header__menu-item--current {
-      color: #ffffff;
-      border-bottom-color: var(--cds-interactive);
-      font-weight: 500;
-    }
-
     .bx--header__global {
       display: flex;
       align-items: center;
@@ -263,62 +227,6 @@
       font-weight: 500;
     }
 
-    /* ══════════════════════════════════════════════════════
-       CARBON STRUCTURED FLOW NOTIFICATION BAR
-    ══════════════════════════════════════════════════════ */
-    .carbon-tour-bar {
-      background: var(--cds-layer-02);
-      border-bottom: 1px solid var(--cds-border-subtle);
-      padding: var(--cds-spacing-04) var(--cds-spacing-07);
-    }
-    .carbon-tour-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: var(--cds-spacing-04);
-    }
-    .carbon-tour-label {
-      font-size: 0.8125rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--cds-text-secondary);
-      display: flex;
-      align-items: center;
-      gap: var(--cds-spacing-03);
-    }
-    .carbon-tour-steps {
-      display: flex;
-      align-items: center;
-      gap: var(--cds-spacing-02);
-      flex-wrap: wrap;
-    }
-    .carbon-tour-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--cds-spacing-02);
-      background: var(--cds-background);
-      border: 1px solid var(--cds-border-subtle);
-      padding: 0.375rem 0.75rem;
-      font-size: 0.8125rem;
-      font-weight: 500;
-      color: var(--cds-text-primary);
-      text-decoration: none;
-      transition: all 0.15s ease;
-    }
-    .carbon-tour-btn:hover {
-      background: var(--cds-layer-01);
-      border-color: var(--cds-border-strong);
-      text-decoration: none;
-      color: var(--cds-interactive);
-    }
-    .carbon-tour-arrow {
-      color: var(--cds-text-placeholder);
-      font-size: 0.75rem;
-    }
 
     /* ══════════════════════════════════════════════════════
        PAGE CONTAINER & SECTION HEADERS
@@ -577,19 +485,10 @@
   <header class="bx--header">
     <a class="bx--header__name" href="hub.html">
       <span class="bx--header__name--prefix">IBM</span>
-      Network Intelligence
+      Network Intelligence · Headless AI
     </a>
-    <nav class="bx--header__nav">
-      <a class="bx--header__menu-item bx--header__menu-item--current" href="hub.html">Project Hub</a>
-      <a class="bx--header__menu-item" href="index.html">Research Stepper</a>
-      <a class="bx--header__menu-item" href="personas-framework-synthesis.html">Personas &amp; Framework</a>
-      <a class="bx--header__menu-item" href="headless.html">Live Dashboard</a>
-      <a class="bx--header__menu-item" href="slack-sim.html">Slack Simulator</a>
-      <a class="bx--header__menu-item" href="uxr_plan.html">UXR Plan</a>
-      <a class="bx--header__menu-item" href="headless-ai-case-study.html">Case Study</a>
-    </nav>
     <div class="bx--header__global">
-      <span class="bx--tag bx--tag--blue">Headless AI v2.4</span>
+      <span class="bx--tag bx--tag--blue">Project Hub</span>
     </div>
   </header>
 
@@ -626,27 +525,6 @@
       </div>
     </div>
   </section>
-
-  <!-- ═══ CARBON GUIDED TOUR BAR ═══ -->
-  <div class="carbon-tour-bar">
-    <div class="carbon-tour-inner">
-      <div class="carbon-tour-label">
-        <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4l-1.41 1.41L24.17 15H4v2h20.17l-9.58 9.59L16 28l12-12z"/></svg>
-        Recommended Tour
-      </div>
-      <div class="carbon-tour-steps">
-        <a href="index.html" class="carbon-tour-btn">1. Concept Stepper</a>
-        <span class="carbon-tour-arrow">&rarr;</span>
-        <a href="personas-framework-synthesis.html" class="carbon-tour-btn">2. Personas &amp; Framework</a>
-        <span class="carbon-tour-arrow">&rarr;</span>
-        <a href="headless.html" class="carbon-tour-btn">3. Operations Dashboard</a>
-        <span class="carbon-tour-arrow">&rarr;</span>
-        <a href="slack-sim.html" class="carbon-tour-btn">4. Slack 30s Triage</a>
-        <span class="carbon-tour-arrow">&rarr;</span>
-        <a href="uxr_plan.html" class="carbon-tour-btn">5. UXR Testing Plan</a>
-      </div>
-    </div>
-  </div>
 
   <!-- ═══ MAIN HUB CONTENT ═══ -->
   <main class="carbon-main">
