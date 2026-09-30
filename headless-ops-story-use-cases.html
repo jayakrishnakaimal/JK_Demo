@@ -1,460 +1,623 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Headless Ops — Story &amp; Use Cases</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet" />
+
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
-    font-size: 14px; line-height: 1.7;
-    background: #ffffff; color: #1f2328;
+  /* ══════════════════════════════════════════════════════
+     IBM CARBON DESIGN SYSTEM TOKENS & BASE STYLING
+  ══════════════════════════════════════════════════════ */
+  :root {
+    --cds-background:          #ffffff;
+    --cds-layer-01:            #f4f4f4;
+    --cds-layer-02:            #e0e0e0;
+    --cds-border-subtle:       #e0e0e0;
+    --cds-border-strong:       #8d8d8d;
+    --cds-text-primary:        #161616;
+    --cds-text-secondary:      #525252;
+    --cds-text-helper:         #6f6f6f;
+    --cds-text-on-color:       #ffffff;
+    --cds-interactive:         #0f62fe;
+    --cds-interactive-hover:   #0353e9;
+    --cds-link-primary:        #0f62fe;
+    --cds-background-inverse:  #161616;
+    --cds-text-inverse:        #ffffff;
+    --cds-support-error:       #da1e28;
+    --cds-support-success:     #24a148;
+    --cds-support-warning:     #f1c21b;
+    --cds-support-info:        #0043ce;
+
+    --cds-tag-blue-bg:         #edf5ff;
+    --cds-tag-blue-text:       #0043ce;
+    --cds-tag-blue-border:     #d0e2ff;
+    --cds-tag-green-bg:        #defbe6;
+    --cds-tag-green-text:      #0e6027;
+    --cds-tag-green-border:    #a7f0ba;
+    --cds-tag-teal-bg:         #d9fbfb;
+    --cds-tag-teal-text:       #005d5d;
+    --cds-tag-teal-border:     #9ef0f0;
+    --cds-tag-purple-bg:       #f6f2ff;
+    --cds-tag-purple-text:     #6929c4;
+    --cds-tag-purple-border:   #e8daff;
+    --cds-tag-warm-gray-bg:    #f4f4f4;
+    --cds-tag-warm-gray-text:  #393939;
+    --cds-tag-warm-gray-border:#e0e0e0;
+    --cds-tag-red-bg:          #fff1f1;
+    --cds-tag-red-text:        #da1e28;
+    --cds-tag-red-border:      #ffd7d9;
+    --cds-tag-yellow-bg:       #fcf4d6;
+    --cds-tag-yellow-text:     #8e6a00;
+    --cds-tag-yellow-border:   #fddc69;
+
+    --cds-spacing-01: 0.125rem;
+    --cds-spacing-02: 0.25rem;
+    --cds-spacing-03: 0.5rem;
+    --cds-spacing-04: 0.75rem;
+    --cds-spacing-05: 1rem;
+    --cds-spacing-06: 1.5rem;
+    --cds-spacing-07: 2rem;
+    --cds-spacing-08: 2.5rem;
+    --cds-spacing-09: 3rem;
+    --cds-spacing-10: 4rem;
+
+    --cds-font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --cds-font-mono: 'IBM Plex Mono', monospace;
   }
-  .page { max-width: 760px; margin: 0 auto; padding: 52px 24px 72px; }
 
-  /* ── header ── */
-  .page-header { margin-bottom: 48px; padding-bottom: 28px; border-bottom: 2px solid #e5e7eb; }
-  .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #3b82d4; margin-bottom: 10px; }
-  h1 { font-size: 28px; font-weight: 600; color: #1f2328; line-height: 1.2; margin-bottom: 12px; }
-  .header-sub { font-size: 14px; color: #57606a; max-width: 640px; line-height: 1.7; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* ── persona ── */
-  .persona-bar {
-    display: flex; align-items: center; gap: 14px;
-    background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 10px;
-    padding: 16px 20px; margin-bottom: 40px;
+  html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+  }
+
+  body {
+    font-family: var(--cds-font-sans);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--cds-text-primary);
+    background: var(--cds-background);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  a { color: var(--cds-link-primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── CARBON UI SHELL HEADER ── */
+  .bx--header {
+    position: sticky; top: 0; z-index: 1000;
+    background: var(--cds-background-inverse);
+    height: 3rem; display: flex; align-items: center;
+    border-bottom: 1px solid #393939;
+  }
+  .bx--header__name {
+    display: flex; align-items: center; height: 100%;
+    padding: 0 var(--cds-spacing-05);
+    font-size: 0.875rem; font-weight: 600;
+    color: var(--cds-text-inverse); text-decoration: none;
+    gap: var(--cds-spacing-03);
+    border-right: 1px solid #393939; white-space: nowrap;
+  }
+  .bx--header__name:hover { background: #262626; text-decoration: none; }
+  .bx--header__name--prefix { font-weight: 400; color: rgba(255,255,255,0.7); }
+  .bx--header__global {
+    display: flex; align-items: center; margin-left: auto;
+    padding-right: var(--cds-spacing-05); gap: var(--cds-spacing-03);
+  }
+
+  /* ── CARBON HERO BANNER ── */
+  .carbon-hero {
+    background: var(--cds-background-inverse);
+    color: var(--cds-text-inverse);
+    padding: var(--cds-spacing-09) var(--cds-spacing-07) var(--cds-spacing-08);
+    border-bottom: 1px solid #393939;
+  }
+  .carbon-hero-inner { max-width: 1080px; margin: 0 auto; }
+  .carbon-hero-eyebrow {
+    font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.1em; color: #74b1ff; margin-bottom: var(--cds-spacing-04);
+    display: flex; align-items: center; gap: var(--cds-spacing-03);
+  }
+  .carbon-hero-title {
+    font-size: 2.5rem; font-weight: 300; line-height: 1.15;
+    margin-bottom: var(--cds-spacing-04); letter-spacing: -0.02em; color: #ffffff;
+  }
+  .carbon-hero-title strong { font-weight: 600; color: #ffffff; }
+  .carbon-hero-desc {
+    font-size: 1.0625rem; font-weight: 300; color: #c6c6c6;
+    max-width: 860px; line-height: 1.55;
+  }
+
+  /* ── PAGE LAYOUT ── */
+  .page { max-width: 1080px; margin: 0 auto; padding: var(--cds-spacing-08) var(--cds-spacing-07) var(--cds-spacing-10); }
+
+  /* ── PERSONA TILE ── */
+  .persona-tile {
+    display: flex; align-items: center; gap: var(--cds-spacing-05);
+    background: var(--cds-layer-01); border: 1px solid var(--cds-border-subtle);
+    padding: var(--cds-spacing-05) var(--cds-spacing-06); margin-bottom: var(--cds-spacing-08);
   }
   .persona-avatar {
     width: 44px; height: 44px; border-radius: 50%;
-    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-    border: 2px solid #93c5fd;
+    background: var(--cds-interactive); color: #ffffff;
     display: flex; align-items: center; justify-content: center;
-    font-size: 18px; flex-shrink: 0;
+    font-size: 1.125rem; font-weight: 700; flex-shrink: 0;
   }
-  .persona-name { font-size: 14px; font-weight: 600; color: #1f2328; }
-  .persona-role { font-size: 12px; color: #57606a; }
-  .persona-tag {
-    margin-left: auto; font-size: 10px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.07em; padding: 3px 10px; border-radius: 20px;
-    background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;
+  .persona-name { font-size: 1rem; font-weight: 600; color: var(--cds-text-primary); }
+  .persona-role { font-size: 0.8125rem; color: var(--cds-text-secondary); margin-top: 2px; }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--cds-spacing-06) 0 var(--cds-spacing-03);
+    border-bottom: 1px solid var(--cds-border-subtle); margin-bottom: var(--cds-spacing-06);
+    flex-wrap: wrap; gap: var(--cds-spacing-03);
   }
+  .section-title { font-size: 1.5rem; font-weight: 300; color: var(--cds-text-primary); letter-spacing: -0.01em; }
+  .section-title strong { font-weight: 600; }
+  .section-sub { font-size: 0.875rem; color: var(--cds-text-secondary); width: 100%; margin-top: var(--cds-spacing-01); }
 
-  /* ── story section ── */
-  .story { margin-bottom: 52px; }
-  .story-title { font-size: 19px; font-weight: 600; color: #1f2328; margin-bottom: 4px; }
-  .story-sub { font-size: 13px; color: #57606a; margin-bottom: 20px; }
-  .story p { font-size: 14px; color: #1f2328; line-height: 1.8; margin-bottom: 14px; }
-  .story p:last-child { margin-bottom: 0; }
-  .story em { color: #57606a; font-style: normal; }
-  .story strong { font-weight: 600; color: #111827; }
-
-  /* ── timeline strip ── */
-  .story-timeline { margin: 24px 0; display: flex; flex-direction: column; gap: 0; }
-  .st-item { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+  /* ── TIMELINE STRIP (Carbon styled) ── */
+  .story-timeline { margin: var(--cds-spacing-06) 0; display: flex; flex-direction: column; gap: 0; }
+  .st-item { display: flex; gap: var(--cds-spacing-05); padding: var(--cds-spacing-04) 0; border-bottom: 1px solid var(--cds-border-subtle); }
   .st-item:last-child { border-bottom: none; }
-  .st-dot-col { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; padding-top: 2px; }
+  .st-dot-col { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; padding-top: 4px; }
   .st-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .st-line { width: 1px; flex: 1; background: #e5e7eb; margin-top: 4px; }
+  .st-line { width: 1px; flex: 1; background: var(--cds-border-subtle); margin-top: 6px; }
   .st-item:last-child .st-line { display: none; }
   .st-content { flex: 1; }
-  .st-time { font-size: 10px; color: #9ca3af; font-weight: 600; letter-spacing: 0.04em; margin-bottom: 2px; }
-  .st-text { font-size: 13px; color: #374151; line-height: 1.5; }
-  .st-text strong { color: #111827; }
-  .st-silent { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; background: #f0fdf4; color: #16a34a; border-radius: 3px; padding: 1px 6px; margin-left: 6px; }
-  .st-alerted { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; background: #fef2f2; color: #dc2626; border-radius: 3px; padding: 1px 6px; margin-left: 6px; }
-  .st-warn { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; background: #fffbeb; color: #d97706; border-radius: 3px; padding: 1px 6px; margin-left: 6px; }
+  .st-time { font-family: var(--cds-font-mono); font-size: 0.75rem; color: var(--cds-text-helper); font-weight: 600; margin-bottom: var(--cds-spacing-01); }
+  .st-text { font-size: 0.875rem; color: var(--cds-text-secondary); line-height: 1.5; }
+  .st-text strong { color: var(--cds-text-primary); font-weight: 600; }
 
-  /* ── use case cards ── */
-  .uc-section-title {
-    font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.09em; color: #57606a; margin-bottom: 20px;
-    padding-bottom: 10px; border-bottom: 1px solid #e5e7eb;
+  /* ── CARBON TAG SYSTEM ── */
+  .bx--tag {
+    display: inline-flex; align-items: center; padding: 0 0.5rem;
+    height: 1.5rem; font-size: 0.75rem; font-weight: 400; line-height: 1;
+    border-radius: 0.9375rem; border: 1px solid transparent; white-space: nowrap;
   }
-  .uc-card {
-    border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;
-    margin-bottom: 28px;
+  .bx--tag--blue { background: var(--cds-tag-blue-bg); color: var(--cds-tag-blue-text); border-color: var(--cds-tag-blue-border); }
+  .bx--tag--green { background: var(--cds-tag-green-bg); color: var(--cds-tag-green-text); border-color: var(--cds-tag-green-border); }
+  .bx--tag--teal { background: var(--cds-tag-teal-bg); color: var(--cds-tag-teal-text); border-color: var(--cds-tag-teal-border); }
+  .bx--tag--purple { background: var(--cds-tag-purple-bg); color: var(--cds-tag-purple-text); border-color: var(--cds-tag-purple-border); }
+  .bx--tag--warm-gray { background: var(--cds-tag-warm-gray-bg); color: var(--cds-tag-warm-gray-text); border-color: var(--cds-tag-warm-gray-border); }
+  .bx--tag--red { background: var(--cds-tag-red-bg); color: var(--cds-tag-red-text); border-color: var(--cds-tag-red-border); }
+  .bx--tag--yellow { background: var(--cds-tag-yellow-bg); color: var(--cds-tag-yellow-text); border-color: var(--cds-tag-yellow-border); }
+
+  /* ── USE CASE TILES ── */
+  .uc-tile {
+    border: 1px solid var(--cds-border-subtle); background: var(--cds-background);
+    margin-bottom: var(--cds-spacing-08); position: relative;
   }
-  .uc-card-header {
-    padding: 18px 22px 14px;
-    display: flex; align-items: flex-start; gap: 14px;
+  .uc-tile-header {
+    padding: var(--cds-spacing-06); border-bottom: 1px solid var(--cds-border-subtle);
+    display: flex; align-items: flex-start; gap: var(--cds-spacing-05);
+    background: var(--cds-layer-01);
   }
   .uc-num {
-    width: 28px; height: 28px; border-radius: 50%;
+    width: 32px; height: 32px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700; flex-shrink: 0;
-    margin-top: 1px;
+    font-size: 0.875rem; font-weight: 700; flex-shrink: 0;
+    background: var(--cds-background); border: 1px solid var(--cds-border-subtle);
   }
   .uc-header-text { flex: 1; }
-  .uc-inc { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
-  .uc-title { font-size: 16px; font-weight: 600; color: #1f2328; margin-bottom: 3px; line-height: 1.3; }
-  .uc-meta { font-size: 12px; color: #57606a; display: flex; gap: 14px; flex-wrap: wrap; }
-  .uc-badge {
-    display: inline-flex; align-items: center; font-size: 10px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.06em;
-    padding: 2px 9px; border-radius: 20px;
-  }
+  .uc-inc { font-family: var(--cds-font-mono); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: var(--cds-spacing-01); }
+  .uc-title { font-size: 1.125rem; font-weight: 600; color: var(--cds-text-primary); margin-bottom: var(--cds-spacing-02); line-height: 1.35; }
+  .uc-meta { font-size: 0.8125rem; color: var(--cds-text-secondary); display: flex; gap: var(--cds-spacing-04); flex-wrap: wrap; align-items: center; }
 
-  .uc-body { padding: 0 22px 20px; }
-  .uc-section { margin-bottom: 16px; }
+  .uc-body { padding: var(--cds-spacing-06); }
+  .uc-section { margin-bottom: var(--cds-spacing-06); }
+  .uc-section:last-child { margin-bottom: 0; }
   .uc-section-lbl {
-    font-size: 10px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.08em; color: #9ca3af; margin-bottom: 8px;
+    font-size: 0.6875rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--cds-text-helper); margin-bottom: var(--cds-spacing-02);
   }
-  .uc-p { font-size: 13px; color: #374151; line-height: 1.7; }
+  .uc-p { font-size: 0.875rem; color: var(--cds-text-secondary); line-height: 1.6; }
 
-  /* flow steps */
-  .uc-flow { display: flex; gap: 0; margin: 10px 0 4px; overflow-x: auto; }
-  .uc-flow-step {
-    display: flex; align-items: center; gap: 0;
-    flex: 1; min-width: 0;
-  }
+  /* ── FLOW STEPS ── */
+  .uc-flow { display: flex; gap: 0; margin: var(--cds-spacing-03) 0; overflow-x: auto; }
+  .uc-flow-step { display: flex; align-items: center; flex: 1; min-width: 0; }
   .uc-flow-box {
-    flex: 1; background: #f7f8fa; border: 1px solid #e5e7eb;
-    border-radius: 6px; padding: 8px 10px; text-align: center;
-    font-size: 11px; font-weight: 500; color: #374151; line-height: 1.4;
-    min-width: 80px;
+    flex: 1; background: var(--cds-layer-01); border: 1px solid var(--cds-border-subtle);
+    padding: var(--cds-spacing-03) var(--cds-spacing-04); text-align: center;
+    font-size: 0.75rem; font-weight: 500; color: var(--cds-text-primary); line-height: 1.4;
+    min-width: 90px;
   }
-  .uc-flow-box.active { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
-  .uc-flow-box.done { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
-  .uc-flow-box.human { background: #fffbeb; border-color: #fde68a; color: #92400e; }
-  .uc-flow-arrow { font-size: 12px; color: #9ca3af; padding: 0 4px; flex-shrink: 0; }
+  .uc-flow-box.active { background: var(--cds-tag-blue-bg); border-color: var(--cds-tag-blue-border); color: var(--cds-tag-blue-text); }
+  .uc-flow-box.done { background: var(--cds-tag-green-bg); border-color: var(--cds-tag-green-border); color: var(--cds-tag-green-text); }
+  .uc-flow-box.human { background: var(--cds-tag-yellow-bg); border-color: var(--cds-tag-yellow-border); color: var(--cds-tag-yellow-text); }
+  .uc-flow-arrow { font-size: 0.75rem; color: var(--cds-text-helper); padding: 0 var(--cds-spacing-02); flex-shrink: 0; }
 
-  /* evidence table */
-  .uc-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
-  .uc-table td { padding: 7px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+  /* ── EVIDENCE TABLE ── */
+  .uc-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; margin-top: var(--cds-spacing-03); border: 1px solid var(--cds-border-subtle); }
+  .uc-table td { padding: var(--cds-spacing-03) var(--cds-spacing-04); border-bottom: 1px solid var(--cds-border-subtle); vertical-align: top; }
   .uc-table tr:last-child td { border-bottom: none; }
-  .uc-table td:first-child { color: #9ca3af; width: 160px; }
-  .uc-table td:last-child { color: #111827; font-weight: 500; }
+  .uc-table td:first-child { color: var(--cds-text-helper); width: 180px; background: var(--cds-layer-01); }
+  .uc-table td:last-child { color: var(--cds-text-primary); font-weight: 500; }
+  .uc-table tr:hover td { background: var(--cds-tag-blue-bg); }
 
-  /* decision box */
+  /* ── CALLOUT BOXES ── */
   .uc-decision-box {
-    background: #fffbeb; border: 1px solid #fde68a;
-    border-left: 3px solid #d97706; border-radius: 6px;
-    padding: 12px 14px; margin-top: 8px;
-    font-size: 12px; color: #92400e; line-height: 1.6;
+    background: var(--cds-tag-yellow-bg); border: 1px solid var(--cds-tag-yellow-border);
+    border-left: 4px solid var(--cds-support-warning); padding: var(--cds-spacing-04) var(--cds-spacing-05);
+    margin-top: var(--cds-spacing-04); font-size: 0.8125rem; color: var(--cds-tag-yellow-text); line-height: 1.6;
   }
-  .uc-decision-box strong { color: #78350f; }
+  .uc-decision-box strong { color: #684e00; }
   .uc-outcome-box {
-    background: #f0fdf4; border: 1px solid #bbf7d0;
-    border-left: 3px solid #16a34a; border-radius: 6px;
-    padding: 12px 14px; margin-top: 8px;
-    font-size: 12px; color: #166534; line-height: 1.6;
+    background: var(--cds-tag-green-bg); border: 1px solid var(--cds-tag-green-border);
+    border-left: 4px solid var(--cds-support-success); padding: var(--cds-spacing-04) var(--cds-spacing-05);
+    margin-top: var(--cds-spacing-04); font-size: 0.8125rem; color: var(--cds-tag-green-text); line-height: 1.6;
   }
-  .uc-outcome-box strong { color: #14532d; }
+  .uc-outcome-box strong { color: #0a461b; }
 
-  /* divider */
-  hr { border: none; border-top: 1px solid #e5e7eb; margin: 40px 0; }
-
-  /* guardrail pill */
-  .gr-pill {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-size: 10px; font-weight: 700; text-transform: uppercase;
-    padding: 2px 8px; border-radius: 20px; vertical-align: middle;
-    letter-spacing: 0.05em;
+  .insight-box {
+    background: var(--cds-tag-blue-bg); border: 1px solid var(--cds-tag-blue-border);
+    border-left: 4px solid var(--cds-interactive); padding: var(--cds-spacing-05) var(--cds-spacing-06);
+    margin-top: var(--cds-spacing-06); font-size: 0.875rem; color: var(--cds-text-primary); line-height: 1.6;
   }
-  .gr-hard { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
-  .gr-soft { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
-  .gr-conf { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+  .insight-box strong { color: var(--cds-interactive); font-weight: 600; }
 
-  /* key insight callout */
-  .insight {
-    background: #f0f5ff; border: 1px solid #bfdbfe; border-left: 3px solid #3b82d4;
-    border-radius: 6px; padding: 12px 16px; margin-top: 16px;
-    font-size: 12px; color: #1f2328; line-height: 1.65;
-  }
-  .insight strong { color: #1d4ed8; }
+  /* ── PROSE ── */
+  p { margin-bottom: var(--cds-spacing-05); color: var(--cds-text-secondary); font-size: 0.9375rem; line-height: 1.6; }
+  p:last-child { margin-bottom: 0; }
+  p strong { color: var(--cds-text-primary); font-weight: 600; }
 
-  /* footer */
-  .footer {
-    border-top: 1px solid #e5e7eb; margin-top: 52px;
-    padding-top: 16px; text-align: center;
-    font-size: 12px; color: #9ca3af;
+  /* ── FOOTER ── */
+  .carbon-footer {
+    background: var(--cds-background-inverse);
+    color: #8d8d8d;
+    padding: var(--cds-spacing-07) var(--cds-spacing-07);
+    border-top: 1px solid #393939;
+    font-size: 0.75rem;
+    margin-top: var(--cds-spacing-10);
   }
+  .carbon-footer-inner {
+    max-width: 1080px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--cds-spacing-04);
+  }
+  .carbon-footer-links a { color: #c6c6c6; text-decoration: none; margin: 0 var(--cds-spacing-02); }
+  .carbon-footer-links a:hover { color: var(--cds-interactive); text-decoration: underline; }
 </style>
 </head>
 <body>
+
+<!-- ═══ CARBON UI SHELL HEADER ═══ -->
+<header class="bx--header">
+  <a class="bx--header__name" href="hub.html">
+    <span class="bx--header__name--prefix">IBM</span>
+    Network Intelligence · Headless Ops Stories
+  </a>
+  <div class="bx--header__global">
+    <a href="hub.html" class="bx--tag bx--tag--blue" style="text-decoration:none;cursor:pointer;">&larr; Back to Hub</a>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════
+     CARBON HERO COVER
+══════════════════════════════════════ -->
+<section class="carbon-hero">
+  <div class="carbon-hero-inner">
+    <div class="carbon-hero-eyebrow">
+      <span>IBM Network Intelligence</span>
+      <span>/</span>
+      <span>Headless Operations Stories</span>
+    </div>
+    <h1 class="carbon-hero-title">A Tuesday afternoon the operator <strong>never had to watch</strong></h1>
+    <p class="carbon-hero-desc">A narrative story and three concrete use cases drawn directly from the prototype telemetry — showing how the headless operations model handles a cascade of incidents across payment-service, TVM-EDGE-04, and api-gateway while pulling the operator in only when human judgment is indispensable.</p>
+  </div>
+</section>
+
 <div class="page">
 
-  
-  <div class="page-header">
-    <div class="eyebrow">IBM Network Intelligence · Headless Operations</div>
-    <h1>A Tuesday afternoon the operator never had to watch</h1>
-    <p class="header-sub">A narrative story and three concrete use cases drawn directly from the prototype — showing how the headless operations model handles a cascade of real incidents across payment-service, TVM-EDGE-04, and api-gateway, while pulling the operator in only at the moments that genuinely require a human decision.</p>
-  </div>
-
-  
-  <div class="persona-bar">
-    <div class="persona-avatar">👤</div>
+  <!-- ── PERSONA TILE ── -->
+  <div class="persona-tile">
+    <div class="persona-avatar">PS</div>
     <div>
-      <div class="persona-name">Priya — Senior SRE, Platform Engineering</div>
-      <div class="persona-role">Responsible for 14 agents · Japan + US East regions · IBM Network Intelligence</div>
+      <div class="persona-name">Priya Sharma — Senior SRE, Platform Engineering</div>
+      <div class="persona-role">Responsible for 14 autonomous agents · Japan &amp; US East regions · IBM Network Intelligence</div>
     </div>
-    <span class="persona-tag">Headless mode · ON</span>
+    <div style="margin-left:auto;">
+      <span class="bx--tag bx--tag--green">Headless mode · ACTIVE</span>
+    </div>
   </div>
 
-  
-  <div class="story">
-    <div class="story-title">The story — Tuesday, 14:03 UTC</div>
-    <div class="story-sub">What Priya experienced. What the system did. When and why she was pulled in.</div>
+  <!-- ══════════════════════════════════════
+       STORY TIMELINE
+  ══════════════════════════════════════ -->
+  <section class="story">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">01. <strong>The Story — Tuesday, 14:03 UTC</strong></h2>
+        <p class="section-sub">What Priya experienced. What the system did. When and why she was pulled in.</p>
+      </div>
+      <span class="bx--tag bx--tag--purple">Operational Narrative</span>
+    </div>
 
     <p>It's 14:03 UTC on a Tuesday. Priya is in a product review meeting, laptop closed, phone face-down on the table. She has not looked at a dashboard since Monday morning. She doesn't need to — the system is running headless, and <strong>silence is the signal that everything is fine</strong>.</p>
 
     <p>At that exact moment, three things are happening simultaneously in the background that she knows nothing about yet. The IBM Network Intelligence agents are observing, correlating, and acting — or in one case, holding and waiting for her.</p>
 
-    
     <div class="story-timeline">
       <div class="st-item">
-        <div class="st-dot-col"><div class="st-dot" style="background:#ef4444"></div><div class="st-line"></div></div>
+        <div class="st-dot-col"><div class="st-dot" style="background:var(--cds-support-error)"></div><div class="st-line"></div></div>
         <div class="st-content">
           <div class="st-time">14:03 UTC</div>
-          <div class="st-text"><strong>payment-service, us-east-1</strong> — DB connection pool climbs to 92%. The Remediation Agent detects the anomaly. Alert is suppressed — auto-monitoring engaged. <span class="st-silent">Silent</span></div>
+          <div class="st-text"><strong>payment-service, us-east-1</strong> — DB connection pool climbs to 92%. The Remediation Agent detects the anomaly. Alert is suppressed — auto-monitoring engaged. <span class="bx--tag bx--tag--green" style="height:1.2rem;font-size:0.6875rem;margin-left:6px;">Silent</span></div>
         </div>
       </div>
       <div class="st-item">
-        <div class="st-dot-col"><div class="st-dot" style="background:#f59e0b"></div><div class="st-line"></div></div>
+        <div class="st-dot-col"><div class="st-dot" style="background:var(--cds-support-warning)"></div><div class="st-line"></div></div>
         <div class="st-content">
           <div class="st-time">14:04 UTC</div>
-          <div class="st-text"><strong>Pattern matched.</strong> Agent cross-references 14 historical cases. Confidence: 91%. Blast radius: payment-service only. Preferred action: restart the pod. But guardrail G-01 is active — no prod restarts weekdays 14:00–16:00 UTC. <span class="st-warn">Guardrail block</span></div>
+          <div class="st-text"><strong>Pattern matched.</strong> Agent cross-references 14 historical cases. Confidence: 91%. Blast radius: payment-service only. Preferred action: restart the pod. But guardrail G-01 is active — no prod restarts weekdays 14:00–16:00 UTC. <span class="bx--tag bx--tag--yellow" style="height:1.2rem;font-size:0.6875rem;margin-left:6px;">Guardrail Block</span></div>
         </div>
       </div>
       <div class="st-item">
-        <div class="st-dot-col"><div class="st-dot" style="background:#ef4444"></div><div class="st-line"></div></div>
+        <div class="st-dot-col"><div class="st-dot" style="background:var(--cds-support-error)"></div><div class="st-line"></div></div>
         <div class="st-content">
           <div class="st-time">14:05 UTC</div>
-          <div class="st-text"><strong>Decision card issued.</strong> System can't proceed autonomously. It drafts a self-contained approval card with three ranked options, supporting evidence, and an 11-minute SLO countdown. Sends to Slack #ops-alerts and surfaces in the Decision Inbox. <span class="st-alerted">Priya notified</span></div>
+          <div class="st-text"><strong>Decision card issued.</strong> System can't proceed autonomously. It drafts a self-contained approval card with three ranked options, supporting evidence, and an 11-minute SLO countdown. Sends to Slack #ops-alerts and surfaces in the Decision Inbox. <span class="bx--tag bx--tag--red" style="height:1.2rem;font-size:0.6875rem;margin-left:6px;">Priya Notified</span></div>
         </div>
       </div>
       <div class="st-item">
-        <div class="st-dot-col"><div class="st-dot" style="background:#9ca3af"></div><div class="st-line"></div></div>
+        <div class="st-dot-col"><div class="st-dot" style="background:var(--cds-border-strong)"></div><div class="st-line"></div></div>
         <div class="st-content">
           <div class="st-time">14:03–14:05 UTC (parallel)</div>
-          <div class="st-text"><strong>TVM-EDGE-04, NY-RTR-02</strong> — BGP flap detected on NY-RTR-02. Route Guard Agent dampens it autonomously in under 2 minutes. Zero user impact. No alert sent. <span class="st-silent">Silent</span></div>
+          <div class="st-text"><strong>TVM-EDGE-04, NY-RTR-02</strong> — BGP flap detected on NY-RTR-02. Route Guard Agent dampens it autonomously in under 2 minutes. Zero user impact. No alert sent. <span class="bx--tag bx--tag--green" style="height:1.2rem;font-size:0.6875rem;margin-left:6px;">Silent Auto-Fix</span></div>
         </div>
       </div>
       <div class="st-item">
-        <div class="st-dot-col"><div class="st-dot" style="background:#3b82f6"></div><div class="st-line"></div></div>
+        <div class="st-dot-col"><div class="st-dot" style="background:var(--cds-interactive)"></div><div class="st-line"></div></div>
         <div class="st-content">
           <div class="st-time">14:04 UTC (parallel)</div>
-          <div class="st-text"><strong>api-gateway, ap-southeast-1</strong> — unusual latency pattern detected. Confidence 62% — below the G-03 threshold of 85%. Novel pattern, no historical match. Agent holds, cannot act autonomously. Investigation card queued in Decision Inbox. <span class="st-warn">Low urgency — queued</span></div>
+          <div class="st-text"><strong>api-gateway, ap-southeast-1</strong> — Unusual latency pattern detected. Confidence 62% — below the G-03 threshold of 85%. Novel pattern, no historical match. Agent holds, cannot act autonomously. Investigation card queued in Decision Inbox. <span class="bx--tag bx--tag--yellow" style="height:1.2rem;font-size:0.6875rem;margin-left:6px;">Low Urgency · Queued</span></div>
         </div>
       </div>
       <div class="st-item">
-        <div class="st-dot-col"><div class="st-dot" style="background:#22c55e"></div><div class="st-line"></div></div>
+        <div class="st-dot-col"><div class="st-dot" style="background:var(--cds-support-success)"></div><div class="st-line"></div></div>
         <div class="st-content">
           <div class="st-time">14:06 UTC</div>
-          <div class="st-text"><strong>Priya's phone buzzes.</strong> One Slack message: the payment-service decision card. She reads it in 25 seconds. Connections at 498/500. System recommends a temporary pool bump — no restart needed. SLO breach in 9 minutes. She taps Approve. <span class="st-silent">30-second decision</span></div>
+          <div class="st-text"><strong>Priya's phone buzzes.</strong> One Slack message: the payment-service decision card. She reads it in 25 seconds. Connections at 498/500. System recommends a temporary pool bump — no restart needed. SLO breach in 9 minutes. She taps Approve. <span class="bx--tag bx--tag--green" style="height:1.2rem;font-size:0.6875rem;margin-left:6px;">30s Decision</span></div>
         </div>
       </div>
       <div class="st-item">
-        <div class="st-dot-col"><div class="st-dot" style="background:#22c55e"></div><div class="st-line"></div></div>
+        <div class="st-dot-col"><div class="st-dot" style="background:var(--cds-support-success)"></div><div class="st-line"></div></div>
         <div class="st-content">
           <div class="st-time">14:07 UTC</div>
-          <div class="st-text"><strong>Pool bump applied.</strong> Connections stabilise at 340. ServiceNow ticket NOC-4421 auto-created. Change Request CR-2024-0147 drafted and queued for her review. SLO preserved. Priya goes back to her meeting. <span class="st-silent">Silent</span></div>
+          <div class="st-text"><strong>Pool bump applied.</strong> Connections stabilise at 340. ServiceNow ticket NOC-4421 auto-created. Change Request CR-2024-0147 drafted and queued for her review. SLO preserved. Priya goes back to her meeting. <span class="bx--tag bx--tag--green" style="height:1.2rem;font-size:0.6875rem;margin-left:6px;">Silent</span></div>
         </div>
       </div>
       <div class="st-item">
-        <div class="st-dot-col"><div class="st-dot" style="background:#22c55e"></div><div class="st-line"></div></div>
+        <div class="st-dot-col"><div class="st-dot" style="background:var(--cds-support-success)"></div><div class="st-line"></div></div>
         <div class="st-content">
           <div class="st-time">22:00 UTC (that evening)</div>
-          <div class="st-text"><strong>payment-service v2.4.1 deploys.</strong> Canary strategy — 5% → 25% → 100%. Gate 1 passes (0.0% error rate). Gate 2 passes. Gate 3 passes. Incident INC-8841 closed. Resolution noted in knowledge base. <span class="st-silent">Fully autonomous</span></div>
+          <div class="st-text"><strong>payment-service v2.4.1 deploys.</strong> Canary strategy — 5% &rarr; 25% &rarr; 100%. Gate 1 passes (0.0% error rate). Gate 2 passes. Gate 3 passes. Incident INC-8841 closed. Resolution noted in knowledge base. <span class="bx--tag bx--tag--green" style="height:1.2rem;font-size:0.6875rem;margin-left:6px;">Fully Autonomous</span></div>
         </div>
       </div>
     </div>
 
     <p>Priya's total involvement in a P1 incident that spanned 8 hours of system activity: <strong>one Slack message read, one approval tapped, 30 seconds of her time</strong>. The system handled the rest — investigation, ticket, CR, maintenance window selection, canary deployment, and closure.</p>
 
-    <div class="insight"><strong>The headless contract in action:</strong> The system resolved 33 issues silently that week. It pulled Priya in exactly 3 times — each time with a self-contained decision card that took under 30 seconds to act on. She never opened a dashboard proactively. The dashboard existed as a deep-dive surface, not an attention surface.</div>
+    <div class="insight-box"><strong>The headless contract in action:</strong> The system resolved 33 issues silently that week. It pulled Priya in exactly 3 times — each time with a self-contained decision card that took under 30 seconds to act on. She never opened a dashboard proactively. The dashboard existed as a deep-dive surface, not an attention surface.</div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       THREE PRODUCTION USE CASES
+  ══════════════════════════════════════ -->
+  <section style="margin-top:var(--cds-spacing-10);">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">02. <strong>Three Production Incident Use Cases</strong></h2>
+        <p class="section-sub">Direct telemetry data and workflows drawn from the live interactive prototype.</p>
+      </div>
+      <span class="bx--tag bx--tag--blue">Incident Traces</span>
+    </div>
+
+    <!-- USE CASE 1 -->
+    <div class="uc-tile">
+      <div class="uc-tile-header">
+        <div class="uc-num" style="color:var(--cds-support-error);">1</div>
+        <div class="uc-header-text">
+          <div class="uc-inc" style="color:var(--cds-support-error);">INC-8841 · P1 · payment-service · us-east-1</div>
+          <h3 class="uc-title">DB connection pool exhausted — hard guardrail blocks restart, human approves alternative</h3>
+          <div class="uc-meta">
+            <span>Remediation Agent</span>
+            <span>&middot;</span>
+            <span>Guardrail: <span class="bx--tag bx--tag--red" style="height:1.2rem;font-size:0.6875rem;">G-01 Hard</span></span>
+            <span>&middot;</span>
+            <span>Decision time: 30 sec</span>
+            <span>&middot;</span>
+            <span>Resolution: 8 hrs end-to-end</span>
+          </div>
+        </div>
+      </div>
+      <div class="uc-body">
+        <div class="uc-section">
+          <div class="uc-section-lbl">Situation</div>
+          <div class="uc-p">At 14:03 UTC, the connection pool on payment-service peaked at 498 of 500 (99.6%), rising at +12 connections per minute. Root cause: a connection leak in v2.3.9 — a third-party ORM library failing to release connections under load above 400 concurrent requests. The blast radius was limited to payment-service only.</div>
+        </div>
+
+        <div class="uc-section">
+          <div class="uc-section-lbl">What the system did autonomously</div>
+          <div class="uc-p">The Remediation Agent detected the anomaly, matched it against 14 similar historical cases (confidence 91%), and identified the preferred fix: pod restart. It then hit guardrail <span class="bx--tag bx--tag--red" style="height:1.2rem;font-size:0.6875rem;">G-01</span> — "no prod restarts weekdays 14:00–16:00 UTC" — and stopped. It did not restart anyway. It generated an alternative recommendation, assembled the evidence bundle, and issued a decision card.</div>
+        </div>
+
+        <div class="uc-section">
+          <div class="uc-section-lbl">Workflow Lifecycle</div>
+          <div class="uc-flow">
+            <div class="uc-flow-step"><div class="uc-flow-box done">Investigation<br /><span style="font-size:10px;font-weight:400">91% confidence</span></div><span class="uc-flow-arrow">&rarr;</span></div>
+            <div class="uc-flow-step"><div class="uc-flow-box human">Decision<br /><span style="font-size:10px;font-weight:400">Human: 30 sec</span></div><span class="uc-flow-arrow">&rarr;</span></div>
+            <div class="uc-flow-step"><div class="uc-flow-box done">Ticket<br /><span style="font-size:10px;font-weight:400">NOC-4421 auto</span></div><span class="uc-flow-arrow">&rarr;</span></div>
+            <div class="uc-flow-step"><div class="uc-flow-box done">CR<br /><span style="font-size:10px;font-weight:400">CR-2024-0147</span></div><span class="uc-flow-arrow">&rarr;</span></div>
+            <div class="uc-flow-step"><div class="uc-flow-box done">MW<br /><span style="font-size:10px;font-weight:400">22:00–23:00 UTC</span></div><span class="uc-flow-arrow">&rarr;</span></div>
+            <div class="uc-flow-step"><div class="uc-flow-box done">Deploy<br /><span style="font-size:10px;font-weight:400">Canary 5&rarr;25&rarr;100%</span></div></div>
+          </div>
+        </div>
+
+        <div class="uc-section">
+          <div class="uc-section-lbl">Evidence Presented in Decision Card</div>
+          <table class="uc-table">
+            <tr><td>Connection peak</td><td>498 / 500 (99.6%)</td></tr>
+            <tr><td>Rate of rise</td><td>+12 connections/min</td></tr>
+            <tr><td>Blast radius</td><td>payment-service only (1 service)</td></tr>
+            <tr><td>Historical matches</td><td>11 similar cases — 9 resolved via pool bump</td></tr>
+            <tr><td>Rollback confidence</td><td>94%</td></tr>
+            <tr><td>Guardrail blocking</td><td>G-01 · Hard limit</td></tr>
+            <tr><td>SLO countdown</td><td>11 minutes to breach when card received</td></tr>
+            <tr><td>Recommended option</td><td>Pool bump +50 connections, 8-min window, auto-reverts</td></tr>
+          </table>
+          <div class="uc-decision-box"><strong>Why human was needed:</strong> Hard guardrail G-01 cannot be crossed autonomously under any confidence level. The system held the restart, found a non-restart alternative, scored its impact, and asked only for the one thing it genuinely couldn't decide: whether to act against the intent of a hard policy.</div>
+          <div class="uc-outcome-box"><strong>Outcome:</strong> Pool bump applied at 14:07 UTC. Connections stabilised at 340. SLO preserved with 4 minutes to spare. v2.4.1 deployed at 22:00 UTC via canary — all three gates passed (0.0%, 0.0%, 0.1% error rates). INC-8841 closed and resolution added to knowledge base.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- USE CASE 2 -->
+    <div class="uc-tile">
+      <div class="uc-tile-header">
+        <div class="uc-num" style="color:var(--cds-support-warning);">2</div>
+        <div class="uc-header-text">
+          <div class="uc-inc" style="color:var(--cds-support-warning);">INC-8839 · P2 · TVM-EDGE-04 · Hardware</div>
+          <h3 class="uc-title">Recurring CRC errors — hardware degradation confirmed, CR pending approval</h3>
+          <div class="uc-meta">
+            <span>Fault Detection Agent</span>
+            <span>&middot;</span>
+            <span>Guardrail: none triggered</span>
+            <span>&middot;</span>
+            <span>Confidence: 87%</span>
+            <span>&middot;</span>
+            <span>Stage: CR pending</span>
+          </div>
+        </div>
+      </div>
+      <div class="uc-body">
+        <div class="uc-section">
+          <div class="uc-section-lbl">Situation</div>
+          <div class="uc-p">TVM-EDGE-04 has produced CRC burst errors on optic port 7/4 four times in seven days, with intermittent signal loss averaging every 3.1 hours. This is not a software issue — the Fault Detection Agent has confirmed hardware degradation. 1,200 subscribers are at risk of signal drop but are currently being served via a restart loop.</div>
+        </div>
+
+        <div class="uc-section">
+          <div class="uc-section-lbl">What the system did autonomously</div>
+          <div class="uc-p">On the first three occurrences, the agent applied the restart sequence each time and restored service autonomously. On the fourth, it detected the hardware degradation pattern (87% confidence), opened an investigation record, auto-created Jira ticket NOC-4419, notified NOC L2 Team, and drafted Change Request CR-2024-0145 with a pre-filled risk rating (Low), rollback plan, and recommended maintenance window.</div>
+        </div>
+
+        <div class="uc-section">
+          <div class="uc-section-lbl">Workflow Lifecycle</div>
+          <div class="uc-flow">
+            <div class="uc-flow-step"><div class="uc-flow-box done">Investigation<br /><span style="font-size:10px;font-weight:400">87% confidence</span></div><span class="uc-flow-arrow">&rarr;</span></div>
+            <div class="uc-flow-step"><div class="uc-flow-box done">Ticket<br /><span style="font-size:10px;font-weight:400">NOC-4419 Jira</span></div><span class="uc-flow-arrow">&rarr;</span></div>
+            <div class="uc-flow-step"><div class="uc-flow-box active">CR<br /><span style="font-size:10px;font-weight:400">Pending approval</span></div><span class="uc-flow-arrow">&rarr;</span></div>
+            <div class="uc-flow-step"><div class="uc-flow-box" style="color:var(--cds-text-helper)">MW<br /><span style="font-size:10px;font-weight:400">Pending</span></div><span class="uc-flow-arrow">&rarr;</span></div>
+            <div class="uc-flow-step"><div class="uc-flow-box" style="color:var(--cds-text-helper)">Deploy<br /><span style="font-size:10px;font-weight:400">Pending</span></div></div>
+          </div>
+        </div>
+
+        <div class="uc-section">
+          <div class="uc-section-lbl">What's Waiting for Human</div>
+          <table class="uc-table">
+            <tr><td>CR ID</td><td>CR-2024-0145</td></tr>
+            <tr><td>Status</td><td>Pending NOC Manager approval</td></tr>
+            <tr><td>Risk rating</td><td>Low (auto-calculated)</td></tr>
+            <tr><td>Rollback plan</td><td>Revert to previous optic · ETA &lt; 10 min</td></tr>
+            <tr><td>Maintenance window</td><td>Not yet booked — awaiting CR approval first</td></tr>
+          </table>
+          <div class="uc-decision-box"><strong>Why human is needed here:</strong> A Change Request for physical hardware replacement cannot be submitted to change management autonomously — this is a deliberate hard checkpoint. The system has done everything up to this gate: root-cause analysis, ticket, and pre-filled CR. The NOC Manager's approval is one click.</div>
+          <div class="uc-outcome-box"><strong>Design principle shown:</strong> The three silent auto-resolutions (CRC bursts 1–3) demonstrate the headless model correctly — no alerts for known-pattern, recoverable events. The escalation on the 4th event demonstrates pattern intelligence: the system knows when repetition means something has changed and the loop needs to be broken with a permanent fix.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- USE CASE 3 -->
+    <div class="uc-tile">
+      <div class="uc-tile-header">
+        <div class="uc-num" style="color:var(--cds-interactive);">3</div>
+        <div class="uc-header-text">
+          <div class="uc-inc" style="color:var(--cds-interactive);">DEC-003 · Info · api-gateway · ap-southeast-1</div>
+          <h3 class="uc-title">Novel routing anomaly — confidence below threshold, system holds and asks</h3>
+          <div class="uc-meta">
+            <span>Network Agent</span>
+            <span>&middot;</span>
+            <span>Guardrail: <span class="bx--tag bx--tag--blue" style="height:1.2rem;font-size:0.6875rem;">G-03 Confidence</span></span>
+            <span>&middot;</span>
+            <span>Confidence: 62%</span>
+            <span>&middot;</span>
+            <span>No immediate breach</span>
+          </div>
+        </div>
+      </div>
+      <div class="uc-body">
+        <div class="uc-section">
+          <div class="uc-section-lbl">Situation</div>
+          <div class="uc-p">An unusual latency spike pattern appeared on api-gateway in ap-southeast-1. P95 latency rose by 140ms — still within SLO, but the pattern shape was unlike any of the 4,820 events in the historical case base. The Network Agent scored its confidence at 62%, which is below the autonomous action threshold of 85% set by guardrail <span class="bx--tag bx--tag--blue" style="height:1.2rem;font-size:0.6875rem;">G-03</span>.</div>
+        </div>
+
+        <div class="uc-section">
+          <div class="uc-section-lbl">Why the system held</div>
+          <div class="uc-p">Guardrail G-03 exists precisely for this scenario: the system is uncertain and acting on a 62% confidence pattern could make things worse. Rather than guessing, the agent queued an info-level decision card in the inbox with two options: approve a read-only diagnostic run (no changes, 3-minute report), or escalate to a Level-2 NOC engineer. The system did not page anyone, did not act, and did not flood Slack — it waited.</div>
+        </div>
+
+        <div class="uc-section">
+          <div class="uc-section-lbl">Evidence Presented to Operator</div>
+          <table class="uc-table">
+            <tr><td>Confidence score</td><td>62% — threshold: 85% (G-03)</td></tr>
+            <tr><td>Pattern type</td><td>Novel — no historical match in 4,820 cases</td></tr>
+            <tr><td>Current impact</td><td>P95 latency +140ms (within SLO)</td></tr>
+            <tr><td>Urgency</td><td>Low — no SLO breach imminent</td></tr>
+            <tr><td>Recommended action</td><td>Read-only diagnostic run — no changes, 3-min report</td></tr>
+          </table>
+          <div class="uc-decision-box"><strong>Why human is needed:</strong> The system genuinely does not know what is causing this. Guardrail G-03 is the confidence threshold — it is not a freeze window or a cost ceiling, it is a humility boundary. Below 85% certainty on a novel pattern, the system's job is to stop and ask, not to act and potentially escalate a contained anomaly into a real incident.</div>
+          <div class="uc-outcome-box"><strong>Design principle shown:</strong> The headless model does not mean the system always acts. It means the system acts when confident and asks when not. The decision card for this scenario carries no countdown timer, no red banner — it is informational. Priya can approve the diagnostic at her convenience, or escalate.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPARISON MATRIX -->
+    <div class="section-header" style="margin-top:var(--cds-spacing-08);">
+      <div>
+        <h3 class="section-title">03. <strong>Cross-Incident Capability Comparison</strong></h3>
+        <p class="section-sub">How autonomy, guardrails, and human touchpoints adapt across severity levels.</p>
+      </div>
+    </div>
+
+    <table class="uc-table" style="margin-bottom:0">
+      <tr style="background:var(--cds-layer-01)">
+        <td style="font-weight:700;color:var(--cds-text-primary);padding:10px">Capability</td>
+        <td style="font-weight:700;color:var(--cds-text-primary);padding:10px">INC-8841 (P1)</td>
+        <td style="font-weight:700;color:var(--cds-text-primary);padding:10px">INC-8839 (P2)</td>
+        <td style="font-weight:700;color:var(--cds-text-primary);padding:10px">DEC-003 (Info)</td>
+      </tr>
+      <tr><td>Guardrail type triggered</td><td>Hard (G-01)</td><td>None — stage gate</td><td>Confidence (G-03)</td></tr>
+      <tr><td>Autonomous actions taken</td><td>Detection, match, draft</td><td>3× silent restarts, ticket, CR draft</td><td>Detection, hold, queue</td></tr>
+      <tr><td>Human pulled in for</td><td>Policy override decision</td><td>CR approval</td><td>Novel pattern guidance</td></tr>
+      <tr><td>Time to decision card</td><td>2 minutes</td><td>Next day digest</td><td>Queued, no urgency</td></tr>
+      <tr><td>Human time required</td><td>~30 seconds</td><td>~1 minute (CR review)</td><td>~20 seconds</td></tr>
+      <tr><td>Channel used</td><td>Slack + In-app</td><td>In-app</td><td>In-app only</td></tr>
+      <tr><td>Remediation workflow stage</td><td>Deploy (canary in progress)</td><td>CR (pending)</td><td>Investigation only</td></tr>
+      <tr><td>Silence used correctly</td><td>Yes — 3 prior events silent</td><td>Yes — all restarts silent</td><td>Yes — no Slack push</td></tr>
+    </table>
+  </section>
+
+</div><!-- /page -->
+
+<!-- ═══ CARBON FOOTER ═══ -->
+<footer class="carbon-footer">
+  <div class="carbon-footer-inner">
+    <div>IBM Network Intelligence · Headless Operations · 2024–25</div>
+    <div class="carbon-footer-links">
+      <a href="headless.html">Live Prototype</a> &middot;
+      <a href="index.html">Research Deck</a> &middot;
+      <a href="personas-framework-synthesis.html">Personas &amp; Framework</a> &middot;
+      <a href="hub.html">Project Hub</a>
+    </div>
+    <div style="color:#6f6f6f;">Carbon Design System (v11) compliant</div>
   </div>
+</footer>
 
-  <hr />
-
-  
-  <div class="uc-section-title">Three use cases — from the prototype data</div>
-
-  
-  <div class="uc-card">
-    <div class="uc-card-header" style="background:linear-gradient(135deg, #fef2f2 0%, #fff 100%);border-bottom:1px solid #f0f0f0">
-      <div class="uc-num" style="background:#fee2e2;color:#dc2626">1</div>
-      <div class="uc-header-text">
-        <div class="uc-inc" style="color:#dc2626">INC-8841 · P1 · payment-service · us-east-1</div>
-        <div class="uc-title">DB connection pool exhausted — guardrail blocks restart, human approves alternative</div>
-        <div class="uc-meta">
-          <span>Remediation Agent</span>
-          <span>·</span>
-          <span>Guardrail: <span class="gr-pill gr-hard">G-01 Hard</span></span>
-          <span>·</span>
-          <span>Decision time: 30 sec</span>
-          <span>·</span>
-          <span>Resolution: 8 hrs end-to-end</span>
-        </div>
-      </div>
-    </div>
-    <div class="uc-body">
-
-      <div class="uc-section">
-        <div class="uc-section-lbl">Situation</div>
-        <div class="uc-p">At 14:03 UTC, the connection pool on payment-service peaked at 498 of 500 (99.6%), rising at +12 connections per minute. Root cause: a connection leak in v2.3.9 — a third-party ORM library failing to release connections under load above 400 concurrent requests. The blast radius was limited to payment-service only.</div>
-      </div>
-
-      <div class="uc-section">
-        <div class="uc-section-lbl">What the system did autonomously</div>
-        <div class="uc-p">The Remediation Agent detected the anomaly, matched it against 14 similar historical cases (confidence 91%), and identified the preferred fix: pod restart. It then hit guardrail <span class="gr-pill gr-hard">G-01</span> — "no prod restarts weekdays 14:00–16:00 UTC" — and stopped. It did not restart anyway. It did not silently ignore the guardrail. It generated an alternative recommendation, assembled the evidence bundle, and issued a decision card.</div>
-      </div>
-
-      <div class="uc-section">
-        <div class="uc-section-lbl">Workflow — Investigation → Ticket → CR → Maintenance Window → Deploy</div>
-        <div class="uc-flow">
-          <div class="uc-flow-step"><div class="uc-flow-box done">Investigation<br /><span style="font-size:10px;font-weight:400">91% confidence</span></div><span class="uc-flow-arrow">→</span></div>
-          <div class="uc-flow-step"><div class="uc-flow-box human">Decision<br /><span style="font-size:10px;font-weight:400">Human: 30 sec</span></div><span class="uc-flow-arrow">→</span></div>
-          <div class="uc-flow-step"><div class="uc-flow-box done">Ticket<br /><span style="font-size:10px;font-weight:400">NOC-4421 auto</span></div><span class="uc-flow-arrow">→</span></div>
-          <div class="uc-flow-step"><div class="uc-flow-box done">CR<br /><span style="font-size:10px;font-weight:400">CR-2024-0147</span></div><span class="uc-flow-arrow">→</span></div>
-          <div class="uc-flow-step"><div class="uc-flow-box done">MW<br /><span style="font-size:10px;font-weight:400">22:00–23:00 UTC</span></div><span class="uc-flow-arrow">→</span></div>
-          <div class="uc-flow-step"><div class="uc-flow-box done">Deploy<br /><span style="font-size:10px;font-weight:400">Canary 5→25→100%</span></div></div>
-        </div>
-      </div>
-
-      <div class="uc-section">
-        <div class="uc-section-lbl">The decision card Priya received</div>
-        <table class="uc-table">
-          <tr><td>Connection peak</td><td>498 / 500 (99.6%)</td></tr>
-          <tr><td>Rate of rise</td><td>+12 connections/min</td></tr>
-          <tr><td>Blast radius</td><td>payment-service only (1 service)</td></tr>
-          <tr><td>Historical matches</td><td>11 similar cases — 9 resolved via pool bump</td></tr>
-          <tr><td>Rollback confidence</td><td>94%</td></tr>
-          <tr><td>Guardrail blocking</td><td>G-01 · Hard limit</td></tr>
-          <tr><td>SLO countdown</td><td>11 minutes to breach when card received</td></tr>
-          <tr><td>Recommended option</td><td>Pool bump +50 connections, 8-min window, auto-reverts</td></tr>
-        </table>
-        <div class="uc-decision-box"><strong>Why human was needed:</strong> Hard guardrail G-01 cannot be crossed autonomously under any confidence level. The system held the restart, found a non-restart alternative, scored its impact, and asked only for the one thing it genuinely couldn't decide: whether to act against the intent of a hard policy.</div>
-        <div class="uc-outcome-box"><strong>Outcome:</strong> Pool bump applied at 14:07 UTC. Connections stabilised at 340. SLO preserved with 4 minutes to spare. v2.4.1 deployed at 22:00 UTC via canary — all three gates passed (0.0%, 0.0%, 0.1% error rates). INC-8841 closed and resolution added to knowledge base.</div>
-      </div>
-    </div>
-  </div>
-
-  
-  <div class="uc-card">
-    <div class="uc-card-header" style="background:linear-gradient(135deg, #fffbeb 0%, #fff 100%);border-bottom:1px solid #f0f0f0">
-      <div class="uc-num" style="background:#fef9c3;color:#d97706">2</div>
-      <div class="uc-header-text">
-        <div class="uc-inc" style="color:#d97706">INC-8839 · P2 · TVM-EDGE-04 · Hardware</div>
-        <div class="uc-title">Recurring CRC errors — hardware degradation confirmed, CR pending approval</div>
-        <div class="uc-meta">
-          <span>Fault Detection Agent</span>
-          <span>·</span>
-          <span>Guardrail: none triggered</span>
-          <span>·</span>
-          <span>Confidence: 87%</span>
-          <span>·</span>
-          <span>Stage: CR pending</span>
-        </div>
-      </div>
-    </div>
-    <div class="uc-body">
-
-      <div class="uc-section">
-        <div class="uc-section-lbl">Situation</div>
-        <div class="uc-p">TVM-EDGE-04 has produced CRC burst errors on optic port 7/4 four times in seven days, with intermittent signal loss averaging every 3.1 hours. This is not a software issue — the Fault Detection Agent has confirmed hardware degradation. 1,200 subscribers are at risk of signal drop but are currently being served via a restart loop (Sequence A→B→C, 6-minute recovery window each time).</div>
-      </div>
-
-      <div class="uc-section">
-        <div class="uc-section-lbl">What the system did autonomously</div>
-        <div class="uc-p">On the first three occurrences, the agent applied the restart sequence each time and restored service autonomously. On the fourth, it detected the hardware degradation pattern (87% confidence), opened an investigation record, auto-created Jira ticket NOC-4419, notified NOC L2 Team, and drafted Change Request CR-2024-0145 with a pre-filled risk rating (Low), rollback plan ("revert to previous optic, ETA &lt;10 min"), and recommended maintenance window. No alert was sent to Priya on the first three occurrences — they were silent auto-resolutions.</div>
-      </div>
-
-      <div class="uc-section">
-        <div class="uc-section-lbl">Workflow progress</div>
-        <div class="uc-flow">
-          <div class="uc-flow-step"><div class="uc-flow-box done">Investigation<br /><span style="font-size:10px;font-weight:400">87% confidence</span></div><span class="uc-flow-arrow">→</span></div>
-          <div class="uc-flow-step"><div class="uc-flow-box done">Ticket<br /><span style="font-size:10px;font-weight:400">NOC-4419 Jira</span></div><span class="uc-flow-arrow">→</span></div>
-          <div class="uc-flow-step"><div class="uc-flow-box active">CR<br /><span style="font-size:10px;font-weight:400">Pending approval</span></div><span class="uc-flow-arrow">→</span></div>
-          <div class="uc-flow-step"><div class="uc-flow-box" style="color:#9ca3af">MW<br /><span style="font-size:10px;font-weight:400">Pending</span></div><span class="uc-flow-arrow">→</span></div>
-          <div class="uc-flow-step"><div class="uc-flow-box" style="color:#9ca3af">Deploy<br /><span style="font-size:10px;font-weight:400">Pending</span></div></div>
-        </div>
-      </div>
-
-      <div class="uc-section">
-        <div class="uc-section-lbl">What's waiting for human</div>
-        <table class="uc-table">
-          <tr><td>CR ID</td><td>CR-2024-0145</td></tr>
-          <tr><td>Status</td><td>Pending NOC Manager approval</td></tr>
-          <tr><td>Risk rating</td><td>Low (auto-calculated)</td></tr>
-          <tr><td>Rollback plan</td><td>Revert to previous optic · ETA &lt; 10 min</td></tr>
-          <tr><td>Maintenance window</td><td>Not yet booked — awaiting CR approval first</td></tr>
-        </table>
-        <div class="uc-decision-box"><strong>Why human is needed here:</strong> A Change Request for physical hardware replacement cannot be submitted to change management autonomously — this is a deliberate hard checkpoint. The system has done everything up to this gate: root-cause analysis, ticket, and pre-filled CR. The NOC Manager's approval is one click.</div>
-        <div class="uc-outcome-box"><strong>Design principle shown:</strong> The three silent auto-resolutions (CRC bursts 1–3) demonstrate the headless model correctly — no alerts for known-pattern, recoverable events. The escalation on the 4th event demonstrates pattern intelligence: the system knows when repetition means something has changed and the loop needs to be broken with a permanent fix.</div>
-      </div>
-    </div>
-  </div>
-
-  
-  <div class="uc-card">
-    <div class="uc-card-header" style="background:linear-gradient(135deg, #eff6ff 0%, #fff 100%);border-bottom:1px solid #f0f0f0">
-      <div class="uc-num" style="background:#dbeafe;color:#2563eb">3</div>
-      <div class="uc-header-text">
-        <div class="uc-inc" style="color:#2563eb">DEC-003 · Info · api-gateway · ap-southeast-1</div>
-        <div class="uc-title">Novel routing anomaly — confidence below threshold, system holds and asks</div>
-        <div class="uc-meta">
-          <span>Network Agent</span>
-          <span>·</span>
-          <span>Guardrail: <span class="gr-pill gr-conf">G-03 Confidence</span></span>
-          <span>·</span>
-          <span>Confidence: 62%</span>
-          <span>·</span>
-          <span>No immediate breach</span>
-        </div>
-      </div>
-    </div>
-    <div class="uc-body">
-
-      <div class="uc-section">
-        <div class="uc-section-lbl">Situation</div>
-        <div class="uc-p">An unusual latency spike pattern appeared on api-gateway in ap-southeast-1. P95 latency rose by 140ms — still within SLO, but the pattern shape was unlike any of the 4,820 events in the historical case base. The Network Agent scored its confidence at 62%, which is below the autonomous action threshold of 85% set by guardrail <span class="gr-pill gr-conf">G-03</span>.</div>
-      </div>
-
-      <div class="uc-section">
-        <div class="uc-section-lbl">Why the system held</div>
-        <div class="uc-p">Guardrail G-03 exists precisely for this scenario: the system is uncertain and acting on a 62% confidence pattern could make things worse. Rather than guessing, the agent queued an info-level decision card in the inbox with two options: approve a read-only diagnostic run (no changes, 3-minute report), or escalate to a Level-2 NOC engineer. The system did not page anyone, did not act, and did not flood Slack — it waited.</div>
-      </div>
-
-      <div class="uc-section">
-        <div class="uc-section-lbl">Evidence presented to the operator</div>
-        <table class="uc-table">
-          <tr><td>Confidence score</td><td>62% — threshold: 85% (G-03)</td></tr>
-          <tr><td>Pattern type</td><td>Novel — no historical match in 4,820 cases</td></tr>
-          <tr><td>Current impact</td><td>P95 latency +140ms (within SLO)</td></tr>
-          <tr><td>Urgency</td><td>Low — no SLO breach imminent</td></tr>
-          <tr><td>Recommended action</td><td>Read-only diagnostic run — no changes, 3-min report</td></tr>
-        </table>
-        <div class="uc-decision-box"><strong>Why human is needed:</strong> The system genuinely does not know what is causing this. Guardrail G-03 is the confidence threshold — it is not a freeze window or a cost ceiling, it is a humility boundary. Below 85% certainty on a novel pattern, the system's job is to stop and ask, not to act and potentially escalate a contained anomaly into a real incident.</div>
-        <div class="uc-outcome-box"><strong>Design principle shown:</strong> The headless model does not mean the system always acts. It means the system acts when confident and asks when not. The decision card for this scenario carries no countdown timer, no red banner — it is informational. Priya can approve the diagnostic at her convenience, or escalate. Either way, she has the full picture in one card.</div>
-      </div>
-    </div>
-  </div>
-
-  <hr />
-
-  
-  <div class="uc-section-title">What the prototype demonstrates across all three use cases</div>
-  <table class="uc-table" style="margin-bottom:0">
-    <tr style="background:#f7f8fa">
-      <td style="font-weight:700;color:#1f2328;padding:10px">Capability</td>
-      <td style="font-weight:700;color:#1f2328;padding:10px">INC-8841</td>
-      <td style="font-weight:700;color:#1f2328;padding:10px">INC-8839</td>
-      <td style="font-weight:700;color:#1f2328;padding:10px">DEC-003</td>
-    </tr>
-    <tr><td>Guardrail type triggered</td><td>Hard (G-01)</td><td>None — stage gate</td><td>Confidence (G-03)</td></tr>
-    <tr><td>Autonomous actions taken</td><td>Detection, match, draft</td><td>3× silent restarts, ticket, CR draft</td><td>Detection, hold, queue</td></tr>
-    <tr><td>Human pulled in for</td><td>Policy override decision</td><td>CR approval</td><td>Novel pattern guidance</td></tr>
-    <tr><td>Time to decision card</td><td>2 minutes</td><td>Next day digest</td><td>Queued, no urgency</td></tr>
-    <tr><td>Human time required</td><td>~30 seconds</td><td>~1 minute (CR review)</td><td>~20 seconds</td></tr>
-    <tr><td>Channel used</td><td>Slack + In-app</td><td>In-app</td><td>In-app only</td></tr>
-    <tr><td>Remediation workflow stage</td><td>Deploy (canary in progress)</td><td>CR (pending)</td><td>Investigation only</td></tr>
-    <tr><td>Silence used correctly</td><td>Yes — 3 prior events silent</td><td>Yes — all restarts silent</td><td>Yes — no Slack push</td></tr>
-  </table>
-
-  <div class="footer">Made with IBM Bob</div>
-</div>
 </body>
 </html>
