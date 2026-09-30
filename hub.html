@@ -10,376 +10,729 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet" />
 
   <style>
+    /* ══════════════════════════════════════════════════════
+       IBM CARBON DESIGN SYSTEM TOKENS & BASE STYLING
+    ══════════════════════════════════════════════════════ */
+    :root {
+      /* Gray Scale (White Theme / g10) */
+      --cds-background:          #ffffff;
+      --cds-background-hover:    #e8e8e8;
+      --cds-layer-01:            #f4f4f4;
+      --cds-layer-02:            #e0e0e0;
+      --cds-layer-accent-01:     #e0e0e0;
+      --cds-field-01:            #f4f4f4;
+      --cds-border-subtle:       #e0e0e0;
+      --cds-border-strong:       #8d8d8d;
+      --cds-text-primary:        #161616;
+      --cds-text-secondary:      #525252;
+      --cds-text-placeholder:    #a8a8a8;
+      --cds-text-helper:         #6f6f6f;
+      --cds-text-on-color:       #ffffff;
+
+      /* Interactive & Brand */
+      --cds-interactive:         #0f62fe;
+      --cds-interactive-hover:   #0353e9;
+      --cds-link-primary:        #0f62fe;
+      --cds-focus:               #0f62fe;
+      --cds-background-inverse:  #161616;
+      --cds-text-inverse:        #ffffff;
+
+      /* Carbon Support Palette */
+      --cds-support-error:       #da1e28;
+      --cds-support-success:     #24a148;
+      --cds-support-warning:     #f1c21b;
+      --cds-support-info:        #0043ce;
+
+      /* Carbon Tag System */
+      --cds-tag-blue-bg:         #edf5ff;
+      --cds-tag-blue-text:       #0043ce;
+      --cds-tag-blue-border:     #d0e2ff;
+      --cds-tag-green-bg:        #defbe6;
+      --cds-tag-green-text:      #0e6027;
+      --cds-tag-green-border:    #a7f0ba;
+      --cds-tag-teal-bg:         #d9fbfb;
+      --cds-tag-teal-text:       #005d5d;
+      --cds-tag-teal-border:     #9ef0f0;
+      --cds-tag-purple-bg:       #f6f2ff;
+      --cds-tag-purple-text:     #6929c4;
+      --cds-tag-purple-border:   #e8daff;
+      --cds-tag-warm-gray-bg:    #f4f4f4;
+      --cds-tag-warm-gray-text:  #393939;
+      --cds-tag-warm-gray-border:#e0e0e0;
+      --cds-tag-magenta-bg:      #fff0f7;
+      --cds-tag-magenta-text:    #9f1853;
+      --cds-tag-magenta-border:  #ffd6e8;
+
+      /* Spacing Scale (Carbon standard) */
+      --cds-spacing-01: 0.125rem; /* 2px */
+      --cds-spacing-02: 0.25rem;  /* 4px */
+      --cds-spacing-03: 0.5rem;   /* 8px */
+      --cds-spacing-04: 0.75rem;  /* 12px */
+      --cds-spacing-05: 1rem;     /* 16px */
+      --cds-spacing-06: 1.5rem;   /* 24px */
+      --cds-spacing-07: 2rem;     /* 32px */
+      --cds-spacing-08: 2.5rem;   /* 40px */
+      --cds-spacing-09: 3rem;     /* 48px */
+      --cds-spacing-10: 4rem;     /* 64px */
+
+      /* Typography */
+      --cds-font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --cds-font-mono: 'IBM Plex Mono', monospace;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --blue:      #0f62fe;
-      --blue-h:    #0043ce;
-      --blue-lt:   #edf5ff;
-      --blue-md:   #97c1ff;
-      --purple:    #6929c4;
-      --purple-lt: #f6f2ff;
-      --teal:      #007d79;
-      --teal-lt:   #d9fbfb;
-      --green:     #198038;
-      --green-lt:  #defbe6;
-      --amber:     #d97706;
-      --amber-lt:  #fef3c7;
-      --red:       #da1e28;
-      --text:      #161616;
-      --sub:       #525252;
-      --muted:     #6f6f6f;
-      --border:    #e0e0e0;
-      --bg:        #ffffff;
-      --surface:   #f4f4f4;
-      --surface-2: #f8f9fa;
-      --font:      'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --font-mono: 'IBM Plex Mono', monospace;
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
     }
 
-    html, body {
-      background: #f4f6fa;
-      color: var(--text);
-      font-family: var(--font);
-      font-size: 15px;
-      line-height: 1.6;
+    body {
+      background: var(--cds-layer-01);
+      color: var(--cds-text-primary);
+      font-family: var(--cds-font-sans);
+      font-size: 0.875rem;
+      line-height: 1.5;
       -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
-    a { color: var(--blue); text-decoration: none; }
-    a:hover { text-decoration: none; }
+    a {
+      color: var(--cds-link-primary);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
 
-    /* ── TOP NAV ── */
-    .top-nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
-      height: 52px; background: #ffffff;
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 2rem;
+    /* ══════════════════════════════════════════════════════
+       CARBON UI SHELL HEADER (bx--header)
+    ══════════════════════════════════════════════════════ */
+    .bx--header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: var(--cds-background-inverse);
+      height: 3rem; /* 48px */
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #393939;
     }
-    .tn-brand {
-      display: flex; align-items: center; gap: 10px;
-      font-size: .9rem; font-weight: 600; color: var(--text);
-    }
-    .tn-brand-logo img { width: 24px; height: 24px; object-fit: contain; }
-    .tn-badge {
-      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
-      background: var(--blue-lt); color: var(--blue); border: 1px solid var(--blue-md);
-      padding: 3px 10px; border-radius: 4px;
-    }
-    .tn-links {
-      display: flex; gap: 14px; font-size: 13px; font-weight: 500;
-    }
-    .tn-links a { color: var(--sub); padding: 4px 8px; border-radius: 4px; transition: all .15s; }
-    .tn-links a:hover { color: var(--text); background: var(--surface); }
 
-    /* ── HERO BANNER ── */
-    .hub-hero {
-      margin-top: 52px;
-      background: linear-gradient(135deg, #0b1528 0%, #112340 50%, #0d2c54 100%);
+    .bx--header__name {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      padding: 0 var(--cds-spacing-05);
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--cds-text-inverse);
+      text-decoration: none;
+      gap: var(--cds-spacing-03);
+      border-right: 1px solid #393939;
+      white-space: nowrap;
+    }
+    .bx--header__name:hover {
+      text-decoration: none;
+      background: #262626;
+    }
+    .bx--header__name--prefix {
+      font-weight: 400;
+      color: rgba(255,255,255,0.7);
+    }
+
+    .bx--header__nav {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      flex: 1;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .bx--header__nav::-webkit-scrollbar { display: none; }
+
+    .bx--header__menu-item {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      padding: 0 var(--cds-spacing-05);
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      white-space: nowrap;
+      border-bottom: 3px solid transparent;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .bx--header__menu-item:hover {
       color: #ffffff;
-      padding: 64px 2rem 52px;
+      background: #262626;
+      text-decoration: none;
+    }
+    .bx--header__menu-item--current {
+      color: #ffffff;
+      border-bottom-color: var(--cds-interactive);
+      font-weight: 500;
+    }
+
+    .bx--header__global {
+      display: flex;
+      align-items: center;
+      margin-left: auto;
+      padding-right: var(--cds-spacing-05);
+      gap: var(--cds-spacing-03);
+    }
+
+    /* ══════════════════════════════════════════════════════
+       CARBON HERO BANNER
+    ══════════════════════════════════════════════════════ */
+    .carbon-hero {
+      background: var(--cds-background-inverse);
+      color: var(--cds-text-inverse);
+      padding: var(--cds-spacing-09) var(--cds-spacing-07) var(--cds-spacing-08);
+      border-bottom: 1px solid #393939;
       position: relative;
-      overflow: hidden;
-      border-bottom: 1px solid #203a61;
     }
-    .hub-hero::before {
-      content: ''; position: absolute; top: -140px; right: -100px; width: 500px; height: 500px;
-      border-radius: 50%; background: radial-gradient(circle, rgba(15,98,254,0.3) 0%, transparent 70%);
-      pointer-events: none;
+    .carbon-hero-inner {
+      max-width: 1280px;
+      margin: 0 auto;
     }
-    .hub-hero::after {
-      content: ''; position: absolute; bottom: -80px; left: 10%; width: 340px; height: 340px;
-      border-radius: 50%; background: radial-gradient(circle, rgba(105,41,196,0.18) 0%, transparent 70%);
-      pointer-events: none;
+    .carbon-hero-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #74b1ff;
+      margin-bottom: var(--cds-spacing-04);
+      display: flex;
+      align-items: center;
+      gap: var(--cds-spacing-03);
     }
-    .hub-hero-inner { max-width: 1240px; margin: 0 auto; position: relative; z-index: 1; }
-    .hub-eyebrow {
-      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em;
-      color: #74b1ff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
-    }
-    .hub-title { font-size: 38px; font-weight: 300; line-height: 1.18; margin-bottom: 14px; color: #ffffff; }
-    .hub-title strong { font-weight: 600; color: #a6c8ff; }
-    .hub-desc {
-      font-size: 15.5px; color: #c0d8ff; max-width: 820px; line-height: 1.65; margin-bottom: 32px;
+    .carbon-hero-title {
+      font-size: 2.75rem; /* 44px */
       font-weight: 300;
+      line-height: 1.15;
+      margin-bottom: var(--cds-spacing-04);
+      letter-spacing: -0.02em;
     }
-    .hub-quick-stats {
-      display: flex; gap: 32px; flex-wrap: wrap; padding-top: 24px;
-      border-top: 1px solid rgba(255,255,255,0.12);
+    .carbon-hero-title strong {
+      font-weight: 600;
     }
-    .hub-stat { display: flex; flex-direction: column; gap: 2px; }
-    .hub-stat-num { font-size: 24px; font-weight: 600; color: #ffffff; font-family: var(--font-mono); }
-    .hub-stat-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #8ab4f8; }
-
-    /* ── MAIN CONTENT CONTAINER ── */
-    .hub-content { max-width: 1240px; margin: 0 auto; padding: 48px 1.5rem 80px; }
-
-    /* ── SECTION HEADER ── */
-    .hub-sec { margin-bottom: 56px; }
-    .hub-sec-header {
-      margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid var(--border);
-      display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px;
-    }
-    .hub-sec-title { font-size: 22px; font-weight: 400; color: var(--text); }
-    .hub-sec-title strong { font-weight: 600; }
-    .hub-sec-sub { font-size: 13.5px; color: var(--sub); margin-top: 4px; }
-    .hub-sec-tag {
-      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
-      padding: 3px 8px; border-radius: 4px;
+    .carbon-hero-desc {
+      font-size: 1.125rem; /* 18px */
+      font-weight: 300;
+      color: #c6c6c6;
+      max-width: 860px;
+      line-height: 1.55;
+      margin-bottom: var(--cds-spacing-07);
     }
 
-    /* ── CARD GRIDS ── */
-    .hub-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-    .hub-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-    .hub-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .carbon-stat-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: #393939;
+      border: 1px solid #393939;
+    }
+    @media (max-width: 768px) {
+      .carbon-stat-row { grid-template-columns: repeat(2, 1fr); }
+    }
+    .carbon-stat-box {
+      background: #262626;
+      padding: var(--cds-spacing-05) var(--cds-spacing-06);
+    }
+    .carbon-stat-num {
+      font-family: var(--cds-font-mono);
+      font-size: 1.75rem;
+      font-weight: 400;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: var(--cds-spacing-01);
+    }
+    .carbon-stat-lbl {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #a8a8a8;
+      font-weight: 500;
+    }
 
-    @media (max-width: 1024px) {
-      .hub-grid-3, .hub-grid-4 { grid-template-columns: repeat(2, 1fr); }
+    /* ══════════════════════════════════════════════════════
+       CARBON STRUCTURED FLOW NOTIFICATION BAR
+    ══════════════════════════════════════════════════════ */
+    .carbon-tour-bar {
+      background: var(--cds-layer-02);
+      border-bottom: 1px solid var(--cds-border-subtle);
+      padding: var(--cds-spacing-04) var(--cds-spacing-07);
     }
-    @media (max-width: 680px) {
-      .hub-grid-3, .hub-grid-2, .hub-grid-4 { grid-template-columns: 1fr; }
+    .carbon-tour-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--cds-spacing-04);
+    }
+    .carbon-tour-label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--cds-text-secondary);
+      display: flex;
+      align-items: center;
+      gap: var(--cds-spacing-03);
+    }
+    .carbon-tour-steps {
+      display: flex;
+      align-items: center;
+      gap: var(--cds-spacing-02);
+      flex-wrap: wrap;
+    }
+    .carbon-tour-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--cds-spacing-02);
+      background: var(--cds-background);
+      border: 1px solid var(--cds-border-subtle);
+      padding: 0.375rem 0.75rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--cds-text-primary);
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .carbon-tour-btn:hover {
+      background: var(--cds-layer-01);
+      border-color: var(--cds-border-strong);
+      text-decoration: none;
+      color: var(--cds-interactive);
+    }
+    .carbon-tour-arrow {
+      color: var(--cds-text-placeholder);
+      font-size: 0.75rem;
     }
 
-    /* ── HUB CARDS ── */
-    .hub-card {
-      background: #ffffff; border: 1px solid var(--border); border-radius: 10px;
-      overflow: hidden; display: flex; flex-direction: column; transition: all .2s ease;
-      position: relative; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    /* ══════════════════════════════════════════════════════
+       PAGE CONTAINER & SECTION HEADERS
+    ══════════════════════════════════════════════════════ */
+    .carbon-main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: var(--cds-spacing-08) var(--cds-spacing-07) var(--cds-spacing-10);
+      flex: 1;
+      width: 100%;
     }
-    .hub-card:hover {
-      transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.09); border-color: var(--blue-md);
-    }
-    .hub-card-top-bar { height: 4px; width: 100%; }
-    .bar-blue   { background: var(--blue); }
-    .bar-purple { background: var(--purple); }
-    .bar-teal   { background: var(--teal); }
-    .bar-green  { background: var(--green); }
-    .bar-amber  { background: var(--amber); }
 
-    .hub-card-body { padding: 22px; flex: 1; display: flex; flex-direction: column; }
-    .hub-card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .hub-card-category {
-      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
-      padding: 2px 7px; border-radius: 3px;
+    .carbon-section {
+      margin-bottom: var(--cds-spacing-09);
     }
-    .cat-blue   { background: var(--blue-lt); color: var(--blue); }
-    .cat-purple { background: var(--purple-lt); color: var(--purple); }
-    .cat-teal   { background: var(--teal-lt); color: var(--teal); }
-    .cat-green  { background: var(--green-lt); color: var(--green); }
-    .cat-amber  { background: var(--amber-lt); color: var(--amber); }
+    .carbon-section-header {
+      margin-bottom: var(--cds-spacing-06);
+      padding-bottom: var(--cds-spacing-03);
+      border-bottom: 1px solid var(--cds-border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: var(--cds-spacing-04);
+    }
+    .carbon-section-title {
+      font-size: 1.5rem; /* 24px */
+      font-weight: 300;
+      color: var(--cds-text-primary);
+      letter-spacing: -0.01em;
+    }
+    .carbon-section-title strong {
+      font-weight: 600;
+    }
+    .carbon-section-desc {
+      font-size: 0.875rem;
+      color: var(--cds-text-secondary);
+      margin-top: var(--cds-spacing-01);
+    }
 
-    .hub-card-badge { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
-    .hub-card-title { font-size: 17px; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 8px; }
-    .hub-card-desc { font-size: 13px; color: var(--sub); line-height: 1.55; margin-bottom: 18px; flex: 1; }
+    /* ══════════════════════════════════════════════════════
+       CARBON TILES / CARDS (bx--tile)
+    ══════════════════════════════════════════════════════ */
+    .carbon-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--cds-spacing-05);
+    }
+    .carbon-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--cds-spacing-05);
+    }
+    @media (max-width: 980px) {
+      .carbon-grid-3 { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .carbon-grid-3, .carbon-grid-2 { grid-template-columns: 1fr; }
+    }
 
-    .hub-card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
-    .hub-tag { font-size: 11px; background: var(--surface); color: var(--muted); padding: 2px 7px; border-radius: 4px; }
+    .bx--tile {
+      background: var(--cds-background);
+      border: 1px solid var(--cds-border-subtle);
+      padding: var(--cds-spacing-06);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+    .bx--tile:hover {
+      border-color: var(--cds-interactive);
+      background: #fafafa;
+    }
+    .bx--tile::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: transparent;
+      transition: background 0.15s ease;
+    }
+    .bx--tile:hover::before {
+      background: var(--cds-interactive);
+    }
 
-    .hub-card-footer {
-      border-top: 1px solid var(--border); padding-top: 14px;
-      display: flex; justify-content: space-between; align-items: center;
+    .bx--tile__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--cds-spacing-03);
     }
-    .hub-btn {
-      display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
-      border-radius: 5px; font-size: 12.5px; font-weight: 600; transition: all .15s;
+    .bx--tile__filename {
+      font-family: var(--cds-font-mono);
+      font-size: 0.75rem;
+      color: var(--cds-text-helper);
     }
-    .hub-btn-primary { background: var(--blue); color: #ffffff; }
-    .hub-btn-primary:hover { background: var(--blue-h); }
-    .hub-btn-outline { background: #ffffff; color: var(--text); border: 1px solid var(--border); }
-    .hub-btn-outline:hover { background: var(--surface); border-color: #999; }
 
-    /* ── QUICK NAV BANNER ── */
-    .quick-flow {
-      background: linear-gradient(135deg, #1f2328 0%, #161616 100%);
-      color: #ffffff; border-radius: 10px; padding: 28px 32px; margin-bottom: 48px;
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;
+    .bx--tile__title {
+      font-size: 1.125rem; /* 18px */
+      font-weight: 600;
+      color: var(--cds-text-primary);
+      line-height: 1.3;
+      margin-bottom: var(--cds-spacing-03);
     }
-    .qf-title { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
-    .qf-sub { font-size: 13px; color: #a8a8a8; max-width: 600px; }
-    .qf-steps { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .qf-pill {
-      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 20px; padding: 6px 14px; font-size: 12px; color: #e0e0e0;
-      transition: all .15s;
-    }
-    .qf-pill:hover { background: var(--blue); border-color: var(--blue); color: #fff; text-decoration: none; }
-    .qf-arrow { color: #525252; font-size: 12px; }
 
-    /* ── FOOTER ── */
-    .hub-footer {
-      background: #161616; color: #c6c6c6; padding: 40px 2rem;
-      border-top: 1px solid #393939; display: flex; flex-wrap: wrap;
-      align-items: center; justify-content: space-between; gap: 20px;
+    .bx--tile__body {
+      font-size: 0.875rem;
+      color: var(--cds-text-secondary);
+      line-height: 1.5;
+      margin-bottom: var(--cds-spacing-05);
+      flex: 1;
     }
-    .hf-brand { font-size: 14px; font-weight: 600; color: #ffffff; letter-spacing: 0.05em; }
-    .hf-flow { font-size: 12.5px; color: #8d8d8d; }
-    .hf-flow span { color: var(--blue); margin: 0 4px; }
-    .hf-credit { font-size: 12px; color: #6f6f6f; }
-    .hf-credit strong { color: #f4f4f4; }
+
+    .bx--tile__tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--cds-spacing-02);
+      margin-bottom: var(--cds-spacing-05);
+    }
+
+    .bx--tile__footer {
+      border-top: 1px solid var(--cds-border-subtle);
+      padding-top: var(--cds-spacing-04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       CARBON TAGS (bx--tag)
+    ══════════════════════════════════════════════════════ */
+    .bx--tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0 0.5rem;
+      height: 1.5rem; /* 24px */
+      font-size: 0.75rem;
+      font-weight: 400;
+      line-height: 1;
+      border-radius: 0.9375rem;
+      text-transform: none;
+      letter-spacing: normal;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .bx--tag--blue {
+      background-color: var(--cds-tag-blue-bg);
+      color: var(--cds-tag-blue-text);
+      border-color: var(--cds-tag-blue-border);
+    }
+    .bx--tag--green {
+      background-color: var(--cds-tag-green-bg);
+      color: var(--cds-tag-green-text);
+      border-color: var(--cds-tag-green-border);
+    }
+    .bx--tag--teal {
+      background-color: var(--cds-tag-teal-bg);
+      color: var(--cds-tag-teal-text);
+      border-color: var(--cds-tag-teal-border);
+    }
+    .bx--tag--purple {
+      background-color: var(--cds-tag-purple-bg);
+      color: var(--cds-tag-purple-text);
+      border-color: var(--cds-tag-purple-border);
+    }
+    .bx--tag--warm-gray {
+      background-color: var(--cds-tag-warm-gray-bg);
+      color: var(--cds-tag-warm-gray-text);
+      border-color: var(--cds-tag-warm-gray-border);
+    }
+    .bx--tag--magenta {
+      background-color: var(--cds-tag-magenta-bg);
+      color: var(--cds-tag-magenta-text);
+      border-color: var(--cds-tag-magenta-border);
+    }
+
+    /* ══════════════════════════════════════════════════════
+       CARBON BUTTONS (bx--btn)
+    ══════════════════════════════════════════════════════ */
+    .bx--btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 2rem; /* 32px standard small */
+      padding: 0 var(--cds-spacing-04);
+      font-size: 0.8125rem;
+      font-weight: 400;
+      font-family: var(--cds-font-sans);
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background 0.15s ease, border-color 0.15s ease;
+      gap: var(--cds-spacing-03);
+    }
+    .bx--btn:hover {
+      text-decoration: none;
+    }
+    .bx--btn--primary {
+      background: var(--cds-interactive);
+      color: var(--cds-text-on-color);
+    }
+    .bx--btn--primary:hover {
+      background: var(--cds-interactive-hover);
+      color: #ffffff;
+    }
+    .bx--btn--secondary {
+      background: var(--cds-layer-02);
+      color: var(--cds-text-primary);
+      border-color: var(--cds-border-subtle);
+    }
+    .bx--btn--secondary:hover {
+      background: #d1d1d1;
+      color: var(--cds-text-primary);
+    }
+    .bx--btn--ghost {
+      background: transparent;
+      color: var(--cds-link-primary);
+      padding: 0 var(--cds-spacing-02);
+    }
+    .bx--btn--ghost:hover {
+      background: var(--cds-layer-01);
+      color: var(--cds-interactive-hover);
+    }
+
+    /* ══════════════════════════════════════════════════════
+       CARBON FOOTER
+    ══════════════════════════════════════════════════════ */
+    .carbon-footer {
+      background: var(--cds-background-inverse);
+      color: #8d8d8d;
+      padding: var(--cds-spacing-07) var(--cds-spacing-07);
+      border-top: 1px solid #393939;
+      font-size: 0.75rem;
+    }
+    .carbon-footer-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--cds-spacing-04);
+    }
+    .carbon-footer-flow {
+      color: #c6c6c6;
+    }
+    .carbon-footer-flow span {
+      color: var(--cds-interactive);
+      margin: 0 var(--cds-spacing-02);
+    }
   </style>
 </head>
 <body>
 
-  <!-- ═══ TOP NAVIGATION ═══ -->
-  <nav class="top-nav">
-    <div class="tn-brand">
-      <div class="tn-brand-logo"><img src="ini_logo.png" alt="IBM Network Intelligence logo" onerror="this.style.display='none'"/></div>
-      IBM Network Intelligence · Headless AI
-    </div>
-    <div class="tn-links">
-      <a href="index.html">Research Stepper</a>
-      <a href="headless.html">Live Dashboard</a>
-      <a href="personas-framework-synthesis.html">Personas &amp; Synthesis</a>
-      <a href="uxr_plan.html">UXR Plan</a>
-      <a href="headless-ai-case-study.html">Case Study</a>
-    </div>
-    <div>
-      <span class="tn-badge">Project Hub · All Views</span>
-    </div>
-  </nav>
-
-  <!-- ═══ HERO BANNER ═══ -->
-  <header class="hub-hero">
-    <div class="hub-hero-inner">
-      <div class="hub-eyebrow">
-        <span>Project Directory &amp; Navigation Portal</span>
-        <span>/</span>
-        <span>IBM Design Research</span>
-      </div>
-      <h1 class="hub-title">Headless AI &amp; Invisible UI — <strong>Project Hub</strong></h1>
-      <p class="hub-desc">
-        Explore the complete collection of prototypes, executive frameworks, live simulation consoles, case studies, and user research protocols developed for autonomous, zero-interface AI operations.
-      </p>
-      <div class="hub-quick-stats">
-        <div class="hub-stat">
-          <span class="hub-stat-num">10+</span>
-          <span class="hub-stat-lbl">Interactive Pages</span>
-        </div>
-        <div class="hub-stat">
-          <span class="hub-stat-num">4</span>
-          <span class="hub-stat-lbl">Design Pillars</span>
-        </div>
-        <div class="hub-stat">
-          <span class="hub-stat-num">4</span>
-          <span class="hub-stat-lbl">Target Personas</span>
-        </div>
-        <div class="hub-stat">
-          <span class="hub-stat-num">100%</span>
-          <span class="hub-stat-lbl">Browser Executable</span>
-        </div>
-      </div>
+  <!-- ═══ CARBON UI SHELL HEADER ═══ -->
+  <header class="bx--header">
+    <a class="bx--header__name" href="hub.html">
+      <span class="bx--header__name--prefix">IBM</span>
+      Network Intelligence
+    </a>
+    <nav class="bx--header__nav">
+      <a class="bx--header__menu-item bx--header__menu-item--current" href="hub.html">Project Hub</a>
+      <a class="bx--header__menu-item" href="index.html">Research Stepper</a>
+      <a class="bx--header__menu-item" href="personas-framework-synthesis.html">Personas &amp; Framework</a>
+      <a class="bx--header__menu-item" href="headless.html">Live Dashboard</a>
+      <a class="bx--header__menu-item" href="slack-sim.html">Slack Simulator</a>
+      <a class="bx--header__menu-item" href="uxr_plan.html">UXR Plan</a>
+      <a class="bx--header__menu-item" href="headless-ai-case-study.html">Case Study</a>
+    </nav>
+    <div class="bx--header__global">
+      <span class="bx--tag bx--tag--blue">Headless AI v2.4</span>
     </div>
   </header>
 
-  <!-- ═══ MAIN CONTENT ═══ -->
-  <main class="hub-content">
-
-    <!-- ── RECOMMENDED TOUR BANNER ── -->
-    <div class="quick-flow">
-      <div>
-        <div class="qf-title">Guided Presentation Flow</div>
-        <div class="qf-sub">Recommended sequence for executive walk-throughs and design reviews:</div>
+  <!-- ═══ CARBON HERO BANNER ═══ -->
+  <section class="carbon-hero">
+    <div class="carbon-hero-inner">
+      <div class="carbon-hero-eyebrow">
+        <span>IBM Design Research</span>
+        <span>/</span>
+        <span>System Operations</span>
       </div>
-      <div class="qf-steps">
-        <a href="index.html" class="qf-pill">1. Concept Stepper</a>
-        <span class="qf-arrow">&rarr;</span>
-        <a href="personas-framework-synthesis.html" class="qf-pill">2. Personas &amp; Framework</a>
-        <span class="qf-arrow">&rarr;</span>
-        <a href="headless.html" class="qf-pill">3. Production Dashboard</a>
-        <span class="qf-arrow">&rarr;</span>
-        <a href="slack-sim.html" class="qf-pill">4. Slack 30s Triage</a>
-        <span class="qf-arrow">&rarr;</span>
-        <a href="uxr_plan.html" class="qf-pill">5. UXR Validation</a>
+      <h1 class="carbon-hero-title">Designing for <strong>Invisible UI</strong> — Project Hub</h1>
+      <p class="carbon-hero-desc">
+        A unified directory of all interactive prototypes, architectural frameworks, stakeholder research syntheses, live simulation consoles, and empirical concept testing plans for autonomous AI systems.
+      </p>
+      
+      <div class="carbon-stat-row">
+        <div class="carbon-stat-box">
+          <div class="carbon-stat-num">10+</div>
+          <div class="carbon-stat-lbl">Interactive Pages</div>
+        </div>
+        <div class="carbon-stat-box">
+          <div class="carbon-stat-num">4</div>
+          <div class="carbon-stat-lbl">Core Pillars</div>
+        </div>
+        <div class="carbon-stat-box">
+          <div class="carbon-stat-num">4</div>
+          <div class="carbon-stat-lbl">Target Personas</div>
+        </div>
+        <div class="carbon-stat-box">
+          <div class="carbon-stat-num">100%</div>
+          <div class="carbon-stat-lbl">Single-File Architecture</div>
+        </div>
       </div>
     </div>
+  </section>
+
+  <!-- ═══ CARBON GUIDED TOUR BAR ═══ -->
+  <div class="carbon-tour-bar">
+    <div class="carbon-tour-inner">
+      <div class="carbon-tour-label">
+        <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4l-1.41 1.41L24.17 15H4v2h20.17l-9.58 9.59L16 28l12-12z"/></svg>
+        Recommended Tour
+      </div>
+      <div class="carbon-tour-steps">
+        <a href="index.html" class="carbon-tour-btn">1. Concept Stepper</a>
+        <span class="carbon-tour-arrow">&rarr;</span>
+        <a href="personas-framework-synthesis.html" class="carbon-tour-btn">2. Personas &amp; Framework</a>
+        <span class="carbon-tour-arrow">&rarr;</span>
+        <a href="headless.html" class="carbon-tour-btn">3. Operations Dashboard</a>
+        <span class="carbon-tour-arrow">&rarr;</span>
+        <a href="slack-sim.html" class="carbon-tour-btn">4. Slack 30s Triage</a>
+        <span class="carbon-tour-arrow">&rarr;</span>
+        <a href="uxr_plan.html" class="carbon-tour-btn">5. UXR Testing Plan</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN HUB CONTENT ═══ -->
+  <main class="carbon-main">
 
     <!-- ──────────────────────────────────────────
          SECTION 01: CORE RESEARCH & FRAMEWORKS
     ────────────────────────────────────────── -->
-    <section class="hub-sec">
-      <div class="hub-sec-header">
+    <section class="carbon-section">
+      <div class="carbon-section-header">
         <div>
-          <h2 class="hub-sec-title">01. <strong>Core Research &amp; Strategic Frameworks</strong></h2>
-          <p class="hub-sec-sub">The design philosophy, personas, stakeholder interview synthesis, and the 4-pillar architectural foundation.</p>
+          <h2 class="carbon-section-title">01. <strong>Core Research &amp; Strategic Frameworks</strong></h2>
+          <p class="carbon-section-desc">Design principles, target personas, stakeholder interviews, and architectural foundations.</p>
         </div>
-        <span class="hub-sec-tag cat-blue">Design &amp; Strategy</span>
+        <span class="bx--tag bx--tag--blue">Strategy &amp; Pillars</span>
       </div>
 
-      <div class="hub-grid-3">
+      <div class="carbon-grid-3">
 
-        <!-- CARD 1: PERSONAS & SYNTHESIS -->
-        <div class="hub-card">
-          <div class="hub-card-top-bar bar-blue"></div>
-          <div class="hub-card-body">
-            <div class="hub-card-meta">
-              <span class="hub-card-category cat-blue">Framework &amp; Research</span>
-              <span class="hub-card-badge">personas-framework-synthesis.html</span>
-            </div>
-            <h3 class="hub-card-title">Personas, Needs &amp; Framework Synthesis</h3>
-            <p class="hub-card-desc">
-              Comprehensive synthesis of 4 personas (SRE, NOC, Compliance, Director), parsed stakeholder interview quotes, needs vs. tactical requirements, Big Ideas (AI + GTM), Day 0/1/2 lifecycle model, and interactive storyline map.
-            </p>
-            <div class="hub-card-tags">
-              <span class="hub-tag">4 Personas</span>
-              <span class="hub-tag">Tactical Needs</span>
-              <span class="hub-tag">Day 0/1/2 Model</span>
-              <span class="hub-tag">Incident Storyline</span>
-            </div>
-            <div class="hub-card-footer">
-              <span style="font-size:12px;color:var(--muted);">Latest Synthesis</span>
-              <a href="personas-framework-synthesis.html" class="hub-btn hub-btn-primary">Open Page &rarr;</a>
-            </div>
+        <!-- TILE: PERSONAS & SYNTHESIS -->
+        <div class="bx--tile">
+          <div class="bx--tile__header">
+            <span class="bx--tag bx--tag--blue">Framework</span>
+            <span class="bx--tile__filename">personas-framework-synthesis.html</span>
+          </div>
+          <h3 class="bx--tile__title">Personas, Needs &amp; Framework Synthesis</h3>
+          <p class="bx--tile__body">
+            Complete synthesis of 4 personas (SRE, NOC, Compliance, Director), parsed stakeholder interview quotes, needs vs. tactical requirements, Big Ideas (AI + GTM), Day 0/1/2 lifecycle model, and interactive storyline map.
+          </p>
+          <div class="bx--tile__tags">
+            <span class="bx--tag bx--tag--warm-gray">4 Personas</span>
+            <span class="bx--tag bx--tag--warm-gray">Tactical Needs</span>
+            <span class="bx--tag bx--tag--warm-gray">Day 0/1/2</span>
+            <span class="bx--tag bx--tag--warm-gray">Connected Story</span>
+          </div>
+          <div class="bx--tile__footer">
+            <a href="personas-framework-synthesis.html" class="bx--btn bx--btn--primary">
+              Open Synthesis
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor"><path d="M12 4l-1.41 1.41L20.17 15H4v2h16.17l-9.58 9.59L12 28l12-12z"/></svg>
+            </a>
           </div>
         </div>
 
-        <!-- CARD 2: 5-PANEL RESEARCH STEPPER -->
-        <div class="hub-card">
-          <div class="hub-card-top-bar bar-blue"></div>
-          <div class="hub-card-body">
-            <div class="hub-card-meta">
-              <span class="hub-card-category cat-blue">Interactive Stepper</span>
-              <span class="hub-card-badge">index.html</span>
-            </div>
-            <h3 class="hub-card-title">Designing for Invisible UI (Main Stepper)</h3>
-            <p class="hub-card-desc">
-              The flagship 5-panel interactive stepper: Overview, What &amp; Why, 4 Key Characteristics, 4-Pillar Architecture Diagram, and 5 Design Directions with live micro-interactions.
-            </p>
-            <div class="hub-card-tags">
-              <span class="hub-tag">5-Panel Stepper</span>
-              <span class="hub-tag">Micro-Interactions</span>
-              <span class="hub-tag">4 Pillars SVG</span>
-              <span class="hub-tag">Gallery</span>
-            </div>
-            <div class="hub-card-footer">
-              <span style="font-size:12px;color:var(--muted);">Primary Research</span>
-              <a href="index.html" class="hub-btn hub-btn-primary">Open Stepper &rarr;</a>
-            </div>
+        <!-- TILE: 5-PANEL STEPPER -->
+        <div class="bx--tile">
+          <div class="bx--tile__header">
+            <span class="bx--tag bx--tag--blue">Stepper</span>
+            <span class="bx--tile__filename">index.html</span>
+          </div>
+          <h3 class="bx--tile__title">Designing for Invisible UI (Main Stepper)</h3>
+          <p class="bx--tile__body">
+            The flagship 5-panel interactive stepper: Overview, What &amp; Why, 4 Key Characteristics, 4-Pillar Architecture Diagram, and 5 Design Directions with live micro-interactions.
+          </p>
+          <div class="bx--tile__tags">
+            <span class="bx--tag bx--tag--warm-gray">5 Panels</span>
+            <span class="bx--tag bx--tag--warm-gray">Micro-Interactions</span>
+            <span class="bx--tag bx--tag--warm-gray">4 Pillars SVG</span>
+            <span class="bx--tag bx--tag--warm-gray">Gallery</span>
+          </div>
+          <div class="bx--tile__footer">
+            <a href="index.html" class="bx--btn bx--btn--primary">
+              Open Stepper
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor"><path d="M12 4l-1.41 1.41L20.17 15H4v2h16.17l-9.58 9.59L12 28l12-12z"/></svg>
+            </a>
           </div>
         </div>
 
-        <!-- CARD 3: EXECUTIVE CASE STUDY -->
-        <div class="hub-card">
-          <div class="hub-card-top-bar bar-teal"></div>
-          <div class="hub-card-body">
-            <div class="hub-card-meta">
-              <span class="hub-card-category cat-teal">Executive Portfolio</span>
-              <span class="hub-card-badge">headless-ai-case-study.html</span>
-            </div>
-            <h3 class="hub-card-title">Executive Case Study &amp; Impact</h3>
-            <p class="hub-card-desc">
-              Portfolio-ready design case study detailing the problem framing, before/after comparisons, managerial impact metrics, strategic pillars, and engineering credibility.
-            </p>
-            <div class="hub-card-tags">
-              <span class="hub-tag">Impact Metrics</span>
-              <span class="hub-tag">Before / After</span>
-              <span class="hub-tag">Design Leadership</span>
-            </div>
-            <div class="hub-card-footer">
-              <span style="font-size:12px;color:var(--muted);">Case Study</span>
-              <a href="headless-ai-case-study.html" class="hub-btn hub-btn-outline">Open Case Study &rarr;</a>
-            </div>
+        <!-- TILE: EXECUTIVE CASE STUDY -->
+        <div class="bx--tile">
+          <div class="bx--tile__header">
+            <span class="bx--tag bx--tag--teal">Case Study</span>
+            <span class="bx--tile__filename">headless-ai-case-study.html</span>
+          </div>
+          <h3 class="bx--tile__title">Executive Case Study &amp; Impact</h3>
+          <p class="bx--tile__body">
+            Executive design portfolio case study detailing the problem framing, before/after operational comparisons, managerial impact metrics, strategic pillars, and engineering credibility.
+          </p>
+          <div class="bx--tile__tags">
+            <span class="bx--tag bx--tag--warm-gray">Impact Metrics</span>
+            <span class="bx--tag bx--tag--warm-gray">Before / After</span>
+            <span class="bx--tag bx--tag--warm-gray">Design Leadership</span>
+          </div>
+          <div class="bx--tile__footer">
+            <a href="headless-ai-case-study.html" class="bx--btn bx--btn--secondary">
+              Open Case Study
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor"><path d="M12 4l-1.41 1.41L20.17 15H4v2h16.17l-9.58 9.59L12 28l12-12z"/></svg>
+            </a>
           </div>
         </div>
 
@@ -387,89 +740,86 @@
     </section>
 
     <!-- ──────────────────────────────────────────
-         SECTION 02: LIVE WORKING PROTOTYPES
+         SECTION 02: LIVE PROTOTYPES & DASHBOARDS
     ────────────────────────────────────────── -->
-    <section class="hub-sec">
-      <div class="hub-sec-header">
+    <section class="carbon-section">
+      <div class="carbon-section-header">
         <div>
-          <h2 class="hub-sec-title">02. <strong>Live Interactive Prototypes &amp; Dashboards</strong></h2>
-          <p class="hub-sec-sub">Full-fidelity, working single-file prototypes demonstrating the headless operations interface in light and dark themes.</p>
+          <h2 class="carbon-section-title">02. <strong>Live Interactive Prototypes &amp; Dashboards</strong></h2>
+          <p class="carbon-section-desc">Production-grade working dashboards demonstrating ambient canvas, trace inspection, and policy governance.</p>
         </div>
-        <span class="hub-sec-tag cat-purple">Working Software</span>
+        <span class="bx--tag bx--tag--purple">Working Software</span>
       </div>
 
-      <div class="hub-grid-3">
+      <div class="carbon-grid-3">
 
-        <!-- DASHBOARD 1: HEADLESS LIGHT PROTOTYPE -->
-        <div class="hub-card">
-          <div class="hub-card-top-bar bar-purple"></div>
-          <div class="hub-card-body">
-            <div class="hub-card-meta">
-              <span class="hub-card-category cat-purple">Flagship Prototype</span>
-              <span class="hub-card-badge">headless.html</span>
-            </div>
-            <h3 class="hub-card-title">IBM Network Intelligence — Dashboard</h3>
-            <p class="hub-card-desc">
-              The full-fidelity operations dashboard featuring Ambient Canvas, Drag-and-Drop anomaly tiles, Agentic Trace escalation views, 3D Global Network Globe, and Policy &amp; Permissions Studio.
-            </p>
-            <div class="hub-card-tags">
-              <span class="hub-tag">Ambient Canvas</span>
-              <span class="hub-tag">Agentic Trace</span>
-              <span class="hub-tag">Policy Studio</span>
-              <span class="hub-tag">3D Globe</span>
-            </div>
-            <div class="hub-card-footer">
-              <span style="font-size:12px;color:var(--muted);">Light Theme</span>
-              <a href="headless.html" class="hub-btn hub-btn-primary">Launch Dashboard &rarr;</a>
-            </div>
+        <!-- TILE: HEADLESS LIGHT PROTOTYPE -->
+        <div class="bx--tile">
+          <div class="bx--tile__header">
+            <span class="bx--tag bx--tag--purple">Light Theme</span>
+            <span class="bx--tile__filename">headless.html</span>
+          </div>
+          <h3 class="bx--tile__title">IBM Network Intelligence — Dashboard</h3>
+          <p class="bx--tile__body">
+            The full-fidelity operations dashboard featuring Ambient Canvas, Drag-and-Drop anomaly tiles, Agentic Trace escalation views, 3D Global Network Globe, and Policy &amp; Permissions Studio.
+          </p>
+          <div class="bx--tile__tags">
+            <span class="bx--tag bx--tag--warm-gray">Ambient Canvas</span>
+            <span class="bx--tag bx--tag--warm-gray">Agentic Trace</span>
+            <span class="bx--tag bx--tag--warm-gray">Policy Studio</span>
+            <span class="bx--tag bx--tag--warm-gray">3D Globe</span>
+          </div>
+          <div class="bx--tile__footer">
+            <a href="headless.html" class="bx--btn bx--btn--primary">
+              Launch Dashboard
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor"><path d="M12 4l-1.41 1.41L20.17 15H4v2h16.17l-9.58 9.59L12 28l12-12z"/></svg>
+            </a>
           </div>
         </div>
 
-        <!-- DASHBOARD 2: DARK THEME PROTOTYPE -->
-        <div class="hub-card">
-          <div class="hub-card-top-bar bar-purple"></div>
-          <div class="hub-card-body">
-            <div class="hub-card-meta">
-              <span class="hub-card-category cat-purple">Dark Glass Theme</span>
-              <span class="hub-card-badge">sample.html</span>
-            </div>
-            <h3 class="hub-card-title">Carbon Dark Theme Dashboard</h3>
-            <p class="hub-card-desc">
-              A high-contrast IBM Carbon Dark (g100) glassmorphic edition of the Network Intelligence dashboard tailored for low-light NOC environments.
-            </p>
-            <div class="hub-card-tags">
-              <span class="hub-tag">Carbon g100</span>
-              <span class="hub-tag">NOC Display</span>
-              <span class="hub-tag">Dark Mode</span>
-            </div>
-            <div class="hub-card-footer">
-              <span style="font-size:12px;color:var(--muted);">Dark Glass</span>
-              <a href="sample.html" class="hub-btn hub-btn-outline">Launch Dark Mode &rarr;</a>
-            </div>
+        <!-- TILE: CARBON DARK THEME -->
+        <div class="bx--tile">
+          <div class="bx--tile__header">
+            <span class="bx--tag bx--tag--purple">Dark Glass</span>
+            <span class="bx--tile__filename">sample.html</span>
+          </div>
+          <h3 class="bx--tile__title">Carbon Dark Theme Dashboard (g100)</h3>
+          <p class="bx--tile__body">
+            High-contrast IBM Carbon Dark (g100) glassmorphic edition of the Network Intelligence dashboard tailored for low-light NOC wallboard displays and night operations.
+          </p>
+          <div class="bx--tile__tags">
+            <span class="bx--tag bx--tag--warm-gray">Carbon g100</span>
+            <span class="bx--tag bx--tag--warm-gray">NOC Wallboard</span>
+            <span class="bx--tag bx--tag--warm-gray">Dark Glass</span>
+          </div>
+          <div class="bx--tile__footer">
+            <a href="sample.html" class="bx--btn bx--btn--secondary">
+              Launch Dark Theme
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor"><path d="M12 4l-1.41 1.41L20.17 15H4v2h16.17l-9.58 9.59L12 28l12-12z"/></svg>
+            </a>
           </div>
         </div>
 
-        <!-- DASHBOARD 3: FULL VISION PROTOTYPE -->
-        <div class="hub-card">
-          <div class="hub-card-top-bar bar-teal"></div>
-          <div class="hub-card-body">
-            <div class="hub-card-meta">
-              <span class="hub-card-category cat-teal">Full Vision Concept</span>
-              <span class="hub-card-badge">uireal.html</span>
-            </div>
-            <h3 class="hub-card-title">Headless Ops — Full Vision UI</h3>
-            <p class="hub-card-desc">
-              Advanced exploration with expanded live decision modals, blast-radius timers, SLO countdowns, and real-time guardrail approval flows.
-            </p>
-            <div class="hub-card-tags">
-              <span class="hub-tag">Live Modals</span>
-              <span class="hub-tag">Decision Gates</span>
-              <span class="hub-tag">SLO Timers</span>
-            </div>
-            <div class="hub-card-footer">
-              <span style="font-size:12px;color:var(--muted);">Vision UI</span>
-              <a href="uireal.html" class="hub-btn hub-btn-outline">Open Vision UI &rarr;</a>
-            </div>
+        <!-- TILE: FULL VISION UI -->
+        <div class="bx--tile">
+          <div class="bx--tile__header">
+            <span class="bx--tag bx--tag--teal">Vision UI</span>
+            <span class="bx--tile__filename">uireal.html</span>
+          </div>
+          <h3 class="bx--tile__title">Headless Ops — Full Vision UI</h3>
+          <p class="bx--tile__body">
+            Advanced concept UI exploration with live decision modals, blast-radius timers, SLO countdowns, and real-time guardrail approval flows.
+          </p>
+          <div class="bx--tile__tags">
+            <span class="bx--tag bx--tag--warm-gray">Live Modals</span>
+            <span class="bx--tag bx--tag--warm-gray">Decision Gates</span>
+            <span class="bx--tag bx--tag--warm-gray">SLO Countdown</span>
+          </div>
+          <div class="bx--tile__footer">
+            <a href="uireal.html" class="bx--btn bx--btn--secondary">
+              Open Vision UI
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor"><path d="M12 4l-1.41 1.41L20.17 15H4v2h16.17l-9.58 9.59L12 28l12-12z"/></svg>
+            </a>
           </div>
         </div>
 
@@ -477,88 +827,85 @@
     </section>
 
     <!-- ──────────────────────────────────────────
-         SECTION 03: STORYBOARDS, CHAT & USE CASES
+         SECTION 03: STORYBOARDS & INTEGRATIONS
     ────────────────────────────────────────── -->
-    <section class="hub-sec">
-      <div class="hub-sec-header">
+    <section class="carbon-section">
+      <div class="carbon-section-header">
         <div>
-          <h2 class="hub-sec-title">03. <strong>Operational Storyboards &amp; Integrations</strong></h2>
-          <p class="hub-sec-sub">Simulating the mobile/chat handoff and detailed breakdown of real incident scenarios.</p>
+          <h2 class="carbon-section-title">03. <strong>Operational Storyboards &amp; Ecosystem Integrations</strong></h2>
+          <p class="carbon-section-desc">Mobile/chat handoffs, step-by-step incident storyboards, and production use cases.</p>
         </div>
-        <span class="hub-sec-tag cat-amber">Storyboards &amp; Integrations</span>
+        <span class="bx--tag bx--tag--magenta">Chat &amp; Incident Flow</span>
       </div>
 
-      <div class="hub-grid-3">
+      <div class="carbon-grid-3">
 
-        <!-- CARD 1: SLACK SIMULATOR -->
-        <div class="hub-card">
-          <div class="hub-card-top-bar bar-amber"></div>
-          <div class="hub-card-body">
-            <div class="hub-card-meta">
-              <span class="hub-card-category cat-amber">Integration Sim</span>
-              <span class="hub-card-badge">slack-sim.html</span>
-            </div>
-            <h3 class="hub-card-title">Slack #ops-alerts &amp; Decision Card Sim</h3>
-            <p class="hub-card-desc">
-              Interactive Slack Block Kit simulator showing how Priya receives and approves decision cards on mobile with 1 click in under 30 seconds.
-            </p>
-            <div class="hub-card-tags">
-              <span class="hub-tag">Slack Block Kit</span>
-              <span class="hub-tag">30s Triage</span>
-              <span class="hub-tag">Interactive Approval</span>
-            </div>
-            <div class="hub-card-footer">
-              <span style="font-size:12px;color:var(--muted);">Chat Ecosystem</span>
-              <a href="slack-sim.html" class="hub-btn hub-btn-primary">Launch Slack Sim &rarr;</a>
-            </div>
+        <!-- TILE: SLACK SIMULATOR -->
+        <div class="bx--tile">
+          <div class="bx--tile__header">
+            <span class="bx--tag bx--tag--magenta">Slack Sim</span>
+            <span class="bx--tile__filename">slack-sim.html</span>
+          </div>
+          <h3 class="bx--tile__title">Slack #ops-alerts &amp; Decision Card Sim</h3>
+          <p class="bx--tile__body">
+            Interactive Slack Block Kit simulator showing how Priya receives and approves decision cards on mobile with 1 click in under 30 seconds.
+          </p>
+          <div class="bx--tile__tags">
+            <span class="bx--tag bx--tag--warm-gray">Slack Block Kit</span>
+            <span class="bx--tag bx--tag--warm-gray">30s Decision</span>
+            <span class="bx--tag bx--tag--warm-gray">1-Click Approve</span>
+          </div>
+          <div class="bx--tile__footer">
+            <a href="slack-sim.html" class="bx--btn bx--btn--primary">
+              Launch Slack Sim
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor"><path d="M12 4l-1.41 1.41L20.17 15H4v2h16.17l-9.58 9.59L12 28l12-12z"/></svg>
+            </a>
           </div>
         </div>
 
-        <!-- CARD 2: STEP-BY-STEP STORYBOARD -->
-        <div class="hub-card">
-          <div class="hub-card-top-bar bar-amber"></div>
-          <div class="hub-card-body">
-            <div class="hub-card-meta">
-              <span class="hub-card-category cat-amber">Visual Storyboard</span>
-              <span class="hub-card-badge">storyboard.html</span>
-            </div>
-            <h3 class="hub-card-title">Slack-to-Investigation Storyboard</h3>
-            <p class="hub-card-desc">
-              Visual frame-by-frame storyboard mapping the operator journey from push notification to deep-dive investigation and final Change Request drafting.
-            </p>
-            <div class="hub-card-tags">
-              <span class="hub-tag">Journey Map</span>
-              <span class="hub-tag">Step-by-Step Frames</span>
-              <span class="hub-tag">Multi-Actor Flow</span>
-            </div>
-            <div class="hub-card-footer">
-              <span style="font-size:12px;color:var(--muted);">Storyboard</span>
-              <a href="storyboard.html" class="hub-btn hub-btn-outline">Open Storyboard &rarr;</a>
-            </div>
+        <!-- TILE: STORYBOARD -->
+        <div class="bx--tile">
+          <div class="bx--tile__header">
+            <span class="bx--tag bx--tag--magenta">Journey Map</span>
+            <span class="bx--tile__filename">storyboard.html</span>
+          </div>
+          <h3 class="bx--tile__title">Slack-to-Investigation Storyboard</h3>
+          <p class="bx--tile__body">
+            Visual frame-by-frame storyboard mapping the operator journey from push notification to deep-dive investigation and final Change Request drafting.
+          </p>
+          <div class="bx--tile__tags">
+            <span class="bx--tag bx--tag--warm-gray">Journey Map</span>
+            <span class="bx--tag bx--tag--warm-gray">Frames</span>
+            <span class="bx--tag bx--tag--warm-gray">Multi-Actor Flow</span>
+          </div>
+          <div class="bx--tile__footer">
+            <a href="storyboard.html" class="bx--btn bx--btn--secondary">
+              Open Storyboard
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor"><path d="M12 4l-1.41 1.41L20.17 15H4v2h16.17l-9.58 9.59L12 28l12-12z"/></svg>
+            </a>
           </div>
         </div>
 
-        <!-- CARD 3: 3 PRODUCTION USE CASES -->
-        <div class="hub-card">
-          <div class="hub-card-top-bar bar-amber"></div>
-          <div class="hub-card-body">
-            <div class="hub-card-meta">
-              <span class="hub-card-category cat-amber">Case Studies</span>
-              <span class="hub-card-badge">headless-ops-story-use-cases.html</span>
-            </div>
-            <h3 class="hub-card-title">3 Production Use Cases &amp; Scenarios</h3>
-            <p class="hub-card-desc">
-              Deep-dive into 3 real incidents: INC-8841 (DB pool &amp; G-01 guardrail), INC-8839 (Hardware CRC loops), and DEC-003 (Novel latency anomaly with G-03 confidence gate).
-            </p>
-            <div class="hub-card-tags">
-              <span class="hub-tag">INC-8841 (P1)</span>
-              <span class="hub-tag">INC-8839 (Hardware)</span>
-              <span class="hub-tag">DEC-003 (Novel)</span>
-            </div>
-            <div class="hub-card-footer">
-              <span style="font-size:12px;color:var(--muted);">Use Cases</span>
-              <a href="headless-ops-story-use-cases.html" class="hub-btn hub-btn-outline">Read Use Cases &rarr;</a>
-            </div>
+        <!-- TILE: 3 USE CASES -->
+        <div class="bx--tile">
+          <div class="bx--tile__header">
+            <span class="bx--tag bx--tag--teal">Use Cases</span>
+            <span class="bx--tile__filename">headless-ops-story-use-cases.html</span>
+          </div>
+          <h3 class="bx--tile__title">3 Production Use Cases &amp; Scenarios</h3>
+          <p class="bx--tile__body">
+            Deep-dive into 3 real incidents: INC-8841 (DB pool &amp; G-01 guardrail), INC-8839 (Hardware CRC loops), and DEC-003 (Novel latency anomaly with G-03 confidence gate).
+          </p>
+          <div class="bx--tile__tags">
+            <span class="bx--tag bx--tag--warm-gray">INC-8841 (P1)</span>
+            <span class="bx--tag bx--tag--warm-gray">INC-8839 (Hardware)</span>
+            <span class="bx--tag bx--tag--warm-gray">DEC-003 (Novel)</span>
+          </div>
+          <div class="bx--tile__footer">
+            <a href="headless-ops-story-use-cases.html" class="bx--btn bx--btn--secondary">
+              Read Use Cases
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor"><path d="M12 4l-1.41 1.41L20.17 15H4v2h16.17l-9.58 9.59L12 28l12-12z"/></svg>
+            </a>
           </div>
         </div>
 
@@ -566,65 +913,63 @@
     </section>
 
     <!-- ──────────────────────────────────────────
-         SECTION 04: USER RESEARCH & GOVERNANCE
+         SECTION 04: USER RESEARCH & CONTENT STANDARDS
     ────────────────────────────────────────── -->
-    <section class="hub-sec">
-      <div class="hub-sec-header">
+    <section class="carbon-section">
+      <div class="carbon-section-header">
         <div>
-          <h2 class="hub-sec-title">04. <strong>UX Research Protocols &amp; Content Review</strong></h2>
-          <p class="hub-sec-sub">The empirical concept testing plan, participant criteria, and content design evaluation.</p>
+          <h2 class="carbon-section-title">04. <strong>UX Research Protocols &amp; Content Design Standards</strong></h2>
+          <p class="carbon-section-desc">Empirical concept testing protocols, screener criteria, and IBM content voice reviews.</p>
         </div>
-        <span class="hub-sec-tag cat-green">UXR &amp; Validation</span>
+        <span class="bx--tag bx--tag--green">Validation &amp; Governance</span>
       </div>
 
-      <div class="hub-grid-2">
+      <div class="carbon-grid-2">
 
-        <!-- CARD 1: UXR PLAN -->
-        <div class="hub-card">
-          <div class="hub-card-top-bar bar-green"></div>
-          <div class="hub-card-body">
-            <div class="hub-card-meta">
-              <span class="hub-card-category cat-green">UXR Testing Plan</span>
-              <span class="hub-card-badge">uxr_plan.html</span>
-            </div>
-            <h3 class="hub-card-title">11-Section UXR Concept Testing Plan</h3>
-            <p class="hub-card-desc">
-              Comprehensive 6-week research plan with participant screener criteria (IT/SRE, Compliance, Engineering Leads), 5 moderated task scripts, RICE prioritization matrix, and success metrics.
-            </p>
-            <div class="hub-card-tags">
-              <span class="hub-tag">8–10 Participants</span>
-              <span class="hub-tag">5 Task Scripts</span>
-              <span class="hub-tag">RICE Matrix</span>
-              <span class="hub-tag">Carbon Accordion</span>
-            </div>
-            <div class="hub-card-footer">
-              <span style="font-size:12px;color:var(--muted);">UXR Protocol</span>
-              <a href="uxr_plan.html" class="hub-btn hub-btn-primary">Open UXR Plan &rarr;</a>
-            </div>
+        <!-- TILE: UXR PLAN -->
+        <div class="bx--tile">
+          <div class="bx--tile__header">
+            <span class="bx--tag bx--tag--green">UXR Plan</span>
+            <span class="bx--tile__filename">uxr_plan.html</span>
+          </div>
+          <h3 class="bx--tile__title">11-Section UXR Concept Testing Plan</h3>
+          <p class="bx--tile__body">
+            Comprehensive 6-week research plan with participant screener criteria (IT/SRE, Compliance, Engineering Leads), 5 moderated task scripts, RICE prioritization matrix, and success metrics.
+          </p>
+          <div class="bx--tile__tags">
+            <span class="bx--tag bx--tag--warm-gray">8–10 Participants</span>
+            <span class="bx--tag bx--tag--warm-gray">5 Task Scripts</span>
+            <span class="bx--tag bx--tag--warm-gray">RICE Matrix</span>
+            <span class="bx--tag bx--tag--warm-gray">Carbon Accordions</span>
+          </div>
+          <div class="bx--tile__footer">
+            <a href="uxr_plan.html" class="bx--btn bx--btn--primary">
+              Open UXR Plan
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor"><path d="M12 4l-1.41 1.41L20.17 15H4v2h16.17l-9.58 9.59L12 28l12-12z"/></svg>
+            </a>
           </div>
         </div>
 
-        <!-- CARD 2: CONTENT DESIGN REVIEW -->
-        <div class="hub-card">
-          <div class="hub-card-top-bar bar-teal"></div>
-          <div class="hub-card-body">
-            <div class="hub-card-meta">
-              <span class="hub-card-category cat-teal">Content Design</span>
-              <span class="hub-card-badge">ibm-content-design-review...html</span>
-            </div>
-            <h3 class="hub-card-title">IBM Content Design Review &amp; Voice Standards</h3>
-            <p class="hub-card-desc">
-              Heuristic evaluation of terminology, sentence case, action-oriented messaging, and clarity standards for invisible AI interfaces.
-            </p>
-            <div class="hub-card-tags">
-              <span class="hub-tag">Content Standards</span>
-              <span class="hub-tag">IBM Voice</span>
-              <span class="hub-tag">Action Labels</span>
-            </div>
-            <div class="hub-card-footer">
-              <span style="font-size:12px;color:var(--muted);">Heuristic Review</span>
-              <a href="ibm-content-design-review-designing-for-invisible-ui.html" class="hub-btn hub-btn-outline">Open Review &rarr;</a>
-            </div>
+        <!-- TILE: CONTENT DESIGN REVIEW -->
+        <div class="bx--tile">
+          <div class="bx--tile__header">
+            <span class="bx--tag bx--tag--teal">Content Review</span>
+            <span class="bx--tile__filename">ibm-content-design-review...html</span>
+          </div>
+          <h3 class="bx--tile__title">IBM Content Design Review &amp; Voice Standards</h3>
+          <p class="bx--tile__body">
+            Heuristic evaluation of terminology, sentence case, action-oriented messaging, and clarity standards for invisible AI interfaces based on IBM Carbon guidelines.
+          </p>
+          <div class="bx--tile__tags">
+            <span class="bx--tag bx--tag--warm-gray">Content Standards</span>
+            <span class="bx--tag bx--tag--warm-gray">IBM Voice</span>
+            <span class="bx--tag bx--tag--warm-gray">Action Labels</span>
+          </div>
+          <div class="bx--tile__footer">
+            <a href="ibm-content-design-review-designing-for-invisible-ui.html" class="bx--btn bx--btn--secondary">
+              Open Content Review
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor"><path d="M12 4l-1.41 1.41L20.17 15H4v2h16.17l-9.58 9.59L12 28l12-12z"/></svg>
+            </a>
           </div>
         </div>
 
@@ -633,13 +978,19 @@
 
   </main>
 
-  <!-- ═══ FOOTER ═══ -->
-  <footer class="hub-footer">
-    <span class="hf-brand">IBM Network Intelligence · Headless AI Project Directory</span>
-    <div class="hf-flow">
-      Recognition <span>&rarr;</span> Words <span>&rarr;</span> Agreement <span>&rarr;</span> Evidence
+  <!-- ═══ CARBON FOOTER ═══ -->
+  <footer class="carbon-footer">
+    <div class="carbon-footer-inner">
+      <div>
+        <strong>IBM Network Intelligence</strong> · Headless AI Project Directory
+      </div>
+      <div class="carbon-footer-flow">
+        Recognition <span>&rarr;</span> Words <span>&rarr;</span> Agreement <span>&rarr;</span> Evidence
+      </div>
+      <div>
+        Designed &amp; unified by <strong>JK</strong> with <strong>Bob</strong>
+      </div>
     </div>
-    <div class="hf-credit">Designed &amp; unified by <strong>JK</strong> with <strong>Bob</strong></div>
   </footer>
 
 </body>
